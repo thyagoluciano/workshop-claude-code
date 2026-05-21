@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo 1 · Tópico 3 — Chatbot vs. Agente de Código</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-code: #141620;
+      --border: #2a2d3a;
+      --text: #e4e4e7;
+      --text-dim: #9ca3af;
+      --accent: #c4956a;
+      --accent-soft: rgba(196, 149, 106, 0.12);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.12);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .topic-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-soft); padding: 6px 14px;
+      border-radius: 20px; margin-bottom: 1rem;
+    }
+
+    h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+    .subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+    h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+    p { margin-bottom: 1rem; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+    strong { color: #fff; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0;
+    }
+    .card-label {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 6px; margin-bottom: 0.75rem;
+    }
+
+    .diagram-container {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto;
+    }
+    .diagram-container svg { display: block; margin: 0 auto; }
+    .diagram-caption {
+      text-align: center; font-size: 0.85rem; color: var(--text-dim);
+      margin-top: 1rem; font-style: italic;
+    }
+
+    .code-block {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1rem; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim);
+    }
+    .code-block pre {
+      padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8;
+    }
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: var(--purple); }
+    .code-block .string { color: var(--green); }
+    .code-block .tool { color: var(--accent); }
+    .code-block .number { color: var(--yellow); }
+
+    .callout {
+      border-left: 3px solid var(--accent); background: var(--accent-soft);
+      padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem;
+    }
+    .callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+    .callout-red { border-left-color: var(--red); background: var(--red-soft); }
+    .callout-green { border-left-color: var(--green); background: var(--green-soft); }
+    .callout strong { color: #fff; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+    }
+
+    .mini-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .mini-card h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;
+    }
+    .mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+
+    .icon-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    .sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .sources ul { list-style: none; padding: 0; }
+    .sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+    .sources li::before { content: "\2192 "; color: var(--accent); }
+
+    .nav-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+      color: var(--text); background: var(--bg-card); border: 1px solid var(--border);
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+
+    /* ── Specific to this topic ── */
+    .vs-row {
+      display: grid; grid-template-columns: 1fr 60px 1fr; gap: 0; margin: 2rem 0;
+      align-items: stretch;
+    }
+    .vs-col {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+    }
+    .vs-col h4 {
+      font-size: 1rem; font-weight: 600; margin-bottom: 1rem;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .vs-divider {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: 700; color: var(--text-dim);
+    }
+    .vs-item {
+      display: flex; gap: 10px; margin-bottom: 0.75rem; font-size: 0.9rem;
+      color: var(--text-dim); align-items: flex-start;
+    }
+    .vs-item .dot {
+      width: 8px; height: 8px; border-radius: 50%; margin-top: 7px; flex-shrink: 0;
+    }
+    @media (max-width: 700px) {
+      .vs-row { grid-template-columns: 1fr; gap: 0.5rem; }
+      .vs-divider { padding: 0.5rem 0; }
+    }
+
+    .level-bar {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 1rem;
+    }
+    .level-bar .bar-track {
+      flex: 1; height: 10px; background: var(--bg-code);
+      border-radius: 5px; border: 1px solid var(--border); overflow: hidden;
+    }
+    .level-bar .bar-fill {
+      height: 100%; border-radius: 4px;
+    }
+    .level-bar .bar-label {
+      font-size: 0.8rem; color: var(--text-dim); width: 90px; flex-shrink: 0;
+    }
+    .level-bar .bar-value {
+      font-size: 0.8rem; color: #fff; width: 40px; text-align: right; flex-shrink: 0;
+      font-family: var(--font-mono);
+    }
+
+    .flow-step {
+      display: flex; align-items: flex-start; gap: 16px; margin-bottom: 0.5rem;
+      position: relative;
+    }
+    .flow-step::before {
+      content: ''; position: absolute; left: 15px; top: 34px;
+      width: 2px; height: calc(100% - 10px); background: var(--border);
+    }
+    .flow-step:last-child::before { display: none; }
+    .flow-num {
+      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; font-weight: 700; color: #fff;
+    }
+    .flow-content h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff; margin-bottom: 2px;
+    }
+    .flow-content p {
+      font-size: 0.88rem; color: var(--text-dim); margin: 0 0 0.75rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ HEADER ════════════ -->
+  <div class="topic-badge">Módulo 1 · Tópico 3</div>
+  <h1>Diferença entre Chatbot e Agente de Código</h1>
+  <p class="subtitle">
+    Um chatbot responde perguntas. Um agente de código <strong>resolve problemas</strong> — ele explora,
+    planeja, executa, verifica e itera. Entender essa diferença muda a forma como você interage com o Claude Code.
+  </p>
+
+  <!-- ════════════ DEFINIÇÕES ════════════ -->
+  <h2>Definições: o que a Anthropic chama de "agente"?</h2>
+
+  <p>
+    A Anthropic define formalmente a distinção no paper <strong>"Building Effective Agents"</strong> (dez/2024):
+    <strong>workflows</strong> são sistemas onde LLMs e ferramentas são orquestrados por caminhos de código
+    predefinidos; <strong>agents</strong> são sistemas onde o LLM <strong>dirige dinamicamente seus próprios
+    processos e uso de ferramentas</strong>, mantendo controle sobre como realiza as tarefas.
+  </p>
+
+  <p>
+    Um chatbot tradicional é o caso mais simples de workflow: recebe uma mensagem, gera uma resposta,
+    e para. Não tem estado entre turnos, não executa ações no mundo real e não verifica seus resultados.
+    Um agente como o Claude Code opera em um loop contínuo onde ele decide quais ferramentas usar,
+    observa os resultados e ajusta o plano — tudo de forma autônoma.
+  </p>
+
+  <div class="callout-blue callout">
+    <strong>Definição oficial:</strong> "An agent is an AI model that directs its own processes and tool
+    use when accomplishing a task — deciding for itself how to achieve what users want, rather than
+    following a fixed script."
+    <br><small style="color: var(--text-dim);">— Anthropic, "Measuring AI Agent Autonomy in Practice" (2025)</small>
+  </div>
+
+  <!-- ════════════ COMPARAÇÃO VISUAL ════════════ -->
+  <h2>Chatbot vs. Agente: comparação lado a lado</h2>
+
+  <div class="vs-row">
+    <div class="vs-col">
+      <h4 style="color: var(--text-dim);">
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">💬</span>
+        Chatbot (LLM puro)
+      </h4>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--purple);"></span>
+        <span>Responde perguntas — o usuário dirige a conversa</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--purple);"></span>
+        <span>Sem acesso a ferramentas externas (file system, bash, git)</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--purple);"></span>
+        <span>Cada turno é independente — sem "memória de trabalho" entre ações</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--purple);"></span>
+        <span>Gera texto (código incluído), mas não o executa nem o valida</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--purple);"></span>
+        <span>Não pode verificar se a resposta está correta</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--purple);"></span>
+        <span>Fluxo linear: pergunta → resposta → fim</span>
+      </div>
+    </div>
+
+    <div class="vs-divider">vs</div>
+
+    <div class="vs-col" style="border-color: var(--green); border-width: 1.5px;">
+      <h4 style="color: var(--green);">
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">🤖</span>
+        Agente de Código (Claude Code)
+      </h4>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span><strong style="color: var(--green);">Resolve tarefas</strong> — o agente dirige a execução</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span>Acesso a ferramentas reais: <code>Bash</code>, <code>Edit</code>, <code>Read</code>, <code>Grep</code>, <code>Glob</code></span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span>Mantém estado — cada ação informa a próxima dentro do mesmo loop</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span>Escreve código, executa, lê o output e corrige erros</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span>Pode rodar testes, linters e builds para <strong style="color: var(--green);">auto-verificar</strong></span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span>Loop agêntico: observar → planejar → agir → verificar → repetir</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ DIAGRAMA DE FLUXO ════════════ -->
+  <h2>Os dois fluxos na prática</h2>
+
+  <p>
+    A diferença fundamental não é a qualidade do modelo — é o <strong>ciclo de feedback</strong>.
+    Um chatbot gera uma resposta e encerra. Um agente gera, executa, observa o resultado e decide
+    o próximo passo. Esse loop é o que permite ao Claude Code resolver problemas complexos que
+    exigem múltiplas etapas.
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Comparação de fluxos: Chatbot (linear) vs. Agente (loop com feedback)</title>
+
+      <defs>
+        <marker id="arrowP" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#a78bfa"/>
+        </marker>
+        <marker id="arrowG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#6ee7b7"/>
+        </marker>
+        <marker id="arrowDim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#475569"/>
+        </marker>
+      </defs>
+
+      <!-- ── Chatbot flow (top) ── -->
+      <text x="400" y="30" text-anchor="middle" fill="#a78bfa" font-size="13" font-weight="600">CHATBOT — fluxo linear</text>
+
+      <rect x="40" y="50" width="130" height="50" rx="10" fill="rgba(167,139,250,0.1)" stroke="#a78bfa" stroke-width="1"/>
+      <text x="105" y="80" text-anchor="middle" fill="#d4d4d8" font-size="12">Usuário pergunta</text>
+
+      <path d="M175 75 L225 75" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrowP)"/>
+
+      <rect x="230" y="50" width="130" height="50" rx="10" fill="rgba(167,139,250,0.1)" stroke="#a78bfa" stroke-width="1"/>
+      <text x="295" y="80" text-anchor="middle" fill="#d4d4d8" font-size="12">LLM gera texto</text>
+
+      <path d="M365 75 L415 75" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrowP)"/>
+
+      <rect x="420" y="50" width="130" height="50" rx="10" fill="rgba(167,139,250,0.1)" stroke="#a78bfa" stroke-width="1"/>
+      <text x="485" y="80" text-anchor="middle" fill="#d4d4d8" font-size="12">Mostra resposta</text>
+
+      <path d="M555 75 L605 75" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrowP)"/>
+
+      <rect x="610" y="50" width="130" height="50" rx="10" fill="rgba(167,139,250,0.05)" stroke="#475569" stroke-width="1" stroke-dasharray="5,3"/>
+      <text x="675" y="75" text-anchor="middle" fill="#6b7280" font-size="12">FIM</text>
+      <text x="675" y="90" text-anchor="middle" fill="#475569" font-size="10">(sem verificação)</text>
+
+      <!-- Separator -->
+      <line x1="40" y1="130" x2="760" y2="130" stroke="#2a2d3a" stroke-width="0.5" stroke-dasharray="6,4"/>
+
+      <!-- ── Agent flow (bottom) ── -->
+      <text x="400" y="160" text-anchor="middle" fill="#6ee7b7" font-size="13" font-weight="600">AGENTE — loop com feedback</text>
+
+      <!-- User objective -->
+      <rect x="40" y="185" width="130" height="50" rx="10" fill="rgba(110,231,183,0.1)" stroke="#6ee7b7" stroke-width="1"/>
+      <text x="105" y="207" text-anchor="middle" fill="#d4d4d8" font-size="11">Usuário define</text>
+      <text x="105" y="222" text-anchor="middle" fill="#d4d4d8" font-size="11">objetivo</text>
+
+      <path d="M175 210 L215 210" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowG)"/>
+
+      <!-- Gather context -->
+      <rect x="220" y="180" width="120" height="60" rx="10" fill="rgba(96,165,250,0.1)" stroke="#60a5fa" stroke-width="1"/>
+      <text x="280" y="205" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="600">Explorar</text>
+      <text x="280" y="220" text-anchor="middle" fill="#d4d4d8" font-size="10">Read, Grep, Glob</text>
+
+      <path d="M345 210 L375 210" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowG)"/>
+
+      <!-- Plan -->
+      <rect x="380" y="180" width="100" height="60" rx="10" fill="rgba(251,191,36,0.1)" stroke="#fbbf24" stroke-width="1"/>
+      <text x="430" y="205" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="600">Planejar</text>
+      <text x="430" y="220" text-anchor="middle" fill="#d4d4d8" font-size="10">Thinking</text>
+
+      <path d="M485 210 L515 210" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowG)"/>
+
+      <!-- Act -->
+      <rect x="520" y="180" width="100" height="60" rx="10" fill="rgba(196,149,106,0.1)" stroke="#c4956a" stroke-width="1"/>
+      <text x="570" y="205" text-anchor="middle" fill="#c4956a" font-size="11" font-weight="600">Agir</text>
+      <text x="570" y="220" text-anchor="middle" fill="#d4d4d8" font-size="10">Edit, Bash</text>
+
+      <path d="M625 210 L655 210" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowG)"/>
+
+      <!-- Verify -->
+      <rect x="660" y="180" width="100" height="60" rx="10" fill="rgba(110,231,183,0.1)" stroke="#6ee7b7" stroke-width="1"/>
+      <text x="710" y="205" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="600">Verificar</text>
+      <text x="710" y="220" text-anchor="middle" fill="#d4d4d8" font-size="10">Testes, Output</text>
+
+      <!-- Feedback loop arrow -->
+      <path d="M710 245 L710 290 C710 310, 700 320, 680 320 L300 320 C280 320, 270 310, 270 290 L270 245"
+            fill="none" stroke="#6ee7b7" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowG)"/>
+      <text x="490" y="340" text-anchor="middle" fill="#6ee7b7" font-size="11" font-style="italic">
+        Se não passou → volta ao início do loop
+      </text>
+
+      <!-- Done -->
+      <path d="M710 245 L710 370" stroke="#475569" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="710" y="388" text-anchor="middle" fill="#6b7280" font-size="10">Se passou → commit/entrega</text>
+    </svg>
+    <p class="diagram-caption">O chatbot termina após gerar texto. O agente itera até que o resultado atenda ao critério de verificação.</p>
+  </div>
+
+  <!-- ════════════ TOOLBELT DO AGENTE ════════════ -->
+  <h2>O toolbelt do Claude Code</h2>
+
+  <p>
+    O que torna o Claude Code um agente (e não um chatbot sofisticado) são as <strong>ferramentas reais</strong>
+    que ele pode invocar. O princípio de design por trás do Claude Code é que o modelo precisa das mesmas
+    ferramentas que um programador usa no dia a dia: encontrar arquivos, ler código, editar, executar,
+    debugar — e às vezes fazer tudo isso iterativamente até o código funcionar.
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Ferramenta</th>
+          <th>O que faz</th>
+          <th>Equivalente humano</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code style="color: var(--blue);">Read</code></td>
+          <td>Lê o conteúdo de um arquivo específico</td>
+          <td>Abrir arquivo no editor</td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--blue);">Glob</code></td>
+          <td>Busca arquivos por padrão de nome (<code>**/*.tsx</code>)</td>
+          <td><code>find . -name "*.tsx"</code></td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--blue);">Grep</code></td>
+          <td>Busca texto/regex dentro dos arquivos</td>
+          <td><code>rg "pattern" --type ts</code></td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--green);">Edit</code></td>
+          <td>Faz substituições cirúrgicas em arquivos</td>
+          <td>Find &amp; Replace preciso</td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--green);">Write</code></td>
+          <td>Cria ou sobrescreve um arquivo completo</td>
+          <td>Criar novo arquivo</td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--accent);">Bash</code></td>
+          <td>Executa qualquer comando no terminal</td>
+          <td>Terminal / shell do dev</td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--purple);">MCP Tools</code></td>
+          <td>Conecta com APIs externas (GitHub, Jira, DB...)</td>
+          <td>Integrações e automações</td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--yellow);">Task (subagent)</code></td>
+          <td>Delega subtarefas a agentes paralelos</td>
+          <td>Pedir ajuda a um colega</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <strong>Princípio de design:</strong> O Claude Code não tem "ferramentas especiais de IA" — ele usa as mesmas
+    ferramentas que um desenvolvedor: grep para buscar, bash para executar, git para versionar.
+    A diferença é que o modelo decide <em>quando</em> e <em>como</em> usar cada uma.
+  </div>
+
+  <!-- ════════════ EXEMPLO PRÁTICO ════════════ -->
+  <h2>Exemplo prático: a mesma tarefa nos dois paradigmas</h2>
+
+  <p>
+    Vamos comparar como um chatbot e um agente lidam com a mesma solicitação:
+    <em>"Adicione validação de email no formulário de cadastro."</em>
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card" style="border-color: var(--purple);">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">💬</span>
+        Abordagem Chatbot
+      </h4>
+      <p>Gera um bloco de código genérico com regex de email e te diz "cole isso no seu formulário". Não sabe qual framework você usa, onde está o form, nem se o código compila.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--green);">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">🤖</span>
+        Abordagem Agente
+      </h4>
+      <p>Busca o form com <code>Grep</code>, lê o arquivo, identifica o framework (React + Zod por ex.), implementa a validação no padrão do projeto, roda os testes, e corrige se quebrarem.</p>
+    </div>
+  </div>
+
+  <h3>O que o agente faz por baixo dos panos</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Sequência real de tool calls do Claude Code</span>
+      <span>~8 tool calls</span>
+    </div>
+    <pre>
+<span class="comment">// 1. Explorar — encontrar o formulário</span>
+<span class="tool">Grep</span> { pattern: <span class="string">"cadastro|signup|register"</span>, glob: <span class="string">"**/*.tsx"</span> }
+<span class="comment">  → encontra: src/components/SignupForm.tsx</span>
+
+<span class="comment">// 2. Ler — entender o contexto</span>
+<span class="tool">Read</span> { file: <span class="string">"src/components/SignupForm.tsx"</span> }
+<span class="comment">  → identifica: React, react-hook-form, schema Zod</span>
+
+<span class="tool">Read</span> { file: <span class="string">"src/schemas/signup.schema.ts"</span> }
+<span class="comment">  → identifica: schema Zod existente sem validação de email</span>
+
+<span class="comment">// 3. Planejar — (extended thinking)</span>
+<span class="comment">  → "O projeto já usa Zod. Vou adicionar .email() no schema</span>
+<span class="comment">     e uma mensagem de erro consistente com as demais."</span>
+
+<span class="comment">// 4. Agir — implementar</span>
+<span class="tool">Edit</span> { file: <span class="string">"src/schemas/signup.schema.ts"</span>,
+       old: <span class="string">"email: z.string()"</span>,
+       new: <span class="string">"email: z.string().email('Informe um email válido')"</span> }
+
+<span class="comment">// 5. Verificar — rodar testes</span>
+<span class="tool">Bash</span> { command: <span class="string">"npm test -- --grep signup"</span> }
+<span class="comment">  → 1 teste falhou: snapshot desatualizado</span>
+
+<span class="comment">// 6. Corrigir — o loop de feedback em ação</span>
+<span class="tool">Bash</span> { command: <span class="string">"npm test -- --grep signup --updateSnapshot"</span> }
+<span class="comment">  → ✓ Todos os testes passaram</span>
+
+<span class="comment">// 7. Resultado entregue ao desenvolvedor para revisão</span></pre>
+  </div>
+
+  <div class="callout-green callout">
+    <strong>O ponto-chave:</strong> O agente não "sugere código" — ele <strong>resolve o problema de ponta a ponta</strong>.
+    Leu o codebase, respeitou as convenções do projeto, implementou a mudança e verificou com testes.
+    Tudo dentro de um único prompt do usuário.
+  </div>
+
+  <!-- ════════════ NÍVEIS DE AUTONOMIA ════════════ -->
+  <h2>Espectro de Autonomia</h2>
+
+  <p>
+    A diferença entre chatbot e agente não é binária — existe um <strong>espectro de autonomia</strong>.
+    A Anthropic publicou o paper "Measuring AI Agent Autonomy in Practice" (2025) propondo um framework
+    com cinco níveis, baseados no papel do humano na interação:
+  </p>
+
+  <div class="card">
+    <div class="level-bar">
+      <span class="bar-label" style="color: var(--purple);">Operador</span>
+      <div class="bar-track">
+        <div class="bar-fill" style="width: 15%; background: var(--purple);"></div>
+      </div>
+      <span class="bar-value">Nível 1</span>
+    </div>
+    <p style="font-size: 0.88rem; color: var(--text-dim); margin: 0 0 0.5rem 102px;">
+      Humano controla tudo. IA só gera texto sob demanda. <strong style="color: var(--text);">→ Chatbot clássico</strong>
+    </p>
+
+    <div class="level-bar">
+      <span class="bar-label" style="color: var(--blue);">Colaborador</span>
+      <div class="bar-track">
+        <div class="bar-fill" style="width: 35%; background: var(--blue);"></div>
+      </div>
+      <span class="bar-value">Nível 2</span>
+    </div>
+    <p style="font-size: 0.88rem; color: var(--text-dim); margin: 0 0 0.5rem 102px;">
+      IA sugere ações, mas humano aprova cada uma. <strong style="color: var(--text);">→ Copilot com confirmação</strong>
+    </p>
+
+    <div class="level-bar">
+      <span class="bar-label" style="color: var(--green);">Consultor</span>
+      <div class="bar-track">
+        <div class="bar-fill" style="width: 55%; background: var(--green);"></div>
+      </div>
+      <span class="bar-value">Nível 3</span>
+    </div>
+    <p style="font-size: 0.88rem; color: var(--text-dim); margin: 0 0 0.5rem 102px;">
+      IA executa e pede aprovação em decisões críticas. <strong style="color: var(--text);">→ Claude Code (modo default)</strong>
+    </p>
+
+    <div class="level-bar">
+      <span class="bar-label" style="color: var(--yellow);">Aprovador</span>
+      <div class="bar-track">
+        <div class="bar-fill" style="width: 75%; background: var(--yellow);"></div>
+      </div>
+      <span class="bar-value">Nível 4</span>
+    </div>
+    <p style="font-size: 0.88rem; color: var(--text-dim); margin: 0 0 0.5rem 102px;">
+      IA executa autonomamente e humano revisa depois. <strong style="color: var(--text);">→ Claude Code (modo auto-accept)</strong>
+    </p>
+
+    <div class="level-bar">
+      <span class="bar-label" style="color: var(--red);">Observador</span>
+      <div class="bar-track">
+        <div class="bar-fill" style="width: 95%; background: var(--red);"></div>
+      </div>
+      <span class="bar-value">Nível 5</span>
+    </div>
+    <p style="font-size: 0.88rem; color: var(--text-dim); margin: 0 0 0 102px;">
+      IA opera com autonomia total. Humano só monitora. <strong style="color: var(--text);">→ Headless / CI pipelines</strong>
+    </p>
+  </div>
+
+  <div class="callout">
+    <strong>Na prática:</strong> O Claude Code no modo default (nível 3) é o ponto de equilíbrio para a maioria
+    dos cenários. Ele pede permissão antes de executar comandos bash ou editar arquivos, mas pode usar
+    ferramentas de leitura (Read, Grep, Glob) livremente. Nos módulos de segurança veremos como controlar
+    esse nível com modos de permissão.
+  </div>
+
+  <!-- ════════════ LOOP AUTO-CORREÇÃO ════════════ -->
+  <h2>O poder da auto-correção</h2>
+
+  <p>
+    A capacidade mais importante que separa um agente de um chatbot é a <strong>auto-correção</strong>.
+    A documentação oficial da Anthropic sobre best practices destaca que agentes que conseguem
+    verificar e melhorar seu próprio output são fundamentalmente mais confiáveis:
+    erros são pegos antes de se acumularem, desvios são corrigidos e a qualidade melhora a cada iteração.
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Diagrama de auto-correção: o loop de verificação do Claude Code</title>
+
+      <defs>
+        <marker id="arrowLoop" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#6ee7b7"/>
+        </marker>
+        <marker id="arrowFail" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#f87171"/>
+        </marker>
+        <marker id="arrowOk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#6ee7b7"/>
+        </marker>
+      </defs>
+
+      <!-- Implement box -->
+      <rect x="60" y="80" width="140" height="60" rx="12" fill="rgba(196,149,106,0.1)" stroke="#c4956a" stroke-width="1.5"/>
+      <text x="130" y="107" text-anchor="middle" fill="#c4956a" font-size="13" font-weight="600">Implementar</text>
+      <text x="130" y="125" text-anchor="middle" fill="#d4d4d8" font-size="11">Edit / Write / Bash</text>
+
+      <!-- Arrow to verify -->
+      <path d="M205 110 L270 110" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowLoop)"/>
+
+      <!-- Verify box -->
+      <rect x="275" y="80" width="150" height="60" rx="12" fill="rgba(110,231,183,0.1)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="350" y="107" text-anchor="middle" fill="#6ee7b7" font-size="13" font-weight="600">Verificar</text>
+      <text x="350" y="125" text-anchor="middle" fill="#d4d4d8" font-size="11">Testes / Build / Lint</text>
+
+      <!-- Decision diamond -->
+      <polygon points="530,110 580,70 630,110 580,150" fill="rgba(251,191,36,0.1)" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="580" y="114" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="600">Passou?</text>
+
+      <!-- Arrow verify to decision -->
+      <path d="M430 110 L525 110" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowLoop)"/>
+
+      <!-- YES arrow (down to success) -->
+      <path d="M580 155 L580 220" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowOk)"/>
+      <text x="598" y="190" fill="#6ee7b7" font-size="11" font-weight="600">Sim</text>
+
+      <!-- Success box -->
+      <rect x="510" y="225" width="140" height="40" rx="10" fill="rgba(110,231,183,0.15)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="580" y="250" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="600">✓ Entrega / Commit</text>
+
+      <!-- NO arrow (loop back) -->
+      <path d="M530 110 L530 30 L130 30 L130 75" fill="none" stroke="#f87171" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowFail)"/>
+      <text x="330" y="22" text-anchor="middle" fill="#f87171" font-size="11" font-weight="600">Não → analisa erro, ajusta e tenta novamente</text>
+
+      <!-- Iteration counter -->
+      <rect x="60" y="195" width="180" height="55" rx="10" fill="rgba(248,113,113,0.06)" stroke="#475569" stroke-width="0.5"/>
+      <text x="150" y="215" text-anchor="middle" fill="#f87171" font-size="11" font-weight="600">Dados reais (Anthropic, 2025)</text>
+      <text x="150" y="235" text-anchor="middle" fill="#d4d4d8" font-size="11">Mediana de um turno: ~45 segundos</text>
+      <text x="150" y="248" text-anchor="middle" fill="#d4d4d8" font-size="10">P99.9: ~42 minutos (muitas iterações)</text>
+    </svg>
+    <p class="diagram-caption">O loop de auto-correção: implementa, verifica, e se falhar volta ao início com mais contexto sobre o erro.</p>
+  </div>
+
+  <!-- ════════════ COMPARAÇÃO TABULAR ════════════ -->
+  <h2>Resumo comparativo</h2>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Dimensão</th>
+          <th>💬 Chatbot</th>
+          <th>🤖 Agente (Claude Code)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Modo de operação</strong></td>
+          <td>Reativo (responde quando perguntado)</td>
+          <td>Proativo (decide próximos passos)</td>
+        </tr>
+        <tr>
+          <td><strong>Acesso ao file system</strong></td>
+          <td>Nenhum</td>
+          <td>Read, Write, Edit, Glob, Grep</td>
+        </tr>
+        <tr>
+          <td><strong>Execução de código</strong></td>
+          <td>Não executa</td>
+          <td>Bash (comandos, testes, builds)</td>
+        </tr>
+        <tr>
+          <td><strong>Verificação</strong></td>
+          <td>Confia que o código está certo</td>
+          <td>Roda testes, analisa output, itera</td>
+        </tr>
+        <tr>
+          <td><strong>Contexto do projeto</strong></td>
+          <td>Só o que o usuário colou no chat</td>
+          <td>Lê o codebase inteiro sob demanda</td>
+        </tr>
+        <tr>
+          <td><strong>Loop de feedback</strong></td>
+          <td>1 turno (pergunta → resposta)</td>
+          <td>N turnos (observar → agir → verificar → repetir)</td>
+        </tr>
+        <tr>
+          <td><strong>Integração com tools</strong></td>
+          <td>Nenhuma nativa</td>
+          <td>Git, MCP servers, subagentes</td>
+        </tr>
+        <tr>
+          <td><strong>Resultado típico</strong></td>
+          <td>Bloco de código para copiar/colar</td>
+          <td>Código implementado, testado e pronto pra commit</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ IMPLICAÇÕES PRÁTICAS ════════════ -->
+  <h2>O que isso muda na forma de trabalhar</h2>
+
+  <p>
+    Entender que o Claude Code é um agente — e não um chatbot — muda a forma como você formula seus prompts
+    e estrutura suas interações. Aqui estão as implicações mais importantes:
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">🎯</span>
+        Descreva o objetivo, não os passos
+      </h4>
+      <p>Em vez de ditar cada ação ("abra o arquivo X, mude a linha Y"), descreva o resultado esperado
+         ("adicione validação de email no signup"). O agente descobre o caminho.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">🔍</span>
+        Forneça critérios de verificação
+      </h4>
+      <p>Diga como saber se a tarefa está feita: "todos os testes devem passar", "a build deve compilar",
+         "a API deve retornar 200". Isso alimenta o loop de auto-correção.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">📐</span>
+        Confie no contexto do projeto
+      </h4>
+      <p>Não precisa colar código no chat — o agente pode ler seu codebase. Referencie arquivos
+         por nome ou padrão e ele encontra sozinho.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">🔄</span>
+        Espere iteração, não perfeição instantânea
+      </h4>
+      <p>O agente pode errar no primeiro attempt e se corrigir. Isso é normal e esperado —
+         faz parte do loop agêntico. A primeira tentativa não precisa ser perfeita.</p>
+    </div>
+  </div>
+
+  <div class="callout-red callout">
+    <strong>Erro comum:</strong> Tratar o Claude Code como chatbot — colando código no prompt e pedindo para
+    "corrigir esse trecho". Em vez disso, aponte para o arquivo e descreva o problema. Deixe o agente usar
+    suas ferramentas para explorar, entender o contexto completo e implementar a solução.
+  </div>
+
+  <!-- ════════════ FONTES ════════════ -->
+  <div class="sources">
+    <h3>Fontes e Referências</h3>
+    <ul>
+      <li><a href="https://www.anthropic.com/research/building-effective-agents" target="_blank">Anthropic — Building Effective Agents (Dez/2024)</a></li>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Anthropic — Best Practices for Claude Code</a></li>
+      <li><a href="https://www.anthropic.com/research/measuring-agent-autonomy" target="_blank">Anthropic — Measuring AI Agent Autonomy in Practice (2025)</a></li>
+      <li><a href="https://www.anthropic.com/product/claude-code" target="_blank">Anthropic — Claude Code Product Page</a></li>
+      <li><a href="https://docs.claude.com/en/docs/claude-code/overview" target="_blank">Claude Docs — Claude Code Overview</a></li>
+      <li><a href="https://www.anthropic.com/engineering/building-agents-with-the-claude-agent-sdk" target="_blank">Anthropic — Building Agents with the Claude Agent SDK</a></li>
+      <li><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank">Anthropic — Effective Context Engineering for AI Agents</a></li>
+    </ul>
+  </div>
+
+  <!-- ════════════ NAV FOOTER ════════════ -->
+  <div class="nav-footer">
+    <a href="modulo-01-topico-02-context-window.html" class="nav-btn">← Tópico 2 · Context Window</a>
+    <a href="../index.html" class="nav-btn">&#8962; Índice</a>
+    <a href="modulo-01-topico-04-instalacao.html" class="nav-btn">Tópico 4 · Instalação →</a>
+  </div>
+
+</body>
+</html>

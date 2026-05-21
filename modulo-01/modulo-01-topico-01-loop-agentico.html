@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo 1 · Tópico 1 — Loop Agêntico</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-code: #141620;
+      --border: #2a2d3a;
+      --text: #e4e4e7;
+      --text-dim: #9ca3af;
+      --accent: #c4956a;
+      --accent-soft: rgba(196, 149, 106, 0.12);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.12);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    /* ── Header ── */
+    .topic-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-soft);
+      padding: 6px 14px;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+      color: #fff;
+    }
+
+    .subtitle {
+      font-size: 1.05rem;
+      color: var(--text-dim);
+      margin-bottom: 2.5rem;
+      max-width: 700px;
+    }
+
+    /* ── Sections ── */
+    h2 {
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: #fff;
+      margin: 3rem 0 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text);
+      margin: 2rem 0 0.75rem;
+    }
+
+    p { margin-bottom: 1rem; }
+
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+    a:hover { text-decoration: underline; }
+
+    /* ── Cards ── */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .card-label {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 6px;
+      margin-bottom: 0.75rem;
+    }
+
+    /* ── Diagrams ── */
+    .diagram-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      margin: 2rem 0;
+      overflow-x: auto;
+    }
+
+    .diagram-container svg {
+      display: block;
+      margin: 0 auto;
+    }
+
+    .diagram-caption {
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      margin-top: 1rem;
+      font-style: italic;
+    }
+
+    /* ── Code blocks ── */
+    .code-block {
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin: 1.25rem 0;
+      overflow: hidden;
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 1rem;
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+
+    .code-block pre {
+      padding: 1rem 1.25rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: #d4d4d8;
+    }
+
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: var(--purple); }
+    .code-block .string { color: var(--green); }
+    .code-block .function { color: var(--blue); }
+    .code-block .tool { color: var(--accent); }
+
+    /* ── Callout ── */
+    .callout {
+      border-left: 3px solid var(--accent);
+      background: var(--accent-soft);
+      padding: 1rem 1.25rem;
+      border-radius: 0 var(--radius) var(--radius) 0;
+      margin: 1.5rem 0;
+      font-size: 0.95rem;
+    }
+
+    .callout-blue {
+      border-left-color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .callout-green {
+      border-left-color: var(--green);
+      background: var(--green-soft);
+    }
+
+    .callout strong { color: #fff; }
+
+    /* ── Grid layout ── */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    @media (max-width: 640px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+    }
+
+    .mini-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+    }
+
+    .mini-card h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mini-card p {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      margin: 0;
+    }
+
+    .icon-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    /* ── Sources ── */
+    .sources {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .sources h3 {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 1rem;
+    }
+
+    .sources ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .sources li {
+      margin-bottom: 0.5rem;
+      font-size: 0.85rem;
+    }
+
+    .sources li::before {
+      content: "→ ";
+      color: var(--accent);
+    }
+
+    /* ── Agentic Loop animated diagram ── */
+    .loop-phase {
+      transition: all 0.3s ease;
+      cursor: default;
+    }
+    .loop-phase:hover {
+      filter: brightness(1.2);
+    }
+
+    /* ── Table ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      font-size: 0.9rem;
+    }
+    th, td {
+      text-align: left;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      font-weight: 600;
+      color: var(--text-dim);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    td { color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    /* ── Nav footer ── */
+    .nav-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      text-decoration: none;
+      transition: border-color 0.2s;
+    }
+
+    .nav-btn:hover {
+      border-color: var(--accent);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ HEADER ════════════ -->
+  <div class="topic-badge">Módulo 1 · Tópico 1</div>
+  <h1>Loop Agêntico: como o Claude explora, planeja e implementa</h1>
+  <p class="subtitle">
+    Entenda o ciclo fundamental que diferencia o Claude Code de um simples chatbot:
+    um agente que lê código, toma decisões, usa ferramentas, avalia resultados e se autocorrige — em loop.
+  </p>
+
+  <!-- ════════════ O QUE É O LOOP ════════════ -->
+  <h2>O que é o Loop Agêntico?</h2>
+
+  <p>
+    O Claude Code não funciona como um autocomplete inteligente. Ele é um <strong>agente autônomo</strong> que opera
+    em ciclo contínuo: recebe um objetivo do desenvolvedor, usa ferramentas reais (bash, grep, leitura/escrita de arquivos, git),
+    avalia o resultado de cada ação e decide o próximo passo — tudo sem intervenção humana entre os passos.
+  </p>
+
+  <p>
+    Na definição da própria Anthropic, um agente é um <strong>LLM usando ferramentas de forma autônoma em um loop</strong>.
+    O desenvolvedor define o objetivo e mantém controle sobre o que é commitado, mas o ciclo de execução roda de forma independente.
+  </p>
+
+  <div class="callout">
+    <strong>Definição oficial:</strong> "An agentic system acts toward a goal with a degree of autonomy, rather than responding
+    to one prompt at a time. Claude Code reads a codebase, plans a sequence of actions, executes them using real development
+    tools, evaluates the result, and adjusts its approach."
+    <br><small style="color: var(--text-dim);">— Anthropic, Claude Code Best Practices</small>
+  </div>
+
+  <!-- ════════════ DIAGRAMA DO LOOP ════════════ -->
+  <h2>Anatomia do Loop</h2>
+
+  <p>
+    Cada interação com o Claude Code dispara um ciclo que se repete até que o objetivo seja atingido
+    (ou o limite de iterações seja alcançado). Veja as fases:
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 870 420" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Diagrama do loop agêntico do Claude Code</title>
+      <desc>Ciclo com 5 fases: Prompt do Dev, Explorar, Planejar, Executar, Avaliar, com seta de retorno</desc>
+
+      <!-- Background glow -->
+      <defs>
+        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="3" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+
+      <!-- Prompt do Dev (entry) -->
+      <g class="loop-phase" transform="translate(30, 170)">
+        <rect x="0" y="0" width="120" height="70" rx="10" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+        <text x="60" y="30" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="600">DESENVOLVEDOR</text>
+        <text x="60" y="50" text-anchor="middle" fill="#e2e8f0" font-size="13" font-weight="600">Prompt</text>
+      </g>
+
+      <!-- Arrow: Prompt → Explorar -->
+      <path d="M155 205 L195 205" stroke="#475569" stroke-width="2" marker-end="url(#arrowGray)"/>
+
+      <!-- Phase 1: Explorar -->
+      <g class="loop-phase" transform="translate(200, 150)">
+        <rect x="0" y="0" width="130" height="100" rx="12" fill="rgba(96,165,250,0.08)" stroke="#60a5fa" stroke-width="1.5"/>
+        <circle cx="24" cy="24" r="14" fill="rgba(96,165,250,0.2)"/>
+        <text x="24" y="29" text-anchor="middle" fill="#60a5fa" font-size="14">🔍</text>
+        <text x="75" y="28" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="600">FASE 1</text>
+        <text x="65" y="52" text-anchor="middle" fill="#e2e8f0" font-size="15" font-weight="700">Explorar</text>
+        <text x="65" y="72" text-anchor="middle" fill="#94a3b8" font-size="10">grep · glob · read</text>
+        <text x="65" y="86" text-anchor="middle" fill="#94a3b8" font-size="10">entender o codebase</text>
+      </g>
+
+      <!-- Arrow: Explorar → Planejar -->
+      <path d="M335 200 L365 200" stroke="#475569" stroke-width="2" marker-end="url(#arrowGray)"/>
+
+      <!-- Phase 2: Planejar -->
+      <g class="loop-phase" transform="translate(370, 150)">
+        <rect x="0" y="0" width="130" height="100" rx="12" fill="rgba(167,139,250,0.08)" stroke="#a78bfa" stroke-width="1.5"/>
+        <circle cx="24" cy="24" r="14" fill="rgba(167,139,250,0.2)"/>
+        <text x="24" y="29" text-anchor="middle" fill="#a78bfa" font-size="14">📋</text>
+        <text x="75" y="28" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="600">FASE 2</text>
+        <text x="65" y="52" text-anchor="middle" fill="#e2e8f0" font-size="15" font-weight="700">Planejar</text>
+        <text x="65" y="72" text-anchor="middle" fill="#94a3b8" font-size="10">extended thinking</text>
+        <text x="65" y="86" text-anchor="middle" fill="#94a3b8" font-size="10">estratégia de ação</text>
+      </g>
+
+      <!-- Arrow: Planejar → Executar -->
+      <path d="M505 200 L535 200" stroke="#475569" stroke-width="2" marker-end="url(#arrowGray)"/>
+
+      <!-- Phase 3: Executar -->
+      <g class="loop-phase" transform="translate(540, 150)">
+        <rect x="0" y="0" width="130" height="100" rx="12" fill="rgba(110,231,183,0.08)" stroke="#6ee7b7" stroke-width="1.5"/>
+        <circle cx="24" cy="24" r="14" fill="rgba(110,231,183,0.2)"/>
+        <text x="24" y="29" text-anchor="middle" fill="#6ee7b7" font-size="14">⚡</text>
+        <text x="75" y="28" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="600">FASE 3</text>
+        <text x="65" y="52" text-anchor="middle" fill="#e2e8f0" font-size="15" font-weight="700">Executar</text>
+        <text x="65" y="72" text-anchor="middle" fill="#94a3b8" font-size="10">edit · write · bash</text>
+        <text x="65" y="86" text-anchor="middle" fill="#94a3b8" font-size="10">alterar código</text>
+      </g>
+
+      <!-- Arrow: Executar → Avaliar -->
+      <path d="M672 200 L708 200" stroke="#475569" stroke-width="2" marker-end="url(#arrowGray)"/>
+
+      <!-- Phase 4: Avaliar -->
+      <g class="loop-phase" transform="translate(713, 150)">
+        <rect x="0" y="0" width="130" height="100" rx="12" fill="rgba(251,191,36,0.08)" stroke="#fbbf24" stroke-width="1.5"/>
+        <circle cx="24" cy="24" r="14" fill="rgba(251,191,36,0.2)"/>
+        <text x="24" y="29" text-anchor="middle" fill="#fbbf24" font-size="14">✓</text>
+        <text x="75" y="28" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="600">FASE 4</text>
+        <text x="65" y="52" text-anchor="middle" fill="#e2e8f0" font-size="15" font-weight="700">Avaliar</text>
+        <text x="65" y="72" text-anchor="middle" fill="#94a3b8" font-size="10">testes · lint · build</text>
+        <text x="65" y="86" text-anchor="middle" fill="#94a3b8" font-size="10">validar resultado</text>
+      </g>
+
+      <!-- Feedback loop arrow (Avaliar → Explorar) -->
+      <path d="M778 150 L778 90 L265 90 L265 148" stroke="#f87171" stroke-width="2" fill="none" stroke-dasharray="8,4" marker-end="url(#arrowRed)"/>
+      <text x="521" y="78" text-anchor="middle" fill="#f87171" font-size="11" font-weight="600">Falhou? Volta ao loop</text>
+
+      <!-- Success arrow -->
+      <path d="M778 250 L778 370 L410 370" stroke="#6ee7b7" stroke-width="2" fill="none" marker-end="url(#arrowGreen)"/>
+
+      <!-- Success box -->
+      <g transform="translate(280, 345)">
+        <rect x="0" y="0" width="130" height="50" rx="10" fill="rgba(110,231,183,0.08)" stroke="#6ee7b7" stroke-width="1.5"/>
+        <text x="65" y="22" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="600">✓ SUCESSO</text>
+        <text x="65" y="40" text-anchor="middle" fill="#94a3b8" font-size="11">Resposta ao dev</text>
+      </g>
+
+      <!-- Arrow markers -->
+      <defs>
+        <marker id="arrowGray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#475569"/>
+        </marker>
+        <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#f87171"/>
+        </marker>
+        <marker id="arrowGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#6ee7b7"/>
+        </marker>
+      </defs>
+    </svg>
+    <p class="diagram-caption">O loop continua até o objetivo ser alcançado ou o limite de iterações ser atingido</p>
+  </div>
+
+  <!-- ════════════ AS 4 FASES ════════════ -->
+  <h2>As 4 Fases em Detalhe</h2>
+
+  <!-- Fase 1 -->
+  <h3>🔍 Fase 1 — Explorar (Context Gathering)</h3>
+
+  <p>
+    Antes de escrever uma única linha de código, o Claude <strong>lê e navega o codebase</strong>.
+    Ele usa ferramentas como <code>grep</code>, <code>glob</code> e <code>Read</code> para entender a estrutura
+    do projeto, encontrar arquivos relevantes e mapear dependências.
+  </p>
+
+  <p>
+    A Anthropic descreve essa abordagem como <strong>"just in time" context</strong>: em vez de carregar todo o código
+    de uma vez, o agente mantém referências leves (caminhos de arquivo, queries, links) e carrega dados sob demanda.
+    Isso espelha a cognição humana — não memorizamos corpora inteiros, mas usamos sistemas de indexação para recuperar
+    informação quando necessário.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Exemplo: o que o Claude faz internamente ao receber "fix the auth bug"</span>
+      <span>Ferramentas usadas</span>
+    </div>
+    <pre><code><span class="comment">// 1. Busca por arquivos relacionados a autenticação</span>
+<span class="tool">glob</span>("**/auth*.{ts,js,py}")
+<span class="tool">grep</span>("authentication", type="ts")
+
+<span class="comment">// 2. Lê os arquivos encontrados</span>
+<span class="tool">Read</span>("src/middleware/auth.ts")
+<span class="tool">Read</span>("src/services/authService.ts")
+<span class="tool">Read</span>("tests/auth.test.ts")
+
+<span class="comment">// 3. Examina logs ou erros mencionados</span>
+<span class="tool">bash</span>("cat logs/error.log | tail -50")
+
+<span class="comment">// 4. Verifica testes existentes</span>
+<span class="tool">bash</span>("npm test -- --grep auth 2>&1 | tail -20")</code></pre>
+  </div>
+
+  <div class="callout-blue callout">
+    <strong>Conceito-chave: Progressive Disclosure.</strong> Cada interação com uma ferramenta revela contexto
+    que informa a próxima decisão. Tamanhos de arquivo sugerem complexidade; convenções de nomes indicam propósito;
+    timestamps servem como proxy para relevância. O agente constrói entendimento camada por camada.
+  </div>
+
+  <!-- Fase 2 -->
+  <h3>📋 Fase 2 — Planejar (Strategy Formation)</h3>
+
+  <p>
+    Com o contexto coletado, o Claude usa <strong>extended thinking</strong> (cadeia de pensamento interna) para
+    formular uma estratégia antes de agir. Isso inclui decidir quais arquivos modificar, em que ordem, e quais
+    verificações rodar para validar as mudanças.
+  </p>
+
+  <p>
+    Essa fase é crucial: sem planejamento, o agente tende a "one-shot" — tentar resolver tudo de uma vez,
+    gerando código frágil e difícil de debugar. A Anthropic descobriu isso ao construir agentes de longa duração
+    e implementou estratégias para forçar o progresso incremental.
+  </p>
+
+  <div class="card">
+    <div class="card-label" style="background: var(--purple-soft); color: var(--purple);">Pattern</div>
+    <h4 style="color: #fff; margin-bottom: 0.5rem;">Progresso Incremental vs. One-shot</h4>
+    <table>
+      <thead>
+        <tr><th>Abordagem</th><th>Comportamento</th><th>Resultado</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="color: var(--red);">❌ One-shot</td>
+          <td>Tenta implementar tudo de uma vez</td>
+          <td>Estoura o contexto, deixa código quebrado</td>
+        </tr>
+        <tr>
+          <td style="color: var(--green);">✓ Incremental</td>
+          <td>Uma feature por vez, commit, próxima</td>
+          <td>Progresso estável, estado limpo entre passos</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Fase 3 -->
+  <h3>⚡ Fase 3 — Executar (Tool Use)</h3>
+
+  <p>
+    O Claude age sobre o codebase usando as mesmas ferramentas que um programador usa diariamente:
+    edição de arquivos, execução de comandos shell, interação com Git. A Anthropic descreve esse princípio como:
+    "Claude needs the same tools that programmers use every day."
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">📝</span>
+        Edição de Código
+      </h4>
+      <p><code>Edit</code> e <code>Write</code> — modifica arquivos existentes ou cria novos, aplicando diffs precisos.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">💻</span>
+        Shell / Bash
+      </h4>
+      <p>Roda comandos arbitrários: instalar deps, rodar builds, executar scripts, verificar outputs.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">🔀</span>
+        Git
+      </h4>
+      <p>Commits, branches, diffs, revert. O agente pode criar PRs e escrever mensagens descritivas de commit.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">🔌</span>
+        MCP Servers
+      </h4>
+      <p>Ferramentas externas via Model Context Protocol: bancos de dados, APIs, Jira, Slack, etc.</p>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Exemplo: Claude corrigindo um bug e validando</span>
+      <span>Execução real</span>
+    </div>
+    <pre><code><span class="comment">// Após explorar e planejar, o Claude executa:</span>
+
+<span class="comment">// 1. Aplica o fix</span>
+<span class="tool">Edit</span>("src/middleware/auth.ts", {
+  old: <span class="string">"if (token.expired)"</span>,
+  new: <span class="string">"if (token.expired || !token.valid)"</span>
+})
+
+<span class="comment">// 2. Roda os testes</span>
+<span class="tool">bash</span>(<span class="string">"npm test -- --grep 'auth' 2>&1"</span>)
+
+<span class="comment">// 3. Se os testes passam, commita</span>
+<span class="tool">bash</span>(<span class="string">"git add -A && git commit -m 'fix: validate token before auth check'"</span>)</code></pre>
+  </div>
+
+  <!-- Fase 4 -->
+  <h3>✓ Fase 4 — Avaliar (Verify & Iterate)</h3>
+
+  <p>
+    Após cada ação, o Claude avalia o resultado. Se um teste falha, se o build quebra, ou se o output não
+    corresponde ao esperado, ele <strong>volta ao início do loop</strong> — relê o erro, replaneja e tenta de novo.
+    Esse ciclo de feedback é o que torna o sistema genuinamente agêntico.
+  </p>
+
+  <p>
+    O loop continua até uma de duas condições: o Claude responde sem solicitar nenhuma ferramenta (indicando que
+    a tarefa foi concluída) ou o limite máximo de iterações é atingido.
+  </p>
+
+  <div class="callout-green callout">
+    <strong>Lição prática:</strong> A avaliação é tão importante quanto a execução. Sempre inclua critérios de
+    verificação no seu prompt: "rode os testes", "faça o build", "mostre o output". Isso dá ao Claude um sinal
+    claro de sucesso ou falha para guiar o loop.
+  </div>
+
+  <!-- ════════════ FERRAMENTAS DISPONÍVEIS ════════════ -->
+  <h2>Ferramentas que compõem o Loop</h2>
+
+  <p>
+    O Claude Code vem equipado com um conjunto de ferramentas nativas que ele usa durante o loop.
+    Entender quais estão disponíveis ajuda a escrever prompts melhores:
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr><th>Ferramenta</th><th>Fase</th><th>O que faz</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>Glob</code></td>
+          <td style="color: var(--blue);">Explorar</td>
+          <td>Busca arquivos por padrão (ex: <code>**/*.test.ts</code>)</td>
+        </tr>
+        <tr>
+          <td><code>Grep</code></td>
+          <td style="color: var(--blue);">Explorar</td>
+          <td>Busca conteúdo em arquivos com regex</td>
+        </tr>
+        <tr>
+          <td><code>Read</code></td>
+          <td style="color: var(--blue);">Explorar</td>
+          <td>Lê arquivos específicos (com offset/limit para arquivos grandes)</td>
+        </tr>
+        <tr>
+          <td><code>Bash</code></td>
+          <td style="color: var(--green);">Executar</td>
+          <td>Executa comandos shell arbitrários</td>
+        </tr>
+        <tr>
+          <td><code>Edit</code></td>
+          <td style="color: var(--green);">Executar</td>
+          <td>Aplica diffs precisos em arquivos existentes</td>
+        </tr>
+        <tr>
+          <td><code>Write</code></td>
+          <td style="color: var(--green);">Executar</td>
+          <td>Cria novos arquivos ou sobrescreve existentes</td>
+        </tr>
+        <tr>
+          <td><code>Task</code></td>
+          <td style="color: var(--purple);">Delegar</td>
+          <td>Cria subagentes para tarefas paralelas</td>
+        </tr>
+        <tr>
+          <td><code>MCP Tools</code></td>
+          <td style="color: var(--yellow);">Estender</td>
+          <td>Ferramentas externas configuradas via <code>.mcp.json</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ CONTEXT ENGINEERING ════════════ -->
+  <h2>O Loop e o Context Engineering</h2>
+
+  <p>
+    O loop agêntico gera dados a cada iteração: resultados de ferramentas, conteúdo de arquivos, outputs de comandos.
+    Tudo isso consome tokens da <strong>context window</strong> — o recurso mais precioso e limitado do agente.
+  </p>
+
+  <p>
+    A Anthropic cunhou o termo <strong>context engineering</strong> para descrever a arte de curar
+    o menor conjunto possível de tokens de alto sinal que maximize a probabilidade de um resultado desejado.
+    Enquanto prompt engineering foca em como escrever instruções, context engineering foca no estado holístico
+    disponível ao modelo a cada turno.
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Prompt Engineering vs Context Engineering</title>
+
+      <!-- Left: Prompt Engineering -->
+      <g transform="translate(30, 30)">
+        <rect x="0" y="0" width="280" height="140" rx="12" fill="rgba(96,165,250,0.06)" stroke="#3b82f6" stroke-width="1"/>
+        <text x="140" y="28" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="700">PROMPT ENGINEERING</text>
+        <text x="140" y="55" text-anchor="middle" fill="#94a3b8" font-size="11">Foco: como escrever instruções</text>
+        <line x1="20" y1="70" x2="260" y2="70" stroke="#2a2d3a"/>
+        <text x="30" y="90" fill="#d4d4d8" font-size="11">• System prompt</text>
+        <text x="30" y="110" fill="#d4d4d8" font-size="11">• Few-shot examples</text>
+        <text x="30" y="130" fill="#d4d4d8" font-size="11">• Tarefa discreta, um turno</text>
+      </g>
+
+      <!-- Right: Context Engineering -->
+      <g transform="translate(390, 30)">
+        <rect x="0" y="0" width="280" height="140" rx="12" fill="rgba(196,149,106,0.06)" stroke="#c4956a" stroke-width="1"/>
+        <text x="140" y="28" text-anchor="middle" fill="#c4956a" font-size="12" font-weight="700">CONTEXT ENGINEERING</text>
+        <text x="140" y="55" text-anchor="middle" fill="#94a3b8" font-size="11">Foco: estado total a cada turno</text>
+        <line x1="20" y1="70" x2="260" y2="70" stroke="#2a2d3a"/>
+        <text x="30" y="90" fill="#d4d4d8" font-size="11">• System + tools + message history</text>
+        <text x="30" y="110" fill="#d4d4d8" font-size="11">• Compaction + note-taking</text>
+        <text x="30" y="130" fill="#d4d4d8" font-size="11">• Multi-turno, curadoria contínua</text>
+      </g>
+
+      <!-- Arrow -->
+      <path d="M315 100 L385 100" stroke="#475569" stroke-width="2" marker-end="url(#arrowGray)"/>
+      <text x="350" y="90" text-anchor="middle" fill="#6b7280" font-size="10">evolução</text>
+    </svg>
+  </div>
+
+  <!-- ════════════ ESTRATÉGIAS DE LONGA DURAÇÃO ════════════ -->
+  <h2>Estratégias para Loops de Longa Duração</h2>
+
+  <p>
+    Quando uma tarefa é complexa demais para caber em uma única context window, o Claude Code usa
+    três estratégias complementares, todas documentadas pela Anthropic:
+  </p>
+
+  <div class="grid-2" style="grid-template-columns: 1fr 1fr 1fr;">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">📦</span>
+        Compaction
+      </h4>
+      <p>Resumir o histórico preservando decisões arquiteturais, bugs abertos e detalhes de implementação. Descarta tool outputs redundantes.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">📝</span>
+        Note-taking
+      </h4>
+      <p>O agente escreve notas estruturadas (ex: todo-list, progress file) persistidas fora da context window e recuperadas depois.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">🤖</span>
+        Sub-agentes
+      </h4>
+      <p>Tarefas focadas delegadas a agentes especializados, cada um com context window limpa. Retornam resumos condensados ao agente principal.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Harness para agentes de longa duração:</strong> A Anthropic desenvolveu um padrão com dois componentes:
+    um <em>initializer agent</em> que configura o ambiente na primeira execução (feature list, init.sh, progress file),
+    e um <em>coding agent</em> que faz progresso incremental em cada sessão, deixando artefatos claros para a próxima sessão.
+  </div>
+
+  <!-- ════════════ MODELO MENTAL ════════════ -->
+  <h2>Modelo Mental: Engenheiro em Turnos</h2>
+
+  <p>
+    A analogia oficial da Anthropic é poderosa: imagine um projeto staffado por <strong>engenheiros trabalhando em turnos</strong>,
+    onde cada novo engenheiro chega sem memória do turno anterior. A context window é o "turno" — limitada e sem
+    carryover automático.
+  </p>
+
+  <p>
+    O que um bom engenheiro faz ao chegar num turno? Lê as notas do turno anterior. Verifica o git log.
+    Roda os testes para ver o estado atual. E antes de sair, documenta o que fez.
+    É exatamente assim que o Claude Code opera quando bem configurado.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Sessão típica de um agente de longa duração</span>
+      <span>Padrão documentado pela Anthropic</span>
+    </div>
+    <pre><code><span class="comment">// Início do turno — orientação</span>
+<span class="tool">bash</span>(<span class="string">"pwd"</span>)                                    <span class="comment">// Onde estou?</span>
+<span class="tool">Read</span>(<span class="string">"claude-progress.txt"</span>)                  <span class="comment">// O que foi feito?</span>
+<span class="tool">bash</span>(<span class="string">"git log --oneline -20"</span>)                <span class="comment">// Histórico recente</span>
+<span class="tool">Read</span>(<span class="string">"feature_list.json"</span>)                    <span class="comment">// O que falta fazer?</span>
+
+<span class="comment">// Verificação de saúde</span>
+<span class="tool">bash</span>(<span class="string">"./init.sh"</span>)                             <span class="comment">// Sobe o servidor</span>
+<span class="comment">// [testa funcionalidade básica]</span>
+
+<span class="comment">// Trabalho — uma feature por vez</span>
+<span class="comment">// [implementa, testa, commita]</span>
+
+<span class="comment">// Fim do turno — deixa estado limpo</span>
+<span class="tool">bash</span>(<span class="string">"git add -A && git commit -m '...'"</span>)
+<span class="tool">Edit</span>(<span class="string">"claude-progress.txt"</span>, ...)           <span class="comment">// Atualiza notas</span></code></pre>
+  </div>
+
+  <!-- ════════════ TAKEAWAYS ════════════ -->
+  <h2>Resumo</h2>
+
+  <div class="card" style="background: linear-gradient(135deg, rgba(196,149,106,0.06), rgba(96,165,250,0.06));">
+    <div style="display: grid; gap: 1rem;">
+      <div style="display: flex; gap: 12px; align-items: baseline;">
+        <span style="color: var(--accent); font-weight: 700; font-size: 1.1rem;">1.</span>
+        <p style="margin: 0;"><strong style="color: #fff;">O Claude Code é um agente, não um chatbot.</strong>
+        Ele opera em loop autônomo: explora → planeja → executa → avalia → repete.</p>
+      </div>
+      <div style="display: flex; gap: 12px; align-items: baseline;">
+        <span style="color: var(--accent); font-weight: 700; font-size: 1.1rem;">2.</span>
+        <p style="margin: 0;"><strong style="color: #fff;">Ferramentas reais, não simulação.</strong>
+        O agente usa grep, bash, git, file I/O — as mesmas ferramentas que você usa.</p>
+      </div>
+      <div style="display: flex; gap: 12px; align-items: baseline;">
+        <span style="color: var(--accent); font-weight: 700; font-size: 1.1rem;">3.</span>
+        <p style="margin: 0;"><strong style="color: #fff;">Context é recurso finito.</strong>
+        Cada token importa. Context engineering supera prompt engineering em ambientes agênticos.</p>
+      </div>
+      <div style="display: flex; gap: 12px; align-items: baseline;">
+        <span style="color: var(--accent); font-weight: 700; font-size: 1.1rem;">4.</span>
+        <p style="margin: 0;"><strong style="color: #fff;">Para loops longos: compaction + notas + subagentes.</strong>
+        A analogia do "engenheiro em turnos" guia o design de sessões eficazes.</p>
+      </div>
+      <div style="display: flex; gap: 12px; align-items: baseline;">
+        <span style="color: var(--accent); font-weight: 700; font-size: 1.1rem;">5.</span>
+        <p style="margin: 0;"><strong style="color: #fff;">Sempre inclua critérios de verificação.</strong>
+        Sem sinais claros de sucesso/falha, o agente não sabe quando parar ou corrigir.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ FONTES ════════════ -->
+  <div class="sources">
+    <h3>Fontes Oficiais</h3>
+    <ul>
+      <li><a href="https://docs.anthropic.com/en/docs/claude-code/overview" target="_blank">Claude Code — Overview (Anthropic Docs)</a></li>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Best Practices for Claude Code (Anthropic Engineering)</a></li>
+      <li><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank">Effective Context Engineering for AI Agents (Anthropic Engineering)</a></li>
+      <li><a href="https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents" target="_blank">Effective Harnesses for Long-running Agents (Anthropic Engineering)</a></li>
+    </ul>
+  </div>
+
+  <!-- ════════════ NAV ════════════ -->
+  <div class="nav-footer">
+    <a href="../index.html" class="nav-btn">&#8962; Índice</a>
+    <a href="modulo-01-topico-02-context-window.html" class="nav-btn">
+      Próximo: Context Window →
+    </a>
+  </div>
+
+</body>
+</html>

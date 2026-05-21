@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo 1 · Tópico 4 — Instalação, Configuração e Primeiros Passos</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-code: #141620;
+      --border: #2a2d3a;
+      --text: #e4e4e7;
+      --text-dim: #9ca3af;
+      --accent: #c4956a;
+      --accent-soft: rgba(196, 149, 106, 0.12);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.12);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .topic-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-soft); padding: 6px 14px;
+      border-radius: 20px; margin-bottom: 1rem;
+    }
+
+    h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+    .subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+    h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+    p { margin-bottom: 1rem; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+    strong { color: #fff; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0;
+    }
+    .card-label {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 6px; margin-bottom: 0.75rem;
+    }
+
+    .diagram-container {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto;
+    }
+    .diagram-container svg { display: block; margin: 0 auto; }
+    .diagram-caption {
+      text-align: center; font-size: 0.85rem; color: var(--text-dim);
+      margin-top: 1rem; font-style: italic;
+    }
+
+    .code-block {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1rem; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim);
+    }
+    .code-block pre {
+      padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8;
+    }
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: var(--purple); }
+    .code-block .string { color: var(--green); }
+    .code-block .tool { color: var(--accent); }
+    .code-block .number { color: var(--yellow); }
+    .code-block .flag { color: var(--blue); }
+
+    .callout {
+      border-left: 3px solid var(--accent); background: var(--accent-soft);
+      padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem;
+    }
+    .callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+    .callout-red { border-left-color: var(--red); background: var(--red-soft); }
+    .callout-green { border-left-color: var(--green); background: var(--green-soft); }
+    .callout-yellow { border-left-color: var(--yellow); background: var(--yellow-soft); }
+    .callout strong { color: #fff; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+    }
+
+    .mini-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .mini-card h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;
+    }
+    .mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+
+    .icon-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    .sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .sources ul { list-style: none; padding: 0; }
+    .sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+    .sources li::before { content: "\2192 "; color: var(--accent); }
+
+    .nav-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+      color: var(--text); background: var(--bg-card); border: 1px solid var(--border);
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+
+    /* ── Specific to this topic ── */
+    .step-card {
+      display: flex; gap: 16px; margin-bottom: 1.5rem;
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .step-num {
+      width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem; font-weight: 700; color: #fff;
+      background: var(--accent); margin-top: 2px;
+    }
+    .step-content { flex: 1; }
+    .step-content h4 {
+      font-size: 1rem; font-weight: 600; color: #fff; margin-bottom: 0.4rem;
+    }
+    .step-content p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+
+    .env-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.75rem; font-weight: 600; padding: 3px 10px;
+      border-radius: 20px; margin-right: 6px; margin-bottom: 4px;
+    }
+
+    .terminal-mock {
+      background: #0a0c10; border: 1px solid #1e2130;
+      border-radius: var(--radius); overflow: hidden; margin: 1.5rem 0;
+    }
+    .terminal-bar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 16px; background: #13151d; border-bottom: 1px solid #1e2130;
+    }
+    .terminal-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+    }
+    .terminal-title {
+      flex: 1; text-align: center; font-size: 0.75rem; color: #6b7280;
+    }
+    .terminal-body {
+      padding: 1rem 1.25rem; font-family: var(--font-mono);
+      font-size: 0.85rem; line-height: 1.7; color: #d4d4d8;
+    }
+    .terminal-body .prompt { color: var(--green); }
+    .terminal-body .cmd { color: #fff; }
+    .terminal-body .output { color: #9ca3af; }
+    .terminal-body .success { color: var(--green); }
+    .terminal-body .info { color: var(--blue); }
+    .terminal-body .warn { color: var(--yellow); }
+    .terminal-body .dim { color: #4b5563; }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ HEADER ════════════ -->
+  <div class="topic-badge">Módulo 1 · Tópico 4</div>
+  <h1>Instalação, Configuração e Primeiros Passos</h1>
+  <p class="subtitle">
+    Do <code>npm install</code> ao primeiro prompt produtivo — tudo que você precisa para configurar o Claude Code
+    no terminal, na IDE e entender os comandos essenciais.
+  </p>
+
+  <!-- ════════════ PRÉ-REQUISITOS ════════════ -->
+  <h2>Pré-requisitos</h2>
+
+  <p>
+    Antes de instalar, verifique se seu ambiente atende aos requisitos mínimos. O Claude Code roda
+    localmente no seu terminal e se conecta diretamente às APIs de modelo — não precisa de servidor
+    backend, índice remoto de código ou configuração complexa.
+  </p>
+
+  <div class="grid-3">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">&#9989;</span>
+        Sistema Operacional
+      </h4>
+      <p>macOS, Linux ou Windows (via WSL). Suporte nativo a Bash, Zsh, PowerShell e CMD.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">&#9989;</span>
+        Node.js 18+
+      </h4>
+      <p>Necessário apenas para instalação via npm. O instalador nativo inclui seu próprio runtime.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">&#9989;</span>
+        Conta Claude
+      </h4>
+      <p>Pro, Max, Team, Enterprise ou Console (API). O plano gratuito <strong>não</strong> inclui Claude Code.</p>
+    </div>
+  </div>
+
+  <!-- ════════════ INSTALAÇÃO ════════════ -->
+  <h2>Instalação</h2>
+
+  <p>
+    Existem três formas de instalar o Claude Code. O instalador nativo é o método recomendado pela Anthropic —
+    ele baixa o binário diretamente sem precisar de Node.js. O pacote npm instala o mesmo binário nativo,
+    apenas usando npm como mecanismo de distribuição.
+  </p>
+
+  <h3>Opção 1: Instalador nativo (recomendado)</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>macOS / Linux</span>
+      <span>Terminal</span>
+    </div>
+    <pre><span class="comment"># Instala a versão estável mais recente</span>
+curl <span class="flag">-fsSL</span> https://claude.ai/install.sh | bash</pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Windows (PowerShell)</span>
+      <span>Terminal</span>
+    </div>
+    <pre><span class="comment"># Instala via PowerShell</span>
+irm https://claude.ai/install.ps1 | iex</pre>
+  </div>
+
+  <h3>Opção 2: NPM (requer Node.js 18+)</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>npm</span>
+      <span>Terminal</span>
+    </div>
+    <pre><span class="comment"># Instalar globalmente</span>
+npm install <span class="flag">-g</span> @anthropic-ai/claude-code
+
+<span class="comment"># Atualizar para a última versão</span>
+npm install <span class="flag">-g</span> @anthropic-ai/claude-code@latest</pre>
+  </div>
+
+  <h3>Opção 3: Homebrew (macOS)</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Homebrew</span>
+      <span>Terminal</span>
+    </div>
+    <pre>brew install <span class="flag">--cask</span> claude-code</pre>
+  </div>
+
+  <div class="callout-red callout">
+    <strong>Nunca use <code>sudo</code> na instalação!</strong> Executar <code>sudo npm install -g</code> pode causar
+    problemas de permissão e riscos de segurança. Se encontrar erros de permissão no npm, configure
+    o diretório global do npm para um local no seu usuário.
+  </div>
+
+  <!-- ════════════ AUTENTICAÇÃO ════════════ -->
+  <h2>Autenticação</h2>
+
+  <p>
+    Após a instalação, execute <code>claude</code> no terminal. Na primeira execução o Claude Code abre o
+    navegador para autenticação via sua conta Claude. Existem dois caminhos de autenticação:
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card" style="border-color: var(--blue);">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">&#128100;</span>
+        Plano de assinatura (Pro/Max/Team/Enterprise)
+      </h4>
+      <p>Login via browser com sua conta claude.ai. Usa o mesmo plano do chat web/desktop/mobile — uma assinatura unificada.
+         Ao fazer login, um workspace "Claude Code" é criado automaticamente no Console.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--yellow);">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">&#128273;</span>
+        API Key (Console / Pay-as-you-go)
+      </h4>
+      <p>Se a variável <code>ANTHROPIC_API_KEY</code> estiver definida no ambiente, o Claude Code usará a API key
+         em vez do login por assinatura. Neste caso, a cobrança será por token consumido via API.</p>
+    </div>
+  </div>
+
+  <div class="callout-yellow callout">
+    <strong>Atenção com a <code>ANTHROPIC_API_KEY</code>:</strong> Se você tem um plano Pro/Max e também uma API key
+    configurada como variável de ambiente, o Claude Code vai priorizar a API key — gerando cobranças à parte.
+    Use <code>/login</code> dentro do Claude Code para alternar para seu plano de assinatura.
+  </div>
+
+  <!-- ════════════ FORMAS DE USAR ════════════ -->
+  <h2>Modos de uso do CLI</h2>
+
+  <p>
+    O Claude Code oferece várias formas de invocação além do REPL interativo. Cada uma é otimizada
+    para um cenário diferente:
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Comando</th>
+          <th>Modo</th>
+          <th>Cenário</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>claude</code></td>
+          <td>REPL interativo</td>
+          <td>Sessão de trabalho contínua — o modo mais comum</td>
+        </tr>
+        <tr>
+          <td><code>claude "query"</code></td>
+          <td>REPL com prompt inicial</td>
+          <td>Iniciar sessão já com uma tarefa definida</td>
+        </tr>
+        <tr>
+          <td><code>claude -p "query"</code></td>
+          <td>One-shot (SDK/pipe)</td>
+          <td>Executa a query, retorna resultado e sai — ideal para scripts</td>
+        </tr>
+        <tr>
+          <td><code>cat file | claude -p "..."</code></td>
+          <td>Pipe + one-shot</td>
+          <td>Alimenta conteúdo via stdin — logs, erros, CSVs</td>
+        </tr>
+        <tr>
+          <td><code>claude -c</code></td>
+          <td>Continue</td>
+          <td>Retoma a conversa mais recente</td>
+        </tr>
+        <tr>
+          <td><code>claude -c -p "query"</code></td>
+          <td>Continue + one-shot</td>
+          <td>Continua a conversa anterior via SDK e sai</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Exemplos práticos de pipe</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Cenários comuns com pipe</span>
+      <span>Terminal</span>
+    </div>
+    <pre><span class="comment"># Analisar log de erro</span>
+cat error.log | claude <span class="flag">-p</span> <span class="string">"O que causou esse erro? Sugira a correção."</span>
+
+<span class="comment"># Revisar diff antes de commitar</span>
+git diff --staged | claude <span class="flag">-p</span> <span class="string">"Revise esse diff. Algum problema?"</span>
+
+<span class="comment"># Explicar output de teste</span>
+npm test 2>&amp;1 | claude <span class="flag">-p</span> <span class="string">"Explique os testes que falharam e como corrigir."</span>
+
+<span class="comment"># Gerar resumo de um CSV</span>
+cat vendas.csv | claude <span class="flag">-p</span> <span class="string">"Resuma os dados. Top 5 produtos por receita."</span></pre>
+  </div>
+
+  <!-- ════════════ AMBIENTES DE USO ════════════ -->
+  <h2>Onde usar: Terminal, IDE e Background</h2>
+
+  <p>
+    O Claude Code não vive apenas no terminal. Ele se integra nativamente com IDEs e pode até
+    rodar em background para tarefas mais longas:
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Três ambientes de uso do Claude Code: Terminal, IDE e Background/CI</title>
+
+      <!-- Terminal -->
+      <rect x="20" y="50" width="220" height="200" rx="14" fill="rgba(110,231,183,0.06)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="130" y="40" text-anchor="middle" fill="#6ee7b7" font-size="13" font-weight="600">TERMINAL</text>
+
+      <rect x="40" y="75" width="180" height="28" rx="6" fill="rgba(110,231,183,0.1)" stroke="#6ee7b7" stroke-width="0.5"/>
+      <text x="130" y="94" text-anchor="middle" fill="#d4d4d8" font-size="11" font-family="monospace">$ claude</text>
+
+      <text x="50" y="125" fill="#9ca3af" font-size="11">REPL interativo completo</text>
+      <text x="50" y="145" fill="#9ca3af" font-size="11">Todos os comandos /slash</text>
+      <text x="50" y="165" fill="#9ca3af" font-size="11">Pipe de stdin/stdout</text>
+      <text x="50" y="185" fill="#9ca3af" font-size="11">Controle total de flags</text>
+
+      <rect x="40" y="205" width="180" height="24" rx="6" fill="rgba(110,231,183,0.08)"/>
+      <text x="130" y="222" text-anchor="middle" fill="#6ee7b7" font-size="10" font-weight="600">Experiência principal</text>
+
+      <!-- IDE -->
+      <rect x="270" y="50" width="220" height="200" rx="14" fill="rgba(96,165,250,0.06)" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="380" y="40" text-anchor="middle" fill="#60a5fa" font-size="13" font-weight="600">IDE (VS Code / JetBrains)</text>
+
+      <rect x="290" y="75" width="180" height="28" rx="6" fill="rgba(96,165,250,0.1)" stroke="#60a5fa" stroke-width="0.5"/>
+      <text x="380" y="94" text-anchor="middle" fill="#d4d4d8" font-size="11">Extensão nativa</text>
+
+      <text x="300" y="125" fill="#9ca3af" font-size="11">Inline diffs em tempo real</text>
+      <text x="300" y="145" fill="#9ca3af" font-size="11">@-mention de arquivos</text>
+      <text x="300" y="165" fill="#9ca3af" font-size="11">Múltiplas conversas em abas</text>
+      <text x="300" y="185" fill="#9ca3af" font-size="11">Review antes de aceitar edits</text>
+
+      <rect x="290" y="205" width="180" height="24" rx="6" fill="rgba(96,165,250,0.08)"/>
+      <text x="380" y="222" text-anchor="middle" fill="#60a5fa" font-size="10" font-weight="600">Pair programming visual</text>
+
+      <!-- Background / CI -->
+      <rect x="520" y="50" width="220" height="200" rx="14" fill="rgba(167,139,250,0.06)" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="630" y="40" text-anchor="middle" fill="#a78bfa" font-size="13" font-weight="600">BACKGROUND / CI</text>
+
+      <rect x="540" y="75" width="180" height="28" rx="6" fill="rgba(167,139,250,0.1)" stroke="#a78bfa" stroke-width="0.5"/>
+      <text x="630" y="94" text-anchor="middle" fill="#d4d4d8" font-size="11" font-family="monospace">claude -p (headless)</text>
+
+      <text x="550" y="125" fill="#9ca3af" font-size="11">Roda sem interação humana</text>
+      <text x="550" y="145" fill="#9ca3af" font-size="11">Ideal para CI/CD pipelines</text>
+      <text x="550" y="165" fill="#9ca3af" font-size="11">Automação via Claude SDK</text>
+      <text x="550" y="185" fill="#9ca3af" font-size="11">Subagentes e tasks paralelas</text>
+
+      <rect x="540" y="205" width="180" height="24" rx="6" fill="rgba(167,139,250,0.08)"/>
+      <text x="630" y="222" text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="600">Automação sem supervisão</text>
+
+      <!-- Connecting base -->
+      <line x1="130" y1="260" x2="130" y2="280" stroke="#475569" stroke-width="1"/>
+      <line x1="380" y1="260" x2="380" y2="280" stroke="#475569" stroke-width="1"/>
+      <line x1="630" y1="260" x2="630" y2="280" stroke="#475569" stroke-width="1"/>
+      <line x1="130" y1="280" x2="630" y2="280" stroke="#475569" stroke-width="1"/>
+      <text x="380" y="296" text-anchor="middle" fill="#6b7280" font-size="11">Mesmo binário, mesma engine, mesmas ferramentas</text>
+    </svg>
+    <p class="diagram-caption">Terminal, IDE e Background são três interfaces para o mesmo agente — escolha conforme o fluxo de trabalho.</p>
+  </div>
+
+  <!-- ════════════ SLASH COMMANDS ════════════ -->
+  <h2>Comandos essenciais (/slash commands)</h2>
+
+  <p>
+    Dentro de uma sessão interativa, os slash commands controlam o comportamento do Claude Code.
+    Eles não são enviados ao modelo como prompt — são comandos internos do sistema.
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Comando</th>
+          <th>O que faz</th>
+          <th>Quando usar</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code style="color: var(--green);">/help</code></td>
+          <td>Exibe lista de comandos e atalhos disponíveis</td>
+          <td>Sempre que esquecer um comando</td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--green);">/init</code></td>
+          <td>Gera um <code>CLAUDE.md</code> inicial para o projeto</td>
+          <td>Primeira vez configurando Claude Code num projeto</td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--blue);">/model</code></td>
+          <td>Alterna entre modelos (Opus, Sonnet, Haiku)</td>
+          <td>Trocar para um modelo mais rápido/barato ou mais capaz</td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--blue);">/effort</code></td>
+          <td>Ajusta o nível de esforço do modelo (thinking)</td>
+          <td>Tarefas simples (reduzir) ou complexas (aumentar)</td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--yellow);">/clear</code></td>
+          <td>Limpa toda a conversa e começa do zero</td>
+          <td>Ao trocar de tarefa — evita context rot</td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--yellow);">/compact</code></td>
+          <td>Compacta o histórico preservando o essencial</td>
+          <td>Quando o contexto está ficando grande mas quer manter continuidade</td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--accent);">/config</code></td>
+          <td>Abre o menu de configurações do Claude Code</td>
+          <td>Ajustar thinking, permissões, status line etc.</td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--accent);">/hooks</code></td>
+          <td>Navega e gerencia hooks configurados</td>
+          <td>Verificar/editar automações de quality gate</td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--purple);">/login</code></td>
+          <td>Alterna o método de autenticação</td>
+          <td>Mudar de API key para plano de assinatura (ou vice-versa)</td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--purple);">/usage</code></td>
+          <td>Mostra o consumo de tokens da sessão</td>
+          <td>Monitorar custos durante uma sessão longa</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ FLAGS IMPORTANTES ════════════ -->
+  <h2>Flags do CLI mais usadas</h2>
+
+  <p>
+    Além do uso interativo, o CLI aceita flags que controlam comportamento, permissões e
+    ferramentas disponíveis. Aqui estão as mais importantes para o dia a dia:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Flags essenciais</span>
+      <span>CLI Reference</span>
+    </div>
+    <pre><span class="comment"># Iniciar com prompt e sair (modo SDK/pipe)</span>
+claude <span class="flag">-p</span> <span class="string">"Explique a função calculateTax"</span>
+
+<span class="comment"># Continuar a conversa mais recente</span>
+claude <span class="flag">-c</span>
+
+<span class="comment"># Adicionar diretórios extras ao contexto</span>
+claude <span class="flag">--add-dir</span> ../shared-libs <span class="flag">--add-dir</span> ../config
+
+<span class="comment"># Pré-aprovar ferramentas específicas (sem prompt de confirmação)</span>
+claude <span class="flag">--allowedTools</span> <span class="string">"Bash(git log:*)"</span> <span class="string">"Bash(git diff:*)"</span> <span class="string">"Read"</span>
+
+<span class="comment"># Bloquear ferramentas específicas</span>
+claude <span class="flag">--disallowedTools</span> <span class="string">"Bash(rm:*)"</span> <span class="string">"Write"</span>
+
+<span class="comment"># Definir o modo de permissão</span>
+claude <span class="flag">--permission-mode</span> plan       <span class="comment"># Somente leitura</span>
+claude <span class="flag">--permission-mode</span> default    <span class="comment"># Pede confirmação (padrão)</span>
+claude <span class="flag">--permission-mode</span> auto       <span class="comment"># Classificador decide</span></pre>
+  </div>
+
+  <div class="callout-blue callout">
+    <strong>Dica para times:</strong> Use <code>--allowedTools</code> e <code>--disallowedTools</code> em scripts
+    de CI ou wrappers do time para garantir que o Claude Code opere apenas com ferramentas aprovadas.
+    Combinado com <code>--permission-mode dontAsk</code>, ferramentas não listadas são negadas automaticamente.
+  </div>
+
+  <!-- ════════════ MODOS DE PERMISSÃO ════════════ -->
+  <h2>Modos de permissão</h2>
+
+  <p>
+    O Claude Code oferece diferentes modos de permissão que controlam quanta autonomia o agente tem.
+    A escolha do modo depende do contexto — exploração rápida pede menos restrição, produção pede mais:
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 740 180" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Espectro de modos de permissão: de plan (mais restritivo) até bypassPermissions (menos restritivo)</title>
+
+      <!-- Track -->
+      <rect x="60" y="75" width="620" height="10" rx="5" fill="#1e2130"/>
+
+      <!-- Gradient fill -->
+      <defs>
+        <linearGradient id="permGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#6ee7b7"/>
+          <stop offset="25%" stop-color="#60a5fa"/>
+          <stop offset="50%" stop-color="#fbbf24"/>
+          <stop offset="75%" stop-color="#c4956a"/>
+          <stop offset="100%" stop-color="#f87171"/>
+        </linearGradient>
+      </defs>
+      <rect x="60" y="75" width="620" height="10" rx="5" fill="url(#permGrad)" opacity="0.3"/>
+
+      <!-- Labels at top -->
+      <text x="60" y="25" fill="#6ee7b7" font-size="10" font-weight="600" text-anchor="middle">MAIS</text>
+      <text x="60" y="37" fill="#6ee7b7" font-size="10" font-weight="600" text-anchor="middle">RESTRITIVO</text>
+      <text x="680" y="25" fill="#f87171" font-size="10" font-weight="600" text-anchor="middle">MENOS</text>
+      <text x="680" y="37" fill="#f87171" font-size="10" font-weight="600" text-anchor="middle">RESTRITIVO</text>
+
+      <!-- Arrow -->
+      <path d="M90 31 L650 31" stroke="#475569" stroke-width="0.5" marker-end="url(#arrowDim)"/>
+
+      <!-- plan -->
+      <circle cx="100" cy="80" r="8" fill="#6ee7b7"/>
+      <text x="100" y="112" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="600">plan</text>
+      <text x="100" y="128" text-anchor="middle" fill="#9ca3af" font-size="10">Só leitura</text>
+      <text x="100" y="142" text-anchor="middle" fill="#6b7280" font-size="9">Explorar sem risco</text>
+
+      <!-- default -->
+      <circle cx="240" cy="80" r="8" fill="#60a5fa"/>
+      <text x="240" y="112" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="600">default</text>
+      <text x="240" y="128" text-anchor="middle" fill="#9ca3af" font-size="10">Pede confirmação</text>
+      <text x="240" y="142" text-anchor="middle" fill="#6b7280" font-size="9">Uso diário recomendado</text>
+
+      <!-- dontAsk -->
+      <circle cx="380" cy="80" r="8" fill="#fbbf24"/>
+      <text x="380" y="112" text-anchor="middle" fill="#fbbf24" font-size="12" font-weight="600">dontAsk</text>
+      <text x="380" y="128" text-anchor="middle" fill="#9ca3af" font-size="10">Nega se não aprovado</text>
+      <text x="380" y="142" text-anchor="middle" fill="#6b7280" font-size="9">CI / scripts controlados</text>
+
+      <!-- auto -->
+      <circle cx="520" cy="80" r="8" fill="#c4956a"/>
+      <text x="520" y="112" text-anchor="middle" fill="#c4956a" font-size="12" font-weight="600">auto</text>
+      <text x="520" y="128" text-anchor="middle" fill="#9ca3af" font-size="10">Classificador decide</text>
+      <text x="520" y="142" text-anchor="middle" fill="#6b7280" font-size="9">Operações autônomas</text>
+
+      <!-- bypassPermissions -->
+      <circle cx="640" cy="80" r="8" fill="#f87171"/>
+      <text x="640" y="112" text-anchor="middle" fill="#f87171" font-size="12" font-weight="600">bypass</text>
+      <text x="640" y="128" text-anchor="middle" fill="#9ca3af" font-size="10">Sem restrições</text>
+      <text x="640" y="142" text-anchor="middle" fill="#6b7280" font-size="9">Sandbox/Dev local</text>
+
+      <!-- Defs for arrow -->
+      <defs>
+        <marker id="arrowDim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#475569"/>
+        </marker>
+      </defs>
+    </svg>
+    <p class="diagram-caption">Escolha o modo de permissão com base no nível de risco e confiança do ambiente.</p>
+  </div>
+
+  <!-- ════════════ CUSTOS ════════════ -->
+  <h2>Custos: o que esperar</h2>
+
+  <p>
+    O Claude Code consome tokens por sessão — cada leitura de arquivo, cada resposta, cada pensamento
+    estendido conta. Os custos variam com o modelo escolhido e a intensidade de uso.
+  </p>
+
+  <div class="grid-3">
+    <div class="mini-card" style="text-align: center; border-color: var(--green);">
+      <h4 style="justify-content: center;">
+        <span style="font-size: 1.5rem; font-family: var(--font-mono); color: var(--green);">~$13</span>
+      </h4>
+      <p style="text-align: center;">Custo médio por desenvolvedor <strong style="color: var(--text);">por dia ativo</strong>
+         <br><small>(média enterprise, Anthropic 2025)</small></p>
+    </div>
+    <div class="mini-card" style="text-align: center; border-color: var(--blue);">
+      <h4 style="justify-content: center;">
+        <span style="font-size: 1.5rem; font-family: var(--font-mono); color: var(--blue);">$150-250</span>
+      </h4>
+      <p style="text-align: center;">Faixa típica por desenvolvedor <strong style="color: var(--text);">por mês</strong>
+         <br><small>(uso regular em projetos reais)</small></p>
+    </div>
+    <div class="mini-card" style="text-align: center; border-color: var(--yellow);">
+      <h4 style="justify-content: center;">
+        <span style="font-size: 1.5rem; font-family: var(--font-mono); color: var(--yellow);">&lt;$30</span>
+      </h4>
+      <p style="text-align: center;"><strong style="color: var(--text);">90% dos usuários</strong> ficam abaixo desse valor por dia
+         <br><small>(percentil 90, Anthropic 2025)</small></p>
+    </div>
+  </div>
+
+  <h3>Custo por modelo (API - pay-as-you-go)</h3>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Modelo</th>
+          <th>Input (por 1M tokens)</th>
+          <th>Output (por 1M tokens)</th>
+          <th>Perfil de uso</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Haiku 4.5</strong></td>
+          <td style="color: var(--green);">$0.80</td>
+          <td style="color: var(--green);">$4</td>
+          <td>Tarefas simples, alto volume, baixo custo</td>
+        </tr>
+        <tr>
+          <td><strong>Sonnet 4.6</strong></td>
+          <td style="color: var(--blue);">$3</td>
+          <td style="color: var(--blue);">$15</td>
+          <td>Melhor custo-benefício para coding diário</td>
+        </tr>
+        <tr>
+          <td><strong>Opus 4.6 / 4.7</strong></td>
+          <td style="color: var(--yellow);">$5</td>
+          <td style="color: var(--yellow);">$25</td>
+          <td>Arquitetura complexa, reasoning profundo</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="font-size: 0.82rem; color: var(--text-dim); margin: 0.75rem 0 0;">
+      Prompt caching pode reduzir custos de input em até 90%. Batch processing reduz em até 50%.
+      Use <code>/usage</code> para monitorar consumo em tempo real.
+    </p>
+  </div>
+
+  <div class="callout-green callout">
+    <strong>Dica de economia:</strong> Use <code>/clear</code> ao trocar de tarefa (evita arrastar contexto velho),
+    <code>/compact</code> em sessões longas (comprime mantendo essencial), e <code>/model</code> para
+    alternar entre Sonnet (dia a dia) e Opus (decisões críticas). Reduza o effort level com <code>/effort</code>
+    para tarefas triviais.
+  </div>
+
+  <!-- ════════════ CHECKLIST RÁPIDO ════════════ -->
+  <h2>Checklist: pronto para usar</h2>
+
+  <p>Use esta lista para validar que tudo está configurado antes de começar a trabalhar:</p>
+
+  <div class="card" style="padding: 1.25rem 1.5rem;">
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 0.75rem;">
+      <span style="color: var(--green); font-size: 1.1rem;">&#9745;</span>
+      <span style="font-size: 0.95rem;">Claude Code instalado (<code>claude --version</code> retorna versão)</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 0.75rem;">
+      <span style="color: var(--green); font-size: 1.1rem;">&#9745;</span>
+      <span style="font-size: 0.95rem;">Autenticação feita (login via browser ou API key configurada)</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 0.75rem;">
+      <span style="color: var(--green); font-size: 1.1rem;">&#9745;</span>
+      <span style="font-size: 0.95rem;">Terminal aberto no diretório do projeto (<code>cd ~/meu-projeto</code>)</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 0.75rem;">
+      <span style="color: var(--green); font-size: 1.1rem;">&#9745;</span>
+      <span style="font-size: 0.95rem;">Projeto com git inicializado (<code>git status</code> funciona)</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 0.75rem;">
+      <span style="color: var(--green); font-size: 1.1rem;">&#9745;</span>
+      <span style="font-size: 0.95rem;"><code>CLAUDE.md</code> criado na raiz (ou usar <code>/init</code> para gerar)</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 0.75rem;">
+      <span style="color: var(--green); font-size: 1.1rem;">&#9745;</span>
+      <span style="font-size: 0.95rem;">Modelo selecionado (<code>/model</code> — Sonnet 4.6 é o padrão recomendado)</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <span style="color: var(--green); font-size: 1.1rem;">&#9745;</span>
+      <span style="font-size: 0.95rem;">Extensão da IDE instalada (opcional — VS Code ou JetBrains)</span>
+    </div>
+  </div>
+
+  <!-- ════════════ ATALHOS ÚTEIS ════════════ -->
+  <h2>Atalhos de teclado no REPL</h2>
+
+  <p>
+    Dentro da sessão interativa, estes atalhos aceleram o fluxo de trabalho:
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">&#9000;</span>
+        Navegação
+      </h4>
+      <p>
+        <code>Escape</code> — cancela a operação em andamento<br>
+        <code>Ctrl+C</code> — interrompe a resposta do modelo<br>
+        <code>↑ / ↓</code> — navega pelo histórico de prompts
+      </p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">&#9874;</span>
+        Contexto
+      </h4>
+      <p>
+        <code>@</code> — referencia arquivos ou símbolos do projeto<br>
+        <code>Tab</code> — autocomplete para caminhos de arquivo<br>
+        <code>Shift+Enter</code> — quebra de linha (multi-line input)
+      </p>
+    </div>
+  </div>
+
+  <!-- ════════════ FONTES ════════════ -->
+  <div class="sources">
+    <h3>Fontes e Referências</h3>
+    <ul>
+      <li><a href="https://docs.claude.com/en/docs/claude-code/overview" target="_blank">Claude Docs — Claude Code Overview</a></li>
+      <li><a href="https://docs.claude.com/en/docs/claude-code/setup" target="_blank">Claude Docs — Advanced Setup</a></li>
+      <li><a href="https://docs.claude.com/en/docs/claude-code/cli-reference" target="_blank">Claude Docs — CLI Reference</a></li>
+      <li><a href="https://docs.claude.com/en/docs/claude-code/costs" target="_blank">Claude Docs — Manage Costs Effectively</a></li>
+      <li><a href="https://docs.claude.com/en/docs/claude-code/settings" target="_blank">Claude Docs — Claude Code Settings</a></li>
+      <li><a href="https://docs.claude.com/en/docs/claude-code/slash-commands" target="_blank">Claude Docs — Extend Claude with Skills (Slash Commands)</a></li>
+      <li><a href="https://docs.anthropic.com/en/docs/claude-code/ide-integrations" target="_blank">Claude Docs — IDE Integrations (VS Code)</a></li>
+      <li><a href="https://www.anthropic.com/claude-code" target="_blank">Anthropic — Claude Code Product Page</a></li>
+      <li><a href="https://www.anthropic.com/pricing" target="_blank">Anthropic — Plans &amp; Pricing</a></li>
+      <li><a href="https://support.anthropic.com/en/articles/11145838-using-claude-code-with-your-pro-or-max-plan" target="_blank">Claude Help Center — Using Claude Code with Pro or Max Plan</a></li>
+    </ul>
+  </div>
+
+  <!-- ════════════ NAV FOOTER ════════════ -->
+  <div class="nav-footer">
+    <a href="modulo-01-topico-03-chatbot-vs-agente.html" class="nav-btn">← Tópico 3 · Chatbot vs. Agente</a>
+    <a href="../index.html" class="nav-btn">&#8962; Índice</a>
+    <a href="../modulo-02/modulo-02-topico-01-claudemd.html" class="nav-btn">Módulo 2 · CLAUDE.md →</a>
+  </div>
+
+</body>
+</html>
