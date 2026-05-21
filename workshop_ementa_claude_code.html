@@ -1,0 +1,258 @@
+
+<style>
+  .workshop-root { padding: 1.5rem 0; font-family: var(--font-sans); }
+  .workshop-header { margin-bottom: 2rem; }
+  .workshop-header h1 { font-size: 20px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 4px; }
+  .workshop-header p { font-size: 14px; color: var(--color-text-secondary); margin: 0; }
+  .module-grid { display: grid; gap: 12px; }
+  .module-card {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 1rem 1.25rem;
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    gap: 0 14px;
+    align-items: start;
+  }
+  .module-icon {
+    width: 44px; height: 44px; border-radius: var(--border-radius-md);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0; margin-top: 2px;
+  }
+  .module-num { font-size: 11px; font-weight: 500; letter-spacing: 0.05em; margin: 0 0 2px; }
+  .module-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 6px; }
+  .topics { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+  .topics li { font-size: 13px; color: var(--color-text-secondary); display: flex; align-items: baseline; gap: 8px; }
+  .topics li::before { content: "–"; color: var(--color-text-tertiary); flex-shrink: 0; }
+  .badge {
+    display: inline-block; font-size: 11px; font-weight: 500;
+    padding: 2px 8px; border-radius: 20px; margin-left: auto;
+  }
+  .badge-intro { background: #E6F1FB; color: #0C447C; }
+  .badge-core { background: #EAF3DE; color: #27500A; }
+  .badge-adv { background: #EEEDFE; color: #3C3489; }
+  .badge-sec { background: #FCEBEB; color: #791F1F; }
+  .badge-prod { background: #FAEEDA; color: #633806; }
+  .divider { border: none; border-top: 0.5px solid var(--color-border-tertiary); margin: 16px 0; }
+  .footer-row { display: flex; gap: 16px; margin-top: 1.5rem; flex-wrap: wrap; }
+  .stat-card {
+    background: var(--color-background-secondary);
+    border-radius: var(--border-radius-md);
+    padding: 0.75rem 1rem; flex: 1; min-width: 100px;
+  }
+  .stat-label { font-size: 12px; color: var(--color-text-secondary); margin: 0 0 4px; }
+  .stat-val { font-size: 20px; font-weight: 500; color: var(--color-text-primary); margin: 0; }
+
+  @media (prefers-color-scheme: dark) {
+    .badge-intro { background: #042C53; color: #B5D4F4; }
+    .badge-core { background: #173404; color: #C0DD97; }
+    .badge-adv { background: #26215C; color: #CECBF6; }
+    .badge-sec { background: #501313; color: #F7C1C1; }
+    .badge-prod { background: #412402; color: #FAC775; }
+  }
+</style>
+
+<div class="workshop-root">
+  <h2 class="sr-only" style="position:absolute;width:1px;height:1px;clip:rect(0,0,0,0);overflow:hidden;">Ementa do workshop de boas práticas no Claude Code</h2>
+
+  <div class="workshop-header">
+    <h1>Workshop — Boas práticas no Claude Code</h1>
+    <p>Ementa baseada na documentação oficial da Anthropic e práticas adotadas pela comunidade</p>
+  </div>
+
+  <div class="module-grid">
+
+    <div class="module-card">
+      <div class="module-icon" style="background:#E6F1FB;">
+        <i class="ti ti-rocket" style="color:#185FA5;" aria-hidden="true"></i>
+      </div>
+      <div>
+        <p class="module-num" style="color:#185FA5;">MÓDULO 1 <span class="badge badge-intro">Introdução</span></p>
+        <p class="module-title">O que é o Claude Code e como ele pensa</p>
+        <ul class="topics">
+          <li>Loop agêntico: como o Claude explora, planeja e implementa</li>
+          <li>A constraint central: a context window e por que ela importa</li>
+          <li>Diferença entre chatbot e agente de código</li>
+          <li>Instalação, configuração e primeiros passos</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="module-icon" style="background:#EAF3DE;">
+        <i class="ti ti-file-text" style="color:#3B6D11;" aria-hidden="true"></i>
+      </div>
+      <div>
+        <p class="module-num" style="color:#3B6D11;">MÓDULO 2 <span class="badge badge-core">Fundamento</span></p>
+        <p class="module-title">CLAUDE.md — O "cérebro permanente" do projeto</p>
+        <ul class="topics">
+          <li>O que incluir (comandos bash, estilo de código, convenções de branch)</li>
+          <li>O que nunca incluir (o que o Claude já sabe)</li>
+          <li>Usando <code>/init</code> para gerar um arquivo base automaticamente</li>
+          <li>Mantendo o arquivo enxuto: a regra do "causaria erros se removido?"</li>
+          <li>Skills vs. CLAUDE.md: quando usar cada um</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="module-icon" style="background:#EAF3DE;">
+        <i class="ti ti-brain" style="color:#3B6D11;" aria-hidden="true"></i>
+      </div>
+      <div>
+        <p class="module-num" style="color:#3B6D11;">MÓDULO 3 <span class="badge badge-core">Fundamento</span></p>
+        <p class="module-title">O fluxo Explorar → Planejar → Implementar → Commit</p>
+        <ul class="topics">
+          <li>Plan mode: separar pesquisa de execução</li>
+          <li>Como forçar o Claude a ler o código antes de escrever</li>
+          <li>Critérios de verificação: testes, screenshots, outputs esperados</li>
+          <li>Quando pular o planejamento (tarefas pequenas e escopo claro)</li>
+          <li>Commits descritivos e criação de PRs com o Claude</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="module-icon" style="background:#EAF3DE;">
+        <i class="ti ti-message-2" style="color:#3B6D11;" aria-hidden="true"></i>
+      </div>
+      <div>
+        <p class="module-num" style="color:#3B6D11;">MÓDULO 4 <span class="badge badge-core">Fundamento</span></p>
+        <p class="module-title">Prompts eficazes e contexto rico</p>
+        <ul class="topics">
+          <li>Escopo da tarefa: arquivo, cenário, preferências de teste</li>
+          <li>Referenciar padrões existentes no codebase com <code>@</code></li>
+          <li>Passar URLs, imagens, logs via pipe (<code>cat error.log | claude</code>)</li>
+          <li>Descrever sintoma + localização + definição de "resolvido"</li>
+          <li>Quando prompts vagos são úteis (exploração aberta)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="module-icon" style="background:#EAF3DE;">
+        <i class="ti ti-stack-2" style="color:#3B6D11;" aria-hidden="true"></i>
+      </div>
+      <div>
+        <p class="module-num" style="color:#3B6D11;">MÓDULO 5 <span class="badge badge-core">Fundamento</span></p>
+        <p class="module-title">Gestão da context window</p>
+        <ul class="topics">
+          <li>Por que a performance degrada conforme o contexto enche</li>
+          <li>Usando <code>/clear</code> estrategicamente entre sessões</li>
+          <li>Leituras seletivas de arquivo em vez de exploração ampla</li>
+          <li>Documentação viva (dev docs, living plans) para reduzir tokens</li>
+          <li>Monitorando uso de contexto com status line customizada</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="module-icon" style="background:#EEEDFE;">
+        <i class="ti ti-plug" style="color:#534AB7;" aria-hidden="true"></i>
+      </div>
+      <div>
+        <p class="module-num" style="color:#534AB7;">MÓDULO 6 <span class="badge badge-adv">Avançado</span></p>
+        <p class="module-title">MCP — Model Context Protocol</p>
+        <ul class="topics">
+          <li>O que é MCP e como ampliar as capacidades do Claude Code</li>
+          <li>Servidores locais (stdio) vs. remotos (HTTP/SSE)</li>
+          <li>Configurando servidores MCP com <code>.mcp.json</code></li>
+          <li>Allowlist de servidores: tratar MCP como dependência de software</li>
+          <li>Casos de uso: Git, banco de dados, APIs externas, automações</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="module-icon" style="background:#EEEDFE;">
+        <i class="ti ti-hook" style="color:#534AB7;" aria-hidden="true"></i>
+      </div>
+      <div>
+        <p class="module-num" style="color:#534AB7;">MÓDULO 7 <span class="badge badge-adv">Avançado</span></p>
+        <p class="module-title">Hooks — automação e controle de qualidade</p>
+        <ul class="topics">
+          <li>PreToolUse e PostToolUse: interceptar ações antes/depois</li>
+          <li>Stop hooks: rodar build, typecheck e testes ao fim de cada resposta</li>
+          <li>Hooks para bloquear commits com secrets expostos</li>
+          <li>Auto-formatação na escrita de arquivos</li>
+          <li>Hooks como quality gates: aprovação automática de operações seguras</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="module-icon" style="background:#EEEDFE;">
+        <i class="ti ti-topology-star" style="color:#534AB7;" aria-hidden="true"></i>
+      </div>
+      <div>
+        <p class="module-num" style="color:#534AB7;">MÓDULO 8 <span class="badge badge-adv">Avançado</span></p>
+        <p class="module-title">Subagentes, sessões paralelas e Git Worktrees</p>
+        <ul class="topics">
+          <li>Como o Claude delega tarefas a subagentes (Task tool)</li>
+          <li>Rodando sessões paralelas com isolamento via Git Worktrees</li>
+          <li>Escolha do modelo por tarefa: Opus, Sonnet, Haiku</li>
+          <li>Controle de subagentes com <code>--disallowedTools</code></li>
+          <li>Padrões multi-agente: revisor, planejador, executor</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="module-icon" style="background:#FCEBEB;">
+        <i class="ti ti-shield-lock" style="color:#A32D2D;" aria-hidden="true"></i>
+      </div>
+      <div>
+        <p class="module-num" style="color:#A32D2D;">MÓDULO 9 <span class="badge badge-sec">Segurança</span></p>
+        <p class="module-title">Permissões, segurança e prevenção de riscos</p>
+        <ul class="topics">
+          <li>Modos de permissão: plan, default, bypass — quando usar cada um</li>
+          <li>Regras de deny: bloquear acesso a <code>.env</code>, <code>~/.ssh/</code>, secrets</li>
+          <li>Nunca rodar Claude Code como root</li>
+          <li>Prompt injection via README, comentários e respostas de MCP</li>
+          <li>CVEs conhecidos: lições de repositórios maliciosos e configs envenenadas</li>
+          <li><code>managed-settings.json</code> para políticas de equipe/empresa</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="module-icon" style="background:#FAEEDA;">
+        <i class="ti ti-building-factory" style="color:#854F0B;" aria-hidden="true"></i>
+      </div>
+      <div>
+        <p class="module-num" style="color:#854F0B;">MÓDULO 10 <span class="badge badge-prod">Produção</span></p>
+        <p class="module-title">Uso em equipes e ambientes de produção</p>
+        <ul class="topics">
+          <li>Rotação de API keys e monitoramento de uso não autorizado</li>
+          <li>Retenção de transcrições e conformidade (LGPD / dados sensíveis)</li>
+          <li>Skills compartilhadas para times: slash commands padronizados</li>
+          <li>Gestão de custos: rate limits, seleção de modelo e uso em batch</li>
+          <li>Iteração contínua: refinando CLAUDE.md com base nos erros do Claude</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <hr class="divider">
+
+  <div class="footer-row">
+    <div class="stat-card">
+      <p class="stat-label">Módulos</p>
+      <p class="stat-val">10</p>
+    </div>
+    <div class="stat-card">
+      <p class="stat-label">Nível de entrada</p>
+      <p class="stat-val" style="font-size:15px;">Iniciante</p>
+    </div>
+    <div class="stat-card">
+      <p class="stat-label">Foco principal</p>
+      <p class="stat-val" style="font-size:15px;">Prático</p>
+    </div>
+    <div class="stat-card">
+      <p class="stat-label">Fontes</p>
+      <p class="stat-val" style="font-size:15px;">Oficiais + comunidade</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workshop — Boas Práticas no Claude Code</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-code: #141620;
+      --border: #2a2d3a;
+      --text: #e4e4e7;
+      --text-dim: #9ca3af;
+      --accent: #c4956a;
+      --accent-soft: rgba(196, 149, 106, 0.12);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.12);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.12);
+      --orange: #fb923c;
+      --orange-soft: rgba(251, 146, 60, 0.12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      text-align: center;
+      padding: 3rem 1rem 2.5rem;
+      margin-bottom: 2rem;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-soft); padding: 6px 16px;
+      border-radius: 20px; margin-bottom: 1.25rem;
+    }
+    .hero h1 {
+      font-size: 2.4rem; font-weight: 700; color: #fff;
+      line-height: 1.15; margin-bottom: 0.75rem;
+    }
+    .hero h1 span { color: var(--accent); }
+    .hero p {
+      font-size: 1.05rem; color: var(--text-dim);
+      max-width: 600px; margin: 0 auto;
+    }
+
+    /* ── Stats bar ── */
+    .stats-bar {
+      display: flex; justify-content: center; gap: 2rem;
+      margin: 1.5rem 0 2.5rem; flex-wrap: wrap;
+    }
+    .stat {
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 1.5rem; font-weight: 700; color: #fff;
+      font-family: var(--font-mono);
+    }
+    .stat-label {
+      font-size: 0.78rem; color: var(--text-dim);
+      text-transform: uppercase; letter-spacing: 0.06em;
+    }
+
+    /* ── Module card ── */
+    .module-section {
+      margin-bottom: 1.25rem;
+    }
+    .module-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .module-card:hover {
+      border-color: rgba(255,255,255,0.12);
+    }
+    .module-header {
+      display: flex; align-items: center; gap: 14px;
+      padding: 1.25rem 1.5rem;
+      cursor: pointer;
+      user-select: none;
+    }
+    .module-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+    }
+    .module-info { flex: 1; }
+    .module-num {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+      text-transform: uppercase; margin-bottom: 2px;
+    }
+    .module-title {
+      font-size: 1.05rem; font-weight: 600; color: #fff;
+    }
+    .module-badge {
+      display: inline-block; font-size: 10px; font-weight: 600;
+      padding: 2px 8px; border-radius: 20px; margin-left: 8px;
+      vertical-align: middle;
+    }
+    .badge-intro { background: rgba(96,165,250,0.15); color: var(--blue); }
+    .badge-core { background: rgba(110,231,183,0.15); color: var(--green); }
+    .badge-adv  { background: rgba(167,139,250,0.15); color: var(--purple); }
+    .badge-sec  { background: rgba(248,113,113,0.15); color: var(--red); }
+    .badge-prod { background: rgba(251,191,36,0.15); color: var(--yellow); }
+
+    .module-toggle {
+      width: 28px; height: 28px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.04); color: var(--text-dim);
+      font-size: 14px; transition: transform 0.2s, background 0.2s;
+      flex-shrink: 0;
+    }
+    .module-card.open .module-toggle {
+      transform: rotate(90deg);
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    /* ── Topic list ── */
+    .topic-list {
+      display: none;
+      padding: 0 1.5rem 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+    .module-card.open .topic-list {
+      display: block;
+    }
+    .topic-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 0.7rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      text-decoration: none;
+      transition: padding-left 0.15s;
+    }
+    .topic-item:last-child { border-bottom: none; }
+    .topic-item:hover { padding-left: 6px; }
+    .topic-num {
+      width: 24px; height: 24px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .topic-name {
+      font-size: 0.92rem; color: var(--text); flex: 1;
+    }
+    .topic-item:hover .topic-name { color: #fff; }
+    .topic-status {
+      font-size: 0.75rem; padding: 2px 8px; border-radius: 10px;
+      font-weight: 600; flex-shrink: 0;
+    }
+    .status-done {
+      background: rgba(110,231,183,0.12); color: var(--green);
+    }
+    .status-soon {
+      background: rgba(255,255,255,0.04); color: var(--text-dim);
+    }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center; margin-top: 3rem; padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .footer p {
+      font-size: 0.82rem; color: var(--text-dim);
+    }
+    .footer a { color: var(--blue); text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+
+    @media (max-width: 640px) {
+      body { padding: 1rem; }
+      .hero h1 { font-size: 1.6rem; }
+      .stats-bar { gap: 1rem; }
+      .module-header { padding: 1rem; }
+      .topic-list { padding: 0 1rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ HERO ════════════ -->
+  <div class="hero">
+    <div class="hero-badge">Workshop Interno · Zup Innovation</div>
+    <h1>Boas Práticas no<br><span>Claude Code</span></h1>
+    <p>
+      Conteúdo baseado na documentação oficial da Anthropic e práticas adotadas pela comunidade.
+      Navegue pelos módulos abaixo para acessar cada tópico.
+    </p>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat">
+      <div class="stat-value">10</div>
+      <div class="stat-label">Módulos</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">48</div>
+      <div class="stat-label">Tópicos</div>
+    </div>
+    <div class="stat">
+      <div class="stat-value">100%</div>
+      <div class="stat-label">Fontes Oficiais</div>
+    </div>
+  </div>
+
+  <!-- ════════════ MÓDULO 1 ════════════ -->
+  <div class="module-section">
+    <div class="module-card open" id="mod1">
+      <div class="module-header" onclick="toggle('mod1')">
+        <div class="module-icon" style="background: var(--blue-soft);">
+          <span>&#128640;</span>
+        </div>
+        <div class="module-info">
+          <div class="module-num" style="color: var(--blue);">
+            Módulo 1
+            <span class="module-badge badge-intro">Introdução</span>
+          </div>
+          <div class="module-title">O que é o Claude Code e como ele pensa</div>
+        </div>
+        <div class="module-toggle">&#9654;</div>
+      </div>
+      <div class="topic-list">
+        <a href="modulo-01/modulo-01-topico-01-loop-agentico.html" class="topic-item">
+          <div class="topic-num" style="background: var(--blue);">1</div>
+          <span class="topic-name">Loop agêntico: como o Claude explora, planeja e implementa</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+        <a href="modulo-01/modulo-01-topico-02-context-window.html" class="topic-item">
+          <div class="topic-num" style="background: var(--blue);">2</div>
+          <span class="topic-name">A constraint central: a context window e por que ela importa</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+        <a href="modulo-01/modulo-01-topico-03-chatbot-vs-agente.html" class="topic-item">
+          <div class="topic-num" style="background: var(--blue);">3</div>
+          <span class="topic-name">Diferença entre chatbot e agente de código</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+        <a href="modulo-01/modulo-01-topico-04-instalacao.html" class="topic-item">
+          <div class="topic-num" style="background: var(--blue);">4</div>
+          <span class="topic-name">Instalação, configuração e primeiros passos</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ MÓDULO 2 ════════════ -->
+  <div class="module-section">
+    <div class="module-card" id="mod2">
+      <div class="module-header" onclick="toggle('mod2')">
+        <div class="module-icon" style="background: var(--green-soft);">
+          <span>&#128196;</span>
+        </div>
+        <div class="module-info">
+          <div class="module-num" style="color: var(--green);">
+            Módulo 2
+            <span class="module-badge badge-core">Fundamento</span>
+          </div>
+          <div class="module-title">CLAUDE.md — O "cérebro permanente" do projeto</div>
+        </div>
+        <div class="module-toggle">&#9654;</div>
+      </div>
+      <div class="topic-list">
+        <a href="modulo-02/modulo-02-topico-01-claudemd-o-que-incluir.html" class="topic-item">
+          <div class="topic-num" style="background: var(--green);">1</div>
+          <span class="topic-name">O que incluir (comandos bash, estilo de código, convenções de branch)</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+        <a href="modulo-02/modulo-02-topico-02-claudemd-o-que-nao-incluir.html" class="topic-item">
+          <div class="topic-num" style="background: var(--green);">2</div>
+          <span class="topic-name">O que nunca incluir (o que o Claude já sabe)</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+        <a href="modulo-02/modulo-02-topico-03-init.html" class="topic-item">
+          <div class="topic-num" style="background: var(--green);">3</div>
+          <span class="topic-name">Usando /init para gerar um arquivo base automaticamente</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+        <a href="modulo-02/modulo-02-topico-04-manter-enxuto.html" class="topic-item">
+          <div class="topic-num" style="background: var(--green);">4</div>
+          <span class="topic-name">Mantendo o arquivo enxuto: a regra do "causaria erros se removido?"</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+        <a href="modulo-02/modulo-02-topico-05-skills-vs-claudemd.html" class="topic-item">
+          <div class="topic-num" style="background: var(--green);">5</div>
+          <span class="topic-name">Skills vs. CLAUDE.md: quando usar cada um</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ MÓDULO 3 ════════════ -->
+  <div class="module-section">
+    <div class="module-card" id="mod3">
+      <div class="module-header" onclick="toggle('mod3')">
+        <div class="module-icon" style="background: var(--green-soft);">
+          <span>&#129504;</span>
+        </div>
+        <div class="module-info">
+          <div class="module-num" style="color: var(--green);">
+            Módulo 3
+            <span class="module-badge badge-core">Fundamento</span>
+          </div>
+          <div class="module-title">O fluxo Explorar &rarr; Planejar &rarr; Implementar &rarr; Commit</div>
+        </div>
+        <div class="module-toggle">&#9654;</div>
+      </div>
+      <div class="topic-list">
+        <a href="modulo-03/modulo-03-topico-01-plan-mode.html" class="topic-item">
+          <div class="topic-num" style="background: var(--green);">1</div>
+          <span class="topic-name">Plan mode: separar pesquisa de execução</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+        <a href="modulo-03/modulo-03-topico-02-ler-antes-de-escrever.html" class="topic-item">
+          <div class="topic-num" style="background: var(--green);">2</div>
+          <span class="topic-name">Como forçar o Claude a ler o código antes de escrever</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+        <a href="modulo-03/modulo-03-topico-03-verificacao.html" class="topic-item">
+          <div class="topic-num" style="background: var(--green);">3</div>
+          <span class="topic-name">Critérios de verificação: testes, screenshots, outputs esperados</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+        <a href="modulo-03/modulo-03-topico-04-pular-planejamento.html" class="topic-item">
+          <div class="topic-num" style="background: var(--green);">4</div>
+          <span class="topic-name">Quando pular o planejamento (tarefas pequenas e escopo claro)</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+        <a href="modulo-03/modulo-03-topico-05-commits-prs.html" class="topic-item">
+          <div class="topic-num" style="background: var(--green);">5</div>
+          <span class="topic-name">Commits descritivos e criação de PRs com o Claude</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ MÓDULO 4 ════════════ -->
+  <div class="module-section">
+    <div class="module-card" id="mod4">
+      <div class="module-header" onclick="toggle('mod4')">
+        <div class="module-icon" style="background: var(--green-soft);">
+          <span>&#128172;</span>
+        </div>
+        <div class="module-info">
+          <div class="module-num" style="color: var(--green);">
+            Módulo 4
+            <span class="module-badge badge-core">Fundamento</span>
+          </div>
+          <div class="module-title">Prompts eficazes e contexto rico</div>
+        </div>
+        <div class="module-toggle">&#9654;</div>
+      </div>
+      <div class="topic-list">
+        <a href="modulo-04/modulo-04-topico-01-escopo.html" class="topic-item">
+          <div class="topic-num" style="background: var(--green);">1</div>
+          <span class="topic-name">Escopo da tarefa: arquivo, cenário, preferências de teste</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+        <a href="modulo-04/modulo-04-topico-02-referenciar-padroes.html" class="topic-item">
+          <div class="topic-num" style="background: var(--green);">2</div>
+          <span class="topic-name">Referenciar padrões existentes no codebase com @</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+        <a href="modulo-04/modulo-04-topico-03-pipe-urls-imagens.html" class="topic-item">
+          <div class="topic-num" style="background: var(--green);">3</div>
+          <span class="topic-name">Passar URLs, imagens, logs via pipe (cat error.log | claude)</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+        <a href="modulo-04/modulo-04-topico-04-sintoma-localizacao.html" class="topic-item">
+          <div class="topic-num" style="background: var(--green);">4</div>
+          <span class="topic-name">Descrever sintoma + localização + definição de "resolvido"</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+        <a href="modulo-04/modulo-04-topico-05-prompts-vagos.html" class="topic-item">
+          <div class="topic-num" style="background: var(--green);">5</div>
+          <span class="topic-name">Quando prompts vagos são úteis (exploração aberta)</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ MÓDULO 5 ════════════ -->
+  <div class="module-section">
+    <div class="module-card" id="mod5">
+      <div class="module-header" onclick="toggle('mod5')">
+        <div class="module-icon" style="background: var(--green-soft);">
+          <span>&#128218;</span>
+        </div>
+        <div class="module-info">
+          <div class="module-num" style="color: var(--green);">
+            Módulo 5
+            <span class="module-badge badge-core">Fundamento</span>
+          </div>
+          <div class="module-title">Gestão da context window</div>
+        </div>
+        <div class="module-toggle">&#9654;</div>
+      </div>
+      <div class="topic-list">
+        <a href="modulo-05/modulo-05-topico-01-degradacao.html" class="topic-item">
+          <div class="topic-num" style="background: var(--green);">1</div>
+          <span class="topic-name">Por que a performance degrada conforme o contexto enche</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+        <a href="modulo-05/modulo-05-topico-02-clear.html" class="topic-item">
+          <div class="topic-num" style="background: var(--green);">2</div>
+          <span class="topic-name">Usando /clear estrategicamente entre sessões</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+        <a href="modulo-05/modulo-05-topico-03-leituras-seletivas.html" class="topic-item">
+          <div class="topic-num" style="background: var(--green);">3</div>
+          <span class="topic-name">Leituras seletivas de arquivo em vez de exploração ampla</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+        <a href="modulo-05/modulo-05-topico-04-documentacao-viva.html" class="topic-item">
+          <div class="topic-num" style="background: var(--green);">4</div>
+          <span class="topic-name">Documentação viva (dev docs, living plans) para reduzir tokens</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+        <a href="modulo-05/modulo-05-topico-05-monitoramento.html" class="topic-item">
+          <div class="topic-num" style="background: var(--green);">5</div>
+          <span class="topic-name">Monitorando uso de contexto com status line customizada</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ MÓDULO 6 ════════════ -->
+  <div class="module-section">
+    <div class="module-card" id="mod6">
+      <div class="module-header" onclick="toggle('mod6')">
+        <div class="module-icon" style="background: var(--purple-soft);">
+          <span>&#128268;</span>
+        </div>
+        <div class="module-info">
+          <div class="module-num" style="color: var(--purple);">
+            Módulo 6
+            <span class="module-badge badge-adv">Avançado</span>
+          </div>
+          <div class="module-title">MCP — Model Context Protocol</div>
+        </div>
+        <div class="module-toggle">&#9654;</div>
+      </div>
+      <div class="topic-list">
+        <a href="modulo-06/modulo-06-topico-01-o-que-e-mcp.html" class="topic-item">
+          <div class="topic-num" style="background: var(--purple);">1</div>
+          <span class="topic-name">O que é MCP e como ampliar as capacidades do Claude Code</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+        <a href="modulo-06/modulo-06-topico-02-stdio-vs-http.html" class="topic-item">
+          <div class="topic-num" style="background: var(--purple);">2</div>
+          <span class="topic-name">Servidores locais (stdio) vs. remotos (HTTP/SSE)</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+        <a href="modulo-06/modulo-06-topico-03-configurando-mcp-json.html" class="topic-item">
+          <div class="topic-num" style="background: var(--purple);">3</div>
+          <span class="topic-name">Configurando servidores MCP com .mcp.json</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+        <a href="modulo-06/modulo-06-topico-04-allowlist-servidores.html" class="topic-item">
+          <div class="topic-num" style="background: var(--purple);">4</div>
+          <span class="topic-name">Allowlist de servidores: tratar MCP como dependência de software</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+        <a href="modulo-06/modulo-06-topico-05-casos-de-uso.html" class="topic-item">
+          <div class="topic-num" style="background: var(--purple);">5</div>
+          <span class="topic-name">Casos de uso: Git, banco de dados, APIs externas, automações</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ MÓDULO 7 ════════════ -->
+  <div class="module-section">
+    <div class="module-card" id="mod7">
+      <div class="module-header" onclick="toggle('mod7')">
+        <div class="module-icon" style="background: var(--purple-soft);">
+          <span>&#129693;</span>
+        </div>
+        <div class="module-info">
+          <div class="module-num" style="color: var(--purple);">
+            Módulo 7
+            <span class="module-badge badge-adv">Avançado</span>
+          </div>
+          <div class="module-title">Hooks — automação e controle de qualidade</div>
+        </div>
+        <div class="module-toggle">&#9654;</div>
+      </div>
+      <div class="topic-list">
+        <a href="modulo-07/modulo-07-topico-01-pretooluse-posttooluse.html" class="topic-item">
+          <div class="topic-num" style="background: var(--purple);">1</div>
+          <span class="topic-name">PreToolUse e PostToolUse: interceptar ações antes/depois</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+        <a href="modulo-07/modulo-07-topico-02-stop-hooks.html" class="topic-item">
+          <div class="topic-num" style="background: var(--purple);">2</div>
+          <span class="topic-name">Stop hooks: rodar build, typecheck e testes ao fim de cada resposta</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+        <a href="modulo-07/modulo-07-topico-03-bloquear-secrets.html" class="topic-item">
+          <div class="topic-num" style="background: var(--purple);">3</div>
+          <span class="topic-name">Hooks para bloquear commits com secrets expostos</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+        <a href="modulo-07/modulo-07-topico-04-auto-formatacao.html" class="topic-item">
+          <div class="topic-num" style="background: var(--purple);">4</div>
+          <span class="topic-name">Auto-formatação na escrita de arquivos</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+        <a href="modulo-07/modulo-07-topico-05-quality-gates.html" class="topic-item">
+          <div class="topic-num" style="background: var(--purple);">5</div>
+          <span class="topic-name">Hooks como quality gates: aprovação automática de operações seguras</span>
+          <span class="topic-status status-done">Pronto</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ MÓDULO 8 ════════════ -->
+  <div class="module-section">
+    <div class="module-card" id="mod8">
+      <div class="module-header" onclick="toggle('mod8')">
+        <div class="module-icon" style="background: var(--purple-soft);">
+          <span>&#127760;</span>
+        </div>
+        <div class="module-info">
+          <div class="module-num" style="color: var(--purple);">
+            Módulo 8
+            <span class="module-badge badge-adv">Avançado</span>
+          </div>
+          <div class="module-title">Subagentes, sessões paralelas e Git Worktrees</div>
+        </div>
+        <div class="module-toggle">&#9654;</div>
+      </div>
+      <div class="topic-list">
+        <a href="#" class="topic-item" style="pointer-events:none; opacity:0.5;">
+          <div class="topic-num" style="background: var(--purple);">1</div>
+          <span class="topic-name">Como o Claude delega tarefas a subagentes (Task tool)</span>
+          <span class="topic-status status-soon">Em breve</span>
+        </a>
+        <a href="#" class="topic-item" style="pointer-events:none; opacity:0.5;">
+          <div class="topic-num" style="background: var(--purple);">2</div>
+          <span class="topic-name">Rodando sessões paralelas com isolamento via Git Worktrees</span>
+          <span class="topic-status status-soon">Em breve</span>
+        </a>
+        <a href="#" class="topic-item" style="pointer-events:none; opacity:0.5;">
+          <div class="topic-num" style="background: var(--purple);">3</div>
+          <span class="topic-name">Escolha do modelo por tarefa: Opus, Sonnet, Haiku</span>
+          <span class="topic-status status-soon">Em breve</span>
+        </a>
+        <a href="#" class="topic-item" style="pointer-events:none; opacity:0.5;">
+          <div class="topic-num" style="background: var(--purple);">4</div>
+          <span class="topic-name">Controle de subagentes com --disallowedTools</span>
+          <span class="topic-status status-soon">Em breve</span>
+        </a>
+        <a href="#" class="topic-item" style="pointer-events:none; opacity:0.5;">
+          <div class="topic-num" style="background: var(--purple);">5</div>
+          <span class="topic-name">Padrões multi-agente: revisor, planejador, executor</span>
+          <span class="topic-status status-soon">Em breve</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ MÓDULO 9 ════════════ -->
+  <div class="module-section">
+    <div class="module-card" id="mod9">
+      <div class="module-header" onclick="toggle('mod9')">
+        <div class="module-icon" style="background: var(--red-soft);">
+          <span>&#128737;</span>
+        </div>
+        <div class="module-info">
+          <div class="module-num" style="color: var(--red);">
+            Módulo 9
+            <span class="module-badge badge-sec">Segurança</span>
+          </div>
+          <div class="module-title">Permissões, segurança e prevenção de riscos</div>
+        </div>
+        <div class="module-toggle">&#9654;</div>
+      </div>
+      <div class="topic-list">
+        <a href="#" class="topic-item" style="pointer-events:none; opacity:0.5;">
+          <div class="topic-num" style="background: var(--red);">1</div>
+          <span class="topic-name">Modos de permissão: plan, default, bypass — quando usar cada um</span>
+          <span class="topic-status status-soon">Em breve</span>
+        </a>
+        <a href="#" class="topic-item" style="pointer-events:none; opacity:0.5;">
+          <div class="topic-num" style="background: var(--red);">2</div>
+          <span class="topic-name">Regras de deny: bloquear acesso a .env, ~/.ssh/, secrets</span>
+          <span class="topic-status status-soon">Em breve</span>
+        </a>
+        <a href="#" class="topic-item" style="pointer-events:none; opacity:0.5;">
+          <div class="topic-num" style="background: var(--red);">3</div>
+          <span class="topic-name">Nunca rodar Claude Code como root</span>
+          <span class="topic-status status-soon">Em breve</span>
+        </a>
+        <a href="#" class="topic-item" style="pointer-events:none; opacity:0.5;">
+          <div class="topic-num" style="background: var(--red);">4</div>
+          <span class="topic-name">Prompt injection via README, comentários e respostas de MCP</span>
+          <span class="topic-status status-soon">Em breve</span>
+        </a>
+        <a href="#" class="topic-item" style="pointer-events:none; opacity:0.5;">
+          <div class="topic-num" style="background: var(--red);">5</div>
+          <span class="topic-name">CVEs conhecidos: lições de repositórios maliciosos e configs envenenadas</span>
+          <span class="topic-status status-soon">Em breve</span>
+        </a>
+        <a href="#" class="topic-item" style="pointer-events:none; opacity:0.5;">
+          <div class="topic-num" style="background: var(--red);">6</div>
+          <span class="topic-name">managed-settings.json para políticas de equipe/empresa</span>
+          <span class="topic-status status-soon">Em breve</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ MÓDULO 10 ════════════ -->
+  <div class="module-section">
+    <div class="module-card" id="mod10">
+      <div class="module-header" onclick="toggle('mod10')">
+        <div class="module-icon" style="background: var(--yellow-soft);">
+          <span>&#127981;</span>
+        </div>
+        <div class="module-info">
+          <div class="module-num" style="color: var(--yellow);">
+            Módulo 10
+            <span class="module-badge badge-prod">Produção</span>
+          </div>
+          <div class="module-title">Uso em equipes e ambientes de produção</div>
+        </div>
+        <div class="module-toggle">&#9654;</div>
+      </div>
+      <div class="topic-list">
+        <a href="#" class="topic-item" style="pointer-events:none; opacity:0.5;">
+          <div class="topic-num" style="background: var(--yellow);">1</div>
+          <span class="topic-name">Rotação de API keys e monitoramento de uso não autorizado</span>
+          <span class="topic-status status-soon">Em breve</span>
+        </a>
+        <a href="#" class="topic-item" style="pointer-events:none; opacity:0.5;">
+          <div class="topic-num" style="background: var(--yellow);">2</div>
+          <span class="topic-name">Retenção de transcrições e conformidade (LGPD / dados sensíveis)</span>
+          <span class="topic-status status-soon">Em breve</span>
+        </a>
+        <a href="#" class="topic-item" style="pointer-events:none; opacity:0.5;">
+          <div class="topic-num" style="background: var(--yellow);">3</div>
+          <span class="topic-name">Skills compartilhadas para times: slash commands padronizados</span>
+          <span class="topic-status status-soon">Em breve</span>
+        </a>
+        <a href="#" class="topic-item" style="pointer-events:none; opacity:0.5;">
+          <div class="topic-num" style="background: var(--yellow);">4</div>
+          <span class="topic-name">Gestão de custos: rate limits, seleção de modelo e uso em batch</span>
+          <span class="topic-status status-soon">Em breve</span>
+        </a>
+        <a href="#" class="topic-item" style="pointer-events:none; opacity:0.5;">
+          <div class="topic-num" style="background: var(--yellow);">5</div>
+          <span class="topic-name">Iteração contínua: refinando CLAUDE.md com base nos erros do Claude</span>
+          <span class="topic-status status-soon">Em breve</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ FOOTER ════════════ -->
+  <div class="footer">
+    <p>
+      Workshop desenvolvido por <strong style="color: #fff;">Thyago Luciano</strong> · Zup Innovation<br>
+      Conteúdo baseado na <a href="https://docs.claude.com" target="_blank">documentação oficial da Anthropic</a>
+      e práticas adotadas pela comunidade
+    </p>
+  </div>
+
+  <!-- ════════════ SCRIPT ════════════ -->
+  <script>
+    function toggle(id) {
+      const card = document.getElementById(id);
+      card.classList.toggle('open');
+    }
+  </script>
+
+</body>
+</html>
