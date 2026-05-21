@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modulo 7 - Topico 2: Stop Hooks | Workshop Claude Code</title>
+<style>
+:root {
+  --bg: #0f1117; --bg-card: #1a1d27; --bg-code: #141620; --border: #2a2d3a;
+  --text: #e4e4e7; --text-dim: #9ca3af; --accent: #c4956a; --accent-soft: rgba(196, 149, 106, 0.12);
+  --blue: #60a5fa; --blue-soft: rgba(96, 165, 250, 0.12); --green: #6ee7b7; --green-soft: rgba(110, 231, 183, 0.12);
+  --purple: #a78bfa; --purple-soft: rgba(167, 139, 250, 0.12); --red: #f87171; --red-soft: rgba(248, 113, 113, 0.12);
+  --yellow: #fbbf24; --yellow-soft: rgba(251, 191, 36, 0.12);
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace; --radius: 12px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.7; padding: 2rem; max-width: 960px; margin: 0 auto; }
+.topic-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); background: var(--accent-soft); padding: 6px 14px; border-radius: 20px; margin-bottom: 1rem; }
+h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+.subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+p { margin-bottom: 1rem; } a { color: var(--blue); text-decoration: none; } a:hover { text-decoration: underline; }
+code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+strong { color: #fff; }
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0; }
+.diagram-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto; }
+.diagram-container svg { display: block; margin: 0 auto; }
+.diagram-caption { text-align: center; font-size: 0.85rem; color: var(--text-dim); margin-top: 1rem; font-style: italic; }
+.code-block { background: var(--bg-code); border: 1px solid var(--border); border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden; }
+.code-header { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 1rem; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim); }
+.code-block pre { padding: 1rem 1.25rem; overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8; }
+.callout { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem; }
+.callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+.callout-red { border-left-color: var(--red); background: var(--red-soft); }
+.callout-green { border-left-color: var(--green); background: var(--green-soft); }
+.callout-yellow { border-left-color: var(--yellow); background: var(--yellow-soft); }
+.callout strong { color: #fff; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+@media (max-width: 640px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } body { padding: 1rem; } h1 { font-size: 1.5rem; } }
+.mini-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
+.mini-card h4 { font-size: 0.95rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px; }
+.mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+.icon-circle { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+td { color: var(--text); } tr:last-child td { border-bottom: none; }
+.sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+.sources ul { list-style: none; padding: 0; }
+.sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+.sources li::before { content: "\2192 "; color: var(--accent); }
+.nav-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.nav-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; color: var(--text); background: var(--bg-card); border: 1px solid var(--border); text-decoration: none; transition: border-color 0.2s; }
+.nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="topic-badge">Modulo 7 &middot; Topico 2</div>
+<h1>Stop Hooks: Rodar Build, Typecheck e Testes ao Fim de Cada Resposta</h1>
+<p class="subtitle">Como usar Stop hooks para garantir automaticamente que o codigo gerado pelo Claude compila, passa no typecheck e nos testes antes de devolver o controle ao desenvolvedor.</p>
+
+<!-- O que sao Stop Hooks -->
+<h2>O que sao Stop Hooks</h2>
+
+<p>Stop hooks sao hooks que disparam <strong>toda vez que o Claude termina de responder</strong> - ou seja, a cada turno de conversa, nao apenas quando a tarefa inteira e concluida. Esse comportamento e fundamental: se o Claude faz 5 respostas durante uma tarefa, o Stop hook executa 5 vezes.</p>
+
+<div class="callout callout-yellow">
+  <strong>Atencao:</strong> Stop hooks <strong>nao disparam</strong> quando o usuario interrompe a resposta (Ctrl+C). Em caso de erro de API, o evento disparado e <code>StopFailure</code>, nao o Stop hook comum.
+</div>
+
+<p>Diferente de <code>PreToolUse</code> e <code>PostToolUse</code>, Stop hooks <strong>nao suportam matchers</strong>. Eles sempre disparam em toda ocorrencia do evento Stop. Isso simplifica a configuracao, mas exige que a logica de decisao esteja dentro do proprio hook.</p>
+
+<h3>Tres tipos de Stop hook</h3>
+
+<div class="grid-3">
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">$</span> Command</h4>
+    <p>Executa um comando shell. O exit code determina se o Claude pode parar ou deve continuar trabalhando.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">?</span> Prompt</h4>
+    <p>Envia a conversa para um modelo (Haiku por padrao) que avalia se a tarefa esta completa.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">A</span> Agent</h4>
+    <p>Cria um subagente com acesso a ferramentas (Read, Grep, Glob) para inspecionar o estado do projeto.</p>
+  </div>
+</div>
+
+<!-- Diagrama de Fluxo -->
+<h2>Fluxo de Execucao do Stop Hook</h2>
+
+<div class="diagram-container">
+  <svg viewBox="0 0 860 320" xmlns="http://www.w3.org/2000/svg" fill="none">
+    <!-- Claude responds -->
+    <rect x="10" y="120" width="120" height="50" rx="10" fill="#1a1d27" stroke="#c4956a" stroke-width="1.5"/>
+    <text x="70" y="150" text-anchor="middle" fill="#e4e4e7" font-family="Inter, sans-serif" font-size="12" font-weight="600">Claude responde</text>
+
+    <!-- Arrow -->
+    <line x1="130" y1="145" x2="170" y2="145" stroke="#4a4d5a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+    <!-- Stop Event -->
+    <rect x="170" y="120" width="100" height="50" rx="10" fill="#1a1d27" stroke="#fbbf24" stroke-width="1.5"/>
+    <text x="220" y="142" text-anchor="middle" fill="#fbbf24" font-family="Inter, sans-serif" font-size="11" font-weight="600">Evento</text>
+    <text x="220" y="158" text-anchor="middle" fill="#fbbf24" font-family="Inter, sans-serif" font-size="11" font-weight="600">Stop</text>
+
+    <!-- Arrow -->
+    <line x1="270" y1="145" x2="310" y2="145" stroke="#4a4d5a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+    <!-- Hook executes -->
+    <rect x="310" y="120" width="110" height="50" rx="10" fill="#1a1d27" stroke="#60a5fa" stroke-width="1.5"/>
+    <text x="365" y="142" text-anchor="middle" fill="#60a5fa" font-family="Inter, sans-serif" font-size="11" font-weight="600">Hook</text>
+    <text x="365" y="158" text-anchor="middle" fill="#60a5fa" font-family="Inter, sans-serif" font-size="11" font-weight="600">executa</text>
+
+    <!-- Arrow to decision -->
+    <line x1="420" y1="145" x2="460" y2="145" stroke="#4a4d5a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+    <!-- Decision diamond -->
+    <polygon points="510,110 560,145 510,180 460,145" fill="#1a1d27" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="510" y="148" text-anchor="middle" fill="#a78bfa" font-family="Inter, sans-serif" font-size="11" font-weight="600">ok?</text>
+
+    <!-- Yes path -->
+    <line x1="560" y1="145" x2="620" y2="145" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <text x="590" y="138" text-anchor="middle" fill="#6ee7b7" font-family="Inter, sans-serif" font-size="10">sim</text>
+
+    <!-- Stop box -->
+    <rect x="620" y="120" width="90" height="50" rx="10" fill="#1a1d27" stroke="#6ee7b7" stroke-width="1.5"/>
+    <text x="665" y="150" text-anchor="middle" fill="#6ee7b7" font-family="Inter, sans-serif" font-size="12" font-weight="600">Para</text>
+
+    <!-- No path -->
+    <line x1="510" y1="180" x2="510" y2="220" stroke="#f87171" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <text x="525" y="205" text-anchor="start" fill="#f87171" font-family="Inter, sans-serif" font-size="10">nao</text>
+
+    <!-- Claude continues -->
+    <rect x="440" y="220" width="140" height="50" rx="10" fill="#1a1d27" stroke="#f87171" stroke-width="1.5"/>
+    <text x="510" y="242" text-anchor="middle" fill="#e4e4e7" font-family="Inter, sans-serif" font-size="11" font-weight="600">Claude continua</text>
+    <text x="510" y="258" text-anchor="middle" fill="#text-dim" font-family="Inter, sans-serif" font-size="10" fill="#9ca3af">(com reason)</text>
+
+    <!-- Loop back arrow -->
+    <path d="M440,245 L200,245 L200,170" stroke="#4a4d5a" stroke-width="1.5" fill="none" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+
+    <!-- Block cap -->
+    <rect x="660" y="220" width="170" height="50" rx="10" fill="#1a1d27" stroke="#f87171" stroke-width="1.5" stroke-dasharray="4,3"/>
+    <text x="745" y="242" text-anchor="middle" fill="#f87171" font-family="Inter, sans-serif" font-size="11" font-weight="600">Block cap (8x)</text>
+    <text x="745" y="258" text-anchor="middle" fill="#9ca3af" font-family="Inter, sans-serif" font-size="10">Forca parada</text>
+
+    <!-- Arrow from continue to block cap -->
+    <line x1="580" y1="245" x2="660" y2="245" stroke="#4a4d5a" stroke-width="1.5" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+    <text x="620" y="238" text-anchor="middle" fill="#9ca3af" font-family="Inter, sans-serif" font-size="9">apos 8 bloqueios</text>
+
+    <!-- Arrow marker -->
+    <defs>
+      <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L8,3 L0,6" fill="#4a4d5a"/>
+      </marker>
+    </defs>
+  </svg>
+  <div class="diagram-caption">Fluxo completo do Stop hook: cada resposta do Claude dispara o evento, e o hook decide se permite a parada ou forca o Claude a continuar.</div>
+</div>
+
+<!-- Command type -->
+<h2>Stop Hook tipo Command</h2>
+
+<p>O tipo <code>command</code> executa um comando shell quando o Claude termina de responder. O comportamento e controlado pelo <strong>exit code</strong>:</p>
+
+<table>
+  <thead>
+    <tr><th>Exit Code</th><th>Comportamento</th><th>Descricao</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>0</code></td><td>Permite parada</td><td>O Claude para normalmente e devolve o controle ao usuario.</td></tr>
+    <tr><td><code>2</code></td><td>Bloqueia parada</td><td>O Claude continua trabalhando. O conteudo de <code>stderr</code> e enviado como instrucao para o Claude.</td></tr>
+  </tbody>
+</table>
+
+<p>Esse mecanismo e perfeito para validar automaticamente o codigo gerado. Se o build quebra, o typecheck falha ou os testes nao passam, o Claude recebe o erro e tenta corrigir sem intervencao humana.</p>
+
+<h3>Exemplo: rodar testes ao fim de cada resposta</h3>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/settings.json</span><span>JSON</span></div>
+  <pre>{
+  "hooks": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "npm test 2>&1 || (echo 'Testes falharam. Corrija os erros acima.' >&2 && exit 2)"
+      }
+    ]
+  }
+}</pre>
+</div>
+
+<p>Neste exemplo, <code>npm test</code> e executado. Se os testes passam (exit 0), o Claude para. Se falham, o script redireciona a mensagem de erro para <code>stderr</code> e retorna exit 2, forcando o Claude a analisar a saida e corrigir o codigo.</p>
+
+<h3>Exemplo: typecheck com TypeScript</h3>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/settings.json</span><span>JSON</span></div>
+  <pre>{
+  "hooks": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "tsc --noEmit 2>&1 || (echo 'Erros de tipo encontrados. Corrija-os.' >&2 && exit 2)"
+      }
+    ]
+  }
+}</pre>
+</div>
+
+<div class="callout callout-blue">
+  <strong>Dica:</strong> Voce pode encadear multiplas verificacoes em um unico comando usando <code>&amp;&amp;</code>. Por exemplo: <code>tsc --noEmit &amp;&amp; npm test &amp;&amp; npm run lint</code>. Se qualquer etapa falhar, o Claude recebe o erro e tenta corrigir.
+</div>
+
+<h3>Exemplo: build + typecheck + testes combinados</h3>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/settings.json</span><span>JSON</span></div>
+  <pre>{
+  "hooks": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "bash -c 'ERRORS=\"\"; tsc --noEmit 2>&1 || ERRORS=\"$ERRORS\nTypecheck falhou.\"; npm test 2>&1 || ERRORS=\"$ERRORS\nTestes falharam.\"; if [ -n \"$ERRORS\" ]; then echo \"$ERRORS\" >&2; exit 2; fi'"
+      }
+    ]
+  }
+}</pre>
+</div>
+
+<p>Este hook mais sofisticado executa tanto o typecheck quanto os testes, acumula todos os erros e, se houver qualquer falha, envia todos de uma vez para o Claude corrigir.</p>
+
+<!-- Prompt type -->
+<h2>Stop Hook tipo Prompt</h2>
+
+<p>O tipo <code>prompt</code> envia o contexto da conversa para um modelo auxiliar (Haiku por padrao) que avalia se a tarefa esta completa. O modelo retorna um objeto JSON com a decisao:</p>
+
+<div class="grid-2">
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">&#10003;</span> Tarefa completa</h4>
+    <p><code>{"ok": true}</code> &mdash; O Claude para normalmente.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--red-soft); color: var(--red);">&#10007;</span> Tarefa incompleta</h4>
+    <p><code>{"ok": false, "reason": "descricao do que falta"}</code> &mdash; O Claude continua usando o reason como proxima instrucao.</p>
+  </div>
+</div>
+
+<h3>Exemplo: verificar se todas as tarefas estao completas</h3>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/settings.json</span><span>JSON</span></div>
+  <pre>{
+  "hooks": {
+    "Stop": [
+      {
+        "type": "prompt",
+        "prompt": "Verifique se o Claude completou TODAS as tarefas solicitadas pelo usuario. Considere: 1) Todos os arquivos mencionados foram criados ou modificados? 2) O codigo parece funcional e sem erros obvios? 3) Todas as instrucoes explicitas foram seguidas? Retorne {\"ok\": true} se tudo foi feito, ou {\"ok\": false, \"reason\": \"descricao do que falta\"} caso contrario."
+      }
+    ]
+  }
+}</pre>
+</div>
+
+<div class="callout">
+  <strong>Modelo padrao:</strong> O prompt-type Stop hook usa <strong>Haiku</strong> por padrao para manter baixa a latencia e o custo. Como Haiku avalia a cada turno, a escolha do modelo mais leve e intencional. Voce pode alterar o modelo se necessario, mas considere o impacto no tempo de resposta.
+</div>
+
+<!-- Agent type -->
+<h2>Stop Hook tipo Agent</h2>
+
+<p>O tipo <code>agent</code> e o mais poderoso. Ele cria um <strong>subagente completo</strong> com acesso a ferramentas de leitura do projeto (<code>Read</code>, <code>Grep</code>, <code>Glob</code>). O subagente pode inspecionar arquivos, verificar a existencia de testes, validar conteudo e tomar decisoes complexas.</p>
+
+<table>
+  <thead>
+    <tr><th>Parametro</th><th>Padrao</th><th>Descricao</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>type</code></td><td><code>"agent"</code></td><td>Define o hook como subagente.</td></tr>
+    <tr><td><code>prompt</code></td><td>&mdash;</td><td>Instrucao para o subagente avaliar.</td></tr>
+    <tr><td>Timeout</td><td>60 segundos</td><td>Tempo maximo de execucao do subagente.</td></tr>
+    <tr><td>Tool-use turns</td><td>Ate 50</td><td>Numero maximo de turnos de uso de ferramentas.</td></tr>
+    <tr><td>Resposta</td><td>&mdash;</td><td><code>{"ok": true}</code> ou <code>{"ok": false, "reason": "..."}</code></td></tr>
+  </tbody>
+</table>
+
+<h3>Exemplo: subagente que verifica se testes existem e passam</h3>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/settings.json</span><span>JSON</span></div>
+  <pre>{
+  "hooks": {
+    "Stop": [
+      {
+        "type": "agent",
+        "prompt": "Verifique se existem arquivos de teste correspondentes para cada arquivo de codigo-fonte modificado nesta sessao. Use Glob para encontrar arquivos *.test.ts ou *.spec.ts. Para cada arquivo de codigo modificado, confirme que existe um arquivo de teste correspondente. Se algum arquivo de teste estiver faltando, retorne {\"ok\": false, \"reason\": \"Faltam testes para: [lista de arquivos]\"}. Se todos os testes existem, retorne {\"ok\": true}."
+      }
+    ]
+  }
+}</pre>
+</div>
+
+<div class="callout callout-green">
+  <strong>Vantagem do Agent:</strong> Diferente do tipo command (que so roda shell) e do tipo prompt (que so analisa texto), o agent pode <strong>navegar pelo projeto</strong>, ler arquivos especificos, buscar padroes com Grep e tomar decisoes baseadas no estado real do codigo.
+</div>
+
+<!-- Block Cap -->
+<h2>Block Cap: Evitando Loops Infinitos</h2>
+
+<p>Um risco real de Stop hooks e o <strong>loop infinito</strong>: o hook bloqueia, o Claude tenta corrigir mas nao consegue, o hook bloqueia novamente, e assim por diante. Para evitar isso, o Claude Code implementa um mecanismo de seguranca chamado <strong>block cap</strong>.</p>
+
+<div class="card">
+  <h3 style="margin-top: 0;">Comportamento padrao do Block Cap</h3>
+  <p>Apos <strong>8 bloqueios consecutivos</strong> sem progresso, o Claude Code ignora o Stop hook e forca a parada. Isso evita que o agente fique preso em um loop eterno tentando corrigir algo que nao consegue resolver.</p>
+  <p style="margin-bottom: 0;">O limite pode ser ajustado pela variavel de ambiente <code>CLAUDE_CODE_STOP_HOOK_BLOCK_CAP</code>.</p>
+</div>
+
+<h3>Verificando stop_hook_active no script</h3>
+
+<p>Dentro de um Stop hook do tipo command, voce pode verificar o campo <code>stop_hook_active</code> presente no JSON de entrada do hook. Quando <code>stop_hook_active</code> e <code>true</code>, significa que o Claude ja esta em um ciclo de correcao disparado por um bloqueio anterior. Isso permite que o script decida ser mais tolerante para evitar loops.</p>
+
+<div class="code-block">
+  <div class="code-header"><span>stop-hook.sh</span><span>Bash</span></div>
+  <pre>#!/bin/bash
+# Le o JSON de entrada do hook via stdin
+INPUT=$(cat)
+
+# Verifica se o hook ja esta ativo (evita loops)
+HOOK_ACTIVE=$(echo "$INPUT" | jq -r '.stop_hook_active // false')
+
+if [ "$HOOK_ACTIVE" = "true" ]; then
+  # Ja estamos em um ciclo de correcao.
+  # Ser mais tolerante para evitar loop infinito.
+  echo "Stop hook ativo - permitindo parada para evitar loop." >&2
+  exit 0
+fi
+
+# Execucao normal: roda testes
+npm test 2>&1
+TEST_EXIT=$?
+
+if [ $TEST_EXIT -ne 0 ]; then
+  echo "Testes falharam. Corrija os erros antes de finalizar." >&2
+  exit 2
+fi
+
+exit 0</pre>
+</div>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/settings.json</span><span>JSON</span></div>
+  <pre>{
+  "hooks": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "bash ./stop-hook.sh"
+      }
+    ]
+  }
+}</pre>
+</div>
+
+<div class="callout callout-red">
+  <strong>Cuidado:</strong> Se voce aumentar o block cap com <code>CLAUDE_CODE_STOP_HOOK_BLOCK_CAP</code>, esteja ciente de que isso pode resultar em consumo significativo de tokens e tempo. Um valor muito alto pode fazer o Claude gastar dezenas de milhares de tokens tentando resolver algo irresolvivel.
+</div>
+
+<!-- Estrategias avancadas -->
+<h2>Estrategias Avancadas</h2>
+
+<h3>Combinando multiplos Stop hooks</h3>
+
+<p>Voce pode definir multiplos Stop hooks na mesma configuracao. Todos sao executados, e <strong>qualquer um que retorne bloqueio impede a parada</strong>. Isso permite separar responsabilidades:</p>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/settings.json</span><span>JSON</span></div>
+  <pre>{
+  "hooks": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "tsc --noEmit 2>&1 || (echo 'Typecheck falhou.' >&2 && exit 2)"
+      },
+      {
+        "type": "command",
+        "command": "npm test 2>&1 || (echo 'Testes falharam.' >&2 && exit 2)"
+      },
+      {
+        "type": "command",
+        "command": "npm run lint 2>&1 || (echo 'Lint falhou.' >&2 && exit 2)"
+      }
+    ]
+  }
+}</pre>
+</div>
+
+<h3>Stop hook seletivo por tipo de arquivo</h3>
+
+<p>Como Stop hooks nao tem matchers, voce pode implementar a logica de selecao dentro do proprio script. Por exemplo, so rodar testes se arquivos TypeScript foram modificados:</p>
+
+<div class="code-block">
+  <div class="code-header"><span>stop-hook-seletivo.sh</span><span>Bash</span></div>
+  <pre>#!/bin/bash
+# Verifica se houve mudancas em arquivos .ts ou .tsx
+CHANGED=$(git diff --name-only HEAD 2>/dev/null | grep -E '\.(ts|tsx)$')
+
+if [ -z "$CHANGED" ]; then
+  # Nenhum arquivo TypeScript alterado, pula verificacao
+  exit 0
+fi
+
+# Roda typecheck e testes
+tsc --noEmit 2>&1
+if [ $? -ne 0 ]; then
+  echo "Typecheck falhou em arquivos TypeScript modificados." >&2
+  exit 2
+fi
+
+npm test 2>&1
+if [ $? -ne 0 ]; then
+  echo "Testes falharam." >&2
+  exit 2
+fi
+
+exit 0</pre>
+</div>
+
+<h3>Tabela comparativa dos tres tipos</h3>
+
+<table>
+  <thead>
+    <tr><th>Caracteristica</th><th>Command</th><th>Prompt</th><th>Agent</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Execucao</td><td>Shell command</td><td>Modelo LLM (Haiku)</td><td>Subagente com tools</td></tr>
+    <tr><td>Acesso a arquivos</td><td>Via shell (cat, grep)</td><td>Nao direto</td><td>Read, Grep, Glob</td></tr>
+    <tr><td>Latencia</td><td>Baixa (depende do comando)</td><td>Media (chamada API)</td><td>Alta (multiplos turnos)</td></tr>
+    <tr><td>Custo</td><td>Zero (local)</td><td>Baixo (Haiku)</td><td>Medio-Alto</td></tr>
+    <tr><td>Complexidade</td><td>Simples</td><td>Medio</td><td>Alto</td></tr>
+    <tr><td>Melhor uso</td><td>Build, test, lint</td><td>Checklist semantico</td><td>Verificacao de arquitetura</td></tr>
+    <tr><td>Timeout padrao</td><td>&mdash;</td><td>&mdash;</td><td>60 segundos</td></tr>
+    <tr><td>Decisao</td><td>Exit code (0 ou 2)</td><td>JSON ok/reason</td><td>JSON ok/reason</td></tr>
+  </tbody>
+</table>
+
+<!-- Boas praticas -->
+<h2>Boas Praticas</h2>
+
+<div class="grid-2">
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">1</span> Mensagens claras no stderr</h4>
+    <p>Quando o hook bloqueia, o conteudo de stderr e a instrucao que o Claude recebe. Seja explicito e objetivo sobre o que falhou e o que precisa ser corrigido.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">2</span> Verifique stop_hook_active</h4>
+    <p>Sempre considere verificar esse campo em scripts complexos para evitar loops infinitos quando o Claude nao consegue resolver o problema.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">3</span> Prefira command para CI</h4>
+    <p>Para build, typecheck e testes, o tipo command e o mais eficiente: zero custo adicional, execucao local rapida e feedback direto.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">4</span> Limite a saida</h4>
+    <p>Redirecione apenas os erros relevantes para stderr. Saidas muito longas podem confundir o Claude e desperdicar tokens.</p>
+  </div>
+</div>
+
+<div class="callout callout-green">
+  <strong>Padrao recomendado para projetos TypeScript:</strong> Combine <code>tsc --noEmit</code> (typecheck) + <code>npm test</code> (testes) em um unico Stop hook command. Isso garante que o Claude so para quando o codigo compila e os testes passam, sem custo adicional de API e com feedback rapido.
+</div>
+
+<!-- Fontes -->
+<div class="sources">
+  <h3>Fontes</h3>
+  <ul>
+    <li><a href="https://docs.anthropic.com/en/docs/claude-code/hooks" target="_blank">Documentacao oficial - Claude Code Hooks</a></li>
+    <li><a href="https://docs.anthropic.com/en/docs/claude-code/hooks-guide" target="_blank">Guia pratico de Hooks - Claude Code</a></li>
+  </ul>
+</div>
+
+<!-- Nav footer -->
+<div class="nav-footer">
+  <a href="modulo-07-topico-01-pretooluse-posttooluse.html" class="nav-btn">&larr; Topico 1 &middot; PreToolUse e PostToolUse</a>
+  <a href="../index.html" class="nav-btn">Indice</a>
+  <a href="modulo-07-topico-03-bloquear-secrets.html" class="nav-btn">Topico 3 &middot; Bloquear Secrets &rarr;</a>
+</div>
+
+</body>
+</html>

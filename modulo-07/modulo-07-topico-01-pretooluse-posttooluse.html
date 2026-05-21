@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modulo 7 . Topico 1 -- PreToolUse e PostToolUse: interceptar acoes antes/depois</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-code: #141620;
+      --border: #2a2d3a;
+      --text: #e4e4e7;
+      --text-dim: #9ca3af;
+      --accent: #c4956a;
+      --accent-soft: rgba(196, 149, 106, 0.12);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.12);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 12px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.7; padding: 2rem; max-width: 960px; margin: 0 auto; }
+    .topic-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); background: var(--accent-soft); padding: 6px 14px; border-radius: 20px; margin-bottom: 1rem; }
+    h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+    .subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+    h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+    p { margin-bottom: 1rem; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+    strong { color: #fff; }
+    .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0; }
+    .card-label { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 10px; border-radius: 6px; margin-bottom: 0.75rem; }
+    .diagram-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto; }
+    .diagram-container svg { display: block; margin: 0 auto; }
+    .diagram-caption { text-align: center; font-size: 0.85rem; color: var(--text-dim); margin-top: 1rem; font-style: italic; }
+    .code-block { background: var(--bg-code); border: 1px solid var(--border); border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden; }
+    .code-header { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 1rem; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim); }
+    .code-block pre { padding: 1rem 1.25rem; overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8; }
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: var(--purple); }
+    .code-block .string { color: var(--green); }
+    .code-block .tool { color: var(--accent); }
+    .code-block .number { color: var(--yellow); }
+    .callout { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem; }
+    .callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+    .callout-red { border-left-color: var(--red); background: var(--red-soft); }
+    .callout-green { border-left-color: var(--green); background: var(--green-soft); }
+    .callout-yellow { border-left-color: var(--yellow); background: var(--yellow-soft); }
+    .callout strong { color: #fff; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    @media (max-width: 640px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } body { padding: 1rem; } h1 { font-size: 1.5rem; } }
+    .mini-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
+    .mini-card h4 { font-size: 0.95rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px; }
+    .mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+    .icon-circle { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+    .sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .sources ul { list-style: none; padding: 0; }
+    .sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+    .sources li::before { content: "\2192 "; color: var(--accent); }
+    .nav-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .nav-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; color: var(--text); background: var(--bg-card); border: 1px solid var(--border); text-decoration: none; transition: border-color 0.2s; }
+    .nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <div class="topic-badge">Modulo 7 &middot; Topico 1</div>
+  <h1>PreToolUse e PostToolUse: interceptar acoes antes e depois</h1>
+  <p class="subtitle">
+    Hooks que interceptam chamadas de ferramenta permitem bloquear operacoes perigosas, reescrever argumentos
+    e filtrar saidas antes que Claude as veja. Entenda o ciclo de vida completo de uma tool call e como
+    cada ponto de interceptacao funciona.
+  </p>
+
+  <!-- ════════════════════════════════════════ -->
+  <h2>O modelo mental: lifecycle de uma tool call</h2>
+
+  <p>
+    Toda vez que Claude decide invocar uma ferramenta (Bash, Edit, Write, Read, MCP tools, etc.),
+    a execucao passa por um pipeline bem definido. Os hooks <code>PreToolUse</code> e <code>PostToolUse</code>
+    sao pontos de interceptacao nesse pipeline &mdash; o primeiro <strong>antes</strong> da execucao,
+    o segundo <strong>depois</strong>.
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 880 420" xmlns="http://www.w3.org/2000/svg" fill="none">
+      <!-- Background flow line -->
+      <line x1="440" y1="30" x2="440" y2="400" stroke="#2a2d3a" stroke-width="2" stroke-dasharray="6,4"/>
+
+      <!-- Step 1: Claude decides tool call -->
+      <rect x="290" y="10" width="300" height="44" rx="8" fill="#1a1d27" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="440" y="37" text-anchor="middle" fill="#a78bfa" font-family="Inter, sans-serif" font-size="13" font-weight="600">Claude decide chamar uma tool</text>
+
+      <!-- Arrow -->
+      <line x1="440" y1="54" x2="440" y2="78" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+      <!-- Step 2: PreToolUse -->
+      <rect x="250" y="78" width="380" height="80" rx="10" fill="rgba(196,149,106,0.12)" stroke="#c4956a" stroke-width="2"/>
+      <text x="440" y="102" text-anchor="middle" fill="#c4956a" font-family="Inter, sans-serif" font-size="14" font-weight="700">PreToolUse Hook</text>
+      <text x="440" y="122" text-anchor="middle" fill="#9ca3af" font-family="Inter, sans-serif" font-size="11">Recebe: tool_name, tool_input, session_id, cwd</text>
+      <text x="440" y="142" text-anchor="middle" fill="#9ca3af" font-family="Inter, sans-serif" font-size="11">Retorna: allow | deny | ask | updatedInput</text>
+
+      <!-- Decision branches from PreToolUse -->
+      <!-- Deny branch (left) -->
+      <line x1="320" y1="158" x2="160" y2="198" stroke="#f87171" stroke-width="1.5" marker-end="url(#arrow-red)"/>
+      <rect x="60" y="188" width="200" height="38" rx="8" fill="rgba(248,113,113,0.12)" stroke="#f87171" stroke-width="1.5"/>
+      <text x="160" y="212" text-anchor="middle" fill="#f87171" font-family="Inter, sans-serif" font-size="12" font-weight="600">BLOQUEADO (deny/exit 2)</text>
+
+      <!-- Ask branch (right) -->
+      <line x1="560" y1="158" x2="720" y2="198" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arrow-yellow)"/>
+      <rect x="620" y="188" width="200" height="38" rx="8" fill="rgba(251,191,36,0.12)" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="720" y="212" text-anchor="middle" fill="#fbbf24" font-family="Inter, sans-serif" font-size="12" font-weight="600">PEDE CONFIRMACAO (ask)</text>
+
+      <!-- Allow branch (center) -->
+      <line x1="440" y1="158" x2="440" y2="188" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+
+      <!-- Step 3: Permission Check -->
+      <rect x="310" y="188" width="260" height="38" rx="8" fill="#1a1d27" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="440" y="212" text-anchor="middle" fill="#60a5fa" font-family="Inter, sans-serif" font-size="12" font-weight="600">Permission Mode Check</text>
+
+      <!-- Arrow -->
+      <line x1="440" y1="226" x2="440" y2="256" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+      <!-- Step 4: Tool Execution -->
+      <rect x="310" y="256" width="260" height="44" rx="8" fill="#1a1d27" stroke="#6ee7b7" stroke-width="2"/>
+      <text x="440" y="283" text-anchor="middle" fill="#6ee7b7" font-family="Inter, sans-serif" font-size="13" font-weight="700">Tool Execution</text>
+
+      <!-- Arrow -->
+      <line x1="440" y1="300" x2="440" y2="324" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+      <!-- Step 5: PostToolUse -->
+      <rect x="250" y="324" width="380" height="70" rx="10" fill="rgba(96,165,250,0.12)" stroke="#60a5fa" stroke-width="2"/>
+      <text x="440" y="350" text-anchor="middle" fill="#60a5fa" font-family="Inter, sans-serif" font-size="14" font-weight="700">PostToolUse Hook</text>
+      <text x="440" y="370" text-anchor="middle" fill="#9ca3af" font-family="Inter, sans-serif" font-size="11">Pode reescrever output | executar side-effects</text>
+      <text x="440" y="386" text-anchor="middle" fill="#9ca3af" font-family="Inter, sans-serif" font-size="11">NAO pode desfazer a acao ja executada</text>
+
+      <!-- Arrow markers -->
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8" fill="none" stroke="#6b7280" stroke-width="1.5"/>
+        </marker>
+        <marker id="arrow-red" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8" fill="none" stroke="#f87171" stroke-width="1.5"/>
+        </marker>
+        <marker id="arrow-yellow" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8" fill="none" stroke="#fbbf24" stroke-width="1.5"/>
+        </marker>
+        <marker id="arrow-green" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8" fill="none" stroke="#6ee7b7" stroke-width="1.5"/>
+        </marker>
+      </defs>
+    </svg>
+    <div class="diagram-caption">Lifecycle completo de uma tool call com pontos de interceptacao PreToolUse e PostToolUse</div>
+  </div>
+
+  <div class="callout callout-red">
+    <strong>Ponto critico:</strong> Hooks PreToolUse disparam <strong>antes</strong> de qualquer verificacao de permission mode.
+    Um hook que retorna <code>"deny"</code> bloqueia a ferramenta mesmo quando Claude Code esta rodando
+    com <code>--dangerously-skip-permissions</code> (bypassPermissions). Isso torna hooks a unica camada
+    de seguranca que nao pode ser contornada por flags de CLI.
+  </div>
+
+  <!-- ════════════════════════════════════════ -->
+  <h2>PreToolUse em profundidade</h2>
+
+  <h3>O que o hook recebe</h3>
+  <p>
+    Quando um hook PreToolUse e acionado, Claude Code envia um JSON via <strong>stdin</strong> para o
+    processo do hook. O payload contem todas as informacoes necessarias para decidir se a acao deve prosseguir.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header"><span>JSON &middot; stdin do hook PreToolUse</span></div>
+    <pre>{
+  <span class="string">"hook_event_name"</span>: <span class="string">"PreToolUse"</span>,
+  <span class="string">"session_id"</span>: <span class="string">"abc123-def456"</span>,
+  <span class="string">"cwd"</span>: <span class="string">"/home/user/my-project"</span>,
+  <span class="string">"tool_name"</span>: <span class="string">"Edit"</span>,
+  <span class="string">"tool_input"</span>: {
+    <span class="string">"file_path"</span>: <span class="string">"/home/user/my-project/src/index.ts"</span>,
+    <span class="string">"old_string"</span>: <span class="string">"const x = 1"</span>,
+    <span class="string">"new_string"</span>: <span class="string">"const x = 2"</span>
+  }
+}</pre>
+  </div>
+
+  <h3>Exit codes e decisoes</h3>
+  <p>
+    O hook comunica sua decisao atraves de uma combinacao de <strong>exit code</strong> e
+    <strong>JSON em stdout</strong>. Os dois mecanismos se complementam:
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Exit Code</th>
+        <th>Significado</th>
+        <th>Comportamento</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>0</code></td>
+        <td>Sem objecao</td>
+        <td>O fluxo normal de permissoes continua (permission mode e aplicado)</td>
+      </tr>
+      <tr>
+        <td><code>2</code></td>
+        <td>Bloquear</td>
+        <td>A tool call e <strong>cancelada imediatamente</strong>, sem passar pelo permission check</td>
+      </tr>
+      <tr>
+        <td>Qualquer outro</td>
+        <td>Erro no hook</td>
+        <td>Claude Code reporta o erro mas <strong>nao bloqueia</strong> a acao</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>JSON de resposta: permissionDecision</h3>
+  <p>
+    Alem do exit code, o hook pode emitir JSON em stdout com controle mais granular.
+    O campo <code>permissionDecision</code> aceita tres valores:
+  </p>
+
+  <div class="grid-3">
+    <div class="mini-card">
+      <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">&#10003;</span> allow</h4>
+      <p>Permite a execucao sem pedir confirmacao ao usuario, ignorando o permission mode.</p>
+    </div>
+    <div class="mini-card">
+      <h4><span class="icon-circle" style="background: var(--red-soft); color: var(--red);">&#10007;</span> deny</h4>
+      <p>Bloqueia a execucao incondicionalmente. Equivalente funcional a exit code 2.</p>
+    </div>
+    <div class="mini-card">
+      <h4><span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">?</span> ask</h4>
+      <p>Forca o prompt de confirmacao mesmo que o permission mode normalmente auto-aprovasse.</p>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span>JSON &middot; stdout do hook (exemplo deny com razao)</span></div>
+    <pre>{
+  <span class="string">"permissionDecision"</span>: <span class="string">"deny"</span>,
+  <span class="string">"reason"</span>: <span class="string">"Edicao em .env bloqueada por politica de seguranca"</span>
+}</pre>
+  </div>
+
+  <h3>Reescrita de argumentos: updatedInput</h3>
+  <p>
+    Um hook PreToolUse pode modificar os argumentos da tool call antes da execucao. Isso e feito
+    retornando o campo <code>updatedInput</code> no JSON de stdout:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header"><span>JSON &middot; stdout com updatedInput</span></div>
+    <pre>{
+  <span class="string">"updatedInput"</span>: {
+    <span class="string">"command"</span>: <span class="string">"git diff --staged --no-color"</span>
+  }
+}</pre>
+  </div>
+
+  <div class="callout callout-yellow">
+    <strong>Atencao com multiplos hooks:</strong> Quando mais de um hook PreToolUse retorna <code>updatedInput</code>
+    para a mesma tool call, o ultimo hook a executar vence &mdash; mas a ordem de execucao entre hooks
+    <strong>nao e deterministica</strong>. Evite cenarios onde multiplos hooks tentam reescrever os mesmos argumentos.
+  </div>
+
+  <h3>Matchers: filtrando por nome de ferramenta</h3>
+  <p>
+    O campo <code>matcher</code> na configuracao do hook define para quais ferramentas ele dispara.
+    Aceita nomes exatos ou regex:
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Matcher</th>
+        <th>Ferramentas afetadas</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>Bash</code></td>
+        <td>Apenas a tool Bash</td>
+      </tr>
+      <tr>
+        <td><code>Edit|Write</code></td>
+        <td>Edit ou Write (regex OR)</td>
+      </tr>
+      <tr>
+        <td><code>mcp__.*</code></td>
+        <td>Todas as ferramentas MCP (qualquer server)</td>
+      </tr>
+      <tr>
+        <td><code>mcp__github__.*</code></td>
+        <td>Ferramentas do MCP server "github"</td>
+      </tr>
+      <tr>
+        <td><code>.*</code></td>
+        <td>Todas as ferramentas (catch-all)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Campo <code>if</code>: filtragem granular por argumentos</h3>
+  <p>
+    Alem do matcher por nome de ferramenta, o campo <code>if</code> usa a mesma sintaxe de permission rules
+    para filtrar com base nos <strong>argumentos</strong> da tool call. Isso permite hooks cirurgicos:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header"><span>Exemplos de if patterns</span></div>
+    <pre><span class="comment">// Dispara apenas para comandos git no Bash</span>
+<span class="string">"Bash(git *)"</span>
+
+<span class="comment">// Dispara apenas para edits em arquivos TypeScript</span>
+<span class="string">"Edit(*.ts)"</span>
+
+<span class="comment">// Dispara para Write em qualquer arquivo dentro de src/</span>
+<span class="string">"Write(src/**)"</span>
+
+<span class="comment">// Dispara para Bash com rm</span>
+<span class="string">"Bash(rm *)"</span></pre>
+  </div>
+
+  <!-- ════════════════════════════════════════ -->
+  <h2>PostToolUse em profundidade</h2>
+
+  <p>
+    O hook <code>PostToolUse</code> dispara <strong>apos</strong> a ferramenta ter sido executada com sucesso.
+    A acao ja aconteceu &mdash; o arquivo ja foi editado, o comando ja rodou, a requisicao ja foi feita.
+    Nao ha como desfazer.
+  </p>
+
+  <h3>O que o hook recebe</h3>
+  <p>
+    O payload e similar ao PreToolUse, mas inclui o resultado da execucao da ferramenta:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header"><span>JSON &middot; stdin do hook PostToolUse</span></div>
+    <pre>{
+  <span class="string">"hook_event_name"</span>: <span class="string">"PostToolUse"</span>,
+  <span class="string">"session_id"</span>: <span class="string">"abc123-def456"</span>,
+  <span class="string">"cwd"</span>: <span class="string">"/home/user/my-project"</span>,
+  <span class="string">"tool_name"</span>: <span class="string">"Edit"</span>,
+  <span class="string">"tool_input"</span>: {
+    <span class="string">"file_path"</span>: <span class="string">"/home/user/my-project/src/index.ts"</span>,
+    <span class="string">"old_string"</span>: <span class="string">"const x = 1"</span>,
+    <span class="string">"new_string"</span>: <span class="string">"const x = 2"</span>
+  },
+  <span class="string">"tool_result"</span>: <span class="string">"File edited successfully"</span>
+}</pre>
+  </div>
+
+  <h3>Capacidades do PostToolUse</h3>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4><span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">&#9998;</span> Reescrever output</h4>
+      <p>Modifica o resultado que Claude vera. Util para redactar secrets, normalizar diffs ou filtrar output ruidoso.</p>
+    </div>
+    <div class="mini-card">
+      <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">&#9889;</span> Side-effects</h4>
+      <p>Executar acoes como formatar codigo, rodar linters, enviar notificacoes ou logar metricas.</p>
+    </div>
+    <div class="mini-card">
+      <h4><span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">&#128202;</span> Logging</h4>
+      <p>Registrar todas as tool calls em um arquivo de auditoria, banco de dados ou servico externo.</p>
+    </div>
+    <div class="mini-card">
+      <h4><span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">&#128203;</span> Validacao pos-acao</h4>
+      <p>Checar se o resultado atende criterios (ex: testes passando, build ok) e notificar se nao.</p>
+    </div>
+  </div>
+
+  <p>
+    Para reescrever o output, o hook emite JSON em stdout com o campo <code>result</code>:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header"><span>JSON &middot; stdout do PostToolUse (reescrita de output)</span></div>
+    <pre>{
+  <span class="string">"result"</span>: <span class="string">"[output redacted by security policy]"</span>
+}</pre>
+  </div>
+
+  <!-- ════════════════════════════════════════ -->
+  <h2>Exemplos praticos de configuracao</h2>
+
+  <h3>1. PreToolUse: bloquear edits em arquivos protegidos</h3>
+  <p>
+    Este hook impede qualquer modificacao em arquivos sensiveis como <code>.env</code>,
+    <code>.git/</code> e <code>package-lock.json</code>:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header"><span>.claude/settings.json</span></div>
+    <pre>{
+  <span class="string">"hooks"</span>: {
+    <span class="string">"PreToolUse"</span>: [
+      {
+        <span class="string">"matcher"</span>: <span class="string">"Edit|Write"</span>,
+        <span class="string">"hooks"</span>: [
+          {
+            <span class="string">"type"</span>: <span class="string">"command"</span>,
+            <span class="string">"command"</span>: <span class="string">"python3 .claude/hooks/block-protected-files.py"</span>
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span>.claude/hooks/block-protected-files.py</span></div>
+    <pre><span class="keyword">import</span> sys, json
+
+data = json.load(sys.stdin)
+file_path = data[<span class="string">"tool_input"</span>].get(<span class="string">"file_path"</span>, <span class="string">""</span>)
+
+<span class="comment"># Padroes de arquivos protegidos</span>
+BLOCKED = [<span class="string">".env"</span>, <span class="string">".git/"</span>, <span class="string">"package-lock.json"</span>, <span class="string">"yarn.lock"</span>, <span class="string">"pnpm-lock.yaml"</span>]
+
+<span class="keyword">for</span> pattern <span class="keyword">in</span> BLOCKED:
+    <span class="keyword">if</span> pattern <span class="keyword">in</span> file_path:
+        result = {
+            <span class="string">"permissionDecision"</span>: <span class="string">"deny"</span>,
+            <span class="string">"reason"</span>: f<span class="string">"Arquivo protegido: {file_path} corresponde ao padrao '{pattern}'"</span>
+        }
+        json.dump(result, sys.stdout)
+        sys.exit(<span class="number">2</span>)
+
+<span class="comment"># Sem objecao - fluxo normal de permissoes</span>
+sys.exit(<span class="number">0</span>)</pre>
+  </div>
+
+  <h3>2. PreToolUse com campo <code>if</code>: filtrar comandos git</h3>
+  <p>
+    Usando o campo <code>if</code> para restringir o hook a comandos git especificos, bloqueando
+    operacoes destrutivas como <code>git push --force</code> e <code>git reset --hard</code>:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header"><span>.claude/settings.json</span></div>
+    <pre>{
+  <span class="string">"hooks"</span>: {
+    <span class="string">"PreToolUse"</span>: [
+      {
+        <span class="string">"matcher"</span>: <span class="string">"Bash"</span>,
+        <span class="string">"if"</span>: <span class="string">"Bash(git *)"</span>,
+        <span class="string">"hooks"</span>: [
+          {
+            <span class="string">"type"</span>: <span class="string">"command"</span>,
+            <span class="string">"command"</span>: <span class="string">"bash .claude/hooks/guard-git.sh"</span>
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span>.claude/hooks/guard-git.sh</span></div>
+    <pre><span class="comment">#!/usr/bin/env bash</span>
+<span class="comment"># Le o JSON do stdin e extrai o comando</span>
+INPUT=$(<span class="tool">cat</span>)
+CMD=$(echo "$INPUT" | <span class="tool">jq</span> -r <span class="string">'.tool_input.command'</span>)
+
+<span class="comment"># Bloqueia operacoes git destrutivas</span>
+<span class="keyword">if</span> echo "$CMD" | grep -qE <span class="string">'git\s+(push\s+.*--force|reset\s+--hard|clean\s+-fd)'</span>; <span class="keyword">then</span>
+  echo <span class="string">'{"permissionDecision":"deny","reason":"Operacao git destrutiva bloqueada por hook"}'</span>
+  exit <span class="number">2</span>
+<span class="keyword">fi</span>
+
+<span class="comment"># Forca confirmacao manual para git push (qualquer variante)</span>
+<span class="keyword">if</span> echo "$CMD" | grep -qE <span class="string">'git\s+push'</span>; <span class="keyword">then</span>
+  echo <span class="string">'{"permissionDecision":"ask","reason":"Confirme o push para o remote"}'</span>
+  exit <span class="number">0</span>
+<span class="keyword">fi</span>
+
+exit <span class="number">0</span></pre>
+  </div>
+
+  <h3>3. PostToolUse: auto-formatar com Prettier apos edits</h3>
+  <p>
+    Um dos usos mais comuns de PostToolUse: rodar um formatter automaticamente toda vez que
+    Claude edita um arquivo, garantindo consistencia de estilo sem que Claude precise se preocupar com isso.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header"><span>.claude/settings.json</span></div>
+    <pre>{
+  <span class="string">"hooks"</span>: {
+    <span class="string">"PostToolUse"</span>: [
+      {
+        <span class="string">"matcher"</span>: <span class="string">"Edit|Write"</span>,
+        <span class="string">"hooks"</span>: [
+          {
+            <span class="string">"type"</span>: <span class="string">"command"</span>,
+            <span class="string">"command"</span>: <span class="string">"bash .claude/hooks/prettier-format.sh"</span>
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span>.claude/hooks/prettier-format.sh</span></div>
+    <pre><span class="comment">#!/usr/bin/env bash</span>
+INPUT=$(<span class="tool">cat</span>)
+FILE=$(echo "$INPUT" | <span class="tool">jq</span> -r <span class="string">'.tool_input.file_path // empty'</span>)
+
+<span class="keyword">if</span> [ -z "$FILE" ]; <span class="keyword">then</span>
+  exit <span class="number">0</span>
+<span class="keyword">fi</span>
+
+<span class="comment"># Verifica se o arquivo existe e tem extensao suportada</span>
+<span class="keyword">if</span> [[ "$FILE" =~ \.(ts|tsx|js|jsx|json|css|md|html)$ ]]; <span class="keyword">then</span>
+  <span class="comment"># Roda Prettier silenciosamente</span>
+  npx prettier --write "$FILE" <span class="number">2</span>>/dev/null
+<span class="keyword">fi</span>
+
+exit <span class="number">0</span></pre>
+  </div>
+
+  <h3>4. PreToolUse: bloquear <code>rm -rf</code> e comandos destrutivos</h3>
+  <p>
+    Um hook de seguranca que impede a execucao de comandos de remocao recursiva e outros
+    padroes perigosos no Bash:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header"><span>.claude/settings.json</span></div>
+    <pre>{
+  <span class="string">"hooks"</span>: {
+    <span class="string">"PreToolUse"</span>: [
+      {
+        <span class="string">"matcher"</span>: <span class="string">"Bash"</span>,
+        <span class="string">"hooks"</span>: [
+          {
+            <span class="string">"type"</span>: <span class="string">"command"</span>,
+            <span class="string">"command"</span>: <span class="string">"python3 .claude/hooks/block-destructive.py"</span>
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span>.claude/hooks/block-destructive.py</span></div>
+    <pre><span class="keyword">import</span> sys, json, re
+
+data = json.load(sys.stdin)
+cmd = data[<span class="string">"tool_input"</span>].get(<span class="string">"command"</span>, <span class="string">""</span>)
+
+<span class="comment"># Padroes de comandos destrutivos</span>
+DANGEROUS = [
+    r<span class="string">"rm\s+(-[a-zA-Z]*f[a-zA-Z]*\s+|.*--force)"</span>,   <span class="comment"># rm com -f ou --force</span>
+    r<span class="string">"rm\s+-[a-zA-Z]*r[a-zA-Z]*\s+/"</span>,              <span class="comment"># rm -r a partir da raiz</span>
+    r<span class="string">"chmod\s+-R\s+777"</span>,                             <span class="comment"># permissoes perigosas</span>
+    r<span class="string">">\s*/dev/sda"</span>,                                 <span class="comment"># escrita direta em disco</span>
+    r<span class="string">"mkfs\."</span>,                                       <span class="comment"># formatacao de disco</span>
+    r<span class="string">"dd\s+if=.*of=/dev/"</span>,                           <span class="comment"># dd para dispositivo</span>
+]
+
+<span class="keyword">for</span> pattern <span class="keyword">in</span> DANGEROUS:
+    <span class="keyword">if</span> re.search(pattern, cmd):
+        result = {
+            <span class="string">"permissionDecision"</span>: <span class="string">"deny"</span>,
+            <span class="string">"reason"</span>: f<span class="string">"Comando destrutivo bloqueado: '{cmd}' corresponde a '{pattern}'"</span>
+        }
+        json.dump(result, sys.stdout)
+        sys.exit(<span class="number">2</span>)
+
+sys.exit(<span class="number">0</span>)</pre>
+  </div>
+
+  <!-- ════════════════════════════════════════ -->
+  <h2>Tabela comparativa: PreToolUse vs PostToolUse</h2>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Caracteristica</th>
+          <th style="color: var(--accent);">PreToolUse</th>
+          <th style="color: var(--blue);">PostToolUse</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Momento de execucao</strong></td>
+          <td>Antes da tool call</td>
+          <td>Apos a tool call (sucesso)</td>
+        </tr>
+        <tr>
+          <td><strong>Pode bloquear a acao?</strong></td>
+          <td style="color: var(--green);">Sim (deny / exit 2)</td>
+          <td style="color: var(--red);">Nao (acao ja executada)</td>
+        </tr>
+        <tr>
+          <td><strong>Pode reescrever input?</strong></td>
+          <td style="color: var(--green);">Sim (updatedInput)</td>
+          <td style="color: var(--red);">Nao</td>
+        </tr>
+        <tr>
+          <td><strong>Pode reescrever output?</strong></td>
+          <td style="color: var(--red);">Nao</td>
+          <td style="color: var(--green);">Sim (result)</td>
+        </tr>
+        <tr>
+          <td><strong>Pode forcar confirmacao?</strong></td>
+          <td style="color: var(--green);">Sim (ask)</td>
+          <td style="color: var(--red);">Nao</td>
+        </tr>
+        <tr>
+          <td><strong>Ignora permission mode?</strong></td>
+          <td style="color: var(--green);">Sim (deny supera bypassPermissions)</td>
+          <td>N/A</td>
+        </tr>
+        <tr>
+          <td><strong>Matcher</strong></td>
+          <td>Nome de tool (regex)</td>
+          <td>Nome de tool (regex)</td>
+        </tr>
+        <tr>
+          <td><strong>Campo if</strong></td>
+          <td style="color: var(--green);">Sim (sintaxe de permission rules)</td>
+          <td style="color: var(--green);">Sim (sintaxe de permission rules)</td>
+        </tr>
+        <tr>
+          <td><strong>Casos de uso tipicos</strong></td>
+          <td>Guardrails, seguranca, sanitizacao de input</td>
+          <td>Formatacao, logging, validacao, redacao de secrets</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════════════════════════════════ -->
+  <h2>Ordem de execucao e composicao de hooks</h2>
+
+  <p>
+    E possivel registrar multiplos hooks para o mesmo evento e matcher. Eles executam
+    <strong>sequencialmente</strong>, mas com algumas nuances importantes:
+  </p>
+
+  <div class="card">
+    <div class="card-label" style="background: var(--purple-soft); color: var(--purple);">Regras de composicao</div>
+    <p>
+      <strong>1. Decisao mais restritiva vence:</strong> Se um hook retorna <code>"allow"</code> e outro retorna
+      <code>"deny"</code>, o resultado final e <code>"deny"</code>. A hierarquia e:
+      <code>deny</code> &gt; <code>ask</code> &gt; <code>allow</code> &gt; sem decisao.
+    </p>
+    <p>
+      <strong>2. updatedInput: ultimo vence:</strong> Se multiplos hooks retornam <code>updatedInput</code>,
+      apenas o ultimo e aplicado. Como a ordem nao e garantida, evite esse cenario.
+    </p>
+    <p>
+      <strong>3. Hooks com erro nao bloqueiam:</strong> Se um hook falha (exit code diferente de 0 e 2),
+      Claude Code registra o erro mas continua o fluxo normalmente. O hook nao tem poder de veto por acidente.
+    </p>
+    <p>
+      <strong>4. Timeout:</strong> Hooks tem um tempo limite de execucao. Se excederem, sao tratados como erro
+      e o fluxo continua.
+    </p>
+  </div>
+
+  <!-- ════════════════════════════════════════ -->
+  <h2>Onde configurar hooks</h2>
+
+  <p>
+    Hooks podem ser configurados em tres niveis, cada um com escopo diferente:
+  </p>
+
+  <div class="grid-3">
+    <div class="mini-card">
+      <h4><span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">P</span> Projeto</h4>
+      <p><code>.claude/settings.json</code> na raiz do repositorio. Compartilhado via git. Ideal para hooks de equipe.</p>
+    </div>
+    <div class="mini-card">
+      <h4><span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">U</span> Usuario</h4>
+      <p><code>~/.claude/settings.json</code> no home do usuario. Aplica a todos os projetos do usuario.</p>
+    </div>
+    <div class="mini-card">
+      <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">L</span> Local</h4>
+      <p><code>.claude/settings.local.json</code> na raiz do projeto. Nao commitado (adicione ao .gitignore). Sobrescreve os outros.</p>
+    </div>
+  </div>
+
+  <div class="callout callout-blue">
+    <strong>Seguranca de hooks em projeto:</strong> Hooks definidos em <code>.claude/settings.json</code>
+    (nivel projeto) precisam ser aprovados pelo usuario na primeira execucao. Claude Code exibe
+    o comando que sera executado e pede confirmacao explicita. Isso evita que um repositorio malicioso
+    execute codigo arbitrario via hooks.
+  </div>
+
+  <!-- ════════════════════════════════════════ -->
+  <h2>Padroes avancados</h2>
+
+  <h3>Redacao de secrets no output</h3>
+  <p>
+    Um PostToolUse que intercepta a saida de comandos Bash e substitui tokens, senhas e chaves
+    de API antes que Claude os veja:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header"><span>.claude/hooks/redact-secrets.sh</span></div>
+    <pre><span class="comment">#!/usr/bin/env bash</span>
+INPUT=$(<span class="tool">cat</span>)
+TOOL_RESULT=$(echo "$INPUT" | <span class="tool">jq</span> -r <span class="string">'.tool_result // empty'</span>)
+
+<span class="keyword">if</span> [ -z "$TOOL_RESULT" ]; <span class="keyword">then</span>
+  exit <span class="number">0</span>
+<span class="keyword">fi</span>
+
+<span class="comment"># Redacta padroes de secrets comuns</span>
+REDACTED=$(echo "$TOOL_RESULT" | sed -E \
+  -e <span class="string">'s/(AKIA[0-9A-Z]{16})/[AWS_KEY_REDACTED]/g'</span> \
+  -e <span class="string">'s/(ghp_[a-zA-Z0-9]{36})/[GITHUB_TOKEN_REDACTED]/g'</span> \
+  -e <span class="string">'s/(sk-[a-zA-Z0-9]{48})/[OPENAI_KEY_REDACTED]/g'</span> \
+  -e <span class="string">'s/(xoxb-[0-9-]+)/[SLACK_TOKEN_REDACTED]/g'</span> \
+)
+
+<span class="comment"># So emite resultado se houve mudanca</span>
+<span class="keyword">if</span> [ "$REDACTED" != "$TOOL_RESULT" ]; <span class="keyword">then</span>
+  <span class="tool">jq</span> -n --arg r "$REDACTED" <span class="string">'{"result": $r}'</span>
+<span class="keyword">fi</span>
+
+exit <span class="number">0</span></pre>
+  </div>
+
+  <h3>Audit log de todas as tool calls</h3>
+  <p>
+    Um PostToolUse catch-all que registra cada tool call em um arquivo de log local:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header"><span>.claude/settings.json (trecho)</span></div>
+    <pre>{
+  <span class="string">"hooks"</span>: {
+    <span class="string">"PostToolUse"</span>: [
+      {
+        <span class="string">"matcher"</span>: <span class="string">".*"</span>,
+        <span class="string">"hooks"</span>: [
+          {
+            <span class="string">"type"</span>: <span class="string">"command"</span>,
+            <span class="string">"command"</span>: <span class="string">"python3 .claude/hooks/audit-log.py"</span>
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span>.claude/hooks/audit-log.py</span></div>
+    <pre><span class="keyword">import</span> sys, json
+<span class="keyword">from</span> datetime <span class="keyword">import</span> datetime
+
+data = json.load(sys.stdin)
+entry = {
+    <span class="string">"timestamp"</span>: datetime.utcnow().isoformat(),
+    <span class="string">"session_id"</span>: data.get(<span class="string">"session_id"</span>),
+    <span class="string">"tool"</span>: data.get(<span class="string">"tool_name"</span>),
+    <span class="string">"input"</span>: data.get(<span class="string">"tool_input"</span>),
+}
+
+<span class="keyword">with</span> open(<span class="string">".claude/audit.jsonl"</span>, <span class="string">"a"</span>) <span class="keyword">as</span> f:
+    f.write(json.dumps(entry) + <span class="string">"\n"</span>)
+
+sys.exit(<span class="number">0</span>)</pre>
+  </div>
+
+  <!-- ════════════════════════════════════════ -->
+  <h2>Resumo do modelo mental</h2>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 860 160" xmlns="http://www.w3.org/2000/svg" fill="none">
+      <!-- PreToolUse box -->
+      <rect x="10" y="30" width="190" height="100" rx="10" fill="rgba(196,149,106,0.12)" stroke="#c4956a" stroke-width="2"/>
+      <text x="105" y="60" text-anchor="middle" fill="#c4956a" font-family="Inter, sans-serif" font-size="13" font-weight="700">PreToolUse</text>
+      <text x="105" y="82" text-anchor="middle" fill="#9ca3af" font-family="Inter, sans-serif" font-size="10">Bloquear</text>
+      <text x="105" y="96" text-anchor="middle" fill="#9ca3af" font-family="Inter, sans-serif" font-size="10">Pedir confirmacao</text>
+      <text x="105" y="110" text-anchor="middle" fill="#9ca3af" font-family="Inter, sans-serif" font-size="10">Reescrever input</text>
+      <text x="105" y="124" text-anchor="middle" fill="#9ca3af" font-family="Inter, sans-serif" font-size="10">Permitir</text>
+
+      <!-- Arrow -->
+      <line x1="200" y1="80" x2="250" y2="80" stroke="#6b7280" stroke-width="2" marker-end="url(#arr)"/>
+
+      <!-- Permission check -->
+      <rect x="250" y="50" width="150" height="60" rx="8" fill="#1a1d27" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="325" y="76" text-anchor="middle" fill="#60a5fa" font-family="Inter, sans-serif" font-size="12" font-weight="600">Permission</text>
+      <text x="325" y="94" text-anchor="middle" fill="#60a5fa" font-family="Inter, sans-serif" font-size="12" font-weight="600">Check</text>
+
+      <!-- Arrow -->
+      <line x1="400" y1="80" x2="450" y2="80" stroke="#6b7280" stroke-width="2" marker-end="url(#arr)"/>
+
+      <!-- Tool exec -->
+      <rect x="450" y="50" width="150" height="60" rx="8" fill="#1a1d27" stroke="#6ee7b7" stroke-width="2"/>
+      <text x="525" y="85" text-anchor="middle" fill="#6ee7b7" font-family="Inter, sans-serif" font-size="13" font-weight="700">Execucao</text>
+
+      <!-- Arrow -->
+      <line x1="600" y1="80" x2="650" y2="80" stroke="#6b7280" stroke-width="2" marker-end="url(#arr)"/>
+
+      <!-- PostToolUse box -->
+      <rect x="650" y="30" width="190" height="100" rx="10" fill="rgba(96,165,250,0.12)" stroke="#60a5fa" stroke-width="2"/>
+      <text x="745" y="60" text-anchor="middle" fill="#60a5fa" font-family="Inter, sans-serif" font-size="13" font-weight="700">PostToolUse</text>
+      <text x="745" y="82" text-anchor="middle" fill="#9ca3af" font-family="Inter, sans-serif" font-size="10">Reescrever output</text>
+      <text x="745" y="96" text-anchor="middle" fill="#9ca3af" font-family="Inter, sans-serif" font-size="10">Side-effects</text>
+      <text x="745" y="110" text-anchor="middle" fill="#9ca3af" font-family="Inter, sans-serif" font-size="10">Logging / auditoria</text>
+      <text x="745" y="124" text-anchor="middle" fill="#9ca3af" font-family="Inter, sans-serif" font-size="10">Validacao pos-acao</text>
+
+      <defs>
+        <marker id="arr" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8" fill="none" stroke="#6b7280" stroke-width="1.5"/>
+        </marker>
+      </defs>
+    </svg>
+    <div class="diagram-caption">Fluxo linear simplificado: PreToolUse controla a entrada, PostToolUse controla a saida</div>
+  </div>
+
+  <div class="callout callout-green">
+    <strong>Regra de ouro:</strong> Use <code>PreToolUse</code> para tudo que voce quer <strong>impedir</strong> que aconteca.
+    Use <code>PostToolUse</code> para tudo que voce quer que aconteca <strong>como consequencia</strong> de uma acao.
+    PreToolUse e o guarda na porta; PostToolUse e o zelador que limpa depois.
+  </div>
+
+  <!-- ════════════════════════════════════════ -->
+  <div class="sources">
+    <h3>Fontes e referencias</h3>
+    <ul>
+      <li><a href="https://docs.anthropic.com/en/docs/claude-code/hooks" target="_blank">Hooks reference &mdash; Documentacao oficial Anthropic</a></li>
+      <li><a href="https://docs.anthropic.com/en/docs/claude-code/hooks-guide" target="_blank">Automate workflows with hooks &mdash; Guia pratico de hooks</a></li>
+    </ul>
+  </div>
+
+  <!-- ════════════════════════════════════════ -->
+  <div class="nav-footer">
+    <a href="../modulo-06/modulo-06-topico-05-casos-de-uso.html" class="nav-btn">&larr; Topico 5 &middot; Casos de Uso</a>
+    <a href="../index.html" class="nav-btn">Indice</a>
+    <a href="modulo-07-topico-02-stop-hooks.html" class="nav-btn">Topico 2 &middot; Stop Hooks &rarr;</a>
+  </div>
+
+</body>
+</html>

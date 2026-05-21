@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modulo 7 - Topico 4: Auto-formatacao na Escrita de Arquivos | Workshop Claude Code</title>
+<style>
+:root {
+  --bg: #0f1117; --bg-card: #1a1d27; --bg-code: #141620; --border: #2a2d3a;
+  --text: #e4e4e7; --text-dim: #9ca3af; --accent: #c4956a; --accent-soft: rgba(196, 149, 106, 0.12);
+  --blue: #60a5fa; --blue-soft: rgba(96, 165, 250, 0.12); --green: #6ee7b7; --green-soft: rgba(110, 231, 183, 0.12);
+  --purple: #a78bfa; --purple-soft: rgba(167, 139, 250, 0.12); --red: #f87171; --red-soft: rgba(248, 113, 113, 0.12);
+  --yellow: #fbbf24; --yellow-soft: rgba(251, 191, 36, 0.12);
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace; --radius: 12px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.7; padding: 2rem; max-width: 960px; margin: 0 auto; }
+.topic-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); background: var(--accent-soft); padding: 6px 14px; border-radius: 20px; margin-bottom: 1rem; }
+h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+.subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+p { margin-bottom: 1rem; } a { color: var(--blue); text-decoration: none; } a:hover { text-decoration: underline; }
+code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+strong { color: #fff; }
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0; }
+.diagram-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto; }
+.diagram-container svg { display: block; margin: 0 auto; }
+.diagram-caption { text-align: center; font-size: 0.85rem; color: var(--text-dim); margin-top: 1rem; font-style: italic; }
+.code-block { background: var(--bg-code); border: 1px solid var(--border); border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden; }
+.code-header { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 1rem; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim); }
+.code-block pre { padding: 1rem 1.25rem; overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8; }
+.callout { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem; }
+.callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+.callout-red { border-left-color: var(--red); background: var(--red-soft); }
+.callout-green { border-left-color: var(--green); background: var(--green-soft); }
+.callout-yellow { border-left-color: var(--yellow); background: var(--yellow-soft); }
+.callout strong { color: #fff; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+@media (max-width: 640px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } body { padding: 1rem; } h1 { font-size: 1.5rem; } }
+.mini-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
+.mini-card h4 { font-size: 0.95rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px; }
+.mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+.icon-circle { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+td { color: var(--text); } tr:last-child td { border-bottom: none; }
+.sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+.sources ul { list-style: none; padding: 0; }
+.sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+.sources li::before { content: "\2192 "; color: var(--accent); }
+.nav-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.nav-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; color: var(--text); background: var(--bg-card); border: 1px solid var(--border); text-decoration: none; transition: border-color 0.2s; }
+.nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="topic-badge">Modulo 7 &bull; Topico 4</div>
+<h1>Auto-formatacao na Escrita de Arquivos</h1>
+<p class="subtitle">Como usar hooks PostToolUse e Stop para garantir formatacao deterministica em todo codigo gerado pelo Claude Code, independente da linguagem ou ferramenta utilizada.</p>
+
+<!-- ========================================== -->
+<h2>O Problema: Formatacao Inconsistente</h2>
+
+<p>Quando o Claude Code escreve ou edita arquivos, o LLM gera codigo com base no contexto disponivel. Mesmo com instrucoes explicitas no <code>CLAUDE.md</code> como "use 2 espacos de indentacao" ou "siga o estilo do projeto", nao ha garantia deterministica de que a formatacao sera consistente em toda interacao.</p>
+
+<p>Instruir o modelo via prompt e uma abordagem <strong>probabilistica</strong>: funciona na maioria das vezes, mas eventualmente falha. O custo de uma falha de formatacao parece baixo isoladamente, mas acumula-se em diffs poluidos, conflitos de merge e revisoes de PR desnecessarias.</p>
+
+<div class="callout">
+  <strong>Principio fundamental:</strong> Hooks sao deterministicos. Se o matcher corresponde, o comando executa. Sempre. Isso elimina a classe inteira de problemas de formatacao inconsistente, movendo a responsabilidade do LLM para uma ferramenta dedicada.
+</div>
+
+<p>A documentacao oficial da Anthropic apresenta exatamente esse caso de uso como exemplo canonico de <code>PostToolUse</code> hooks: executar Prettier automaticamente apos cada edicao de arquivo.</p>
+
+<!-- ========================================== -->
+<h2>Anatomia do Hook de Auto-formatacao</h2>
+
+<p>O padrao segue uma estrutura simples: interceptar chamadas as tools <code>Edit</code> e <code>Write</code>, extrair o caminho do arquivo do JSON de input da tool, e passar esse caminho para o formatador adequado.</p>
+
+<h3>O exemplo canonico: Prettier</h3>
+
+<p>Este e o exemplo direto da documentacao oficial da Anthropic para auto-formatacao:</p>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/settings.json</span><span>PostToolUse hook</span></div>
+  <pre>{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path' | xargs npx prettier --write"
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+</div>
+
+<p>Vamos decompor o comando <code>jq -r '.tool_input.file_path' | xargs npx prettier --write</code>:</p>
+
+<table>
+  <thead>
+    <tr><th>Segmento</th><th>Funcao</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>jq -r '.tool_input.file_path'</code></td><td>Recebe o JSON de input da tool via stdin e extrai o campo <code>file_path</code>. A flag <code>-r</code> remove as aspas do output.</td></tr>
+    <tr><td><code>|</code></td><td>Pipe do caminho do arquivo para o proximo comando.</td></tr>
+    <tr><td><code>xargs npx prettier --write</code></td><td>Executa Prettier no arquivo extraido, sobrescrevendo-o com a versao formatada (<code>--write</code>).</td></tr>
+  </tbody>
+</table>
+
+<div class="callout callout-blue">
+  <strong>Sobre o JSON de input:</strong> O hook recebe via stdin um objeto JSON contendo <code>tool_name</code>, <code>tool_input</code> (os parametros passados a tool) e <code>tool_response</code> (a resposta da tool). Para <code>Edit</code> e <code>Write</code>, o <code>tool_input</code> sempre inclui <code>file_path</code>.
+</div>
+
+<h3>O matcher: Edit|Write</h3>
+
+<p>O campo <code>matcher</code> aceita uma regex que e testada contra o nome da tool. <code>Edit|Write</code> captura ambas as tools de escrita de arquivo do Claude Code. Quando o matcher corresponde, todos os hooks listados no array <code>hooks</code> sao executados em sequencia.</p>
+
+<p>Isso significa que o formatador roda <strong>a cada edicao individual</strong>. Se o Claude faz 5 edicoes em um arquivo, Prettier roda 5 vezes. Isso e intencional: garante que o arquivo esta formatado apos cada modificacao, prevenindo estados intermediarios inconsistentes.</p>
+
+<!-- ========================================== -->
+<h2>Diagrama: Fluxo de Auto-formatacao</h2>
+
+<div class="diagram-container">
+  <svg viewBox="0 0 860 520" xmlns="http://www.w3.org/2000/svg" fill="none">
+    <!-- Titulo -->
+    <text x="430" y="28" text-anchor="middle" fill="#9ca3af" font-family="Inter, sans-serif" font-size="13" font-weight="600" letter-spacing="0.06em">FLUXO COMPLETO DE AUTO-FORMATACAO</text>
+
+    <!-- === FLUXO 1: PostToolUse === -->
+    <text x="30" y="65" fill="#c4956a" font-family="Inter, sans-serif" font-size="12" font-weight="600" letter-spacing="0.05em">FLUXO 1: PostToolUse (Edit/Write)</text>
+
+    <!-- Claude Edit/Write -->
+    <rect x="30" y="80" width="150" height="50" rx="8" fill="#1a1d27" stroke="#c4956a" stroke-width="1.5"/>
+    <text x="105" y="100" text-anchor="middle" fill="#fff" font-family="Inter, sans-serif" font-size="12" font-weight="600">Claude Code</text>
+    <text x="105" y="117" text-anchor="middle" fill="#c4956a" font-family="monospace" font-size="10">Edit / Write</text>
+
+    <!-- Seta 1 -->
+    <line x1="180" y1="105" x2="230" y2="105" stroke="#2a2d3a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+    <!-- PostToolUse -->
+    <rect x="230" y="80" width="150" height="50" rx="8" fill="#1a1d27" stroke="#60a5fa" stroke-width="1.5"/>
+    <text x="305" y="100" text-anchor="middle" fill="#fff" font-family="Inter, sans-serif" font-size="12" font-weight="600">PostToolUse</text>
+    <text x="305" y="117" text-anchor="middle" fill="#60a5fa" font-family="monospace" font-size="10">matcher: Edit|Write</text>
+
+    <!-- Seta 2 -->
+    <line x1="380" y1="105" x2="430" y2="105" stroke="#2a2d3a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+    <!-- jq extract -->
+    <rect x="430" y="80" width="150" height="50" rx="8" fill="#1a1d27" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="505" y="100" text-anchor="middle" fill="#fff" font-family="Inter, sans-serif" font-size="12" font-weight="600">jq extrai path</text>
+    <text x="505" y="117" text-anchor="middle" fill="#a78bfa" font-family="monospace" font-size="10">.tool_input.file_path</text>
+
+    <!-- Seta 3 -->
+    <line x1="580" y1="105" x2="630" y2="105" stroke="#2a2d3a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+    <!-- Formatter -->
+    <rect x="630" y="80" width="150" height="50" rx="8" fill="#1a1d27" stroke="#6ee7b7" stroke-width="1.5"/>
+    <text x="705" y="100" text-anchor="middle" fill="#fff" font-family="Inter, sans-serif" font-size="12" font-weight="600">Formatador</text>
+    <text x="705" y="117" text-anchor="middle" fill="#6ee7b7" font-family="monospace" font-size="10">prettier --write</text>
+
+    <!-- Seta resultado -->
+    <path d="M 705 130 L 705 160 L 810 160" stroke="#6ee7b7" stroke-width="1.5" fill="none" stroke-dasharray="4,3" marker-end="url(#arrow-green)"/>
+    <text x="820" y="165" fill="#6ee7b7" font-family="Inter, sans-serif" font-size="11" font-weight="500">Arquivo formatado</text>
+
+    <!-- === FLUXO 2: Stop hook === -->
+    <text x="30" y="230" fill="#fbbf24" font-family="Inter, sans-serif" font-size="12" font-weight="600" letter-spacing="0.05em">FLUXO 2: Stop hook (cobertura completa)</text>
+
+    <!-- Claude Bash -->
+    <rect x="30" y="250" width="150" height="50" rx="8" fill="#1a1d27" stroke="#fbbf24" stroke-width="1.5"/>
+    <text x="105" y="270" text-anchor="middle" fill="#fff" font-family="Inter, sans-serif" font-size="12" font-weight="600">Claude Code</text>
+    <text x="105" y="287" text-anchor="middle" fill="#fbbf24" font-family="monospace" font-size="10">Bash (cria/edita)</text>
+
+    <!-- Seta -->
+    <line x1="180" y1="275" x2="230" y2="275" stroke="#2a2d3a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+    <!-- Sessao termina -->
+    <rect x="230" y="250" width="150" height="50" rx="8" fill="#1a1d27" stroke="#fbbf24" stroke-width="1.5"/>
+    <text x="305" y="270" text-anchor="middle" fill="#fff" font-family="Inter, sans-serif" font-size="12" font-weight="600">Sessao encerra</text>
+    <text x="305" y="287" text-anchor="middle" fill="#fbbf24" font-family="monospace" font-size="10">Stop hook dispara</text>
+
+    <!-- Seta -->
+    <line x1="380" y1="275" x2="430" y2="275" stroke="#2a2d3a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+    <!-- git status -->
+    <rect x="430" y="250" width="150" height="50" rx="8" fill="#1a1d27" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="505" y="270" text-anchor="middle" fill="#fff" font-family="Inter, sans-serif" font-size="12" font-weight="600">git status</text>
+    <text x="505" y="287" text-anchor="middle" fill="#a78bfa" font-family="monospace" font-size="10">--porcelain | filtro</text>
+
+    <!-- Seta -->
+    <line x1="580" y1="275" x2="630" y2="275" stroke="#2a2d3a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+    <!-- Format all -->
+    <rect x="630" y="250" width="150" height="50" rx="8" fill="#1a1d27" stroke="#6ee7b7" stroke-width="1.5"/>
+    <text x="705" y="270" text-anchor="middle" fill="#fff" font-family="Inter, sans-serif" font-size="12" font-weight="600">Formata todos</text>
+    <text x="705" y="287" text-anchor="middle" fill="#6ee7b7" font-family="monospace" font-size="10">por extensao</text>
+
+    <!-- Seta resultado -->
+    <path d="M 705 300 L 705 330 L 810 330" stroke="#6ee7b7" stroke-width="1.5" fill="none" stroke-dasharray="4,3" marker-end="url(#arrow-green)"/>
+    <text x="820" y="335" fill="#6ee7b7" font-family="Inter, sans-serif" font-size="11" font-weight="500">Todos formatados</text>
+
+    <!-- === Nota de cobertura === -->
+    <rect x="30" y="380" width="800" height="120" rx="10" fill="rgba(96,165,250,0.06)" stroke="#60a5fa" stroke-width="1" stroke-dasharray="6,3"/>
+    <text x="50" y="410" fill="#60a5fa" font-family="Inter, sans-serif" font-size="12" font-weight="600">COBERTURA DE CADA FLUXO</text>
+
+    <text x="50" y="440" fill="#c4956a" font-family="Inter, sans-serif" font-size="11" font-weight="600">PostToolUse (Edit|Write)</text>
+    <text x="270" y="440" fill="#9ca3af" font-family="Inter, sans-serif" font-size="11">Captura edicoes via tools Edit e Write. Nao captura arquivos criados via Bash.</text>
+
+    <text x="50" y="468" fill="#fbbf24" font-family="Inter, sans-serif" font-size="11" font-weight="600">Stop hook</text>
+    <text x="270" y="468" fill="#9ca3af" font-family="Inter, sans-serif" font-size="11">Roda ao final da sessao. Captura TUDO, incluindo arquivos criados via Bash.</text>
+
+    <text x="50" y="496" fill="#6ee7b7" font-family="Inter, sans-serif" font-size="11" font-weight="600">Ambos combinados</text>
+    <text x="270" y="496" fill="#9ca3af" font-family="Inter, sans-serif" font-size="11">Formatacao imediata por edicao + varredura final. Cobertura completa e deterministica.</text>
+
+    <!-- Markers -->
+    <defs>
+      <marker id="arrow" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
+        <path d="M 0 0 L 8 4 L 0 8" fill="none" stroke="#9ca3af" stroke-width="1.5"/>
+      </marker>
+      <marker id="arrow-green" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
+        <path d="M 0 0 L 8 4 L 0 8" fill="none" stroke="#6ee7b7" stroke-width="1.5"/>
+      </marker>
+    </defs>
+  </svg>
+  <div class="diagram-caption">Dois fluxos complementares: PostToolUse para formatacao imediata, Stop hook para cobertura completa incluindo arquivos criados via Bash.</div>
+</div>
+
+<!-- ========================================== -->
+<h2>Expandindo para Outros Formatadores</h2>
+
+<p>O exemplo com Prettier cobre JavaScript, TypeScript, CSS, HTML e JSON. Mas projetos reais frequentemente envolvem multiplas linguagens. Cada ecossistema tem seu formatador padrao, e todos seguem o mesmo padrao de integracao via hook.</p>
+
+<h3>ESLint com auto-fix</h3>
+
+<p>Para projetos que usam ESLint como formatador (com regras de estilo configuradas), o hook segue o mesmo padrao, substituindo Prettier por <code>eslint --fix</code>:</p>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/settings.json</span><span>ESLint auto-fix</span></div>
+  <pre>{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path' | grep -E '\\.(js|ts|jsx|tsx)$' | xargs -I{} npx eslint --fix {}"
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+</div>
+
+<div class="callout callout-yellow">
+  <strong>Filtro por extensao:</strong> Note o uso de <code>grep -E</code> para filtrar apenas arquivos com extensoes relevantes. Sem esse filtro, ESLint tentaria processar arquivos como <code>.json</code> ou <code>.md</code> e poderia falhar. Prettier e mais tolerante nesse aspecto, ignorando arquivos que nao reconhece.
+</div>
+
+<h3>Black para Python</h3>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/settings.json</span><span>Black (Python)</span></div>
+  <pre>{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path' | grep -E '\\.py$' | xargs -I{} black --quiet {}"
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+</div>
+
+<h3>gofmt para Go</h3>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/settings.json</span><span>gofmt (Go)</span></div>
+  <pre>{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path' | grep -E '\\.go$' | xargs -I{} gofmt -w {}"
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+</div>
+
+<h3>rustfmt para Rust</h3>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/settings.json</span><span>rustfmt (Rust)</span></div>
+  <pre>{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path' | grep -E '\\.rs$' | xargs -I{} rustfmt {}"
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+</div>
+
+<h3>Tabela de referencia rapida</h3>
+
+<table>
+  <thead>
+    <tr><th>Linguagem</th><th>Formatador</th><th>Comando</th><th>Extensoes</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>JS/TS/CSS/HTML</td><td>Prettier</td><td><code>npx prettier --write</code></td><td><code>.js .ts .jsx .tsx .css .html .json</code></td></tr>
+    <tr><td>JS/TS (lint)</td><td>ESLint</td><td><code>npx eslint --fix</code></td><td><code>.js .ts .jsx .tsx</code></td></tr>
+    <tr><td>Python</td><td>Black</td><td><code>black --quiet</code></td><td><code>.py</code></td></tr>
+    <tr><td>Go</td><td>gofmt</td><td><code>gofmt -w</code></td><td><code>.go</code></td></tr>
+    <tr><td>Rust</td><td>rustfmt</td><td><code>rustfmt</code></td><td><code>.rs</code></td></tr>
+    <tr><td>Java</td><td>google-java-format</td><td><code>google-java-format -i</code></td><td><code>.java</code></td></tr>
+    <tr><td>C/C++</td><td>clang-format</td><td><code>clang-format -i</code></td><td><code>.c .cpp .h .hpp</code></td></tr>
+    <tr><td>Ruby</td><td>RuboCop</td><td><code>rubocop -A --fail-level=F</code></td><td><code>.rb</code></td></tr>
+  </tbody>
+</table>
+
+<!-- ========================================== -->
+<h2>Script Multi-linguagem Inteligente</h2>
+
+<p>Em projetos poliglotas, manter um hook separado por linguagem e fragil e verboso. A abordagem robusta e criar um script que detecta a extensao do arquivo e despacha para o formatador correto:</p>
+
+<div class="code-block">
+  <div class="code-header"><span>scripts/format-file.sh</span><span>Script de despacho por extensao</span></div>
+  <pre>#!/usr/bin/env bash
+set -euo pipefail
+
+# Recebe o path do arquivo via stdin (do jq)
+FILE_PATH=$(cat)
+
+# Se o arquivo nao existe, sai silenciosamente
+[[ -f "$FILE_PATH" ]] || exit 0
+
+# Extrai a extensao
+EXT="${FILE_PATH##*.}"
+
+case "$EXT" in
+  js|jsx|ts|tsx|css|html|json|md|yaml|yml)
+    npx prettier --write "$FILE_PATH" 2>/dev/null
+    ;;
+  py)
+    black --quiet "$FILE_PATH" 2>/dev/null
+    ;;
+  go)
+    gofmt -w "$FILE_PATH" 2>/dev/null
+    ;;
+  rs)
+    rustfmt "$FILE_PATH" 2>/dev/null
+    ;;
+  rb)
+    rubocop -A --fail-level=F "$FILE_PATH" 2>/dev/null
+    ;;
+  java)
+    google-java-format -i "$FILE_PATH" 2>/dev/null
+    ;;
+  c|cpp|h|hpp)
+    clang-format -i "$FILE_PATH" 2>/dev/null
+    ;;
+  *)
+    # Extensao nao reconhecida: nao faz nada
+    ;;
+esac
+
+exit 0</pre>
+</div>
+
+<p>O hook no <code>settings.json</code> fica simples:</p>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/settings.json</span><span>Hook com script multi-linguagem</span></div>
+  <pre>{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path' | bash scripts/format-file.sh"
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+</div>
+
+<div class="callout callout-green">
+  <strong>Resiliencia com 2>/dev/null e exit 0:</strong> O script redireciona stderr para <code>/dev/null</code> e sempre retorna exit code 0. Isso e critico porque um hook que falha (exit code diferente de 0) bloqueia a operacao do Claude Code. Se um formatador nao esta instalado, o script simplesmente ignora e continua.
+</div>
+
+<!-- ========================================== -->
+<h2>O Gap do Bash: Arquivos Criados via Shell</h2>
+
+<p>A documentacao oficial da Anthropic destaca um ponto importante: o Claude pode criar ou modificar arquivos executando comandos shell via Bash tool. Um <code>PostToolUse</code> com matcher <code>Edit|Write</code> <strong>nao captura</strong> essas modificacoes, porque a tool utilizada e <code>Bash</code>, nao <code>Edit</code> ou <code>Write</code>.</p>
+
+<div class="grid-2">
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">&#10003;</span> Capturado pelo PostToolUse</h4>
+    <p>Claude usa <code>Edit</code> para modificar <code>src/app.ts</code>. Hook dispara, Prettier formata.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--red-soft); color: var(--red);">&#10007;</span> NAO capturado</h4>
+    <p>Claude usa <code>Bash</code> com <code>cat > src/config.ts</code>. PostToolUse Edit|Write nao dispara.</p>
+  </div>
+</div>
+
+<p>Cenarios comuns onde o Claude usa Bash para criar/modificar arquivos:</p>
+
+<ul style="margin: 1rem 0 1rem 1.5rem;">
+  <li>Gerar arquivos de configuracao (<code>cat > .env</code>, <code>echo > config.yaml</code>)</li>
+  <li>Executar scaffolding (<code>npx create-react-app</code>, <code>cargo init</code>)</li>
+  <li>Aplicar patches (<code>sed -i</code>, <code>patch</code>)</li>
+  <li>Copiar templates (<code>cp template.ts src/new-file.ts</code>)</li>
+</ul>
+
+<div class="callout callout-red">
+  <strong>Risco real:</strong> Se voce depende apenas do PostToolUse com <code>Edit|Write</code>, arquivos criados via Bash escapam completamente da formatacao automatica. A solucao e complementar com um Stop hook.
+</div>
+
+<!-- ========================================== -->
+<h2>Stop Hook: Formatacao Final Completa</h2>
+
+<p>O hook <code>Stop</code> executa quando o Claude Code encerra uma resposta. Ele e o ponto ideal para uma varredura final de todos os arquivos modificados durante a sessao, usando <code>git</code> para identificar o que mudou:</p>
+
+<div class="code-block">
+  <div class="code-header"><span>scripts/format-changed.sh</span><span>Script de formatacao final via git</span></div>
+  <pre>#!/usr/bin/env bash
+set -euo pipefail
+
+# Lista arquivos modificados (staged e unstaged) com git
+# M = modificado, A = adicionado, ? = untracked
+CHANGED_FILES=$(git status --porcelain | awk '{print $2}')
+
+if [[ -z "$CHANGED_FILES" ]]; then
+  exit 0
+fi
+
+for FILE in $CHANGED_FILES; do
+  # Pula se o arquivo nao existe (pode ter sido deletado)
+  [[ -f "$FILE" ]] || continue
+
+  EXT="${FILE##*.}"
+
+  case "$EXT" in
+    js|jsx|ts|tsx|css|html|json|md|yaml|yml)
+      npx prettier --write "$FILE" 2>/dev/null || true
+      ;;
+    py)
+      black --quiet "$FILE" 2>/dev/null || true
+      ;;
+    go)
+      gofmt -w "$FILE" 2>/dev/null || true
+      ;;
+    rs)
+      rustfmt "$FILE" 2>/dev/null || true
+      ;;
+    *)
+      ;;
+  esac
+done
+
+exit 0</pre>
+</div>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/settings.json</span><span>Stop hook para formatacao final</span></div>
+  <pre>{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/format-changed.sh"
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+</div>
+
+<div class="callout callout-blue">
+  <strong>Sobre git status --porcelain:</strong> A flag <code>--porcelain</code> produz output machine-readable, estavel entre versoes do git. Cada linha comeca com um codigo de status de 2 caracteres seguido do caminho do arquivo. O <code>awk '{print $2}'</code> extrai apenas os caminhos. Arquivos renomeados aparecem com o caminho de destino.
+</div>
+
+<!-- ========================================== -->
+<h2>Configuracao Completa: PostToolUse + Stop</h2>
+
+<p>A configuracao ideal combina ambos os hooks para cobertura deterministica total:</p>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/settings.json</span><span>Configuracao completa de auto-formatacao</span></div>
+  <pre>{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path' | bash scripts/format-file.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/format-changed.sh"
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+</div>
+
+<div class="grid-3">
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">1</span> PostToolUse</h4>
+    <p>Formata imediatamente apos cada Edit/Write. Feedback rapido e incremental.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">2</span> Stop</h4>
+    <p>Varredura final de TODOS os arquivos modificados, incluindo os criados via Bash.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">3</span> Resultado</h4>
+    <p>100% dos arquivos modificados sao formatados. Zero dependencia do LLM para estilo.</p>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<h2>Consideracoes de Performance e Robustez</h2>
+
+<h3>Tempo de execucao</h3>
+
+<p>Cada hook de PostToolUse adiciona latencia a cada operacao de edicao. Para projetos grandes, considere:</p>
+
+<table>
+  <thead>
+    <tr><th>Formatador</th><th>Tempo tipico (arquivo unico)</th><th>Impacto percebido</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Prettier (via npx)</td><td>200-800ms (primeira execucao com cold start do npx)</td><td>Noticeable na primeira chamada</td></tr>
+    <tr><td>Prettier (instalado local)</td><td>50-150ms</td><td>Imperceptivel</td></tr>
+    <tr><td>Black</td><td>30-100ms</td><td>Imperceptivel</td></tr>
+    <tr><td>gofmt</td><td>10-50ms</td><td>Imperceptivel</td></tr>
+    <tr><td>rustfmt</td><td>50-200ms</td><td>Imperceptivel</td></tr>
+  </tbody>
+</table>
+
+<div class="callout callout-yellow">
+  <strong>Dica de performance:</strong> Evite <code>npx</code> em hooks de alta frequencia. Instale o formatador como dependencia local (<code>npm install --save-dev prettier</code>) e use <code>./node_modules/.bin/prettier --write</code> ou configure o <code>PATH</code> adequadamente. A diferenca pode ser de 500ms+ por invocacao.
+</div>
+
+<h3>Tratamento de erros</h3>
+
+<p>Hooks que retornam exit code diferente de 0 sao tratados como falha. A estrategia defensiva e:</p>
+
+<ul style="margin: 1rem 0 1rem 1.5rem;">
+  <li><strong>Sempre redirecionar stderr:</strong> <code>2>/dev/null</code> ou <code>2>/tmp/format-errors.log</code></li>
+  <li><strong>Sempre garantir exit 0:</strong> Use <code>|| true</code> ou <code>|| exit 0</code> apos comandos que podem falhar</li>
+  <li><strong>Verificar existencia do arquivo:</strong> <code>[[ -f "$FILE" ]] || exit 0</code> antes de formatar</li>
+  <li><strong>Verificar existencia do formatador:</strong> <code>command -v prettier &>/dev/null || exit 0</code></li>
+</ul>
+
+<h3>Interacao com .prettierignore e configuracoes locais</h3>
+
+<p>Formatadores respeitam seus arquivos de configuracao naturalmente. Prettier le <code>.prettierrc</code> e <code>.prettierignore</code>, Black le <code>pyproject.toml</code>, e assim por diante. Nenhuma configuracao adicional e necessaria no hook. O hook simplesmente invoca o formatador, que usa suas proprias regras de configuracao do projeto.</p>
+
+<!-- ========================================== -->
+<h2>Determinismo vs. Instrucao via Prompt</h2>
+
+<p>Para concluir, vale reforcar a diferenca fundamental entre as duas abordagens:</p>
+
+<div class="grid-2">
+  <div class="mini-card" style="border-color: var(--red);">
+    <h4><span class="icon-circle" style="background: var(--red-soft); color: var(--red);">&#8776;</span> Via prompt (probabilistico)</h4>
+    <p>Adicionar "use 2 espacos, Prettier style" no CLAUDE.md funciona na maioria das vezes, mas o LLM pode ignorar, especialmente em contextos longos ou quando esta focado em logica complexa. Nenhuma garantia formal.</p>
+  </div>
+  <div class="mini-card" style="border-color: var(--green);">
+    <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">&#10003;</span> Via hook (deterministico)</h4>
+    <p>O hook executa incondicionalmente quando o matcher corresponde. A formatacao e aplicada por uma ferramenta dedicada, usando as mesmas regras que o CI/CD. Zero variancia entre execucoes.</p>
+  </div>
+</div>
+
+<p>Hooks de auto-formatacao nao substituem instrucoes de estilo no <code>CLAUDE.md</code>. As instrucoes de prompt ajudam o Claude a gerar codigo mais proximo do estilo final, reduzindo o diff que o formatador precisa aplicar. O hook e a rede de seguranca que garante consistencia absoluta.</p>
+
+<!-- ========================================== -->
+<div class="sources">
+  <h3>Fontes</h3>
+  <ul>
+    <li><a href="https://docs.anthropic.com/en/docs/claude-code/hooks-guide" target="_blank">Hooks Guide - Auto-format code after edits (Documentacao Oficial Anthropic)</a></li>
+    <li><a href="https://docs.anthropic.com/en/docs/claude-code/hooks" target="_blank">Hooks - Referencia Completa (Documentacao Oficial Anthropic)</a></li>
+  </ul>
+</div>
+
+<!-- ========================================== -->
+<nav class="nav-footer">
+  <a href="modulo-07-topico-03-bloquear-secrets.html" class="nav-btn">&larr; Topico 3 . Bloquear Secrets</a>
+  <a href="../index.html" class="nav-btn">Indice</a>
+  <a href="modulo-07-topico-05-quality-gates.html" class="nav-btn">Topico 5 . Quality Gates &rarr;</a>
+</nav>
+
+</body>
+</html>

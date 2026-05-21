@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Topico 5 - Hooks como Quality Gates | Modulo 7 | Workshop Claude Code</title>
+<style>
+:root {
+  --bg: #0f1117; --bg-card: #1a1d27; --bg-code: #141620; --border: #2a2d3a;
+  --text: #e4e4e7; --text-dim: #9ca3af; --accent: #c4956a; --accent-soft: rgba(196, 149, 106, 0.12);
+  --blue: #60a5fa; --blue-soft: rgba(96, 165, 250, 0.12); --green: #6ee7b7; --green-soft: rgba(110, 231, 183, 0.12);
+  --purple: #a78bfa; --purple-soft: rgba(167, 139, 250, 0.12); --red: #f87171; --red-soft: rgba(248, 113, 113, 0.12);
+  --yellow: #fbbf24; --yellow-soft: rgba(251, 191, 36, 0.12);
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace; --radius: 12px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.7; padding: 2rem; max-width: 960px; margin: 0 auto; }
+.topic-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); background: var(--accent-soft); padding: 6px 14px; border-radius: 20px; margin-bottom: 1rem; }
+h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+.subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+p { margin-bottom: 1rem; } a { color: var(--blue); text-decoration: none; } a:hover { text-decoration: underline; }
+code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+strong { color: #fff; }
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0; }
+.diagram-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto; }
+.diagram-container svg { display: block; margin: 0 auto; }
+.diagram-caption { text-align: center; font-size: 0.85rem; color: var(--text-dim); margin-top: 1rem; font-style: italic; }
+.code-block { background: var(--bg-code); border: 1px solid var(--border); border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden; }
+.code-header { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 1rem; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim); }
+.code-block pre { padding: 1rem 1.25rem; overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8; }
+.callout { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem; }
+.callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+.callout-red { border-left-color: var(--red); background: var(--red-soft); }
+.callout-green { border-left-color: var(--green); background: var(--green-soft); }
+.callout-yellow { border-left-color: var(--yellow); background: var(--yellow-soft); }
+.callout strong { color: #fff; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+@media (max-width: 640px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } body { padding: 1rem; } h1 { font-size: 1.5rem; } }
+.mini-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
+.mini-card h4 { font-size: 0.95rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px; }
+.mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+.icon-circle { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+td { color: var(--text); } tr:last-child td { border-bottom: none; }
+.sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+.sources ul { list-style: none; padding: 0; }
+.sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+.sources li::before { content: "\2192 "; color: var(--accent); }
+.nav-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.nav-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; color: var(--text); background: var(--bg-card); border: 1px solid var(--border); text-decoration: none; transition: border-color 0.2s; }
+.nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="topic-badge">Modulo 7 &bull; Topico 5</div>
+<h1>Hooks como Quality Gates: Aprovacao Automatica de Operacoes Seguras</h1>
+<p class="subtitle">
+  Como construir um sistema de camadas de seguranca usando hooks para que o Claude opere com autonomia maxima sem comprometer a integridade do projeto. PermissionRequest, PreToolUse e prompt hooks como porteiros inteligentes.
+</p>
+
+<!-- ================================================ -->
+<h2>O Problema: Fadiga de Permissoes</h2>
+
+<p>
+  Quando o Claude Code opera em modo interativo padrao, cada operacao potencialmente destrutiva gera um prompt de confirmacao. Para tarefas complexas que envolvem dezenas de edits, execucoes de testes e leituras de arquivos, a quantidade de interrupcoes torna o fluxo improdutivo. O desenvolvedor acaba aprovando tudo mecanicamente, o que anula o proposito do sistema de permissoes.
+</p>
+
+<p>
+  A solucao nao e desabilitar permissoes. E <strong>automatizar as decisoes obvias</strong> e reservar a intervencao humana apenas para operacoes que realmente exigem julgamento. Isso e exatamente o que hooks como quality gates fazem.
+</p>
+
+<div class="callout callout-blue">
+  <strong>Principio fundamental:</strong> Hooks podem restringir alem do que as regras de permissao permitem, mas nao podem afrouxar restricoes alem do que as permission rules ja autorizam. Deny rules das settings sempre vencem.
+</div>
+
+<!-- ================================================ -->
+<h2>PermissionRequest: O Hook de Decisao</h2>
+
+<p>
+  O evento <code>PermissionRequest</code> e disparado sempre que um dialogo de permissao seria exibido ao usuario. O hook intercepta esse momento e pode tomar uma decisao automatica, eliminando a necessidade de interacao humana.
+</p>
+
+<h3>Anatomia da resposta JSON</h3>
+
+<p>
+  O hook deve emitir um JSON com a estrutura <code>hookSpecificOutput</code> contendo o campo <code>decision</code>. O campo <code>behavior</code> aceita tres valores possiveis:
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Behavior</th>
+      <th>Efeito</th>
+      <th>Caso de uso</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>"allow"</code></td>
+      <td>Pula o prompt interativo e permite a operacao</td>
+      <td>Operacoes de leitura, comandos seguros</td>
+    </tr>
+    <tr>
+      <td><code>"deny"</code></td>
+      <td>Bloqueia a operacao silenciosamente</td>
+      <td>Comandos destrutivos, acesso a secrets</td>
+    </tr>
+    <tr>
+      <td><code>"ask"</code></td>
+      <td>Exibe o prompt normal de permissao</td>
+      <td>Operacoes que requerem julgamento humano</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout callout-red">
+  <strong>Atencao critica:</strong> Retornar <code>"allow"</code> pula o prompt interativo, MAS deny rules definidas nas settings continuam sendo aplicadas. O hook nao pode sobrescrever restricoes ja configuradas no sistema de permissoes do Claude Code.
+</div>
+
+<h3>Exemplo canonico: Auto-approve ExitPlanMode</h3>
+
+<p>
+  Este e o exemplo direto da documentacao oficial. Quando o Claude quer sair do modo de planejamento para comecar a executar, normalmente exige confirmacao. Com esse hook, a transicao e automatica:
+</p>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/settings.json</span><span>PermissionRequest hook</span></div>
+  <pre>{
+  "hooks": {
+    "PermissionRequest": [
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\": {\"hookEventName\": \"PermissionRequest\", \"decision\": {\"behavior\": \"allow\"}}}'"
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+</div>
+
+<p>
+  O <code>matcher</code> filtra qual tipo de permissao esta sendo solicitada. Neste caso, apenas <code>ExitPlanMode</code> e auto-aprovado. Todas as outras permissoes continuam passando pelo fluxo normal.
+</p>
+
+<h3>Configurando permissoes via updatedPermissions</h3>
+
+<p>
+  Alem de decisoes pontuais, o campo <code>updatedPermissions</code> permite alterar o modo de permissao de forma mais ampla dentro da resposta do hook. Isso possibilita, por exemplo, elevar temporariamente o nivel de autonomia para uma sessao especifica baseado em condicoes verificadas pelo hook.
+</p>
+
+<!-- ================================================ -->
+<h2>Piramide de Seguranca: Modelo Mental</h2>
+
+<p>
+  O modelo ideal para quality gates e uma piramide de tres camadas. A base, mais larga, contem operacoes auto-aprovadas. O meio contem operacoes que passam pelo prompt padrao. O topo, mais estreito, contem operacoes automaticamente bloqueadas.
+</p>
+
+<div class="diagram-container">
+  <svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg">
+    <!-- Piramide -->
+    <defs>
+      <linearGradient id="gradRed" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f87171" stop-opacity="0.3"/>
+        <stop offset="100%" stop-color="#f87171" stop-opacity="0.1"/>
+      </linearGradient>
+      <linearGradient id="gradYellow" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.3"/>
+        <stop offset="100%" stop-color="#fbbf24" stop-opacity="0.1"/>
+      </linearGradient>
+      <linearGradient id="gradGreen" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#6ee7b7" stop-opacity="0.3"/>
+        <stop offset="100%" stop-color="#6ee7b7" stop-opacity="0.1"/>
+      </linearGradient>
+    </defs>
+
+    <!-- Camada DENY (topo) -->
+    <polygon points="350,30 270,140 430,140" fill="url(#gradRed)" stroke="#f87171" stroke-width="2"/>
+    <text x="350" y="80" text-anchor="middle" fill="#f87171" font-size="13" font-weight="600" font-family="Inter, sans-serif">AUTO-DENY</text>
+    <text x="350" y="100" text-anchor="middle" fill="#f8717199" font-size="10" font-family="Inter, sans-serif">rm -rf, git push --force</text>
+    <text x="350" y="115" text-anchor="middle" fill="#f8717199" font-size="10" font-family="Inter, sans-serif">DROP TABLE, secrets</text>
+
+    <!-- Camada ASK (meio) -->
+    <polygon points="270,145 180,270 520,270 430,145" fill="url(#gradYellow)" stroke="#fbbf24" stroke-width="2"/>
+    <text x="350" y="195" text-anchor="middle" fill="#fbbf24" font-size="13" font-weight="600" font-family="Inter, sans-serif">ASK (PROMPT NORMAL)</text>
+    <text x="350" y="215" text-anchor="middle" fill="#fbbf2499" font-size="10" font-family="Inter, sans-serif">Edits em arquivos, execucao de scripts,</text>
+    <text x="350" y="230" text-anchor="middle" fill="#fbbf2499" font-size="10" font-family="Inter, sans-serif">instalacao de dependencias, git commit</text>
+
+    <!-- Camada ALLOW (base) -->
+    <polygon points="180,275 90,400 610,400 520,275" fill="url(#gradGreen)" stroke="#6ee7b7" stroke-width="2"/>
+    <text x="350" y="325" text-anchor="middle" fill="#6ee7b7" font-size="13" font-weight="600" font-family="Inter, sans-serif">AUTO-ALLOW</text>
+    <text x="350" y="345" text-anchor="middle" fill="#6ee7b799" font-size="10" font-family="Inter, sans-serif">Read, Grep, Glob, npm test, tsc --noEmit,</text>
+    <text x="350" y="360" text-anchor="middle" fill="#6ee7b799" font-size="10" font-family="Inter, sans-serif">eslint, ExitPlanMode, prettier --check</text>
+
+    <!-- Setas laterais indicando hooks -->
+    <line x1="85" y1="85" x2="250" y2="85" stroke="#f8717166" stroke-width="1" stroke-dasharray="4,4"/>
+    <text x="30" y="80" fill="#f87171" font-size="10" font-weight="600" font-family="Inter, sans-serif">Hook:</text>
+    <text x="30" y="93" fill="#f8717199" font-size="9" font-family="Inter, sans-serif">deny</text>
+
+    <line x1="85" y1="207" x2="165" y2="207" stroke="#fbbf2466" stroke-width="1" stroke-dasharray="4,4"/>
+    <text x="30" y="202" fill="#fbbf24" font-size="10" font-weight="600" font-family="Inter, sans-serif">Hook:</text>
+    <text x="30" y="215" fill="#fbbf2499" font-size="9" font-family="Inter, sans-serif">ask</text>
+
+    <line x1="85" y1="340" x2="165" y2="340" stroke="#6ee7b766" stroke-width="1" stroke-dasharray="4,4"/>
+    <text x="30" y="335" fill="#6ee7b7" font-size="10" font-weight="600" font-family="Inter, sans-serif">Hook:</text>
+    <text x="30" y="348" fill="#6ee7b799" font-size="9" font-family="Inter, sans-serif">allow</text>
+
+    <!-- Labels de volume -->
+    <text x="660" y="85" text-anchor="end" fill="#9ca3af" font-size="9" font-family="Inter, sans-serif">Poucas ops</text>
+    <text x="660" y="207" text-anchor="end" fill="#9ca3af" font-size="9" font-family="Inter, sans-serif">Volume medio</text>
+    <text x="660" y="340" text-anchor="end" fill="#9ca3af" font-size="9" font-family="Inter, sans-serif">Alto volume</text>
+  </svg>
+  <div class="diagram-caption">Piramide de seguranca: quanto mais frequente a operacao, menor deve ser a friccao</div>
+</div>
+
+<!-- ================================================ -->
+<h2>PreToolUse como Quality Gate</h2>
+
+<p>
+  Enquanto <code>PermissionRequest</code> intercepta dialogos de permissao genericos, o evento <code>PreToolUse</code> oferece controle granular sobre ferramentas especificas. Ele e disparado antes de cada invocacao de ferramenta e recebe no <code>stdin</code> o JSON completo com o nome da ferramenta e seus parametros.
+</p>
+
+<p>
+  O campo chave na resposta e <code>permissionDecision</code>, que aceita os mesmos tres comportamentos:
+</p>
+
+<div class="grid-3">
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">&#10003;</span> allow</h4>
+    <p>Pula o prompt interativo. A ferramenta executa imediatamente.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--red-soft); color: var(--red);">&#10007;</span> deny</h4>
+    <p>Bloqueia a execucao. Funciona mesmo em modo bypassPermissions.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">?</span> ask</h4>
+    <p>Delega a decisao ao prompt interativo padrao.</p>
+  </div>
+</div>
+
+<div class="callout callout-yellow">
+  <strong>Detalhe importante sobre deny:</strong> Diferente do <code>allow</code> que pode ser sobrescrito por deny rules, o <code>deny</code> via hook e absoluto. Ele bloqueia a operacao mesmo quando o usuario esta operando em modo <code>bypassPermissions</code>. Hooks podem restringir, nunca afrouxar.
+</div>
+
+<h3>Auto-allow para operacoes de leitura</h3>
+
+<p>
+  Ferramentas como <code>Read</code>, <code>Grep</code> e <code>Glob</code> nunca modificam o sistema de arquivos. Sao candidatas perfeitas para auto-aprovacao total:
+</p>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/settings.json</span><span>PreToolUse - auto-allow reads</span></div>
+  <pre>{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Grep|Glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"decision\": \"allow\"}'"
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+</div>
+
+<p>
+  O <code>matcher</code> usa regex, entao <code>Read|Grep|Glob</code> captura qualquer uma dessas tres ferramentas. Todas as invocacoes dessas ferramentas serao auto-aprovadas sem qualquer prompt.
+</p>
+
+<h3>Auto-deny para operacoes destrutivas</h3>
+
+<p>
+  O caminho inverso: bloquear automaticamente qualquer tentativa de executar comandos sabidamente perigosos. O hook recebe o JSON da ferramenta via <code>stdin</code> e inspeciona os parametros:
+</p>
+
+<div class="code-block">
+  <div class="code-header"><span>scripts/deny-destructive.sh</span><span>Shell script para quality gate</span></div>
+  <pre>#!/bin/bash
+# Le o input JSON do stdin
+INPUT=$(cat)
+
+# Extrai o comando sendo executado
+TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // empty')
+COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty')
+
+# Lista de padroes perigosos
+if echo "$COMMAND" | grep -qE '(rm\s+-rf|git\s+push\s+--force|DROP\s+TABLE|TRUNCATE|format\s+c:|del\s+/[sf])'; then
+  echo '{"decision": "deny", "reason": "Comando destrutivo bloqueado pelo quality gate"}'
+  exit 0
+fi
+
+# Tudo que nao e perigoso segue o fluxo normal
+echo '{"decision": "ask"}'</pre>
+</div>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/settings.json</span><span>PreToolUse - deny destructive</span></div>
+  <pre>{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ./scripts/deny-destructive.sh"
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+</div>
+
+<!-- ================================================ -->
+<h2>Script Inteligente de Categorizacao</h2>
+
+<p>
+  A abordagem mais robusta combina allow, deny e ask em um unico script que categoriza operacoes dinamicamente. O script recebe o contexto completo da ferramenta e toma a decisao apropriada:
+</p>
+
+<div class="code-block">
+  <div class="code-header"><span>scripts/quality-gate.sh</span><span>Categorizador completo de operacoes</span></div>
+  <pre>#!/bin/bash
+INPUT=$(cat)
+
+TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // empty')
+COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty')
+FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
+
+# ============================================
+# CAMADA 1: AUTO-DENY (operacoes destrutivas)
+# ============================================
+if echo "$COMMAND" | grep -qiE '(rm\s+-rf|git\s+push\s+--force|DROP\s+TABLE|TRUNCATE)'; then
+  echo '{"decision": "deny", "reason": "Operacao destrutiva bloqueada"}'
+  exit 0
+fi
+
+# Bloquear acesso a arquivos de secrets
+if echo "$FILE_PATH" | grep -qE '\.(env|pem|key)$|/secrets/|/credentials/'; then
+  echo '{"decision": "deny", "reason": "Acesso a secrets bloqueado"}'
+  exit 0
+fi
+
+# ============================================
+# CAMADA 2: AUTO-ALLOW (operacoes seguras)
+# ============================================
+
+# Ferramentas de leitura sao sempre seguras
+if echo "$TOOL_NAME" | grep -qE '^(Read|Grep|Glob|ListDir)$'; then
+  echo '{"decision": "allow"}'
+  exit 0
+fi
+
+# Comandos de verificacao (nao modificam nada)
+if echo "$COMMAND" | grep -qE '^(npm test|npx tsc --noEmit|npx eslint|prettier --check|cargo check|go vet)'; then
+  echo '{"decision": "allow"}'
+  exit 0
+fi
+
+# Edits somente dentro de src/ ou tests/
+if [ "$TOOL_NAME" = "Edit" ] || [ "$TOOL_NAME" = "Write" ]; then
+  if echo "$FILE_PATH" | grep -qE '^(src/|tests/|test/|__tests__/)'; then
+    echo '{"decision": "allow"}'
+    exit 0
+  fi
+fi
+
+# ============================================
+# CAMADA 3: ASK (tudo o resto)
+# ============================================
+echo '{"decision": "ask"}'</pre>
+</div>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/settings.json</span><span>Configuracao completa com quality gate</span></div>
+  <pre>{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ./scripts/quality-gate.sh"
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\": {\"hookEventName\": \"PermissionRequest\", \"decision\": {\"behavior\": \"allow\"}}}'"
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+</div>
+
+<p>
+  Essa configuracao cobre os dois eventos simultaneamente: <code>PreToolUse</code> com matcher <code>.*</code> (todas as ferramentas) passando pelo script categorizador, e <code>PermissionRequest</code> auto-aprovando especificamente o <code>ExitPlanMode</code>.
+</p>
+
+<!-- ================================================ -->
+<h2>Fluxo de Decisao do Quality Gate</h2>
+
+<div class="diagram-container">
+  <svg viewBox="0 0 700 500" xmlns="http://www.w3.org/2000/svg">
+    <!-- Inicio -->
+    <rect x="270" y="10" width="160" height="40" rx="20" fill="none" stroke="#60a5fa" stroke-width="2"/>
+    <text x="350" y="35" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="600" font-family="Inter, sans-serif">Ferramenta invocada</text>
+
+    <line x1="350" y1="50" x2="350" y2="80" stroke="#2a2d3a" stroke-width="2"/>
+    <polygon points="345,78 355,78 350,85" fill="#2a2d3a"/>
+
+    <!-- Hook disparado -->
+    <rect x="255" y="85" width="190" height="36" rx="8" fill="#1a1d27" stroke="#2a2d3a" stroke-width="1.5"/>
+    <text x="350" y="108" text-anchor="middle" fill="#e4e4e7" font-size="11" font-family="Inter, sans-serif">PreToolUse hook dispara</text>
+
+    <line x1="350" y1="121" x2="350" y2="150" stroke="#2a2d3a" stroke-width="2"/>
+    <polygon points="345,148 355,148 350,155" fill="#2a2d3a"/>
+
+    <!-- Decisao: destrutivo? -->
+    <polygon points="350,155 470,200 350,245 230,200" fill="none" stroke="#f87171" stroke-width="2"/>
+    <text x="350" y="197" text-anchor="middle" fill="#f87171" font-size="10" font-weight="600" font-family="Inter, sans-serif">Destrutivo?</text>
+    <text x="350" y="210" text-anchor="middle" fill="#f8717199" font-size="9" font-family="Inter, sans-serif">rm -rf, secrets...</text>
+
+    <!-- Sim -> Deny -->
+    <line x1="470" y1="200" x2="570" y2="200" stroke="#f87171" stroke-width="1.5"/>
+    <text x="510" y="193" fill="#f87171" font-size="9" font-family="Inter, sans-serif">sim</text>
+    <rect x="570" y="185" width="100" height="30" rx="6" fill="#f8717122" stroke="#f87171" stroke-width="1.5"/>
+    <text x="620" y="204" text-anchor="middle" fill="#f87171" font-size="11" font-weight="600" font-family="Inter, sans-serif">DENY</text>
+
+    <!-- Nao -> proximo -->
+    <line x1="350" y1="245" x2="350" y2="280" stroke="#2a2d3a" stroke-width="2"/>
+    <text x="360" y="263" fill="#9ca3af" font-size="9" font-family="Inter, sans-serif">nao</text>
+    <polygon points="345,278 355,278 350,285" fill="#2a2d3a"/>
+
+    <!-- Decisao: seguro? -->
+    <polygon points="350,285 470,330 350,375 230,330" fill="none" stroke="#6ee7b7" stroke-width="2"/>
+    <text x="350" y="327" text-anchor="middle" fill="#6ee7b7" font-size="10" font-weight="600" font-family="Inter, sans-serif">Seguro?</text>
+    <text x="350" y="340" text-anchor="middle" fill="#6ee7b799" font-size="9" font-family="Inter, sans-serif">Read, test, lint...</text>
+
+    <!-- Sim -> Allow -->
+    <line x1="470" y1="330" x2="570" y2="330" stroke="#6ee7b7" stroke-width="1.5"/>
+    <text x="510" y="323" fill="#6ee7b7" font-size="9" font-family="Inter, sans-serif">sim</text>
+    <rect x="570" y="315" width="100" height="30" rx="6" fill="#6ee7b722" stroke="#6ee7b7" stroke-width="1.5"/>
+    <text x="620" y="334" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="600" font-family="Inter, sans-serif">ALLOW</text>
+
+    <!-- Nao -> Ask -->
+    <line x1="350" y1="375" x2="350" y2="420" stroke="#2a2d3a" stroke-width="2"/>
+    <text x="360" y="398" fill="#9ca3af" font-size="9" font-family="Inter, sans-serif">nao</text>
+    <polygon points="345,418 355,418 350,425" fill="#2a2d3a"/>
+
+    <rect x="285" y="425" width="130" height="36" rx="6" fill="#fbbf2422" stroke="#fbbf24" stroke-width="1.5"/>
+    <text x="350" y="448" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="600" font-family="Inter, sans-serif">ASK (prompt)</text>
+
+    <!-- Anotacao -->
+    <rect x="20" y="285" width="175" height="55" rx="8" fill="#1a1d27" stroke="#2a2d3a" stroke-width="1"/>
+    <text x="107" y="305" text-anchor="middle" fill="#9ca3af" font-size="9" font-family="Inter, sans-serif">Deny rules das settings</text>
+    <text x="107" y="318" text-anchor="middle" fill="#9ca3af" font-size="9" font-family="Inter, sans-serif">ainda se aplicam DEPOIS</text>
+    <text x="107" y="331" text-anchor="middle" fill="#9ca3af" font-size="9" font-family="Inter, sans-serif">do hook retornar allow</text>
+    <line x1="195" y1="310" x2="230" y2="330" stroke="#2a2d3a" stroke-width="1" stroke-dasharray="3,3"/>
+  </svg>
+  <div class="diagram-caption">Fluxo de decisao: deny primeiro, allow segundo, ask como fallback</div>
+</div>
+
+<!-- ================================================ -->
+<h2>Prompt Hooks como Quality Gate Inteligente</h2>
+
+<p>
+  Para decisoes que exigem julgamento contextual alem de simples pattern matching, hooks do tipo <code>prompt</code> delegam a avaliacao a um modelo de linguagem. O modelo recebe o contexto da operacao e decide se ela e segura.
+</p>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/settings.json</span><span>Prompt hook para decisoes contextuais</span></div>
+  <pre>{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Avalie se o comando bash a seguir e seguro para execucao automatica. Considere: 1) O comando modifica o filesystem? 2) O comando acessa rede? 3) O comando pode causar perda de dados? Se for seguro, responda com JSON {\"decision\": \"allow\"}. Se for perigoso, responda com {\"decision\": \"deny\", \"reason\": \"<motivo>\"}. Se for ambiguo, responda com {\"decision\": \"ask\"}."
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+</div>
+
+<div class="callout callout-green">
+  <strong>Vantagem dos prompt hooks:</strong> Eles conseguem avaliar contexto semantico que regex nao captura. Um comando como <code>curl -X DELETE</code> seria detectado pelo modelo mesmo sem um regex especifico para ele. A desvantagem e a latencia adicional de uma chamada ao modelo.
+</div>
+
+<p>
+  Prompt hooks sao mais adequados para situacoes onde a lista de padroes perigosos nao e facilmente enumeravel, ou quando o risco depende da combinacao de parametros em vez de um unico token.
+</p>
+
+<!-- ================================================ -->
+<h2>Estrategias de Quality Gate por Cenario</h2>
+
+<div class="grid-2">
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">1</span> Projeto greenfield</h4>
+    <p>Auto-allow em tudo dentro de <code>src/</code> e <code>tests/</code>. O Claude tem autonomia total para criar e editar codigo no escopo do projeto.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">2</span> Refactoring em codebase legado</h4>
+    <p>Auto-allow reads + deny em delecoes de arquivos fora do escopo. Ask para todo edit. Protege contra mudancas acidentais em areas criticas.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">3</span> CI/CD pipeline</h4>
+    <p>Auto-allow reads e testes. Deny em qualquer operacao de rede. Ask para edits em configs de deploy. Ideal para ambiente headless.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">4</span> Code review automatizado</h4>
+    <p>Auto-allow todas as ferramentas de leitura. Deny total em Write/Edit/Bash. O Claude analisa sem modificar nada.</p>
+  </div>
+</div>
+
+<!-- ================================================ -->
+<h2>Combinando Hooks em Cadeia</h2>
+
+<p>
+  Multiplos hooks podem ser registrados para o mesmo evento. Eles executam em sequencia, e a regra e: <strong>o resultado mais restritivo vence</strong>. Se um hook retorna <code>allow</code> e outro retorna <code>deny</code>, o resultado final e <code>deny</code>.
+</p>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/settings.json</span><span>Cadeia de hooks: seguranca + compliance</span></div>
+  <pre>{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ./scripts/security-gate.sh"
+          },
+          {
+            "type": "command",
+            "command": "bash ./scripts/compliance-gate.sh"
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+</div>
+
+<p>
+  Nesse modelo, <code>security-gate.sh</code> verifica riscos de seguranca (comandos destrutivos, acesso a secrets) enquanto <code>compliance-gate.sh</code> verifica regras de compliance (padroes de codigo, restricoes de licenca). Ambos precisam aprovar para que a operacao prossiga.
+</p>
+
+<div class="card">
+  <h3 style="margin-top: 0;">Tabela de precedencia de decisoes</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Hook 1</th>
+        <th>Hook 2</th>
+        <th>Resultado final</th>
+        <th>Razao</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code style="color: var(--green);">allow</code></td>
+        <td><code style="color: var(--green);">allow</code></td>
+        <td><code style="color: var(--green);">allow</code></td>
+        <td>Ambos concordam</td>
+      </tr>
+      <tr>
+        <td><code style="color: var(--green);">allow</code></td>
+        <td><code style="color: var(--red);">deny</code></td>
+        <td><code style="color: var(--red);">deny</code></td>
+        <td>Mais restritivo vence</td>
+      </tr>
+      <tr>
+        <td><code style="color: var(--green);">allow</code></td>
+        <td><code style="color: var(--yellow);">ask</code></td>
+        <td><code style="color: var(--yellow);">ask</code></td>
+        <td>Mais restritivo vence</td>
+      </tr>
+      <tr>
+        <td><code style="color: var(--red);">deny</code></td>
+        <td><code style="color: var(--yellow);">ask</code></td>
+        <td><code style="color: var(--red);">deny</code></td>
+        <td>Deny e absoluto</td>
+      </tr>
+      <tr>
+        <td><code style="color: var(--yellow);">ask</code></td>
+        <td><code style="color: var(--yellow);">ask</code></td>
+        <td><code style="color: var(--yellow);">ask</code></td>
+        <td>Nenhum hook decidiu</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ================================================ -->
+<h2>Interacao com o Sistema de Permissoes</h2>
+
+<p>
+  E fundamental entender como hooks interagem com as permission rules ja configuradas no Claude Code. O sistema de permissoes tem sua propria hierarquia, e hooks operam <em>dentro</em> dessa hierarquia, nao acima dela.
+</p>
+
+<div class="diagram-container">
+  <svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg">
+    <!-- Boxes em sequencia -->
+    <rect x="20" y="90" width="140" height="70" rx="10" fill="#1a1d27" stroke="#60a5fa" stroke-width="2"/>
+    <text x="90" y="118" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="600" font-family="Inter, sans-serif">Hook retorna</text>
+    <text x="90" y="135" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="600" font-family="Inter, sans-serif">decisao</text>
+
+    <line x1="160" y1="125" x2="210" y2="125" stroke="#2a2d3a" stroke-width="2" marker-end="url(#arrowGray)"/>
+
+    <rect x="210" y="90" width="160" height="70" rx="10" fill="#1a1d27" stroke="#fbbf24" stroke-width="2"/>
+    <text x="290" y="115" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="600" font-family="Inter, sans-serif">Permission rules</text>
+    <text x="290" y="132" text-anchor="middle" fill="#fbbf2499" font-size="10" font-family="Inter, sans-serif">Deny rules das</text>
+    <text x="290" y="146" text-anchor="middle" fill="#fbbf2499" font-size="10" font-family="Inter, sans-serif">settings se aplicam</text>
+
+    <line x1="370" y1="125" x2="420" y2="125" stroke="#2a2d3a" stroke-width="2" marker-end="url(#arrowGray)"/>
+
+    <rect x="420" y="90" width="130" height="70" rx="10" fill="#1a1d27" stroke="#6ee7b7" stroke-width="2"/>
+    <text x="485" y="118" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="600" font-family="Inter, sans-serif">Resultado</text>
+    <text x="485" y="135" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="600" font-family="Inter, sans-serif">final</text>
+
+    <!-- Exemplos abaixo -->
+    <text x="90" y="195" text-anchor="middle" fill="#6ee7b7" font-size="10" font-family="Inter, sans-serif">allow</text>
+    <text x="290" y="195" text-anchor="middle" fill="#f87171" font-size="10" font-family="Inter, sans-serif">deny rule match</text>
+    <text x="485" y="195" text-anchor="middle" fill="#f87171" font-size="10" font-weight="600" font-family="Inter, sans-serif">DENY</text>
+    <line x1="130" y1="192" x2="220" y2="192" stroke="#2a2d3a" stroke-width="1" stroke-dasharray="3,3"/>
+    <line x1="370" y1="192" x2="430" y2="192" stroke="#2a2d3a" stroke-width="1" stroke-dasharray="3,3"/>
+
+    <text x="90" y="220" text-anchor="middle" fill="#6ee7b7" font-size="10" font-family="Inter, sans-serif">allow</text>
+    <text x="290" y="220" text-anchor="middle" fill="#6ee7b7" font-size="10" font-family="Inter, sans-serif">nenhum deny rule</text>
+    <text x="485" y="220" text-anchor="middle" fill="#6ee7b7" font-size="10" font-weight="600" font-family="Inter, sans-serif">ALLOW</text>
+    <line x1="130" y1="217" x2="220" y2="217" stroke="#2a2d3a" stroke-width="1" stroke-dasharray="3,3"/>
+    <line x1="370" y1="217" x2="430" y2="217" stroke="#2a2d3a" stroke-width="1" stroke-dasharray="3,3"/>
+
+    <text x="90" y="245" text-anchor="middle" fill="#f87171" font-size="10" font-family="Inter, sans-serif">deny</text>
+    <text x="290" y="245" text-anchor="middle" fill="#9ca3af" font-size="10" font-family="Inter, sans-serif">(nao avaliado)</text>
+    <text x="485" y="245" text-anchor="middle" fill="#f87171" font-size="10" font-weight="600" font-family="Inter, sans-serif">DENY</text>
+    <line x1="130" y1="242" x2="220" y2="242" stroke="#2a2d3a" stroke-width="1" stroke-dasharray="3,3"/>
+    <line x1="370" y1="242" x2="430" y2="242" stroke="#2a2d3a" stroke-width="1" stroke-dasharray="3,3"/>
+
+    <!-- Titulo -->
+    <text x="350" y="35" text-anchor="middle" fill="#fff" font-size="13" font-weight="600" font-family="Inter, sans-serif">Pipeline de decisao: Hook &#8594; Permission Rules &#8594; Resultado</text>
+
+    <!-- Arrow marker -->
+    <defs>
+      <marker id="arrowGray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#2a2d3a"/>
+      </marker>
+    </defs>
+  </svg>
+  <div class="diagram-caption">Hook allow + deny rule = DENY. O sistema de permissoes tem a palavra final sobre allow.</div>
+</div>
+
+<!-- ================================================ -->
+<h2>Padroes Avancados</h2>
+
+<h3>Gate baseado em horario</h3>
+
+<p>
+  Um quality gate pode considerar fatores externos como horario. Durante horario comercial, operacoes de deploy sao permitidas. Fora do horario, sao bloqueadas:
+</p>
+
+<div class="code-block">
+  <div class="code-header"><span>scripts/time-gate.sh</span><span>Quality gate temporal</span></div>
+  <pre>#!/bin/bash
+INPUT=$(cat)
+COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty')
+HOUR=$(date +%H)
+
+# Comandos de deploy somente em horario comercial (9-18)
+if echo "$COMMAND" | grep -qE '(deploy|publish|release)'; then
+  if [ "$HOUR" -ge 9 ] && [ "$HOUR" -lt 18 ]; then
+    echo '{"decision": "ask"}'  # Permite mas pede confirmacao
+  else
+    echo '{"decision": "deny", "reason": "Deploy bloqueado fora do horario comercial"}'
+  fi
+  exit 0
+fi
+
+echo '{"decision": "ask"}'</pre>
+</div>
+
+<h3>Gate baseado em branch Git</h3>
+
+<p>
+  Restringir operacoes destrutivas baseado na branch atual. Na <code>main</code>, quase tudo e bloqueado. Em branches de feature, o Claude tem mais liberdade:
+</p>
+
+<div class="code-block">
+  <div class="code-header"><span>scripts/branch-gate.sh</span><span>Quality gate por branch</span></div>
+  <pre>#!/bin/bash
+INPUT=$(cat)
+TOOL_NAME=$(echo "$INPUT" | jq -r '.tool_name // empty')
+BRANCH=$(git branch --show-current 2>/dev/null || echo "unknown")
+
+# Na main: deny writes, allow somente reads
+if [ "$BRANCH" = "main" ] || [ "$BRANCH" = "master" ]; then
+  if echo "$TOOL_NAME" | grep -qE '^(Edit|Write|Bash)$'; then
+    echo '{"decision": "deny", "reason": "Escrita bloqueada na branch main"}'
+    exit 0
+  fi
+fi
+
+# Em branches de feature: allow edits em src/
+if echo "$BRANCH" | grep -qE '^(feature|feat|fix)/'; then
+  if echo "$TOOL_NAME" | grep -qE '^(Read|Grep|Glob)$'; then
+    echo '{"decision": "allow"}'
+    exit 0
+  fi
+fi
+
+echo '{"decision": "ask"}'</pre>
+</div>
+
+<!-- ================================================ -->
+<h2>Consideracoes de Seguranca</h2>
+
+<div class="callout callout-red">
+  <strong>Hooks rodam como seu usuario.</strong> Scripts de quality gate executam com as mesmas permissoes do processo do Claude Code. Um hook mal configurado que retorna <code>allow</code> indiscriminadamente e pior que nenhum hook, pois cria uma falsa sensacao de seguranca.
+</div>
+
+<div class="grid-2">
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--red-soft); color: var(--red);">!</span> Nao faca</h4>
+    <p>Matcher <code>.*</code> com <code>allow</code> incondicional. Isso desabilita toda protecao interativa sem nenhum filtro.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">&#10003;</span> Faca</h4>
+    <p>Default para <code>ask</code> com allow/deny explicitos apenas para padroes bem conhecidos. Fail-safe por padrao.</p>
+  </div>
+</div>
+
+<p>
+  Boas praticas para quality gates seguros:
+</p>
+
+<ul style="margin: 1rem 0; padding-left: 1.5rem; color: var(--text-dim);">
+  <li style="margin-bottom: 0.5rem;"><strong>Default deny/ask:</strong> O fallback deve ser sempre <code>ask</code> ou <code>deny</code>, nunca <code>allow</code></li>
+  <li style="margin-bottom: 0.5rem;"><strong>Whitelist, nao blacklist:</strong> Enumere o que e seguro em vez de tentar listar tudo que e perigoso</li>
+  <li style="margin-bottom: 0.5rem;"><strong>Teste seus hooks:</strong> Execute manualmente com inputs maliciosos para verificar que o gate funciona</li>
+  <li style="margin-bottom: 0.5rem;"><strong>Logs de auditoria:</strong> Hooks podem logar decisoes para revisao posterior via PostToolUse</li>
+  <li style="margin-bottom: 0.5rem;"><strong>Versionamento:</strong> Mantenha scripts de quality gate sob controle de versao junto ao codigo</li>
+</ul>
+
+<!-- ================================================ -->
+<div class="sources">
+  <h3>Fontes e referencias</h3>
+  <ul>
+    <li><a href="https://docs.anthropic.com/en/docs/claude-code/hooks-guide" target="_blank">Claude Code Hooks Guide - Auto-approve specific permission prompts</a></li>
+    <li><a href="https://docs.anthropic.com/en/docs/claude-code/hooks" target="_blank">Claude Code Hooks - Referencia completa</a></li>
+    <li><a href="https://docs.anthropic.com/en/docs/claude-code/permissions" target="_blank">Claude Code Permissions - Sistema de permissoes</a></li>
+  </ul>
+</div>
+
+<nav class="nav-footer">
+  <a href="modulo-07-topico-04-auto-formatacao.html" class="nav-btn">&larr; Topico 4 . Auto-formatacao</a>
+  <a href="../index.html" class="nav-btn">Indice</a>
+  <a href="../modulo-08/modulo-08-topico-01-subagentes.html" class="nav-btn">Modulo 8 . Topico 1 &rarr;</a>
+</nav>
+
+</body>
+</html>
