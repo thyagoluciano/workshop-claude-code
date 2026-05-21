@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modulo 6 . Topico 3 -- Configurando servidores MCP com .mcp.json</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-code: #141620;
+      --border: #2a2d3a;
+      --text: #e4e4e7;
+      --text-dim: #9ca3af;
+      --accent: #c4956a;
+      --accent-soft: rgba(196, 149, 106, 0.12);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.12);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .topic-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-soft); padding: 6px 14px;
+      border-radius: 20px; margin-bottom: 1rem;
+    }
+
+    h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+    .subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+    h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+    p { margin-bottom: 1rem; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+    strong { color: #fff; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0;
+    }
+    .card-label {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 6px; margin-bottom: 0.75rem;
+    }
+
+    .diagram-container {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto;
+    }
+    .diagram-container svg { display: block; margin: 0 auto; }
+    .diagram-caption {
+      text-align: center; font-size: 0.85rem; color: var(--text-dim);
+      margin-top: 1rem; font-style: italic;
+    }
+
+    .code-block {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1rem; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim);
+    }
+    .code-block pre {
+      padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8;
+    }
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: var(--purple); }
+    .code-block .string { color: var(--green); }
+    .code-block .tool { color: var(--accent); }
+    .code-block .number { color: var(--yellow); }
+
+    .callout {
+      border-left: 3px solid var(--accent); background: var(--accent-soft);
+      padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem;
+    }
+    .callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+    .callout-red { border-left-color: var(--red); background: var(--red-soft); }
+    .callout-green { border-left-color: var(--green); background: var(--green-soft); }
+    .callout-yellow { border-left-color: var(--yellow); background: var(--yellow-soft); }
+    .callout strong { color: #fff; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+    }
+
+    .mini-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .mini-card h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;
+    }
+    .mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+
+    .icon-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    .sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .sources ul { list-style: none; padding: 0; }
+    .sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+    .sources li::before { content: "\2192 "; color: var(--accent); }
+
+    .nav-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+      color: var(--text); background: var(--bg-card); border: 1px solid var(--border);
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ HEADER ════════════ -->
+  <div class="topic-badge">Modulo 6 . Topico 3</div>
+  <h1>Configurando servidores MCP com .mcp.json</h1>
+  <p class="subtitle">
+    O arquivo <code>.mcp.json</code> e o mecanismo central para declarar quais servidores MCP
+    o Claude Code deve conectar. Entender sua estrutura, escopos e o CLI de gerenciamento
+    e essencial para integrar ferramentas externas de forma consistente -- tanto individualmente
+    quanto em equipe.
+  </p>
+
+  <!-- ════════════ O QUE E O .mcp.json ════════════ -->
+  <h2>O que e o .mcp.json</h2>
+
+  <p>
+    O <code>.mcp.json</code> e um arquivo JSON posicionado na raiz do seu projeto que declara
+    servidores MCP de <strong>escopo de projeto</strong>. Quando commitado no repositorio, ele
+    garante que todos os membros da equipe tenham acesso aos mesmos servidores e ferramentas MCP,
+    funcionando como uma especie de "package.json para integracao de ferramentas de IA".
+  </p>
+
+  <p>
+    Alem do <code>.mcp.json</code> no projeto, o Claude Code suporta configuracoes em
+    <code>~/.claude.json</code> (para escopos local e user) e em arquivos gerenciados pela
+    organizacao (<code>managed-mcp.json</code>). A combinacao desses niveis cria uma hierarquia
+    flexivel de configuracao.
+  </p>
+
+  <div class="callout-blue callout">
+    <strong>Ponto-chave:</strong> Por razoes de seguranca, o Claude Code solicita aprovacao antes de
+    usar servidores de escopo project vindos de um <code>.mcp.json</code>. Isso impede que um
+    repositorio malicioso execute servidores automaticamente ao ser clonado. Use
+    <code>claude mcp reset-project-choices</code> para resetar essas aprovacoes.
+  </div>
+
+  <!-- ════════════ ESTRUTURA DO ARQUIVO ════════════ -->
+  <h2>Estrutura do arquivo .mcp.json</h2>
+
+  <p>
+    O schema e direto: um objeto raiz contendo a chave <code>mcpServers</code>, onde cada entrada
+    e um servidor nomeado com sua configuracao de transporte.
+  </p>
+
+  <h3>Servidor stdio (processo local)</h3>
+
+  <div class="code-block">
+    <div class="code-header"><span>.mcp.json -- servidor stdio</span></div>
+    <pre>{
+  <span class="string">"mcpServers"</span>: {
+    <span class="string">"database"</span>: {
+      <span class="string">"type"</span>: <span class="string">"stdio"</span>,
+      <span class="string">"command"</span>: <span class="string">"npx"</span>,
+      <span class="string">"args"</span>: [<span class="string">"-y"</span>, <span class="string">"@bytebase/dbhub"</span>, <span class="string">"--dsn"</span>, <span class="string">"postgresql://user:pass@localhost:5432/mydb"</span>],
+      <span class="string">"env"</span>: {
+        <span class="string">"CACHE_DIR"</span>: <span class="string">"/tmp/dbhub"</span>
+      }
+    }
+  }
+}</pre>
+  </div>
+
+  <h3>Servidor HTTP (remoto)</h3>
+
+  <div class="code-block">
+    <div class="code-header"><span>.mcp.json -- servidor HTTP remoto</span></div>
+    <pre>{
+  <span class="string">"mcpServers"</span>: {
+    <span class="string">"sentry"</span>: {
+      <span class="string">"type"</span>: <span class="string">"http"</span>,
+      <span class="string">"url"</span>: <span class="string">"https://mcp.sentry.dev/mcp"</span>
+    },
+    <span class="string">"github"</span>: {
+      <span class="string">"type"</span>: <span class="string">"http"</span>,
+      <span class="string">"url"</span>: <span class="string">"https://api.githubcopilot.com/mcp/"</span>,
+      <span class="string">"headers"</span>: {
+        <span class="string">"Authorization"</span>: <span class="string">"Bearer ${GITHUB_PAT}"</span>
+      }
+    }
+  }
+}</pre>
+  </div>
+
+  <h3>Schema completo dos campos</h3>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Campo</th>
+          <th>Tipo</th>
+          <th>Descricao</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>type</code></td>
+          <td><code>"stdio"</code> | <code>"http"</code> | <code>"sse"</code></td>
+          <td>Transporte. <code>stdio</code> e default para comandos locais. <code>"streamable-http"</code> aceito como alias de <code>"http"</code>. SSE esta deprecated.</td>
+        </tr>
+        <tr>
+          <td><code>command</code></td>
+          <td><code>string</code></td>
+          <td>Executavel do servidor (apenas stdio). Ex: <code>"npx"</code>, <code>"python"</code>, <code>"node"</code>.</td>
+        </tr>
+        <tr>
+          <td><code>args</code></td>
+          <td><code>string[]</code></td>
+          <td>Argumentos passados ao comando (apenas stdio).</td>
+        </tr>
+        <tr>
+          <td><code>env</code></td>
+          <td><code>Record&lt;string, string&gt;</code></td>
+          <td>Variaveis de ambiente injetadas no processo do servidor (apenas stdio).</td>
+        </tr>
+        <tr>
+          <td><code>url</code></td>
+          <td><code>string</code></td>
+          <td>URL do servidor remoto (apenas http/sse).</td>
+        </tr>
+        <tr>
+          <td><code>headers</code></td>
+          <td><code>Record&lt;string, string&gt;</code></td>
+          <td>Headers HTTP enviados na conexao (apenas http/sse). Util para auth.</td>
+        </tr>
+        <tr>
+          <td><code>headersHelper</code></td>
+          <td><code>string</code></td>
+          <td>Comando shell que retorna headers em JSON via stdout. Para auth dinamica (Kerberos, SSO).</td>
+        </tr>
+        <tr>
+          <td><code>oauth</code></td>
+          <td><code>object</code></td>
+          <td>Configuracao OAuth: <code>clientId</code>, <code>callbackPort</code>, <code>scopes</code>, <code>authServerMetadataUrl</code>.</td>
+        </tr>
+        <tr>
+          <td><code>alwaysLoad</code></td>
+          <td><code>boolean</code></td>
+          <td>Se <code>true</code>, ferramentas deste servidor sao carregadas no contexto imediatamente (ignora Tool Search deferral).</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ EXPANSAO DE VARIAVEIS ════════════ -->
+  <h2>Expansao de variaveis de ambiente</h2>
+
+  <p>
+    O <code>.mcp.json</code> suporta expansao de variaveis de ambiente, permitindo que equipes
+    compartilhem configuracoes sem expor segredos no repositorio. A sintaxe segue o padrao
+    <code>${VAR}</code> com suporte a valores default via <code>${VAR:-default}</code>.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header"><span>.mcp.json -- variaveis de ambiente com defaults</span></div>
+    <pre>{
+  <span class="string">"mcpServers"</span>: {
+    <span class="string">"api-server"</span>: {
+      <span class="string">"type"</span>: <span class="string">"http"</span>,
+      <span class="string">"url"</span>: <span class="string">"${API_BASE_URL:-https://api.example.com}/mcp"</span>,
+      <span class="string">"headers"</span>: {
+        <span class="string">"Authorization"</span>: <span class="string">"Bearer ${API_KEY}"</span>
+      }
+    }
+  }
+}</pre>
+  </div>
+
+  <p>
+    A expansao funciona nos campos <code>command</code>, <code>args</code>, <code>env</code>,
+    <code>url</code> e <code>headers</code>. Se uma variavel obrigatoria (sem default) nao estiver
+    definida no ambiente, o Claude Code falhara ao parsear a configuracao.
+  </p>
+
+  <div class="callout-green callout">
+    <strong>Padrao recomendado para equipes:</strong> Commite o <code>.mcp.json</code> com
+    <code>${VAR}</code> para segredos e documente as variaveis necessarias no README do projeto.
+    Cada desenvolvedor define os valores no seu <code>.env</code> ou shell profile. Assim o arquivo
+    e seguro para versionamento e cada membro usa suas proprias credenciais.
+  </div>
+
+  <!-- ════════════ ESCOPOS ════════════ -->
+  <h2>Os tres escopos de configuracao</h2>
+
+  <p>
+    O Claude Code organiza servidores MCP em tres escopos, cada um com proposito e local de
+    armazenamento distintos. Quando um mesmo servidor esta definido em mais de um escopo,
+    o Claude Code conecta apenas a definicao de maior precedencia.
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Escopo</th>
+          <th>Carrega em</th>
+          <th>Compartilhado?</th>
+          <th>Armazenado em</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong style="color: var(--blue);">Local</strong> (default)</td>
+          <td>Projeto atual apenas</td>
+          <td>Nao</td>
+          <td><code>~/.claude.json</code> (sob o path do projeto)</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--green);">Project</strong></td>
+          <td>Projeto atual apenas</td>
+          <td>Sim, via VCS</td>
+          <td><code>.mcp.json</code> na raiz do projeto</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--purple);">User</strong></td>
+          <td>Todos os projetos</td>
+          <td>Nao</td>
+          <td><code>~/.claude.json</code> (secao global)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ DIAGRAMA: HIERARQUIA DE ESCOPOS ════════════ -->
+  <div class="diagram-container">
+    <svg viewBox="0 0 800 420" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Hierarquia de precedencia de escopos MCP: Local > Project > User > Plugins > Claude.ai Connectors</title>
+
+      <!-- Title -->
+      <text x="400" y="30" text-anchor="middle" fill="#fff" font-size="14" font-weight="600">Hierarquia de Precedencia (maior para menor)</text>
+
+      <!-- Level 1: Local -->
+      <rect x="200" y="55" width="400" height="55" rx="10" fill="rgba(96,165,250,0.12)" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="400" y="78" text-anchor="middle" fill="#60a5fa" font-size="13" font-weight="700">1. LOCAL (default)</text>
+      <text x="400" y="98" text-anchor="middle" fill="#d4d4d8" font-size="10">~/.claude.json (por projeto) -- privado, so voce</text>
+
+      <!-- Arrow -->
+      <line x1="400" y1="110" x2="400" y2="130" stroke="#475569" stroke-width="1.5"/>
+      <polygon points="394,126 400,134 406,126" fill="#475569"/>
+
+      <!-- Level 2: Project -->
+      <rect x="200" y="135" width="400" height="55" rx="10" fill="rgba(110,231,183,0.12)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="400" y="158" text-anchor="middle" fill="#6ee7b7" font-size="13" font-weight="700">2. PROJECT</text>
+      <text x="400" y="178" text-anchor="middle" fill="#d4d4d8" font-size="10">.mcp.json na raiz do repo -- compartilhado com a equipe</text>
+
+      <!-- Arrow -->
+      <line x1="400" y1="190" x2="400" y2="210" stroke="#475569" stroke-width="1.5"/>
+      <polygon points="394,206 400,214 406,206" fill="#475569"/>
+
+      <!-- Level 3: User -->
+      <rect x="200" y="215" width="400" height="55" rx="10" fill="rgba(167,139,250,0.12)" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="400" y="238" text-anchor="middle" fill="#a78bfa" font-size="13" font-weight="700">3. USER</text>
+      <text x="400" y="258" text-anchor="middle" fill="#d4d4d8" font-size="10">~/.claude.json (global) -- todos os seus projetos</text>
+
+      <!-- Arrow -->
+      <line x1="400" y1="270" x2="400" y2="290" stroke="#475569" stroke-width="1.5"/>
+      <polygon points="394,286 400,294 406,286" fill="#475569"/>
+
+      <!-- Level 4: Plugins -->
+      <rect x="200" y="295" width="400" height="45" rx="10" fill="rgba(251,191,36,0.08)" stroke="#fbbf24" stroke-width="1"/>
+      <text x="400" y="322" text-anchor="middle" fill="#fbbf24" font-size="12" font-weight="600">4. PLUGINS / 5. CLAUDE.AI CONNECTORS</text>
+
+      <!-- Annotation -->
+      <rect x="620" y="55" width="170" height="55" rx="8" fill="rgba(196,149,106,0.1)" stroke="var(--accent)" stroke-width="0.5"/>
+      <text x="705" y="75" text-anchor="middle" fill="var(--accent)" font-size="10" font-weight="600">Maior precedencia</text>
+      <text x="705" y="92" text-anchor="middle" fill="#d4d4d8" font-size="9">Sobrescreve os de baixo</text>
+
+      <rect x="620" y="295" width="170" height="45" rx="8" fill="rgba(248,113,113,0.08)" stroke="#f87171" stroke-width="0.5"/>
+      <text x="705" y="322" text-anchor="middle" fill="#f87171" font-size="10" font-weight="600">Menor precedencia</text>
+
+      <!-- Side note about matching -->
+      <text x="400" y="370" text-anchor="middle" fill="var(--text-dim)" font-size="10">Escopos local/project/user: duplicatas detectadas por nome</text>
+      <text x="400" y="386" text-anchor="middle" fill="var(--text-dim)" font-size="10">Plugins e connectors: duplicatas detectadas por endpoint (URL ou comando)</text>
+
+      <!-- Enterprise note -->
+      <rect x="80" y="395" width="640" height="22" rx="6" fill="rgba(248,113,113,0.06)"/>
+      <text x="400" y="411" text-anchor="middle" fill="#f87171" font-size="10">Enterprise: managed-mcp.json assume controle exclusivo quando presente (macOS: /Library/Application Support/ClaudeCode/)</text>
+    </svg>
+    <p class="diagram-caption">Quando o mesmo servidor aparece em multiplos escopos, o Claude Code usa a definicao de maior precedencia e ignora as demais.</p>
+  </div>
+
+  <div class="grid-3">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">L</span>
+        Local
+      </h4>
+      <p>Servidores experimentais, credenciais pessoais, testes. Nao poluem o repo nem afetam outros projetos.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">P</span>
+        Project
+      </h4>
+      <p>Servidores que toda a equipe precisa: banco de dados do projeto, issue tracker, monitoramento. Commitado no VCS.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">U</span>
+        User
+      </h4>
+      <p>Ferramentas pessoais usadas em todos os projetos: servidor de notas, utilitarios de produtividade.</p>
+    </div>
+  </div>
+
+  <!-- ════════════ CLI DE GERENCIAMENTO ════════════ -->
+  <h2>Gerenciando servidores via CLI</h2>
+
+  <p>
+    O Claude Code oferece um conjunto completo de subcomandos <code>claude mcp</code> para
+    adicionar, listar, inspecionar e remover servidores sem editar JSON manualmente.
+  </p>
+
+  <h3>Adicionando servidores</h3>
+
+  <div class="code-block">
+    <div class="code-header"><span>Terminal -- adicionar servidor HTTP remoto</span></div>
+    <pre><span class="comment"># Servidor HTTP remoto (transporte recomendado)</span>
+<span class="tool">claude mcp add</span> <span class="keyword">--transport</span> http notion https://mcp.notion.com/mcp
+
+<span class="comment"># Com header de autenticacao</span>
+<span class="tool">claude mcp add</span> <span class="keyword">--transport</span> http github https://api.githubcopilot.com/mcp/ \
+  <span class="keyword">--header</span> <span class="string">"Authorization: Bearer YOUR_GITHUB_PAT"</span>
+
+<span class="comment"># Servidor HTTP com escopo project (grava no .mcp.json)</span>
+<span class="tool">claude mcp add</span> <span class="keyword">--transport</span> http <span class="keyword">--scope</span> project sentry https://mcp.sentry.dev/mcp</pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span>Terminal -- adicionar servidor stdio local</span></div>
+    <pre><span class="comment"># Servidor stdio local (processo filho)</span>
+<span class="comment"># IMPORTANTE: opcoes ANTES do nome, -- separa args do servidor</span>
+<span class="tool">claude mcp add</span> <span class="keyword">--transport</span> stdio <span class="keyword">--env</span> AIRTABLE_API_KEY=YOUR_KEY airtable \
+  -- npx -y airtable-mcp-server
+
+<span class="comment"># PostgreSQL via dbhub</span>
+<span class="tool">claude mcp add</span> <span class="keyword">--transport</span> stdio db \
+  -- npx -y @bytebase/dbhub \
+  --dsn <span class="string">"postgresql://readonly:pass@prod.db.com:5432/analytics"</span>
+
+<span class="comment"># Servidor user-scope (disponivel em todos os projetos)</span>
+<span class="tool">claude mcp add</span> <span class="keyword">--transport</span> http <span class="keyword">--scope</span> user hubspot https://mcp.hubspot.com/anthropic</pre>
+  </div>
+
+  <div class="callout-yellow callout">
+    <strong>Ordem dos argumentos:</strong> Todas as flags (<code>--transport</code>, <code>--env</code>,
+    <code>--scope</code>, <code>--header</code>) devem vir <strong>antes</strong> do nome do servidor.
+    O <code>--</code> (double dash) separa o nome do servidor do comando e argumentos que serao
+    passados ao processo MCP. Isso evita conflitos entre flags do Claude e flags do servidor.
+  </div>
+
+  <h3>Adicionando via JSON direto</h3>
+
+  <div class="code-block">
+    <div class="code-header"><span>Terminal -- adicionar via JSON</span></div>
+    <pre><span class="comment"># Util quando voce ja tem o JSON de configuracao</span>
+<span class="tool">claude mcp add-json</span> weather-api \
+  <span class="string">'{"type":"http","url":"https://api.weather.com/mcp","headers":{"Authorization":"Bearer token"}}'</span>
+
+<span class="comment"># Importar servidores do Claude Desktop</span>
+<span class="tool">claude mcp add-from-claude-desktop</span></pre>
+  </div>
+
+  <h3>Listando, inspecionando e removendo</h3>
+
+  <div class="code-block">
+    <div class="code-header"><span>Terminal -- gerenciamento de servidores</span></div>
+    <pre><span class="comment"># Listar todos os servidores configurados</span>
+<span class="tool">claude mcp list</span>
+
+<span class="comment"># Detalhes de um servidor especifico</span>
+<span class="tool">claude mcp get</span> github
+
+<span class="comment"># Remover um servidor</span>
+<span class="tool">claude mcp remove</span> github
+
+<span class="comment"># Dentro do Claude Code: ver status de conexao</span>
+<span class="tool">/mcp</span>
+
+<span class="comment"># Resetar aprovacoes de servidores project-scope</span>
+<span class="tool">claude mcp reset-project-choices</span></pre>
+  </div>
+
+  <h3>Referencia rapida: flags do <code>claude mcp add</code></h3>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Flag</th>
+          <th>Descricao</th>
+          <th>Exemplo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>--transport</code></td>
+          <td>Tipo de transporte: <code>http</code>, <code>sse</code>, <code>stdio</code></td>
+          <td><code>--transport http</code></td>
+        </tr>
+        <tr>
+          <td><code>--scope</code></td>
+          <td><code>local</code> (default), <code>project</code>, <code>user</code></td>
+          <td><code>--scope project</code></td>
+        </tr>
+        <tr>
+          <td><code>--env</code></td>
+          <td>Variavel de ambiente para o processo (stdio)</td>
+          <td><code>--env API_KEY=abc123</code></td>
+        </tr>
+        <tr>
+          <td><code>--header</code></td>
+          <td>Header HTTP para conexao (http/sse)</td>
+          <td><code>--header "Authorization: Bearer ..."</code></td>
+        </tr>
+        <tr>
+          <td><code>--callback-port</code></td>
+          <td>Porta fixa para callback OAuth</td>
+          <td><code>--callback-port 8080</code></td>
+        </tr>
+        <tr>
+          <td><code>--client-id</code></td>
+          <td>Client ID para OAuth pre-configurado</td>
+          <td><code>--client-id your-id</code></td>
+        </tr>
+        <tr>
+          <td><code>--client-secret</code></td>
+          <td>Solicita o client secret (input mascarado)</td>
+          <td><code>--client-secret</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ EXEMPLOS PRATICOS ════════════ -->
+  <h2>Exemplos praticos: .mcp.json para equipes</h2>
+
+  <p>
+    A seguir, um exemplo completo de <code>.mcp.json</code> que uma equipe poderia commitar na
+    raiz do repositorio. Ele combina servidores remotos (HTTP) e locais (stdio), usando variaveis
+    de ambiente para segredos.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header"><span>.mcp.json -- configuracao de equipe completa</span></div>
+    <pre>{
+  <span class="string">"mcpServers"</span>: {
+    <span class="comment">// Monitoramento de erros -- autenticacao via OAuth no /mcp</span>
+    <span class="string">"sentry"</span>: {
+      <span class="string">"type"</span>: <span class="string">"http"</span>,
+      <span class="string">"url"</span>: <span class="string">"https://mcp.sentry.dev/mcp"</span>
+    },
+
+    <span class="comment">// GitHub -- cada dev usa seu proprio PAT via variavel de ambiente</span>
+    <span class="string">"github"</span>: {
+      <span class="string">"type"</span>: <span class="string">"http"</span>,
+      <span class="string">"url"</span>: <span class="string">"https://api.githubcopilot.com/mcp/"</span>,
+      <span class="string">"headers"</span>: {
+        <span class="string">"Authorization"</span>: <span class="string">"Bearer ${GITHUB_PAT}"</span>
+      }
+    },
+
+    <span class="comment">// Banco de dados -- servidor stdio local</span>
+    <span class="string">"database"</span>: {
+      <span class="string">"type"</span>: <span class="string">"stdio"</span>,
+      <span class="string">"command"</span>: <span class="string">"npx"</span>,
+      <span class="string">"args"</span>: [<span class="string">"-y"</span>, <span class="string">"@bytebase/dbhub"</span>, <span class="string">"--dsn"</span>, <span class="string">"${DATABASE_URL}"</span>]
+    },
+
+    <span class="comment">// Servidor interno da empresa -- auth via helper script</span>
+    <span class="string">"internal-api"</span>: {
+      <span class="string">"type"</span>: <span class="string">"http"</span>,
+      <span class="string">"url"</span>: <span class="string">"https://mcp.internal.company.com"</span>,
+      <span class="string">"headersHelper"</span>: <span class="string">"./scripts/get-mcp-auth.sh"</span>
+    }
+  }
+}</pre>
+  </div>
+
+  <div class="callout callout-blue">
+    <strong>Nota sobre comentarios:</strong> JSON puro nao suporta comentarios. O exemplo acima usa
+    comentarios para fins didaticos. Na pratica, remova os comentarios ou use uma ferramenta que
+    suporte JSONC. O Claude Code interpreta o arquivo como JSON estrito.
+  </div>
+
+  <!-- ════════════ VARIAVEIS ESPECIAIS ════════════ -->
+  <h2>Variaveis de ambiente especiais</h2>
+
+  <p>
+    O Claude Code injeta automaticamente variaveis uteis no ambiente dos servidores stdio:
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">$</span>
+        CLAUDE_PROJECT_DIR
+      </h4>
+      <p>Caminho absoluto para a raiz do projeto. Permite que o servidor resolva paths relativos sem
+         depender do working directory. Disponivel em <code>process.env</code> ou <code>os.environ</code>.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">$</span>
+        MCP_TIMEOUT
+      </h4>
+      <p>Timeout de conexao do servidor em milissegundos. Default e 5 segundos. Use
+         <code>MCP_TIMEOUT=10000 claude</code> para servidores lentos para iniciar.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">$</span>
+        MAX_MCP_OUTPUT_TOKENS
+      </h4>
+      <p>Limite maximo de tokens na saida de ferramentas MCP. Default: 25.000 tokens. Warning a partir de 10.000.
+         Aumente para ferramentas que retornam datasets grandes.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">$</span>
+        CLAUDE_PLUGIN_ROOT
+      </h4>
+      <p>Para servidores bundled em plugins: aponta para o diretorio raiz do plugin. Use em
+         <code>command</code> e <code>args</code> para referenciar binarios do plugin.</p>
+    </div>
+  </div>
+
+  <!-- ════════════ AUTENTICACAO ════════════ -->
+  <h2>Autenticacao de servidores remotos</h2>
+
+  <p>
+    Servidores HTTP frequentemente requerem autenticacao. O Claude Code suporta multiplas
+    estrategias, da mais simples a mais sofisticada:
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Metodo</th>
+          <th>Quando usar</th>
+          <th>Como configurar</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong style="color: var(--green);">Header estatico</strong></td>
+          <td>API keys simples, tokens de longa duracao</td>
+          <td><code>--header "Authorization: Bearer ..."</code> ou <code>headers</code> no JSON</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--blue);">OAuth 2.0</strong></td>
+          <td>Servicos como Sentry, Slack, Notion</td>
+          <td>Autentique via <code>/mcp</code> no Claude Code; tokens armazenados com seguranca</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--purple);">headersHelper</strong></td>
+          <td>Auth dinamica (Kerberos, SSO, tokens curtos)</td>
+          <td>Script shell que retorna JSON com headers para stdout</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--accent);">Variavel de ambiente</strong></td>
+          <td>Segredos no .mcp.json compartilhado</td>
+          <td><code>${API_KEY}</code> no JSON, valor definido no ambiente de cada dev</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ TOOL SEARCH ════════════ -->
+  <h2>Tool Search: escalando com muitos servidores</h2>
+
+  <p>
+    Quando voce conecta muitos servidores MCP, a quantidade de ferramentas disponiveis pode
+    consumir contexto desnecessario. O <strong>Tool Search</strong> (habilitado por default)
+    resolve isso adiando o carregamento das definicoes de ferramentas ate que o Claude realmente
+    precise delas.
+  </p>
+
+  <p>
+    Na pratica, apenas os <em>nomes</em> das ferramentas sao carregados na inicializacao da sessao.
+    Quando uma tarefa precisa de uma ferramenta especifica, o Claude usa um mecanismo de busca para
+    encontrar e carregar o schema completo sob demanda. Isso permite conectar dezenas de servidores
+    MCP com impacto minimo na janela de contexto.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header"><span>Terminal -- configurar Tool Search</span></div>
+    <pre><span class="comment"># Default: todas as ferramentas MCP sao deferred (recomendado)</span>
+claude
+
+<span class="comment"># Modo auto: carrega upfront se couber em 10% do contexto</span>
+<span class="tool">ENABLE_TOOL_SEARCH=auto</span> claude
+
+<span class="comment"># Threshold customizado: 5% do contexto</span>
+<span class="tool">ENABLE_TOOL_SEARCH=auto:5</span> claude
+
+<span class="comment"># Desabilitar completamente (carrega tudo upfront)</span>
+<span class="tool">ENABLE_TOOL_SEARCH=false</span> claude</pre>
+  </div>
+
+  <p>
+    Para servidores cujas ferramentas devem estar <em>sempre</em> visiveis (sem busca), use o campo
+    <code>alwaysLoad: true</code> na configuracao do servidor:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header"><span>.mcp.json -- alwaysLoad para ferramentas criticas</span></div>
+    <pre>{
+  <span class="string">"mcpServers"</span>: {
+    <span class="string">"core-tools"</span>: {
+      <span class="string">"type"</span>: <span class="string">"http"</span>,
+      <span class="string">"url"</span>: <span class="string">"https://mcp.example.com/mcp"</span>,
+      <span class="string">"alwaysLoad"</span>: <span class="keyword">true</span>
+    }
+  }
+}</pre>
+  </div>
+
+  <!-- ════════════ MANAGED MCP (ENTERPRISE) ════════════ -->
+  <h2>Configuracao gerenciada (Enterprise)</h2>
+
+  <p>
+    Para organizacoes que precisam de controle centralizado, o Claude Code suporta o arquivo
+    <code>managed-mcp.json</code>, implantado em diretorio de sistema. Quando presente, ele assume
+    <strong>controle exclusivo</strong> sobre todos os servidores MCP -- usuarios nao podem adicionar,
+    modificar ou usar servidores fora dos definidos nesse arquivo.
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Plataforma</th>
+          <th>Caminho do managed-mcp.json</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>macOS</td>
+          <td><code>/Library/Application Support/ClaudeCode/managed-mcp.json</code></td>
+        </tr>
+        <tr>
+          <td>Linux / WSL</td>
+          <td><code>/etc/claude-code/managed-mcp.json</code></td>
+        </tr>
+        <tr>
+          <td>Windows</td>
+          <td><code>C:\Program Files\ClaudeCode\managed-mcp.json</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout-red callout">
+    <strong>Atencao:</strong> Esses sao caminhos de sistema (nao do diretorio home do usuario) e
+    requerem privilegios de administrador. Sao projetados para implantacao por equipes de TI/DevOps.
+    O formato do arquivo e identico ao <code>.mcp.json</code> padrao.
+  </div>
+
+  <!-- ════════════ RECONEXAO E CICLO DE VIDA ════════════ -->
+  <h2>Ciclo de vida e reconexao</h2>
+
+  <p>
+    Entender como o Claude Code gerencia o ciclo de vida dos servidores ajuda a diagnosticar
+    problemas de conexao:
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">&#8635;</span>
+        HTTP/SSE: reconexao automatica
+      </h4>
+      <p>Ate 5 tentativas com backoff exponencial (1s, 2s, 4s, 8s, 16s). Servidor aparece como
+         "pending" no <code>/mcp</code> durante reconexao. Apos 5 falhas, marcado como "failed".</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">&#9888;</span>
+        Stdio: sem reconexao
+      </h4>
+      <p>Servidores stdio sao processos locais e <strong>nao sao reconectados automaticamente</strong>.
+         Se o processo morrer, reinicie a sessao ou reconecte via <code>/mcp</code>.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">&#9881;</span>
+        Atualizacao dinamica
+      </h4>
+      <p>Servidores podem enviar notificacoes <code>list_changed</code> para atualizar ferramentas
+         disponiveis sem desconectar. O Claude Code recarrega automaticamente.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">&#8987;</span>
+        Startup nao-bloqueante
+      </h4>
+      <p>Servidores conectam em background por default. Excecao: servidores com <code>alwaysLoad: true</code>
+         bloqueiam ate conectar (max 5s).</p>
+    </div>
+  </div>
+
+  <!-- ════════════ BOAS PRATICAS ════════════ -->
+  <h2>Boas praticas</h2>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">1</span>
+        Commite o .mcp.json
+      </h4>
+      <p>Trate servidores MCP como dependencias do projeto. Commite o <code>.mcp.json</code> com
+         variaveis de ambiente para segredos, nao valores hardcoded.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">2</span>
+        Use o escopo certo
+      </h4>
+      <p>Project para ferramentas da equipe, local para experimentos pessoais, user para utilitarios
+         cross-projeto. Nao polua o escopo errado.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">3</span>
+        Prefira HTTP sobre SSE
+      </h4>
+      <p>O transporte SSE esta deprecated. Use <code>--transport http</code> para servidores remotos.
+         <code>streamable-http</code> e aceito como alias.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">4</span>
+        Verifique confianca
+      </h4>
+      <p>Servidores MCP que buscam conteudo externo podem expor voce a riscos de prompt injection.
+         Verifique a procedencia antes de conectar.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">5</span>
+        Nao nomeie "workspace"
+      </h4>
+      <p>O nome <code>workspace</code> e reservado para uso interno do Claude Code. Servidores com
+         esse nome serao ignorados com um warning.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">6</span>
+        Documente as variaveis
+      </h4>
+      <p>Se o <code>.mcp.json</code> usa <code>${VAR}</code>, documente quais variaveis cada dev
+         precisa configurar. Inclua defaults com <code>${VAR:-fallback}</code> quando possivel.</p>
+    </div>
+  </div>
+
+  <!-- ════════════ FONTES ════════════ -->
+  <div class="sources">
+    <h3>Fontes e Referencias</h3>
+    <ul>
+      <li><a href="https://docs.anthropic.com/en/docs/claude-code/mcp" target="_blank">Anthropic Docs -- Connect Claude Code to tools via MCP</a></li>
+      <li><a href="https://docs.anthropic.com/en/docs/claude-code/settings" target="_blank">Anthropic Docs -- Claude Code Settings</a></li>
+      <li><a href="https://docs.anthropic.com/en/docs/claude-code/cli-reference" target="_blank">Anthropic Docs -- CLI Reference</a></li>
+      <li><a href="https://modelcontextprotocol.io/specification/2025-03-26/basic/transports" target="_blank">MCP Specification -- Transports (2025-03-26)</a></li>
+      <li><a href="https://modelcontextprotocol.io/docs/develop/connect-local-servers" target="_blank">MCP Docs -- Connect to Local MCP Servers</a></li>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Anthropic -- Best Practices for Claude Code</a></li>
+    </ul>
+  </div>
+
+  <!-- ════════════ NAV FOOTER ════════════ -->
+  <div class="nav-footer">
+    <a href="modulo-06-topico-02-stdio-vs-http.html" class="nav-btn">&larr; Topico 2 . stdio vs HTTP</a>
+    <a href="../index.html" class="nav-btn">&#8962; Indice</a>
+    <a href="modulo-06-topico-04-allowlist-servidores.html" class="nav-btn">Topico 4 . Allowlist &rarr;</a>
+  </div>
+
+</body>
+</html>

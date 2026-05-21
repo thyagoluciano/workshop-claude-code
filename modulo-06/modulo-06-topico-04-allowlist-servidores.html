@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modulo 6 . Topico 4 -- Allowlist de servidores: tratar MCP como dependencia de software</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-code: #141620;
+      --border: #2a2d3a;
+      --text: #e4e4e7;
+      --text-dim: #9ca3af;
+      --accent: #c4956a;
+      --accent-soft: rgba(196, 149, 106, 0.12);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.12);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .topic-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-soft); padding: 6px 14px;
+      border-radius: 20px; margin-bottom: 1rem;
+    }
+
+    h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+    .subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+    h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+    p { margin-bottom: 1rem; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+    strong { color: #fff; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0;
+    }
+    .card-label {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 6px; margin-bottom: 0.75rem;
+    }
+
+    .diagram-container {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto;
+    }
+    .diagram-container svg { display: block; margin: 0 auto; }
+    .diagram-caption {
+      text-align: center; font-size: 0.85rem; color: var(--text-dim);
+      margin-top: 1rem; font-style: italic;
+    }
+
+    .code-block {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1rem; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim);
+    }
+    .code-block pre {
+      padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8;
+    }
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: var(--purple); }
+    .code-block .string { color: var(--green); }
+    .code-block .tool { color: var(--accent); }
+    .code-block .number { color: var(--yellow); }
+
+    .callout {
+      border-left: 3px solid var(--accent); background: var(--accent-soft);
+      padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem;
+    }
+    .callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+    .callout-red { border-left-color: var(--red); background: var(--red-soft); }
+    .callout-green { border-left-color: var(--green); background: var(--green-soft); }
+    .callout-yellow { border-left-color: var(--yellow); background: var(--yellow-soft); }
+    .callout strong { color: #fff; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+    }
+
+    .mini-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .mini-card h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;
+    }
+    .mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+
+    .icon-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    .sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .sources ul { list-style: none; padding: 0; }
+    .sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+    .sources li::before { content: "\2192 "; color: var(--accent); }
+
+    .nav-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+      color: var(--text); background: var(--bg-card); border: 1px solid var(--border);
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ HEADER ════════════ -->
+  <div class="topic-badge">Modulo 6 . Topico 4</div>
+  <h1>Allowlist de servidores: tratar MCP como dependencia de software</h1>
+  <p class="subtitle">
+    Cada servidor MCP que voce adiciona ao Claude Code e codigo de terceiros com acesso ao seu ambiente.
+    O mesmo rigor que voce aplica a dependencias npm ou pip -- versionamento, auditoria, lockfiles --
+    deve ser aplicado a servidores MCP. Neste topico, exploramos como governar esse ecossistema.
+  </p>
+
+  <!-- ════════════ POR QUE TRATAR COMO DEPENDENCIA ════════════ -->
+  <h2>MCP servers sao dependencias de software</h2>
+
+  <p>
+    Quando voce roda <code>npm install algum-pacote</code>, esta confiando que aquele pacote nao vai
+    exfiltrar dados, corromper arquivos ou injetar codigo malicioso. A mesma logica se aplica a
+    servidores MCP: cada servidor que voce configura <strong>ganha acesso a ferramentas que o Claude Code
+    pode invocar</strong>, incluindo leitura de arquivos, execucao de comandos e chamadas de rede.
+  </p>
+
+  <p>
+    A diferenca critica e que um pacote npm roda no seu processo com permissoes limitadas, enquanto
+    um servidor MCP opera como uma <strong>ponte bidirecional entre o LLM e recursos externos</strong>.
+    Pesquisas recentes identificaram vulnerabilidades fundamentais no protocolo MCP, incluindo
+    ausencia de atestacao de capacidades, amostragem bidirecional sem autenticacao de origem
+    e propagacao implicita de confianca em configuracoes multi-servidor.
+  </p>
+
+  <div class="callout-red callout">
+    <strong>Risco real:</strong> Pesquisadores documentaram que <strong>tool poisoning</strong> -- onde
+    instrucoes maliciosas sao embutidas em metadados de ferramentas MCP -- e a vulnerabilidade
+    mais prevalente e impactante do lado do cliente. Um servidor malicioso pode influenciar o
+    comportamento do agente sem tocar no codigo da aplicacao, apenas manipulando descricoes de
+    ferramentas que o LLM interpreta como texto livre.
+    <br><small style="color: var(--text-dim);">-- "Breaking the Protocol: Security Analysis of MCP" (arXiv, Jan/2025)</small>
+  </div>
+
+  <!-- ════════════ DIAGRAMA: SUPPLY CHAIN ════════════ -->
+  <h2>Diagrama: cadeia de suprimentos MCP</h2>
+
+  <p>
+    O diagrama abaixo ilustra como um servidor MCP malicioso ou comprometido pode impactar
+    a seguranca do seu ambiente de desenvolvimento, comparando com a cadeia de dependencias
+    tradicional.
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 820 520" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Diagrama comparando supply chain de dependencias tradicionais (npm/pip) com supply chain de servidores MCP, mostrando vetores de ataque em ambos os cenarios</title>
+
+      <!-- Title -->
+      <text x="410" y="28" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Cadeia de Suprimentos: Dependencias vs. MCP Servers</text>
+
+      <!-- LEFT SIDE: Traditional Dependencies -->
+      <rect x="20" y="50" width="370" height="450" rx="10" fill="rgba(110,231,183,0.04)" stroke="#6ee7b7" stroke-width="0.5" stroke-dasharray="4,4"/>
+      <text x="205" y="75" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="600">DEPENDENCIAS TRADICIONAIS (npm/pip)</text>
+
+      <!-- Package registry -->
+      <rect x="90" y="95" width="210" height="40" rx="8" fill="var(--bg-card)" stroke="#6ee7b7" stroke-width="1"/>
+      <text x="195" y="120" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="500">Registry (npm, PyPI)</text>
+
+      <!-- Arrow down -->
+      <line x1="195" y1="135" x2="195" y2="165" stroke="#475569" stroke-width="1" marker-end="url(#arrowGray)"/>
+
+      <!-- Lockfile -->
+      <rect x="90" y="165" width="210" height="40" rx="8" fill="var(--bg-card)" stroke="#6ee7b7" stroke-width="1"/>
+      <text x="195" y="190" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="500">Lockfile (versao pinada)</text>
+
+      <!-- Arrow down -->
+      <line x1="195" y1="205" x2="195" y2="235" stroke="#475569" stroke-width="1" marker-end="url(#arrowGray)"/>
+
+      <!-- Audit -->
+      <rect x="90" y="235" width="210" height="40" rx="8" fill="var(--bg-card)" stroke="#6ee7b7" stroke-width="1"/>
+      <text x="195" y="260" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="500">Audit (npm audit, Snyk)</text>
+
+      <!-- Arrow down -->
+      <line x1="195" y1="275" x2="195" y2="305" stroke="#475569" stroke-width="1" marker-end="url(#arrowGray)"/>
+
+      <!-- SBOM -->
+      <rect x="90" y="305" width="210" height="40" rx="8" fill="var(--bg-card)" stroke="#6ee7b7" stroke-width="1"/>
+      <text x="195" y="330" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="500">SBOM (inventario)</text>
+
+      <!-- Arrow down -->
+      <line x1="195" y1="345" x2="195" y2="375" stroke="#475569" stroke-width="1" marker-end="url(#arrowGray)"/>
+
+      <!-- App -->
+      <rect x="90" y="375" width="210" height="40" rx="8" fill="rgba(110,231,183,0.15)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="195" y="400" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="600">Aplicacao (escopo limitado)</text>
+
+      <!-- Checkmarks -->
+      <text x="55" y="120" fill="#6ee7b7" font-size="16">&#10003;</text>
+      <text x="55" y="190" fill="#6ee7b7" font-size="16">&#10003;</text>
+      <text x="55" y="260" fill="#6ee7b7" font-size="16">&#10003;</text>
+      <text x="55" y="330" fill="#6ee7b7" font-size="16">&#10003;</text>
+
+      <!-- Protection label -->
+      <text x="205" y="445" text-anchor="middle" fill="#6ee7b7" font-size="10" font-style="italic">Multiplas camadas de protecao</text>
+
+      <!-- RIGHT SIDE: MCP Servers WITHOUT governance -->
+      <rect x="430" y="50" width="370" height="450" rx="10" fill="rgba(248,113,113,0.04)" stroke="#f87171" stroke-width="0.5" stroke-dasharray="4,4"/>
+      <text x="615" y="75" text-anchor="middle" fill="#f87171" font-size="11" font-weight="600">MCP SERVERS (SEM GOVERNANCA)</text>
+
+      <!-- GitHub/source -->
+      <rect x="500" y="95" width="210" height="40" rx="8" fill="var(--bg-card)" stroke="#f87171" stroke-width="1"/>
+      <text x="605" y="120" text-anchor="middle" fill="#f87171" font-size="11" font-weight="500">Repo GitHub / npm</text>
+
+      <!-- Arrow down -->
+      <line x1="605" y1="135" x2="605" y2="165" stroke="#475569" stroke-width="1" marker-end="url(#arrowGray)"/>
+
+      <!-- No lockfile -->
+      <rect x="500" y="165" width="210" height="40" rx="8" fill="var(--bg-card)" stroke="#f87171" stroke-width="1" stroke-dasharray="4,4"/>
+      <text x="605" y="190" text-anchor="middle" fill="#f87171" font-size="11" font-weight="500">Sem versao pinada?</text>
+
+      <!-- Arrow down -->
+      <line x1="605" y1="205" x2="605" y2="235" stroke="#475569" stroke-width="1" marker-end="url(#arrowGray)"/>
+
+      <!-- No audit -->
+      <rect x="500" y="235" width="210" height="40" rx="8" fill="var(--bg-card)" stroke="#f87171" stroke-width="1" stroke-dasharray="4,4"/>
+      <text x="605" y="260" text-anchor="middle" fill="#f87171" font-size="11" font-weight="500">Sem auditoria?</text>
+
+      <!-- Arrow down -->
+      <line x1="605" y1="275" x2="605" y2="305" stroke="#475569" stroke-width="1" marker-end="url(#arrowGray)"/>
+
+      <!-- No inventory -->
+      <rect x="500" y="305" width="210" height="40" rx="8" fill="var(--bg-card)" stroke="#f87171" stroke-width="1" stroke-dasharray="4,4"/>
+      <text x="605" y="330" text-anchor="middle" fill="#f87171" font-size="11" font-weight="500">Sem inventario?</text>
+
+      <!-- Arrow down -->
+      <line x1="605" y1="345" x2="605" y2="375" stroke="#475569" stroke-width="1" marker-end="url(#arrowGray)"/>
+
+      <!-- Claude Code -->
+      <rect x="500" y="375" width="210" height="40" rx="8" fill="rgba(248,113,113,0.15)" stroke="#f87171" stroke-width="1.5"/>
+      <text x="605" y="400" text-anchor="middle" fill="#f87171" font-size="11" font-weight="600">Claude Code (acesso amplo)</text>
+
+      <!-- X marks -->
+      <text x="470" y="190" fill="#f87171" font-size="16">&#10007;</text>
+      <text x="470" y="260" fill="#f87171" font-size="16">&#10007;</text>
+      <text x="470" y="330" fill="#f87171" font-size="16">&#10007;</text>
+
+      <!-- Attack vectors -->
+      <text x="615" y="445" text-anchor="middle" fill="#f87171" font-size="10" font-style="italic">Vetores de ataque abertos</text>
+
+      <!-- Arrows defs -->
+      <defs>
+        <marker id="arrowGray" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6" fill="none" stroke="#475569" stroke-width="1"/>
+        </marker>
+      </defs>
+
+      <!-- VS divider -->
+      <text x="410" y="270" text-anchor="middle" fill="#475569" font-size="20" font-weight="700">vs</text>
+    </svg>
+    <p class="diagram-caption">Sem governanca, servidores MCP pulam todas as camadas de protecao que aplicamos a dependencias tradicionais.</p>
+  </div>
+
+  <!-- ════════════ VETORES DE ATAQUE ════════════ -->
+  <h2>Vetores de ataque de servidores MCP nao confiados</h2>
+
+  <p>
+    Entender os riscos especificos ajuda a justificar o investimento em governanca. Estes sao os
+    principais vetores documentados por pesquisadores de seguranca:
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">1</span>
+        Tool Poisoning
+      </h4>
+      <p>Instrucoes maliciosas embutidas nas descricoes de ferramentas. O LLM interpreta essas
+         descricoes como texto livre e pode ser manipulado a executar acoes nao intencionadas.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">2</span>
+        Exfiltracao de dados
+      </h4>
+      <p>Um servidor malicioso pode capturar dados sensiveis do contexto (variaveis de ambiente,
+         tokens, codigo proprietario) e envia-los para endpoints externos.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">3</span>
+        Prompt Injection via respostas
+      </h4>
+      <p>As respostas de ferramentas MCP sao injetadas no contexto do LLM. Um servidor pode retornar
+         payloads que manipulam o comportamento do Claude nas proximas acoes.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">4</span>
+        Escalacao de privilegios
+      </h4>
+      <p>Em configuracoes multi-servidor, um servidor comprometido pode explorar a propagacao
+         implicita de confianca para acessar recursos de outros servidores.</p>
+    </div>
+  </div>
+
+  <div class="callout-yellow callout">
+    <strong>Dado alarmante:</strong> Pesquisadores encontraram mais de 1.800 servidores MCP na internet
+    publica sem autenticacao habilitada. O suporte a OAuth no MCP so foi adicionado em marco de 2025,
+    e muitos servidores existentes ainda nao o implementam.
+    <br><small style="color: var(--text-dim);">-- "Securing the Model Context Protocol" (arXiv, Nov/2025)</small>
+  </div>
+
+  <!-- ════════════ MODELO DE PERMISSOES ════════════ -->
+  <h2>Modelo de permissoes do Claude Code para MCP</h2>
+
+  <p>
+    O Claude Code implementa multiplas camadas de protecao para servidores MCP. Antes de usar
+    qualquer ferramenta MCP, o Claude solicita permissao explicita ao usuario. Voce pode
+    gerenciar isso de tres formas:
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Abordagem</th>
+          <th>Como funciona</th>
+          <th>Quando usar</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong style="color: var(--green);">Permissao interativa</strong></td>
+          <td>Claude pede confirmacao antes de cada chamada a uma ferramenta MCP</td>
+          <td>Exploracao, primeiros usos, servidores nao familiares</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--blue);">/permissions allowlist</strong></td>
+          <td>Adicione ferramentas especificas a allowlist via <code>/permissions</code>, ex: <code>mcp__github__create_issue</code></td>
+          <td>Ferramentas confiadas que voce usa frequentemente</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--purple);">Auto Mode + Sandbox</strong></td>
+          <td>Um classificador avalia riscos automaticamente; sandbox limita o escopo de danos</td>
+          <td>Automacao em CI/CD, pipelines nao interativos</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    A combinacao de permissoes granulares por ferramenta com sandboxing no nivel do sistema operacional
+    cria uma defesa em profundidade. Mas essas protecoes sao <em>reativas</em> -- a allowlist
+    de servidores e a medida <em>preventiva</em> que impede servidores nao aprovados de sequer
+    carregar no ambiente.
+  </p>
+
+  <!-- ════════════ DIAGRAMA: FLUXO DE ALLOWLIST ════════════ -->
+  <h2>Fluxo de decisao: allowlist de servidores</h2>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 820 440" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Fluxograma mostrando o processo de decisao quando um desenvolvedor tenta adicionar um servidor MCP, passando por verificacao de allowlist, denylist e aprovacao</title>
+
+      <!-- Start -->
+      <rect x="300" y="15" width="220" height="40" rx="20" fill="var(--bg-card)" stroke="var(--accent)" stroke-width="1.5"/>
+      <text x="410" y="40" text-anchor="middle" fill="var(--accent)" font-size="11" font-weight="600">Dev adiciona servidor MCP</text>
+
+      <!-- Arrow -->
+      <line x1="410" y1="55" x2="410" y2="85" stroke="#475569" stroke-width="1" marker-end="url(#arrowG)"/>
+
+      <!-- Denylist check -->
+      <polygon points="410,85 510,130 410,175 310,130" fill="var(--bg-card)" stroke="var(--red)" stroke-width="1.5"/>
+      <text x="410" y="127" text-anchor="middle" fill="#fff" font-size="10" font-weight="500">Na denylist?</text>
+
+      <!-- Yes -> blocked -->
+      <line x1="510" y1="130" x2="620" y2="130" stroke="#f87171" stroke-width="1" marker-end="url(#arrowRed)"/>
+      <rect x="620" y="110" width="170" height="40" rx="8" fill="rgba(248,113,113,0.15)" stroke="#f87171" stroke-width="1.5"/>
+      <text x="705" y="135" text-anchor="middle" fill="#f87171" font-size="11" font-weight="600">BLOQUEADO</text>
+      <text x="705" y="170" text-anchor="middle" fill="#9ca3af" font-size="9">Denylist tem precedencia</text>
+      <text x="705" y="183" text-anchor="middle" fill="#9ca3af" font-size="9">absoluta sobre allowlist</text>
+      <text x="565" y="122" fill="#f87171" font-size="10">Sim</text>
+
+      <!-- No -> allowlist check -->
+      <line x1="410" y1="175" x2="410" y2="205" stroke="#475569" stroke-width="1" marker-end="url(#arrowG)"/>
+      <text x="420" y="195" fill="#6ee7b7" font-size="10">Nao</text>
+
+      <!-- Allowlist check -->
+      <polygon points="410,205 520,255 410,305 300,255" fill="var(--bg-card)" stroke="var(--blue)" stroke-width="1.5"/>
+      <text x="410" y="248" text-anchor="middle" fill="#fff" font-size="10" font-weight="500">Na allowlist?</text>
+      <text x="410" y="262" text-anchor="middle" fill="#fff" font-size="10" font-weight="500">(ou managed-mcp?)</text>
+
+      <!-- No -> blocked -->
+      <line x1="300" y1="255" x2="190" y2="255" stroke="#f87171" stroke-width="1" marker-end="url(#arrowRed)"/>
+      <rect x="20" y="235" width="170" height="40" rx="8" fill="rgba(248,113,113,0.15)" stroke="#f87171" stroke-width="1.5"/>
+      <text x="105" y="260" text-anchor="middle" fill="#f87171" font-size="11" font-weight="600">BLOQUEADO</text>
+      <text x="105" y="295" text-anchor="middle" fill="#9ca3af" font-size="9">Servidor nao aprovado</text>
+      <text x="255" y="247" fill="#f87171" font-size="10">Nao</text>
+
+      <!-- Yes -> tools review -->
+      <line x1="410" y1="305" x2="410" y2="340" stroke="#475569" stroke-width="1" marker-end="url(#arrowG)"/>
+      <text x="420" y="330" fill="#6ee7b7" font-size="10">Sim</text>
+
+      <!-- Permission check -->
+      <rect x="290" y="340" width="240" height="40" rx="8" fill="var(--bg-card)" stroke="var(--green)" stroke-width="1.5"/>
+      <text x="410" y="360" text-anchor="middle" fill="#fff" font-size="10" font-weight="500">Claude pede permissao por ferramenta</text>
+
+      <!-- Arrow -->
+      <line x1="410" y1="380" x2="410" y2="410" stroke="#475569" stroke-width="1" marker-end="url(#arrowG)"/>
+
+      <!-- Allowed -->
+      <rect x="310" y="410" width="200" height="30" rx="15" fill="rgba(110,231,183,0.15)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="410" y="430" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="600">PERMITIDO</text>
+
+      <defs>
+        <marker id="arrowG" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6" fill="none" stroke="#475569" stroke-width="1"/>
+        </marker>
+        <marker id="arrowRed" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6" fill="none" stroke="#f87171" stroke-width="1"/>
+        </marker>
+      </defs>
+    </svg>
+    <p class="diagram-caption">O fluxo de verificacao e: denylist primeiro (bloqueio absoluto), depois allowlist (aprovacao necessaria), e por fim permissao por ferramenta.</p>
+  </div>
+
+  <!-- ════════════ CONFIGURACAO MANAGED-MCP.JSON ════════════ -->
+  <h2>Configurando allowlists com managed-settings e managed-mcp</h2>
+
+  <p>
+    O Claude Code oferece dois mecanismos complementares para governanca corporativa de servidores MCP.
+    Ambos requerem privilegios de administrador e sao implantados em diretorios de sistema (nao no
+    home do usuario), garantindo que nao possam ser sobrescritos por configuracoes locais.
+  </p>
+
+  <h3>Opcao 1: Controle exclusivo com managed-mcp.json</h3>
+
+  <p>
+    Quando voce implanta um arquivo <code>managed-mcp.json</code>, ele assume
+    <strong>controle exclusivo</strong> sobre todos os servidores MCP. Usuarios nao podem adicionar,
+    modificar ou usar nenhum servidor alem dos definidos neste arquivo.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>/Library/Application Support/ClaudeCode/managed-mcp.json (macOS)</span>
+      <span>JSON</span>
+    </div>
+    <pre>{
+  <span class="string">"mcpServers"</span>: {
+    <span class="string">"github"</span>: {
+      <span class="string">"type"</span>: <span class="string">"stdio"</span>,
+      <span class="string">"command"</span>: <span class="string">"npx"</span>,
+      <span class="string">"args"</span>: [<span class="string">"-y"</span>, <span class="string">"@modelcontextprotocol/server-github@1.2.0"</span>],
+      <span class="string">"env"</span>: {
+        <span class="string">"GITHUB_TOKEN"</span>: <span class="string">"${GITHUB_TOKEN}"</span>
+      }
+    },
+    <span class="string">"postgres"</span>: {
+      <span class="string">"type"</span>: <span class="string">"stdio"</span>,
+      <span class="string">"command"</span>: <span class="string">"npx"</span>,
+      <span class="string">"args"</span>: [<span class="string">"-y"</span>, <span class="string">"@modelcontextprotocol/server-postgres@0.6.1"</span>],
+      <span class="string">"env"</span>: {
+        <span class="string">"DATABASE_URL"</span>: <span class="string">"${DATABASE_URL}"</span>
+      }
+    },
+    <span class="string">"internal-api"</span>: {
+      <span class="string">"type"</span>: <span class="string">"sse"</span>,
+      <span class="string">"url"</span>: <span class="string">"https://mcp.internal.company.com/sse"</span>
+    }
+  }
+}</pre>
+  </div>
+
+  <div class="callout-blue callout">
+    <strong>Caminhos por sistema operacional:</strong><br>
+    macOS: <code>/Library/Application Support/ClaudeCode/managed-mcp.json</code><br>
+    Linux: <code>/etc/claude-code/managed-mcp.json</code><br>
+    Windows: <code>%ProgramData%\ClaudeCode\managed-mcp.json</code><br>
+    Estes sao diretorios de sistema que requerem privilegios de administrador.
+  </div>
+
+  <h3>Opcao 2: Allowlist/denylist com managed-settings.json</h3>
+
+  <p>
+    Quando voce quer permitir que desenvolvedores adicionem seus proprios servidores, mas
+    dentro de limites definidos, use <code>allowedMcpServers</code> e <code>deniedMcpServers</code>
+    no arquivo de configuracoes gerenciadas. Cada entrada filtra por um de tres criterios:
+    <code>serverName</code>, <code>serverCommand</code> ou <code>serverUrl</code>.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>/Library/Application Support/ClaudeCode/managed-settings.json (macOS)</span>
+      <span>JSON</span>
+    </div>
+    <pre>{
+  <span class="comment">// Servidores que os devs podem usar (allowlist)</span>
+  <span class="string">"allowedMcpServers"</span>: [
+    { <span class="string">"serverName"</span>: <span class="string">"github"</span> },
+    { <span class="string">"serverName"</span>: <span class="string">"postgres"</span> },
+    { <span class="string">"serverName"</span>: <span class="string">"linear"</span> },
+    { <span class="string">"serverCommand"</span>: <span class="string">"npx"</span> },
+    { <span class="string">"serverUrl"</span>: <span class="string">"https://mcp.internal.company.com/*"</span> }
+  ],
+
+  <span class="comment">// Servidores bloqueados (denylist - precedencia absoluta)</span>
+  <span class="string">"deniedMcpServers"</span>: [
+    { <span class="string">"serverCommand"</span>: <span class="string">"docker"</span> },
+    { <span class="string">"serverUrl"</span>: <span class="string">"http://*"</span> },
+    { <span class="string">"serverName"</span>: <span class="string">"*-unofficial"</span> }
+  ]
+}</pre>
+  </div>
+
+  <div class="callout callout-yellow">
+    <strong>Regra critica:</strong> A denylist tem <strong>precedencia absoluta</strong>. Se um servidor
+    casa com uma entrada na denylist (por nome, comando ou URL), ele sera bloqueado mesmo que esteja
+    na allowlist. Isso garante que restricoes de seguranca nunca sejam acidentalmente sobrescritas.
+  </div>
+
+  <!-- ════════════ ESCOPOS DE CONFIGURACAO ════════════ -->
+  <h2>Escopos de configuracao e precedencia</h2>
+
+  <p>
+    Servidores MCP no Claude Code podem ser configurados em multiplos escopos. O escopo escolhido
+    controla em quais projetos o servidor e carregado e se a configuracao e compartilhada com o time.
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Escopo</th>
+          <th>Arquivo</th>
+          <th>Compartilhado?</th>
+          <th>Precedencia</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong style="color: var(--red);">Managed</strong></td>
+          <td><code>managed-mcp.json</code> ou <code>managed-settings.json</code></td>
+          <td>Sim (IT deploy)</td>
+          <td>Mais alta (nao pode ser sobrescrito)</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--purple);">Projeto</strong></td>
+          <td><code>.mcp.json</code> na raiz do repo</td>
+          <td>Sim (via Git)</td>
+          <td>Media</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--blue);">Usuario</strong></td>
+          <td><code>~/.claude.json</code></td>
+          <td>Nao (local)</td>
+          <td>Mais baixa</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>
+    Configuracoes de escopos superiores (Managed) sobrescrevem escopos inferiores (Usuario/Projeto)
+    para valores escalares. Arrays sao concatenados entre escopos. Isso significa que um admin pode
+    adicionar servidores obrigatorios via managed sem impedir os que o projeto define via <code>.mcp.json</code>
+    -- desde que estejam na allowlist.
+  </p>
+
+  <!-- ════════════ PRINCIPIO DO MENOR PRIVILEGIO ════════════ -->
+  <h2>Principio do menor privilegio aplicado a MCP</h2>
+
+  <p>
+    Assim como voce nao da permissao de root a uma aplicacao web, cada servidor MCP deveria operar
+    com o minimo de acesso necessario. Aplique estas praticas:
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">&#9998;</span>
+        Revise as ferramentas expostas
+      </h4>
+      <p>Antes de habilitar um servidor, inspecione quais ferramentas ele expoe. Use
+         <code>claude mcp list</code> para ver todos os servidores configurados e suas ferramentas.
+         Desconfie de servidores que expoem ferramentas excessivas ou nao relacionadas ao seu proposito.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">&#128274;</span>
+        Limite permissoes por ferramenta
+      </h4>
+      <p>Use <code>/permissions</code> para conceder acesso apenas as ferramentas especificas que voce
+         precisa, nao ao servidor inteiro. Ex: permita <code>mcp__github__search_repositories</code>
+         mas nao <code>mcp__github__delete_repository</code>.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">&#128737;</span>
+        Use sandbox para isolamento
+      </h4>
+      <p>O sandboxing do Claude Code cria fronteiras no nivel do sistema operacional, limitando
+         acesso ao filesystem e a rede. Combine allowlist de servidores com sandbox para
+         defesa em profundidade.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">&#128065;</span>
+        Monitore inputs e outputs
+      </h4>
+      <p>Preste atencao ao que o Claude esta enviando para ferramentas MCP e o que esta recebendo
+         de volta. A Anthropic recomenda: conecte apenas servidores confiados e revise os inputs
+         e outputs das ferramentas.</p>
+    </div>
+  </div>
+
+  <!-- ════════════ COMPARACAO COM DEP MANAGEMENT ════════════ -->
+  <h2>Analogia completa: MCP servers vs. dependencias tradicionais</h2>
+
+  <p>
+    A tabela abaixo mapeia conceitos familiares de gestao de dependencias para o ecossistema MCP,
+    ajudando a aplicar praticas que voce ja conhece.
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Conceito</th>
+          <th>Dependencias (npm/pip)</th>
+          <th>Servidores MCP</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Registro</strong></td>
+          <td>npm registry, PyPI</td>
+          <td>GitHub repos, npm packages, servidores remotos</td>
+        </tr>
+        <tr>
+          <td><strong>Lockfile</strong></td>
+          <td><code>package-lock.json</code>, <code>poetry.lock</code></td>
+          <td>Pinar versao em <code>.mcp.json</code> (ex: <code>@org/server@1.2.0</code>)</td>
+        </tr>
+        <tr>
+          <td><strong>Auditoria</strong></td>
+          <td><code>npm audit</code>, Snyk, Dependabot</td>
+          <td>Revisao manual do codigo-fonte, verificar autor e manutencao</td>
+        </tr>
+        <tr>
+          <td><strong>SBOM</strong></td>
+          <td>CycloneDX, SPDX</td>
+          <td>Inventario de servidores: <code>managed-mcp.json</code> como fonte de verdade</td>
+        </tr>
+        <tr>
+          <td><strong>Allowlist</strong></td>
+          <td><code>.npmrc</code> com registry privado</td>
+          <td><code>allowedMcpServers</code> em <code>managed-settings.json</code></td>
+        </tr>
+        <tr>
+          <td><strong>Denylist</strong></td>
+          <td>Regras de firewall, proxy corporativo</td>
+          <td><code>deniedMcpServers</code> em <code>managed-settings.json</code></td>
+        </tr>
+        <tr>
+          <td><strong>Escopo</strong></td>
+          <td><code>devDependencies</code> vs. <code>dependencies</code></td>
+          <td>Escopo usuario, projeto ou managed</td>
+        </tr>
+        <tr>
+          <td><strong>Governanca</strong></td>
+          <td>Artifactory, Nexus, politica de aprovacao</td>
+          <td><code>managed-mcp.json</code> implantado por IT</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ BEST PRACTICES ════════════ -->
+  <h2>Best practices para governanca de MCP servers</h2>
+
+  <h3>Para desenvolvedores individuais</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Checklist antes de adicionar um servidor MCP</span>
+      <span>Texto</span>
+    </div>
+    <pre><span class="comment"># 1. Verificar a origem</span>
+<span class="tool">- E um servidor oficial (@modelcontextprotocol/* ou mantido pelo vendor)?</span>
+<span class="tool">- O repositorio tem manutencao ativa (commits recentes, issues respondidas)?</span>
+<span class="tool">- Quantas stars/forks? Existe comunidade ao redor?</span>
+
+<span class="comment"># 2. Auditar o codigo</span>
+<span class="tool">- Revise o codigo-fonte, especialmente handlers de ferramentas</span>
+<span class="tool">- Verifique se faz chamadas de rede nao documentadas</span>
+<span class="tool">- Procure por acesso a variaveis de ambiente alem das necessarias</span>
+
+<span class="comment"># 3. Pinar a versao</span>
+<span class="tool">- Use @x.y.z em vez de @latest nos args do .mcp.json</span>
+<span class="tool">- Atualize intencionalmente, nao automaticamente</span>
+
+<span class="comment"># 4. Aplicar menor privilegio</span>
+<span class="tool">- Limite tokens/credenciais ao minimo escopo necessario</span>
+<span class="tool">- Use read-only tokens quando possivel</span>
+<span class="tool">- Revise as ferramentas expostas com `claude mcp list`</span></pre>
+  </div>
+
+  <h3>Para times e organizacoes</h3>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">1</span>
+        Crie um catalogo aprovado
+      </h4>
+      <p>Mantenha uma lista curada de servidores MCP aprovados. Implante via <code>managed-mcp.json</code>
+         ou <code>allowedMcpServers</code> para garantir que apenas servidores revisados sejam usados.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">2</span>
+        Padronize via .mcp.json no repo
+      </h4>
+      <p>Cada projeto deve ter um <code>.mcp.json</code> versionado no Git com os servidores que o
+         time usa, com versoes pinadas. Isso funciona como um "lockfile" de MCP servers para o projeto.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">3</span>
+        Implante managed-settings via MDM
+      </h4>
+      <p>Use ferramentas de MDM (Jamf, Intune, Chef, Ansible) para distribuir
+         <code>managed-settings.json</code> com allowlists e denylists para todas as maquinas do time.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">4</span>
+        Processo de aprovacao
+      </h4>
+      <p>Estabeleca um processo formal (ex: PR no repo de configuracao) para solicitar novos
+         servidores MCP. Inclua revisao de seguranca antes de adicionar a allowlist.</p>
+    </div>
+  </div>
+
+  <div class="callout-green callout">
+    <strong>Dica pratica:</strong> Trate o <code>managed-mcp.json</code> como voce trata o
+    <code>package-lock.json</code>: versionado, revisado em PRs, e nunca editado manualmente em
+    producao. A diferenca e que o managed-mcp tem um poder ainda maior -- ele controla o que um
+    agente de IA pode acessar no seu ambiente.
+  </div>
+
+  <!-- ════════════ EXEMPLO COMPLETO ════════════ -->
+  <h2>Exemplo completo: governanca em uma organizacao</h2>
+
+  <p>
+    O exemplo abaixo mostra como uma organizacao pode combinar os dois mecanismos para ter
+    controle total sobre servidores MCP, permitindo flexibilidade controlada:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>managed-settings.json -- politica da organizacao</span>
+      <span>JSON</span>
+    </div>
+    <pre>{
+  <span class="comment">// Permitir apenas servidores oficiais e internos</span>
+  <span class="string">"allowedMcpServers"</span>: [
+    { <span class="string">"serverCommand"</span>: <span class="string">"npx"</span> },
+    { <span class="string">"serverUrl"</span>: <span class="string">"https://*.company.com/*"</span> }
+  ],
+
+  <span class="comment">// Bloquear servidores HTTP (sem TLS) e Docker</span>
+  <span class="string">"deniedMcpServers"</span>: [
+    { <span class="string">"serverUrl"</span>: <span class="string">"http://*"</span> },
+    { <span class="string">"serverCommand"</span>: <span class="string">"docker"</span> }
+  ]
+}</pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>managed-mcp.json -- servidores obrigatorios para todos</span>
+      <span>JSON</span>
+    </div>
+    <pre>{
+  <span class="string">"mcpServers"</span>: {
+    <span class="string">"company-tools"</span>: {
+      <span class="string">"type"</span>: <span class="string">"sse"</span>,
+      <span class="string">"url"</span>: <span class="string">"https://mcp.internal.company.com/sse"</span>
+    }
+  }
+}</pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>.mcp.json -- configuracao do projeto (versionada no Git)</span>
+      <span>JSON</span>
+    </div>
+    <pre>{
+  <span class="string">"mcpServers"</span>: {
+    <span class="string">"github"</span>: {
+      <span class="string">"type"</span>: <span class="string">"stdio"</span>,
+      <span class="string">"command"</span>: <span class="string">"npx"</span>,
+      <span class="string">"args"</span>: [<span class="string">"-y"</span>, <span class="string">"@modelcontextprotocol/server-github@1.2.0"</span>],
+      <span class="string">"env"</span>: {
+        <span class="string">"GITHUB_TOKEN"</span>: <span class="string">"${GITHUB_TOKEN}"</span>
+      }
+    },
+    <span class="string">"postgres"</span>: {
+      <span class="string">"type"</span>: <span class="string">"stdio"</span>,
+      <span class="string">"command"</span>: <span class="string">"npx"</span>,
+      <span class="string">"args"</span>: [<span class="string">"-y"</span>, <span class="string">"@modelcontextprotocol/server-postgres@0.6.1"</span>],
+      <span class="string">"env"</span>: {
+        <span class="string">"DATABASE_URL"</span>: <span class="string">"${DATABASE_URL}"</span>
+      }
+    }
+  }
+}</pre>
+  </div>
+
+  <p>
+    Neste cenario, o resultado e: todos os desenvolvedores recebem automaticamente o servidor
+    <code>company-tools</code> (via managed-mcp); o projeto define <code>github</code> e
+    <code>postgres</code> com versoes pinadas (via .mcp.json); servidores HTTP sem TLS
+    sao bloqueados (via denylist); e qualquer servidor que use <code>npx</code> ou
+    URLs internas e permitido (via allowlist).
+  </p>
+
+  <!-- ════════════ RESUMO ════════════ -->
+  <h2>Resumo: o mindset de dependencia</h2>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Pratica</th>
+          <th>Sem governanca</th>
+          <th>Com governanca MCP</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Adicionar servidor</strong></td>
+          <td style="color: var(--red);">Qualquer dev instala qualquer servidor</td>
+          <td style="color: var(--green);">Apenas servidores na allowlist</td>
+        </tr>
+        <tr>
+          <td><strong>Versionamento</strong></td>
+          <td style="color: var(--red);">@latest (muda sem aviso)</td>
+          <td style="color: var(--green);">Versao pinada (@x.y.z)</td>
+        </tr>
+        <tr>
+          <td><strong>Auditoria</strong></td>
+          <td style="color: var(--red);">Nenhuma</td>
+          <td style="color: var(--green);">Revisao de codigo antes da aprovacao</td>
+        </tr>
+        <tr>
+          <td><strong>Inventario</strong></td>
+          <td style="color: var(--red);">Ninguem sabe o que esta rodando</td>
+          <td style="color: var(--green);">managed-mcp.json como SBOM</td>
+        </tr>
+        <tr>
+          <td><strong>Remocao</strong></td>
+          <td style="color: var(--red);">Servidores abandonados permanecem</td>
+          <td style="color: var(--green);">Revisao periodica da allowlist</td>
+        </tr>
+        <tr>
+          <td><strong>Credenciais</strong></td>
+          <td style="color: var(--red);">Tokens com escopo amplo</td>
+          <td style="color: var(--green);">Menor privilegio, read-only quando possivel</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout callout-blue">
+    <strong>Principio central:</strong> Todo servidor MCP e uma dependencia de software que ganha
+    acesso privilegiado ao seu agente de IA. Aplique o mesmo rigor que voce ja aplica a
+    dependencias tradicionais: versione, audite, mantenha um inventario, e restrinja o acesso
+    ao minimo necessario. A allowlist nao e burocracia -- e higiene de seguranca.
+  </div>
+
+  <!-- ════════════ FONTES ════════════ -->
+  <div class="sources">
+    <h3>Fontes e Referencias</h3>
+    <ul>
+      <li><a href="https://docs.anthropic.com/en/docs/claude-code/mcp" target="_blank">Anthropic Docs -- Connect Claude Code to tools via MCP</a></li>
+      <li><a href="https://docs.anthropic.com/en/docs/claude-code/settings" target="_blank">Anthropic Docs -- Claude Code Settings (managed-settings.json)</a></li>
+      <li><a href="https://docs.anthropic.com/en/docs/claude-code/security" target="_blank">Anthropic Docs -- Claude Code Security</a></li>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Anthropic -- Best Practices for Claude Code</a></li>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-sandboxing" target="_blank">Anthropic -- Making Claude Code More Secure and Autonomous</a></li>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-auto-mode" target="_blank">Anthropic -- Claude Code Auto Mode: A Safer Way to Skip Permissions</a></li>
+      <li><a href="https://arxiv.org/pdf/2601.17549" target="_blank">Breaking the Protocol: Security Analysis of MCP Specification (arXiv, Jan/2025)</a></li>
+      <li><a href="https://arxiv.org/pdf/2512.08290" target="_blank">Systematization of Knowledge: Security and Safety in the MCP Ecosystem (arXiv, Dez/2025)</a></li>
+      <li><a href="https://arxiv.org/pdf/2511.20920" target="_blank">Securing the Model Context Protocol: Risks, Controls, and Governance (arXiv, Nov/2025)</a></li>
+      <li><a href="https://modelcontextprotocol.io" target="_blank">Model Context Protocol -- Especificacao oficial</a></li>
+    </ul>
+  </div>
+
+  <!-- ════════════ NAV FOOTER ════════════ -->
+  <div class="nav-footer">
+    <a href="modulo-06-topico-03-configurando-mcp-json.html" class="nav-btn">&larr; Topico 3 . .mcp.json</a>
+    <a href="../index.html" class="nav-btn">&#8962; Indice</a>
+    <a href="modulo-06-topico-05-casos-de-uso.html" class="nav-btn">Topico 5 . Casos de uso &rarr;</a>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modulo 6 . Topico 5 -- Casos de uso: Git, banco de dados, APIs externas, automacoes</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-code: #141620;
+      --border: #2a2d3a;
+      --text: #e4e4e7;
+      --text-dim: #9ca3af;
+      --accent: #c4956a;
+      --accent-soft: rgba(196, 149, 106, 0.12);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.12);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .topic-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-soft); padding: 6px 14px;
+      border-radius: 20px; margin-bottom: 1rem;
+    }
+
+    h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+    .subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+    h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+    p { margin-bottom: 1rem; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+    strong { color: #fff; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0;
+    }
+    .card-label {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 6px; margin-bottom: 0.75rem;
+    }
+
+    .diagram-container {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto;
+    }
+    .diagram-container svg { display: block; margin: 0 auto; }
+    .diagram-caption {
+      text-align: center; font-size: 0.85rem; color: var(--text-dim);
+      margin-top: 1rem; font-style: italic;
+    }
+
+    .code-block {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1rem; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim);
+    }
+    .code-block pre {
+      padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8;
+    }
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: var(--purple); }
+    .code-block .string { color: var(--green); }
+    .code-block .tool { color: var(--accent); }
+    .code-block .number { color: var(--yellow); }
+
+    .callout {
+      border-left: 3px solid var(--accent); background: var(--accent-soft);
+      padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem;
+    }
+    .callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+    .callout-red { border-left-color: var(--red); background: var(--red-soft); }
+    .callout-green { border-left-color: var(--green); background: var(--green-soft); }
+    .callout-yellow { border-left-color: var(--yellow); background: var(--yellow-soft); }
+    .callout strong { color: #fff; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+    }
+
+    .mini-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .mini-card h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;
+    }
+    .mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+
+    .icon-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    .sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .sources ul { list-style: none; padding: 0; }
+    .sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+    .sources li::before { content: "\2192 "; color: var(--accent); }
+
+    .nav-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+      color: var(--text); background: var(--bg-card); border: 1px solid var(--border);
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+
+    /* ── Specific to this topic ── */
+    .scenario-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0;
+    }
+    .scenario-card h4 {
+      font-size: 1rem; font-weight: 600; color: #fff;
+      margin-bottom: 0.75rem; display: flex; align-items: center; gap: 10px;
+    }
+    .scenario-card .scenario-desc {
+      font-size: 0.92rem; color: var(--text-dim); margin-bottom: 1rem;
+    }
+    .scenario-card .scenario-prompt {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.75rem 1rem; font-family: var(--font-mono);
+      font-size: 0.85rem; color: var(--green); margin-top: 0.75rem;
+    }
+    .scenario-card .scenario-prompt::before {
+      content: "> "; color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ HEADER ════════════ -->
+  <div class="topic-badge">Modulo 6 . Topico 5</div>
+  <h1>Casos de uso: Git, banco de dados, APIs externas, automacoes</h1>
+  <p class="subtitle">
+    O MCP transforma o Claude Code de um assistente de codigo em um <strong>agente integrado ao ecossistema
+    de desenvolvimento</strong>. Este topico mapeia os casos de uso mais impactantes, com configuracoes
+    reais e criterios para decidir quando usar MCP vs. as ferramentas nativas.
+  </p>
+
+  <!-- ════════════ VISAO GERAL ════════════ -->
+  <h2>O ecossistema MCP em perspectiva</h2>
+
+  <p>
+    A documentacao oficial do Claude Code resume bem o criterio de quando conectar um servidor MCP:
+    quando voce se pega <strong>copiando dados de outra ferramenta para colar no chat</strong> -- seja
+    de um issue tracker, de um dashboard de monitoramento ou de um banco de dados -- e hora de conectar
+    um MCP server. Com ele, o Claude le e age diretamente no sistema de origem.
+  </p>
+
+  <p>
+    O ecossistema MCP cresceu rapidamente desde o lancamento do protocolo. Os servidores oficiais de
+    referencia vivem no repositorio <code>modelcontextprotocol/servers</code> (filesystem, git, fetch,
+    memory, sequential-thinking, time). Servidores que eram oficiais mas migraram para manutencao por
+    terceiros (PostgreSQL, Puppeteer, Redis, Sentry, Slack, SQLite) foram movidos para
+    <code>modelcontextprotocol/servers-archived</code>. Alem disso, a comunidade mantém milhares de
+    servidores no ecossistema, catalogados em listas como <code>awesome-mcp-servers</code>.
+  </p>
+
+  <div class="callout-blue callout">
+    <strong>Dica:</strong> Voce pode navegar servidores MCP revisados diretamente no
+    <a href="https://claude.ai/directory">Anthropic Directory</a>. Servidores listados la usam a mesma
+    infraestrutura MCP do Claude Code -- basta executar <code>claude mcp add</code> para conecta-los.
+  </div>
+
+  <!-- ════════════ DIAGRAMA: ECOSSISTEMA ════════════ -->
+  <h2>Diagrama: Claude Code como hub de integracao</h2>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 800 480" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Diagrama mostrando Claude Code no centro conectado a diversos MCP servers: Git/GitHub, bancos de dados, APIs de workflow, browser, filesystem e servidores customizados</title>
+
+      <!-- Central hub -->
+      <rect x="300" y="195" width="200" height="70" rx="12" fill="rgba(196,149,106,0.15)" stroke="#c4956a" stroke-width="2"/>
+      <text x="400" y="224" text-anchor="middle" fill="#c4956a" font-size="14" font-weight="700">Claude Code</text>
+      <text x="400" y="244" text-anchor="middle" fill="#9ca3af" font-size="10">Ferramentas nativas + MCP</text>
+
+      <!-- Git/GitHub -->
+      <rect x="30" y="30" width="160" height="55" rx="10" fill="rgba(110,231,183,0.1)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="110" y="54" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="600">Git / GitHub</text>
+      <text x="110" y="72" text-anchor="middle" fill="#9ca3af" font-size="9">PRs, issues, code review</text>
+      <line x1="190" y1="65" x2="300" y2="210" stroke="#6ee7b7" stroke-width="1" opacity="0.5" stroke-dasharray="4,3"/>
+
+      <!-- Databases -->
+      <rect x="610" y="30" width="160" height="55" rx="10" fill="rgba(96,165,250,0.1)" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="690" y="54" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="600">Bancos de dados</text>
+      <text x="690" y="72" text-anchor="middle" fill="#9ca3af" font-size="9">PostgreSQL, SQLite, MySQL</text>
+      <line x1="610" y1="65" x2="500" y2="210" stroke="#60a5fa" stroke-width="1" opacity="0.5" stroke-dasharray="4,3"/>
+
+      <!-- Workflow APIs -->
+      <rect x="30" y="380" width="160" height="55" rx="10" fill="rgba(167,139,250,0.1)" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="110" y="404" text-anchor="middle" fill="#a78bfa" font-size="12" font-weight="600">Workflow APIs</text>
+      <text x="110" y="422" text-anchor="middle" fill="#9ca3af" font-size="9">Slack, Linear, Jira, Sentry</text>
+      <line x1="190" y1="400" x2="300" y2="250" stroke="#a78bfa" stroke-width="1" opacity="0.5" stroke-dasharray="4,3"/>
+
+      <!-- Browser -->
+      <rect x="610" y="380" width="160" height="55" rx="10" fill="rgba(248,113,113,0.1)" stroke="#f87171" stroke-width="1.5"/>
+      <text x="690" y="404" text-anchor="middle" fill="#f87171" font-size="12" font-weight="600">Browser / Web</text>
+      <text x="690" y="422" text-anchor="middle" fill="#9ca3af" font-size="9">Playwright, Brave Search</text>
+      <line x1="610" y1="400" x2="500" y2="250" stroke="#f87171" stroke-width="1" opacity="0.5" stroke-dasharray="4,3"/>
+
+      <!-- Filesystem -->
+      <rect x="30" y="195" width="160" height="55" rx="10" fill="rgba(251,191,36,0.1)" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="110" y="219" text-anchor="middle" fill="#fbbf24" font-size="12" font-weight="600">Filesystem / Memory</text>
+      <text x="110" y="237" text-anchor="middle" fill="#9ca3af" font-size="9">Arquivos, busca, knowledge graph</text>
+      <line x1="190" y1="222" x2="300" y2="230" stroke="#fbbf24" stroke-width="1" opacity="0.5" stroke-dasharray="4,3"/>
+
+      <!-- Custom -->
+      <rect x="610" y="195" width="160" height="55" rx="10" fill="rgba(196,149,106,0.1)" stroke="#c4956a" stroke-width="1.5"/>
+      <text x="690" y="219" text-anchor="middle" fill="#c4956a" font-size="12" font-weight="600">Servidores custom</text>
+      <text x="690" y="237" text-anchor="middle" fill="#9ca3af" font-size="9">APIs internas, monolitos</text>
+      <line x1="610" y1="222" x2="500" y2="230" stroke="#c4956a" stroke-width="1" opacity="0.5" stroke-dasharray="4,3"/>
+
+      <!-- Protocol label -->
+      <text x="400" y="170" text-anchor="middle" fill="#9ca3af" font-size="10" font-style="italic">Model Context Protocol (stdio / HTTP)</text>
+    </svg>
+    <p class="diagram-caption">Claude Code atua como hub central, conectando-se a multiplos sistemas via MCP. Cada servidor expoe ferramentas especificas que o Claude descobre e usa sob demanda.</p>
+  </div>
+
+  <!-- ════════════ CASO 1: GIT/GITHUB ════════════ -->
+  <h2>Caso 1: Git e GitHub</h2>
+
+  <h3>O que o Claude Code ja faz nativamente</h3>
+  <p>
+    O Claude Code possui <strong>ferramentas nativas de Git</strong> integradas. Ele ja consegue
+    criar commits, branches, ler diffs, executar <code>git log</code>, <code>git status</code> e
+    outros comandos diretamente via Bash. Para operacoes locais de repositorio, voce nao precisa
+    de nenhum servidor MCP.
+  </p>
+
+  <h3>O que o MCP server do GitHub adiciona</h3>
+  <p>
+    O servidor MCP do GitHub (mantido pelo proprio GitHub em <code>github/github-mcp-server</code>)
+    adiciona acesso direto a <strong>API do GitHub</strong>: criar e revisar PRs, gerenciar issues,
+    buscar repositorios, visualizar actions/workflows, e interagir com o ecossistema GitHub sem
+    precisar copiar/colar URLs ou outputs do <code>gh</code> CLI.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header"><span>Configuracao: GitHub MCP Server (HTTP remoto)</span></div>
+    <pre><span class="comment">// Terminal: adicionar o servidor GitHub via CLI</span>
+<span class="tool">claude mcp add</span> <span class="keyword">--transport</span> http github \
+  https://api.githubcopilot.com/mcp/ \
+  <span class="keyword">--header</span> <span class="string">"Authorization: Bearer YOUR_GITHUB_PAT"</span>
+
+<span class="comment">// Ou via .mcp.json no projeto:</span>
+{
+  <span class="string">"mcpServers"</span>: {
+    <span class="string">"github"</span>: {
+      <span class="string">"type"</span>: <span class="string">"http"</span>,
+      <span class="string">"url"</span>: <span class="string">"https://api.githubcopilot.com/mcp/"</span>,
+      <span class="string">"headers"</span>: {
+        <span class="string">"Authorization"</span>: <span class="string">"Bearer ${GITHUB_PAT}"</span>
+      }
+    }
+  }
+}</pre>
+  </div>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Capacidade</th>
+          <th>Nativo (Git/Bash)</th>
+          <th>MCP GitHub Server</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Commits e branches locais</td>
+          <td><strong style="color: var(--green);">Sim</strong></td>
+          <td>Desnecessario</td>
+        </tr>
+        <tr>
+          <td>Diffs e log do repositorio</td>
+          <td><strong style="color: var(--green);">Sim</strong></td>
+          <td>Desnecessario</td>
+        </tr>
+        <tr>
+          <td>Criar/revisar PRs na API</td>
+          <td>Via <code>gh</code> CLI</td>
+          <td><strong style="color: var(--green);">Direto, sem CLI</strong></td>
+        </tr>
+        <tr>
+          <td>Gerenciar issues</td>
+          <td>Via <code>gh</code> CLI</td>
+          <td><strong style="color: var(--green);">Direto, com busca</strong></td>
+        </tr>
+        <tr>
+          <td>Listar PRs/reviews atribuidos</td>
+          <td>Requer scripting</td>
+          <td><strong style="color: var(--green);">Nativo</strong></td>
+        </tr>
+        <tr>
+          <td>Buscar codigo cross-repo</td>
+          <td>Nao</td>
+          <td><strong style="color: var(--green);">Sim</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <strong>Quando usar MCP GitHub:</strong> Quando voce precisa interagir com a <em>plataforma</em>
+    GitHub (PRs, issues, reviews, actions) e nao apenas com o repositorio local. Se o workflow e
+    puramente local (commit, branch, merge), as ferramentas nativas bastam.
+  </div>
+
+  <!-- ════════════ CASO 2: BANCO DE DADOS ════════════ -->
+  <h2>Caso 2: Banco de dados</h2>
+
+  <p>
+    Conectar o Claude Code a um banco de dados via MCP e um dos casos de uso mais transformadores.
+    Em vez de copiar schemas e resultados de queries para o chat, o Claude consulta diretamente,
+    inspeciona a estrutura e correlaciona dados com o codigo.
+  </p>
+
+  <h3>PostgreSQL com DBHub</h3>
+
+  <p>
+    A documentacao oficial do Claude Code recomenda o <code>@bytebase/dbhub</code> como servidor
+    para PostgreSQL. Ele suporta leitura de schema, execucao de queries e inspecao de tabelas.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header"><span>Configuracao: PostgreSQL via DBHub</span></div>
+    <pre><span class="comment">// Terminal: adicionar servidor PostgreSQL</span>
+<span class="tool">claude mcp add</span> <span class="keyword">--transport</span> stdio db \
+  <span class="keyword">--</span> npx -y @bytebase/dbhub \
+  <span class="keyword">--dsn</span> <span class="string">"postgresql://readonly:pass@localhost:5432/myapp"</span>
+
+<span class="comment">// .mcp.json equivalente:</span>
+{
+  <span class="string">"mcpServers"</span>: {
+    <span class="string">"db"</span>: {
+      <span class="string">"command"</span>: <span class="string">"npx"</span>,
+      <span class="string">"args"</span>: [
+        <span class="string">"-y"</span>, <span class="string">"@bytebase/dbhub"</span>,
+        <span class="string">"--dsn"</span>, <span class="string">"postgresql://readonly:pass@localhost:5432/myapp"</span>
+      ]
+    }
+  }
+}</pre>
+  </div>
+
+  <h3>SQLite para desenvolvimento local</h3>
+
+  <div class="code-block">
+    <div class="code-header"><span>Configuracao: SQLite</span></div>
+    <pre><span class="comment">// Terminal:</span>
+<span class="tool">claude mcp add</span> <span class="keyword">--transport</span> stdio app-db \
+  <span class="keyword">--</span> npx -y @modelcontextprotocol/server-sqlite \
+  <span class="string">"./data/app.db"</span>
+
+<span class="comment">// .mcp.json equivalente:</span>
+{
+  <span class="string">"mcpServers"</span>: {
+    <span class="string">"app-db"</span>: {
+      <span class="string">"command"</span>: <span class="string">"npx"</span>,
+      <span class="string">"args"</span>: [
+        <span class="string">"-y"</span>, <span class="string">"@modelcontextprotocol/server-sqlite"</span>,
+        <span class="string">"./data/app.db"</span>
+      ]
+    }
+  }
+}</pre>
+  </div>
+
+  <div class="callout-red callout">
+    <strong>Seguranca critica:</strong> Sempre use credenciais <strong>read-only</strong> ao conectar
+    bancos de dados de producao. Nunca habilite escrita contra producao a partir de um loop de agente.
+    Aponte para uma <strong>read replica</strong> ou um snapshot local. Para ambientes de desenvolvimento,
+    escrita pode ser aceitavel com as devidas precaucoes.
+  </div>
+
+  <p>Com o banco conectado, voce pode fazer perguntas em linguagem natural:</p>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">Q</span>
+        Inspecao de schema
+      </h4>
+      <p>"Mostra o schema da tabela orders e suas relacoes com outras tabelas"</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">Q</span>
+        Analise de dados
+      </h4>
+      <p>"Qual o total de receita deste mes agrupado por categoria de produto?"</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">Q</span>
+        Debug de dados
+      </h4>
+      <p>"Encontre usuarios que nao fizeram compra nos ultimos 90 dias"</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">Q</span>
+        Correlacao codigo-dados
+      </h4>
+      <p>"Compare o schema real com os models do Prisma e identifique divergencias"</p>
+    </div>
+  </div>
+
+  <!-- ════════════ CASO 3: APIS DE WORKFLOW ════════════ -->
+  <h2>Caso 3: APIs de workflow (Slack, Sentry, Linear, Jira)</h2>
+
+  <p>
+    Ferramentas de workflow do dia a dia sao um dos maiores ganhos com MCP. Em vez de alternar entre
+    abas no navegador, o Claude Code interage diretamente com issue trackers, plataformas de
+    monitoramento e canais de comunicacao.
+  </p>
+
+  <h3>Sentry -- monitoramento de erros</h3>
+
+  <div class="code-block">
+    <div class="code-header"><span>Configuracao: Sentry (HTTP remoto com OAuth)</span></div>
+    <pre><span class="comment">// Terminal: adicionar o Sentry via HTTP</span>
+<span class="tool">claude mcp add</span> <span class="keyword">--transport</span> http sentry \
+  https://mcp.sentry.dev/mcp
+
+<span class="comment">// Autenticar via OAuth no Claude Code:</span>
+/mcp
+<span class="comment">// Siga o fluxo de autenticacao no browser</span>
+
+<span class="comment">// .mcp.json equivalente:</span>
+{
+  <span class="string">"mcpServers"</span>: {
+    <span class="string">"sentry"</span>: {
+      <span class="string">"type"</span>: <span class="string">"http"</span>,
+      <span class="string">"url"</span>: <span class="string">"https://mcp.sentry.dev/mcp"</span>
+    }
+  }
+}</pre>
+  </div>
+
+  <h3>Slack -- comunicacao</h3>
+
+  <div class="code-block">
+    <div class="code-header"><span>Configuracao: Slack (HTTP remoto com OAuth e scopes restritos)</span></div>
+    <pre><span class="comment">// .mcp.json com restricao de scopes:</span>
+{
+  <span class="string">"mcpServers"</span>: {
+    <span class="string">"slack"</span>: {
+      <span class="string">"type"</span>: <span class="string">"http"</span>,
+      <span class="string">"url"</span>: <span class="string">"https://mcp.slack.com/mcp"</span>,
+      <span class="string">"oauth"</span>: {
+        <span class="string">"scopes"</span>: <span class="string">"channels:read chat:write search:read"</span>
+      }
+    }
+  }
+}</pre>
+  </div>
+
+  <h3>Notion, Linear, Jira e outros</h3>
+
+  <div class="code-block">
+    <div class="code-header"><span>Configuracao: Notion (HTTP remoto)</span></div>
+    <pre><span class="comment">// Terminal:</span>
+<span class="tool">claude mcp add</span> <span class="keyword">--transport</span> http notion \
+  https://mcp.notion.com/mcp</pre>
+  </div>
+
+  <div class="callout-green callout">
+    <strong>Fluxo tipico com APIs de workflow:</strong> O Claude Code pode receber um prompt como
+    "Implemente a feature descrita na issue JIRA ENG-4521 e crie um PR no GitHub". Com os servidores
+    MCP de Jira e GitHub conectados, ele le a issue, implementa o codigo, e abre o PR -- tudo em
+    uma unica sessao, sem copiar/colar.
+  </div>
+
+  <!-- ════════════ CASO 4: BROWSER/WEB ════════════ -->
+  <h2>Caso 4: Browser e Web</h2>
+
+  <h3>Playwright -- automacao de browser</h3>
+
+  <p>
+    O servidor MCP do Playwright permite ao Claude Code controlar um browser headless: navegar
+    paginas, interagir com elementos, tirar screenshots e executar testes automatizados. A
+    recomendacao atual e usar o <strong>Playwright MCP</strong> em vez do Puppeteer (que foi depreciado
+    como servidor oficial).
+  </p>
+
+  <div class="code-block">
+    <div class="code-header"><span>Configuracao: Playwright MCP</span></div>
+    <pre><span class="tool">claude mcp add</span> <span class="keyword">--transport</span> stdio playwright \
+  <span class="keyword">--</span> npx -y @playwright/mcp@latest</pre>
+  </div>
+
+  <h3>Brave Search -- busca na web</h3>
+
+  <p>
+    O Brave Search MCP permite ao Claude Code buscar informacoes atualizadas na web durante a conversa.
+    Util para consultar documentacao, verificar APIs, e pesquisar solucoes para bugs.
+    Possui tier gratuito com 2.000 queries/mes.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header"><span>Configuracao: Brave Search</span></div>
+    <pre>{
+  <span class="string">"mcpServers"</span>: {
+    <span class="string">"brave-search"</span>: {
+      <span class="string">"command"</span>: <span class="string">"npx"</span>,
+      <span class="string">"args"</span>: [<span class="string">"-y"</span>, <span class="string">"@modelcontextprotocol/server-brave-search"</span>],
+      <span class="string">"env"</span>: {
+        <span class="string">"BRAVE_API_KEY"</span>: <span class="string">"${BRAVE_API_KEY}"</span>
+      }
+    }
+  }
+}</pre>
+  </div>
+
+  <!-- ════════════ CASO 5: SERVIDORES CUSTOM ════════════ -->
+  <h2>Caso 5: Servidores MCP customizados</h2>
+
+  <p>
+    Um dos maiores diferenciais do MCP e a capacidade de criar servidores para <strong>APIs internas
+    e proprietarias</strong>. Se sua empresa possui um sistema de deploy, um monolito legado, ou qualquer
+    API interna, voce pode expor essas capacidades ao Claude Code via MCP.
+  </p>
+
+  <h3>Scaffold com o plugin oficial</h3>
+
+  <p>
+    O Claude Code oferece um plugin oficial para criar servidores MCP interativamente:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header"><span>Criando um servidor MCP com o plugin oficial</span></div>
+    <pre><span class="comment">// Instalar o plugin de desenvolvimento MCP</span>
+/plugin install mcp-server-dev@claude-plugins-official
+
+<span class="comment">// Recarregar plugins na sessao atual</span>
+/reload-plugins
+
+<span class="comment">// Executar o skill de build</span>
+/mcp-server-dev:build-mcp-server
+<span class="comment">// O Claude pergunta sobre o caso de uso e gera o servidor</span></pre>
+  </div>
+
+  <h3>Exemplo: API interna de deploy</h3>
+
+  <div class="code-block">
+    <div class="code-header"><span>.mcp.json: servidor customizado para API interna</span></div>
+    <pre>{
+  <span class="string">"mcpServers"</span>: {
+    <span class="string">"deploy-api"</span>: {
+      <span class="string">"command"</span>: <span class="string">"node"</span>,
+      <span class="string">"args"</span>: [<span class="string">"./tools/mcp-deploy-server/index.js"</span>],
+      <span class="string">"env"</span>: {
+        <span class="string">"DEPLOY_API_URL"</span>: <span class="string">"${DEPLOY_API_URL}"</span>,
+        <span class="string">"DEPLOY_TOKEN"</span>: <span class="string">"${DEPLOY_TOKEN}"</span>
+      }
+    }
+  }
+}</pre>
+  </div>
+
+  <div class="callout">
+    <strong>Variavel util:</strong> O Claude Code define automaticamente <code>CLAUDE_PROJECT_DIR</code>
+    no ambiente do servidor MCP spawned, apontando para a raiz do projeto. Seu servidor pode
+    usar essa variavel para resolver caminhos relativos sem depender do diretorio de trabalho.
+  </div>
+
+  <!-- ════════════ DIAGRAMA: DECISION TREE ════════════ -->
+  <h2>Quando usar MCP vs. ferramentas nativas</h2>
+
+  <p>
+    Nem tudo precisa de MCP. O Claude Code ja possui ferramentas nativas poderosas (Read, Write, Edit,
+    Bash, Grep, Glob, etc.). A regra geral: se a ferramenta nativa resolve, use-a. MCP e para quando
+    voce precisa ir <strong>alem do terminal e do filesystem local</strong>.
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Arvore de decisao: quando usar ferramentas nativas vs MCP servers</title>
+
+      <!-- Decision node -->
+      <rect x="275" y="20" width="250" height="50" rx="10" fill="rgba(196,149,106,0.15)" stroke="#c4956a" stroke-width="1.5"/>
+      <text x="400" y="50" text-anchor="middle" fill="#c4956a" font-size="12" font-weight="600">A tarefa envolve um sistema externo?</text>
+
+      <!-- Arrows -->
+      <line x1="340" y1="70" x2="200" y2="120" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="250" y="90" fill="#6ee7b7" font-size="11" font-weight="600">Nao</text>
+      <line x1="460" y1="70" x2="600" y2="120" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="540" y="90" fill="#60a5fa" font-size="11" font-weight="600">Sim</text>
+
+      <!-- Native tools box -->
+      <rect x="80" y="120" width="240" height="50" rx="10" fill="rgba(110,231,183,0.1)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="200" y="142" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="600">Use ferramentas nativas</text>
+      <text x="200" y="160" text-anchor="middle" fill="#9ca3af" font-size="9">Read, Write, Bash, Grep, Git local</text>
+
+      <!-- MCP decision -->
+      <rect x="480" y="120" width="240" height="50" rx="10" fill="rgba(96,165,250,0.1)" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="600" y="142" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="600">Existe MCP server pronto?</text>
+      <text x="600" y="160" text-anchor="middle" fill="#9ca3af" font-size="9">Anthropic Directory / awesome-mcp</text>
+
+      <!-- MCP arrows -->
+      <line x1="540" y1="170" x2="420" y2="220" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="460" y="195" fill="#6ee7b7" font-size="11" font-weight="600">Sim</text>
+      <line x1="660" y1="170" x2="700" y2="220" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="690" y="195" fill="#fbbf24" font-size="11" font-weight="600">Nao</text>
+
+      <!-- Use existing server -->
+      <rect x="300" y="220" width="240" height="50" rx="10" fill="rgba(110,231,183,0.1)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="420" y="242" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="600">Conecte o servidor MCP</text>
+      <text x="420" y="260" text-anchor="middle" fill="#9ca3af" font-size="9">claude mcp add / .mcp.json</text>
+
+      <!-- Build custom -->
+      <rect x="580" y="220" width="200" height="50" rx="10" fill="rgba(251,191,36,0.1)" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="680" y="242" text-anchor="middle" fill="#fbbf24" font-size="12" font-weight="600">Bash + scripts resolve?</text>
+
+      <!-- Custom arrows -->
+      <line x1="630" y1="270" x2="550" y2="320" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="570" y="296" fill="#6ee7b7" font-size="11" font-weight="600">Sim</text>
+      <line x1="730" y1="270" x2="730" y2="320" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="745" y="296" fill="#a78bfa" font-size="11" font-weight="600">Nao</text>
+
+      <!-- Use bash -->
+      <rect x="430" y="320" width="200" height="45" rx="10" fill="rgba(110,231,183,0.1)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="530" y="342" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="600">Use Bash + curl/scripts</text>
+      <text x="530" y="357" text-anchor="middle" fill="#9ca3af" font-size="9">Mais simples, menos overhead</text>
+
+      <!-- Build MCP -->
+      <rect x="650" y="320" width="140" height="45" rx="10" fill="rgba(167,139,250,0.1)" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="720" y="342" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="600">Crie um MCP server</text>
+      <text x="720" y="357" text-anchor="middle" fill="#9ca3af" font-size="9">Plugin scaffold</text>
+    </svg>
+    <p class="diagram-caption">Arvore de decisao para escolher entre ferramentas nativas, servidores MCP existentes, scripts Bash ou criacao de servidor customizado.</p>
+  </div>
+
+  <!-- ════════════ CENARIOS CONCRETOS ════════════ -->
+  <h2>Cenarios concretos: combinando multiplos servidores</h2>
+
+  <p>
+    O verdadeiro poder do MCP aparece quando voce combina multiplos servidores em uma unica sessao.
+    Abaixo, cinco cenarios reais que demonstram esse potencial.
+  </p>
+
+  <!-- Cenario 1 -->
+  <div class="scenario-card">
+    <h4>
+      <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">1</span>
+      Triage de bug em producao
+    </h4>
+    <p class="scenario-desc">
+      <strong>Servidores:</strong> Sentry + PostgreSQL + GitHub<br>
+      O Claude consulta os erros recentes no Sentry, correlaciona com dados do banco de producao
+      para entender o impacto, localiza o codigo responsavel, e abre uma issue no GitHub com
+      toda a analise.
+    </p>
+    <div class="scenario-prompt">"Verifique os erros criticos das ultimas 24h no Sentry, identifique quantos usuarios foram afetados consultando o banco, e abra uma issue no GitHub com a analise completa."</div>
+  </div>
+
+  <!-- Cenario 2 -->
+  <div class="scenario-card">
+    <h4>
+      <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">2</span>
+      Feature end-to-end a partir de uma issue
+    </h4>
+    <p class="scenario-desc">
+      <strong>Servidores:</strong> Jira/Linear + GitHub + PostgreSQL<br>
+      O Claude le os requisitos na issue do tracker, inspeciona o schema do banco para entender
+      a modelagem, implementa a feature, cria migrations se necessario, roda testes e abre o PR.
+    </p>
+    <div class="scenario-prompt">"Implemente a feature descrita na issue LINEAR ENG-234, incluindo migration no banco, testes, e abra um PR no GitHub."</div>
+  </div>
+
+  <!-- Cenario 3 -->
+  <div class="scenario-card">
+    <h4>
+      <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">3</span>
+      Documentacao a partir de dados reais
+    </h4>
+    <p class="scenario-desc">
+      <strong>Servidores:</strong> PostgreSQL + Notion/Slack<br>
+      O Claude inspeciona o schema real do banco, compara com a documentacao existente no Notion,
+      identifica discrepancias e atualiza a documentacao. Opcionalmente notifica o time no Slack.
+    </p>
+    <div class="scenario-prompt">"Compare o schema atual do banco com a documentacao no Notion e atualize o que estiver desatualizado. Avise no canal #eng do Slack."</div>
+  </div>
+
+  <!-- Cenario 4 -->
+  <div class="scenario-card">
+    <h4>
+      <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">4</span>
+      Validacao visual de deploy
+    </h4>
+    <p class="scenario-desc">
+      <strong>Servidores:</strong> Playwright + Sentry<br>
+      Apos um deploy, o Claude navega pelas paginas criticas da aplicacao via Playwright,
+      tira screenshots, verifica se ha erros novos no Sentry, e reporta o status.
+    </p>
+    <div class="scenario-prompt">"Navegue pela homepage, pagina de login e dashboard no staging. Tire screenshots e verifique se surgiram erros novos no Sentry apos o deploy."</div>
+  </div>
+
+  <!-- Cenario 5 -->
+  <div class="scenario-card">
+    <h4>
+      <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">5</span>
+      Onboarding de desenvolvedor
+    </h4>
+    <p class="scenario-desc">
+      <strong>Servidores:</strong> GitHub + PostgreSQL + Memory<br>
+      O Claude le a estrutura do repositorio, inspeciona o banco, busca PRs recentes para entender
+      padroes do time, e gera um guia de onboarding personalizado usando o servidor Memory para
+      persistir o conhecimento adquirido.
+    </p>
+    <div class="scenario-prompt">"Analise este repositorio, o schema do banco, e os ultimos 20 PRs mergeados. Gere um guia de onboarding para um novo dev."</div>
+  </div>
+
+  <!-- ════════════ CONFIGURACAO COMPLETA ════════════ -->
+  <h2>Exemplo de .mcp.json completo para um time</h2>
+
+  <p>
+    Abaixo, um exemplo realista de <code>.mcp.json</code> de projeto que combina multiplos servidores
+    para um time de desenvolvimento. Este arquivo deve ser commitado no repositorio (scope <code>project</code>).
+  </p>
+
+  <div class="code-block">
+    <div class="code-header"><span>.mcp.json -- configuracao completa de time</span></div>
+    <pre>{
+  <span class="string">"mcpServers"</span>: {
+    <span class="comment">// Plataforma de codigo -- PRs, issues, reviews</span>
+    <span class="string">"github"</span>: {
+      <span class="string">"type"</span>: <span class="string">"http"</span>,
+      <span class="string">"url"</span>: <span class="string">"https://api.githubcopilot.com/mcp/"</span>,
+      <span class="string">"headers"</span>: {
+        <span class="string">"Authorization"</span>: <span class="string">"Bearer ${GITHUB_PAT}"</span>
+      }
+    },
+
+    <span class="comment">// Banco de dados -- read-only em producao</span>
+    <span class="string">"db-prod"</span>: {
+      <span class="string">"command"</span>: <span class="string">"npx"</span>,
+      <span class="string">"args"</span>: [
+        <span class="string">"-y"</span>, <span class="string">"@bytebase/dbhub"</span>,
+        <span class="string">"--dsn"</span>, <span class="string">"${DATABASE_READONLY_URL}"</span>
+      ]
+    },
+
+    <span class="comment">// Monitoramento de erros</span>
+    <span class="string">"sentry"</span>: {
+      <span class="string">"type"</span>: <span class="string">"http"</span>,
+      <span class="string">"url"</span>: <span class="string">"https://mcp.sentry.dev/mcp"</span>
+    },
+
+    <span class="comment">// Comunicacao do time</span>
+    <span class="string">"slack"</span>: {
+      <span class="string">"type"</span>: <span class="string">"http"</span>,
+      <span class="string">"url"</span>: <span class="string">"https://mcp.slack.com/mcp"</span>,
+      <span class="string">"oauth"</span>: {
+        <span class="string">"scopes"</span>: <span class="string">"channels:read chat:write search:read"</span>
+      }
+    },
+
+    <span class="comment">// API interna de deploy (servidor customizado do time)</span>
+    <span class="string">"deploy"</span>: {
+      <span class="string">"command"</span>: <span class="string">"node"</span>,
+      <span class="string">"args"</span>: [<span class="string">"${CLAUDE_PROJECT_DIR:-.}/tools/mcp-deploy/index.js"</span>],
+      <span class="string">"env"</span>: {
+        <span class="string">"DEPLOY_API_URL"</span>: <span class="string">"${DEPLOY_API_URL}"</span>
+      }
+    }
+  }
+}</pre>
+  </div>
+
+  <div class="callout-yellow callout">
+    <strong>Variaveis de ambiente em .mcp.json:</strong> O Claude Code suporta expansao de variaveis
+    no formato <code>${VAR}</code> e <code>${VAR:-default}</code>. Isso permite commitar o
+    <code>.mcp.json</code> no repositorio sem expor credenciais. Cada desenvolvedor define suas
+    variaveis localmente.
+  </div>
+
+  <!-- ════════════ SERVIDORES POPULARES ════════════ -->
+  <h2>Servidores MCP populares que vale conhecer</h2>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Servidor</th>
+          <th>Categoria</th>
+          <th>O que faz</th>
+          <th>Transporte</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>GitHub</strong></td>
+          <td>Codigo</td>
+          <td>PRs, issues, code review, busca cross-repo</td>
+          <td>HTTP</td>
+        </tr>
+        <tr>
+          <td><strong>Sentry</strong></td>
+          <td>Monitoramento</td>
+          <td>Erros, stack traces, impacto de deploys</td>
+          <td>HTTP (OAuth)</td>
+        </tr>
+        <tr>
+          <td><strong>Notion</strong></td>
+          <td>Documentacao</td>
+          <td>Ler e atualizar paginas, databases, wikis</td>
+          <td>HTTP</td>
+        </tr>
+        <tr>
+          <td><strong>Slack</strong></td>
+          <td>Comunicacao</td>
+          <td>Canais, mensagens, busca de conversas</td>
+          <td>HTTP (OAuth)</td>
+        </tr>
+        <tr>
+          <td><strong>DBHub (Bytebase)</strong></td>
+          <td>Banco de dados</td>
+          <td>PostgreSQL, MySQL, SQLite -- queries, schema</td>
+          <td>stdio</td>
+        </tr>
+        <tr>
+          <td><strong>Playwright</strong></td>
+          <td>Browser</td>
+          <td>Automacao, screenshots, testes visuais</td>
+          <td>stdio</td>
+        </tr>
+        <tr>
+          <td><strong>Brave Search</strong></td>
+          <td>Web</td>
+          <td>Busca na web atualizada, 2K queries/mes gratis</td>
+          <td>stdio</td>
+        </tr>
+        <tr>
+          <td><strong>Filesystem</strong></td>
+          <td>Sistema</td>
+          <td>Operacoes de arquivo com controle de acesso</td>
+          <td>stdio</td>
+        </tr>
+        <tr>
+          <td><strong>Memory</strong></td>
+          <td>Conhecimento</td>
+          <td>Knowledge graph persistente entre sessoes</td>
+          <td>stdio</td>
+        </tr>
+        <tr>
+          <td><strong>Sequential Thinking</strong></td>
+          <td>Raciocinio</td>
+          <td>Resolucao de problemas passo a passo</td>
+          <td>stdio</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ TOOL SEARCH ════════════ -->
+  <h2>Impacto no contexto: Tool Search</h2>
+
+  <p>
+    Uma preocupacao natural e: "se eu conectar 10 servidores MCP, isso nao vai poluir o contexto?"
+    A resposta e <strong>nao</strong>, gracas ao mecanismo de <strong>Tool Search</strong>, habilitado
+    por padrao no Claude Code.
+  </p>
+
+  <p>
+    Com Tool Search ativo, apenas os <strong>nomes</strong> das ferramentas MCP sao carregados na
+    inicializacao da sessao. Os schemas completos sao carregados sob demanda, somente quando o Claude
+    determina que precisa deles para a tarefa atual. Isso significa que adicionar mais servidores MCP
+    tem <strong>impacto minimo na janela de contexto</strong>.
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">1</span>
+        Sem Tool Search
+      </h4>
+      <p>Todos os schemas de todas as ferramentas MCP sao carregados no contexto desde o inicio. 10 servidores com 50 ferramentas = centenas de tokens consumidos.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">2</span>
+        Com Tool Search (padrao)
+      </h4>
+      <p>So nomes sao carregados. Schemas entram sob demanda. 10 servidores com 50 ferramentas = impacto minimo ate o momento do uso.</p>
+    </div>
+  </div>
+
+  <div class="callout-blue callout">
+    <strong>Para autores de servidores MCP:</strong> Com Tool Search ativo, o campo
+    <code>instructions</code> do servidor se torna ainda mais importante. Ele ajuda o Claude a
+    entender <em>quando</em> buscar as ferramentas do seu servidor. Mantenha as descricoes concisas
+    (limite de 2KB) e coloque informacoes criticas no inicio.
+  </div>
+
+  <!-- ════════════ BOAS PRATICAS ════════════ -->
+  <h2>Boas praticas para uso de MCP em projetos</h2>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">A</span>
+        Credentials via variaveis
+      </h4>
+      <p>Nunca coloque tokens diretamente no <code>.mcp.json</code>. Use <code>${VAR}</code> para
+         referenciar variaveis de ambiente. O arquivo pode ser commitado com seguranca.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">B</span>
+        Read-only em producao
+      </h4>
+      <p>Bancos de dados de producao devem ser acessados com credenciais somente leitura.
+         Use read replicas ou snapshots. Escrita so em ambientes de dev.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">C</span>
+        Scopes de projeto
+      </h4>
+      <p>Use <code>--scope project</code> para servidores que o time inteiro deve usar. O <code>.mcp.json</code>
+         e commitado e garante consistencia entre devs.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">D</span>
+        Verifique a confianca
+      </h4>
+      <p>Servidores que buscam conteudo externo podem expor voce a riscos de prompt injection.
+         So conecte servidores em que voce confia (Topico 4: Allowlist).</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">E</span>
+        OAuth com scopes restritos
+      </h4>
+      <p>Ao conectar servidores remotos com OAuth, restrinja os scopes ao minimo necessario
+         usando <code>oauth.scopes</code> na configuracao.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">F</span>
+        Teste com /mcp
+      </h4>
+      <p>Use o comando <code>/mcp</code> dentro do Claude Code para verificar o status de todos
+         os servidores conectados, numero de ferramentas expostas e eventuais erros.</p>
+    </div>
+  </div>
+
+  <!-- ════════════ CHANNELS ════════════ -->
+  <h2>Bonus: Channels -- MCP servers que enviam mensagens</h2>
+
+  <p>
+    Alem de expor ferramentas, um servidor MCP pode funcionar como um <strong>channel</strong>,
+    enviando mensagens diretamente para a sessao do Claude Code. Isso permite que o Claude
+    <strong>reaja a eventos externos</strong> em tempo real: resultados de CI, alertas de monitoramento,
+    mensagens de Telegram/Discord, ou webhooks.
+  </p>
+
+  <p>
+    Para habilitar, o servidor declara a capability <code>claude/channel</code> e voce inicia
+    o Claude Code com a flag <code>--channels</code>. Esse mecanismo transforma o Claude Code
+    de um assistente reativo (responde quando voce pergunta) em um agente proativo (age quando
+    algo acontece).
+  </p>
+
+  <!-- ════════════ FONTES ════════════ -->
+  <div class="sources">
+    <h3>Fontes e Referencias</h3>
+    <ul>
+      <li><a href="https://code.claude.com/docs/en/mcp" target="_blank">Claude Code Docs -- Connect Claude Code to tools via MCP</a></li>
+      <li><a href="https://docs.anthropic.com/en/docs/claude-code/mcp-servers" target="_blank">Anthropic Docs -- Claude Code MCP Servers</a></li>
+      <li><a href="https://github.com/modelcontextprotocol/servers" target="_blank">GitHub -- modelcontextprotocol/servers (servidores oficiais ativos)</a></li>
+      <li><a href="https://github.com/modelcontextprotocol/servers-archived" target="_blank">GitHub -- modelcontextprotocol/servers-archived (servidores arquivados)</a></li>
+      <li><a href="https://github.com/github/github-mcp-server" target="_blank">GitHub -- github/github-mcp-server (servidor MCP oficial do GitHub)</a></li>
+      <li><a href="https://modelcontextprotocol.io/introduction" target="_blank">Model Context Protocol -- Introducao e especificacao</a></li>
+      <li><a href="https://modelcontextprotocol.io/docs/develop/build-server" target="_blank">MCP -- Guia para construir servidores</a></li>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Anthropic -- Best Practices for Claude Code</a></li>
+      <li><a href="https://docs.anthropic.com/en/docs/claude-code/tutorials" target="_blank">Anthropic Docs -- Claude Code Tutorials</a></li>
+      <li><a href="https://github.com/wong2/awesome-mcp-servers" target="_blank">GitHub -- awesome-mcp-servers (lista curada pela comunidade)</a></li>
+    </ul>
+  </div>
+
+  <!-- ════════════ NAV FOOTER ════════════ -->
+  <div class="nav-footer">
+    <a href="modulo-06-topico-04-allowlist-servidores.html" class="nav-btn">&larr; Topico 4 . Allowlist</a>
+    <a href="../index.html" class="nav-btn">&#8962; Indice</a>
+    <a href="../modulo-07/modulo-07-topico-01-pre-post-tool-use.html" class="nav-btn">Modulo 7 Topico 1 . Hooks &rarr;</a>
+  </div>
+
+</body>
+</html>

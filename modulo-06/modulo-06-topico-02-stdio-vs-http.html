@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modulo 6 . Topico 2 -- Servidores locais (stdio) vs. remotos (HTTP/SSE)</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-code: #141620;
+      --border: #2a2d3a;
+      --text: #e4e4e7;
+      --text-dim: #9ca3af;
+      --accent: #c4956a;
+      --accent-soft: rgba(196, 149, 106, 0.12);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.12);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .topic-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-soft); padding: 6px 14px;
+      border-radius: 20px; margin-bottom: 1rem;
+    }
+
+    h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+    .subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+    h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+    p { margin-bottom: 1rem; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+    strong { color: #fff; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0;
+    }
+    .card-label {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 6px; margin-bottom: 0.75rem;
+    }
+
+    .diagram-container {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto;
+    }
+    .diagram-container svg { display: block; margin: 0 auto; }
+    .diagram-caption {
+      text-align: center; font-size: 0.85rem; color: var(--text-dim);
+      margin-top: 1rem; font-style: italic;
+    }
+
+    .code-block {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1rem; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim);
+    }
+    .code-block pre {
+      padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8;
+    }
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: var(--purple); }
+    .code-block .string { color: var(--green); }
+    .code-block .tool { color: var(--accent); }
+    .code-block .number { color: var(--yellow); }
+
+    .callout {
+      border-left: 3px solid var(--accent); background: var(--accent-soft);
+      padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem;
+    }
+    .callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+    .callout-red { border-left-color: var(--red); background: var(--red-soft); }
+    .callout-green { border-left-color: var(--green); background: var(--green-soft); }
+    .callout-yellow { border-left-color: var(--yellow); background: var(--yellow-soft); }
+    .callout strong { color: #fff; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+    }
+
+    .mini-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .mini-card h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;
+    }
+    .mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+
+    .icon-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    .sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .sources ul { list-style: none; padding: 0; }
+    .sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+    .sources li::before { content: "\2192 "; color: var(--accent); }
+
+    .nav-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+      color: var(--text); background: var(--bg-card); border: 1px solid var(--border);
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ HEADER ════════════ -->
+  <div class="topic-badge">Modulo 6 . Topico 2</div>
+  <h1>Servidores locais (stdio) vs. remotos (HTTP/SSE)</h1>
+  <p class="subtitle">
+    O MCP define dois mecanismos de transporte padrao para comunicacao cliente-servidor:
+    <strong>stdio</strong> (processos locais via stdin/stdout) e <strong>Streamable HTTP</strong>
+    (servidores remotos via HTTP). Entender as diferencas entre eles e fundamental para escolher
+    a arquitetura certa para cada caso de uso no Claude Code.
+  </p>
+
+  <!-- ════════════ VISAO GERAL DOS TRANSPORTES ════════════ -->
+  <h2>Os dois transportes oficiais do MCP</h2>
+
+  <p>
+    A especificacao MCP (versao 2025-03-26) define exatamente dois mecanismos de transporte padrao.
+    Ambos usam <strong>JSON-RPC 2.0</strong> codificado em UTF-8 como formato de mensagem,
+    mas diferem radicalmente em como o cliente e o servidor se comunicam.
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card" style="border-left: 3px solid var(--green);">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">L</span>
+        stdio (Local)
+      </h4>
+      <p>O cliente lanca o servidor MCP como um <strong>subprocesso local</strong>. Comunicacao via
+         stdin/stdout. Zero rede, zero latencia de rede. Ideal para ferramentas que precisam de
+         acesso direto ao sistema de arquivos.</p>
+    </div>
+    <div class="mini-card" style="border-left: 3px solid var(--blue);">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">R</span>
+        Streamable HTTP (Remoto)
+      </h4>
+      <p>O servidor opera como um <strong>processo independente</strong> acessivel via HTTP.
+         Aceita multiplas conexoes simultaneas. Usa POST/GET com SSE opcional para streaming.
+         Ideal para servicos cloud e APIs compartilhadas.</p>
+    </div>
+  </div>
+
+  <div class="callout-blue callout">
+    <strong>Recomendacao da spec:</strong> A especificacao MCP afirma que clientes <em>SHOULD</em>
+    suportar stdio sempre que possivel. O Claude Code suporta ambos os transportes nativamente,
+    alem do transporte SSE legado (deprecated).
+  </div>
+
+  <!-- ════════════ DIAGRAMA: STDIO ════════════ -->
+  <h2>Transporte stdio: como funciona</h2>
+
+  <p>
+    No transporte stdio, o Claude Code <strong>lanca o servidor MCP como um subprocesso</strong>
+    na sua maquina. O servidor le mensagens JSON-RPC do seu <code>stdin</code> e escreve respostas
+    no seu <code>stdout</code>. Cada mensagem e delimitada por uma quebra de linha e
+    <strong>nao pode conter quebras de linha internas</strong>.
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 800 320" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Diagrama do transporte stdio: Claude Code lanca subprocesso MCP local, comunicando via stdin/stdout</title>
+
+      <!-- Background -->
+      <rect x="20" y="20" width="760" height="280" rx="12" fill="rgba(110,231,183,0.04)" stroke="var(--border)" stroke-width="1"/>
+      <text x="400" y="50" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="600">MESMA MAQUINA (localhost)</text>
+
+      <!-- Claude Code box -->
+      <rect x="60" y="90" width="250" height="160" rx="10" fill="#1a1d27" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="185" y="120" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Claude Code (Cliente MCP)</text>
+      <text x="185" y="145" text-anchor="middle" fill="#9ca3af" font-size="10">Lanca o servidor como subprocesso</text>
+      <text x="185" y="170" text-anchor="middle" fill="#9ca3af" font-size="10">Envia JSON-RPC via stdin</text>
+      <text x="185" y="195" text-anchor="middle" fill="#9ca3af" font-size="10">Recebe JSON-RPC via stdout</text>
+      <text x="185" y="225" text-anchor="middle" fill="#6b7280" font-size="9">CLAUDE_PROJECT_DIR no env</text>
+
+      <!-- MCP Server box -->
+      <rect x="490" y="90" width="250" height="160" rx="10" fill="#1a1d27" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="615" y="120" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Servidor MCP (Subprocesso)</text>
+      <text x="615" y="145" text-anchor="middle" fill="#9ca3af" font-size="10">Le JSON-RPC de stdin</text>
+      <text x="615" y="170" text-anchor="middle" fill="#9ca3af" font-size="10">Escreve JSON-RPC em stdout</text>
+      <text x="615" y="195" text-anchor="middle" fill="#9ca3af" font-size="10">Logs opcionais em stderr</text>
+      <text x="615" y="225" text-anchor="middle" fill="#6b7280" font-size="9">Acesso total ao filesystem local</text>
+
+      <!-- Arrows -->
+      <line x1="310" y1="150" x2="490" y2="150" stroke="#6ee7b7" stroke-width="2" marker-end="url(#arrowGreen)"/>
+      <text x="400" y="142" text-anchor="middle" fill="#6ee7b7" font-size="10" font-weight="600">stdin (JSON-RPC)</text>
+
+      <line x1="490" y1="190" x2="310" y2="190" stroke="#a78bfa" stroke-width="2" marker-end="url(#arrowPurple)"/>
+      <text x="400" y="210" text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="600">stdout (JSON-RPC)</text>
+
+      <!-- Arrow markers -->
+      <defs>
+        <marker id="arrowGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#6ee7b7"/>
+        </marker>
+        <marker id="arrowPurple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#a78bfa"/>
+        </marker>
+      </defs>
+    </svg>
+    <p class="diagram-caption">O transporte stdio usa comunicacao direta entre processos via pipes do sistema operacional. Zero overhead de rede.</p>
+  </div>
+
+  <h3>Caracteristicas do stdio</h3>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">+</span>
+        Vantagens
+      </h4>
+      <p>Latencia minima (IPC local). Sem configuracao de rede. Acesso direto ao filesystem.
+         Seguranca por isolamento de processo. Simples de debugar. O servidor recebe
+         <code>CLAUDE_PROJECT_DIR</code> no environment automaticamente.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">-</span>
+        Limitacoes
+      </h4>
+      <p>Um cliente por servidor (relacao 1:1). Nao compartilhavel entre maquinas ou usuarios.
+         Servidor morre se o cliente morrer. Sem reconexao automatica -- se o processo cair,
+         precisa ser relancado manualmente.</p>
+    </div>
+  </div>
+
+  <h3>Configuracao stdio no Claude Code</h3>
+
+  <div class="code-block">
+    <div class="code-header"><span>Terminal -- adicionando servidor stdio via CLI</span></div>
+    <pre><span class="comment"># Sintaxe basica</span>
+<span class="tool">claude</span> mcp add --transport stdio &lt;nome&gt; -- &lt;comando&gt; [args...]
+
+<span class="comment"># Exemplo real: servidor de filesystem</span>
+<span class="tool">claude</span> mcp add --transport stdio filesystem -- \
+  npx -y @modelcontextprotocol/server-filesystem /home/user/projeto
+
+<span class="comment"># Exemplo com variavel de ambiente</span>
+<span class="tool">claude</span> mcp add --transport stdio --env AIRTABLE_API_KEY=abc123 airtable -- \
+  npx -y airtable-mcp-server</pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span>.mcp.json -- configuracao stdio em JSON</span></div>
+    <pre>{
+  <span class="string">"mcpServers"</span>: {
+    <span class="string">"database"</span>: {
+      <span class="string">"command"</span>: <span class="string">"npx"</span>,
+      <span class="string">"args"</span>: [<span class="string">"-y"</span>, <span class="string">"@bytebase/dbhub"</span>, <span class="string">"--dsn"</span>, <span class="string">"postgresql://user:pass@localhost:5432/mydb"</span>],
+      <span class="string">"env"</span>: {
+        <span class="string">"NODE_ENV"</span>: <span class="string">"production"</span>
+      }
+    }
+  }
+}</pre>
+  </div>
+
+  <div class="callout">
+    <strong>Detalhe importante:</strong> Quando o <code>type</code> e omitido na configuracao JSON, o
+    Claude Code assume <code>stdio</code> como padrao. Isso explica por que muitos exemplos de
+    <code>.mcp.json</code> nao incluem <code>"type": "stdio"</code> explicitamente.
+  </div>
+
+  <!-- ════════════ DIAGRAMA: STREAMABLE HTTP ════════════ -->
+  <h2>Transporte Streamable HTTP: como funciona</h2>
+
+  <p>
+    No transporte Streamable HTTP, o servidor opera como um <strong>processo independente</strong>
+    (geralmente em nuvem ou em outro host) que expoe um unico endpoint HTTP. O cliente envia
+    mensagens JSON-RPC via <code>POST</code> e pode opcionalmente receber respostas como
+    <strong>Server-Sent Events (SSE)</strong> para streaming, ou como JSON simples para
+    respostas diretas.
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Diagrama do transporte Streamable HTTP: Claude Code comunica com servidor remoto via HTTP POST/GET com SSE opcional</title>
+
+      <!-- Local zone -->
+      <rect x="20" y="20" width="320" height="340" rx="12" fill="rgba(110,231,183,0.04)" stroke="var(--border)" stroke-width="1"/>
+      <text x="180" y="50" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="600">SUA MAQUINA</text>
+
+      <!-- Remote zone -->
+      <rect x="460" y="20" width="320" height="340" rx="12" fill="rgba(96,165,250,0.04)" stroke="var(--border)" stroke-width="1"/>
+      <text x="620" y="50" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="600">SERVIDOR REMOTO / CLOUD</text>
+
+      <!-- Claude Code box -->
+      <rect x="50" y="80" width="260" height="120" rx="10" fill="#1a1d27" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="180" y="110" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Claude Code (Cliente MCP)</text>
+      <text x="180" y="135" text-anchor="middle" fill="#9ca3af" font-size="10">Envia JSON-RPC via HTTP POST</text>
+      <text x="180" y="155" text-anchor="middle" fill="#9ca3af" font-size="10">Escuta via SSE (opcional) ou GET</text>
+      <text x="180" y="180" text-anchor="middle" fill="#6b7280" font-size="9">Accept: application/json, text/event-stream</text>
+
+      <!-- Internet cloud -->
+      <text x="400" y="135" text-anchor="middle" fill="#475569" font-size="28">~</text>
+      <text x="400" y="155" text-anchor="middle" fill="#475569" font-size="9">HTTPS</text>
+
+      <!-- MCP Server box -->
+      <rect x="490" y="80" width="260" height="120" rx="10" fill="#1a1d27" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="620" y="110" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Servidor MCP (HTTP)</text>
+      <text x="620" y="135" text-anchor="middle" fill="#9ca3af" font-size="10">Endpoint unico: /mcp</text>
+      <text x="620" y="155" text-anchor="middle" fill="#9ca3af" font-size="10">Responde JSON ou SSE stream</text>
+      <text x="620" y="180" text-anchor="middle" fill="#6b7280" font-size="9">Mcp-Session-Id para estado</text>
+
+      <!-- Arrows -->
+      <line x1="310" y1="120" x2="490" y2="120" stroke="#6ee7b7" stroke-width="2" marker-end="url(#arrowGreen2)"/>
+      <text x="400" y="112" text-anchor="middle" fill="#6ee7b7" font-size="10" font-weight="600">HTTP POST</text>
+
+      <line x1="490" y1="165" x2="310" y2="165" stroke="#60a5fa" stroke-width="2" marker-end="url(#arrowBlue)"/>
+      <text x="400" y="182" text-anchor="middle" fill="#60a5fa" font-size="10" font-weight="600">JSON | SSE stream</text>
+
+      <!-- Session management box -->
+      <rect x="490" y="230" width="260" height="100" rx="10" fill="#1a1d27" stroke="#475569" stroke-width="1"/>
+      <text x="620" y="255" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Gerenciamento de Sessao</text>
+      <text x="620" y="275" text-anchor="middle" fill="#9ca3af" font-size="9">Mcp-Session-Id no header</text>
+      <text x="620" y="295" text-anchor="middle" fill="#9ca3af" font-size="9">Resumabilidade via Last-Event-ID</text>
+      <text x="620" y="315" text-anchor="middle" fill="#9ca3af" font-size="9">DELETE para encerrar sessao</text>
+
+      <!-- Reconnection box -->
+      <rect x="50" y="230" width="260" height="100" rx="10" fill="#1a1d27" stroke="#475569" stroke-width="1"/>
+      <text x="180" y="255" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Reconexao Automatica</text>
+      <text x="180" y="275" text-anchor="middle" fill="#9ca3af" font-size="9">Backoff exponencial: 1s, 2s, 4s, 8s, 16s</text>
+      <text x="180" y="295" text-anchor="middle" fill="#9ca3af" font-size="9">Ate 5 tentativas de reconexao</text>
+      <text x="180" y="315" text-anchor="middle" fill="#9ca3af" font-size="9">Servidor aparece como "pending" no /mcp</text>
+
+      <!-- Arrow markers -->
+      <defs>
+        <marker id="arrowGreen2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#6ee7b7"/>
+        </marker>
+        <marker id="arrowBlue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#60a5fa"/>
+        </marker>
+      </defs>
+    </svg>
+    <p class="diagram-caption">O transporte Streamable HTTP permite que servidores remotos atendam multiplos clientes simultaneamente, com sessoes e reconexao.</p>
+  </div>
+
+  <h3>Caracteristicas do Streamable HTTP</h3>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">+</span>
+        Vantagens
+      </h4>
+      <p>Multiplos clientes simultaneos. Compartilhavel entre equipes. Reconexao automatica
+         com backoff exponencial. Gerenciamento de sessao nativo. Autenticacao via OAuth 2.0.
+         Resumabilidade de streams via <code>Last-Event-ID</code>.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">-</span>
+        Limitacoes
+      </h4>
+      <p>Latencia de rede. Requer infraestrutura de hosting. Mais complexo para configurar.
+         Precisa de HTTPS em producao. Necessita validacao de header <code>Origin</code> para prevenir
+         ataques de DNS rebinding.</p>
+    </div>
+  </div>
+
+  <h3>Configuracao HTTP no Claude Code</h3>
+
+  <div class="code-block">
+    <div class="code-header"><span>Terminal -- adicionando servidor HTTP via CLI</span></div>
+    <pre><span class="comment"># Sintaxe basica</span>
+<span class="tool">claude</span> mcp add --transport http &lt;nome&gt; &lt;url&gt;
+
+<span class="comment"># Exemplo real: Notion</span>
+<span class="tool">claude</span> mcp add --transport http notion https://mcp.notion.com/mcp
+
+<span class="comment"># Exemplo com autenticacao via header</span>
+<span class="tool">claude</span> mcp add --transport http github https://api.githubcopilot.com/mcp/ \
+  --header <span class="string">"Authorization: Bearer YOUR_GITHUB_PAT"</span>
+
+<span class="comment"># Exemplo com OAuth (servidor pede login no navegador)</span>
+<span class="tool">claude</span> mcp add --transport http sentry https://mcp.sentry.dev/mcp
+<span class="comment"># Depois: /mcp para autenticar via browser</span></pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header"><span>.mcp.json -- configuracao HTTP em JSON</span></div>
+    <pre>{
+  <span class="string">"mcpServers"</span>: {
+    <span class="string">"notion"</span>: {
+      <span class="string">"type"</span>: <span class="string">"http"</span>,
+      <span class="string">"url"</span>: <span class="string">"https://mcp.notion.com/mcp"</span>
+    },
+    <span class="string">"github"</span>: {
+      <span class="string">"type"</span>: <span class="string">"http"</span>,
+      <span class="string">"url"</span>: <span class="string">"https://api.githubcopilot.com/mcp/"</span>,
+      <span class="string">"headers"</span>: {
+        <span class="string">"Authorization"</span>: <span class="string">"Bearer ${GITHUB_PAT}"</span>
+      }
+    }
+  }
+}</pre>
+  </div>
+
+  <div class="callout">
+    <strong>Alias na config JSON:</strong> O campo <code>type</code> aceita tanto <code>"http"</code>
+    quanto <code>"streamable-http"</code> como valores equivalentes. O nome <code>streamable-http</code>
+    e o nome oficial na spec MCP, enquanto <code>http</code> e o atalho suportado pelo Claude Code.
+    Configuracoes copiadas de documentacao de servidores funcionam sem modificacao.
+  </div>
+
+  <!-- ════════════ EVOLUCAO: SSE -> STREAMABLE HTTP ════════════ -->
+  <h2>A evolucao: de HTTP+SSE para Streamable HTTP</h2>
+
+  <p>
+    A versao original do MCP (protocolo 2024-11-05) definia um transporte chamado <strong>HTTP+SSE</strong>
+    que usava dois endpoints separados: um endpoint SSE para o servidor enviar mensagens ao cliente, e um
+    endpoint POST para o cliente enviar mensagens ao servidor. Esse design era funcional, mas apresentava
+    complexidades desnecessarias.
+  </p>
+
+  <p>
+    A partir da versao 2025-03-26 da spec, esse transporte foi substituido pelo <strong>Streamable HTTP</strong>,
+    que unifica tudo em um unico endpoint. O SSE agora e <em>opcional</em> -- o servidor pode responder com
+    JSON simples ou abrir um stream SSE conforme necessario.
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 800 260" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Evolucao do transporte remoto MCP: HTTP+SSE (2024) para Streamable HTTP (2025)</title>
+
+      <!-- Old transport -->
+      <rect x="30" y="30" width="340" height="200" rx="10" fill="rgba(248,113,113,0.04)" stroke="#f87171" stroke-width="1" stroke-dasharray="6,3"/>
+      <text x="200" y="55" text-anchor="middle" fill="#f87171" font-size="11" font-weight="600">HTTP+SSE (2024-11-05) -- DEPRECATED</text>
+
+      <rect x="55" y="75" width="130" height="50" rx="6" fill="#1a1d27" stroke="#475569" stroke-width="1"/>
+      <text x="120" y="100" text-anchor="middle" fill="#9ca3af" font-size="10">Endpoint SSE</text>
+      <text x="120" y="115" text-anchor="middle" fill="#6b7280" font-size="9">GET /sse</text>
+
+      <rect x="215" y="75" width="130" height="50" rx="6" fill="#1a1d27" stroke="#475569" stroke-width="1"/>
+      <text x="280" y="100" text-anchor="middle" fill="#9ca3af" font-size="10">Endpoint POST</text>
+      <text x="280" y="115" text-anchor="middle" fill="#6b7280" font-size="9">POST /messages</text>
+
+      <text x="200" y="155" text-anchor="middle" fill="#9ca3af" font-size="9">2 endpoints separados</text>
+      <text x="200" y="170" text-anchor="middle" fill="#9ca3af" font-size="9">SSE obrigatorio para streaming</text>
+      <text x="200" y="185" text-anchor="middle" fill="#9ca3af" font-size="9">Sem gerenciamento de sessao</text>
+      <text x="200" y="200" text-anchor="middle" fill="#9ca3af" font-size="9">Sem resumabilidade</text>
+
+      <!-- Arrow -->
+      <text x="410" y="135" text-anchor="middle" fill="#fbbf24" font-size="22">&rarr;</text>
+
+      <!-- New transport -->
+      <rect x="440" y="30" width="340" height="200" rx="10" fill="rgba(110,231,183,0.04)" stroke="#6ee7b7" stroke-width="1"/>
+      <text x="610" y="55" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="600">Streamable HTTP (2025-03-26)</text>
+
+      <rect x="520" y="75" width="180" height="50" rx="6" fill="#1a1d27" stroke="#6ee7b7" stroke-width="1"/>
+      <text x="610" y="100" text-anchor="middle" fill="#fff" font-size="10" font-weight="600">Endpoint Unico</text>
+      <text x="610" y="115" text-anchor="middle" fill="#6ee7b7" font-size="9">POST + GET /mcp</text>
+
+      <text x="610" y="155" text-anchor="middle" fill="#9ca3af" font-size="9">1 endpoint unificado</text>
+      <text x="610" y="170" text-anchor="middle" fill="#9ca3af" font-size="9">SSE opcional (pode retornar JSON puro)</text>
+      <text x="610" y="185" text-anchor="middle" fill="#9ca3af" font-size="9">Gerenciamento de sessao via Mcp-Session-Id</text>
+      <text x="610" y="200" text-anchor="middle" fill="#9ca3af" font-size="9">Resumabilidade via Last-Event-ID</text>
+    </svg>
+    <p class="diagram-caption">O Streamable HTTP simplifica o transporte remoto mantendo retrocompatibilidade com servidores SSE antigos.</p>
+  </div>
+
+  <div class="callout-yellow callout">
+    <strong>SSE no Claude Code:</strong> O transporte SSE legado ainda e suportado via
+    <code>claude mcp add --transport sse</code> e <code>"type": "sse"</code> no JSON, mas a
+    documentacao oficial marca-o como <strong>deprecated</strong>. Para novos servidores, use sempre
+    <code>http</code>. Para clientes conectando a servidores antigos, o Claude Code tenta automaticamente
+    o fallback: primeiro tenta POST (Streamable HTTP); se falhar com 4xx, tenta GET esperando SSE.
+  </div>
+
+  <!-- ════════════ TABELA COMPARATIVA ════════════ -->
+  <h2>Comparacao detalhada: stdio vs. Streamable HTTP</h2>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Aspecto</th>
+          <th style="color: var(--green);">stdio (Local)</th>
+          <th style="color: var(--blue);">Streamable HTTP (Remoto)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Comunicacao</strong></td>
+          <td>stdin/stdout (pipes do OS)</td>
+          <td>HTTP POST/GET + SSE opcional</td>
+        </tr>
+        <tr>
+          <td><strong>Latencia</strong></td>
+          <td style="color: var(--green);">Minima (IPC local, microsegundos)</td>
+          <td>Variavel (rede, milissegundos+)</td>
+        </tr>
+        <tr>
+          <td><strong>Clientes simultaneos</strong></td>
+          <td>1 (relacao 1:1)</td>
+          <td style="color: var(--green);">Multiplos</td>
+        </tr>
+        <tr>
+          <td><strong>Ciclo de vida</strong></td>
+          <td>Morre com o cliente</td>
+          <td style="color: var(--green);">Independente do cliente</td>
+        </tr>
+        <tr>
+          <td><strong>Reconexao</strong></td>
+          <td style="color: var(--red);">Sem reconexao automatica</td>
+          <td style="color: var(--green);">Backoff exponencial (5 tentativas)</td>
+        </tr>
+        <tr>
+          <td><strong>Acesso ao filesystem</strong></td>
+          <td style="color: var(--green);">Direto (mesmo usuario do OS)</td>
+          <td>Via rede (API necessaria)</td>
+        </tr>
+        <tr>
+          <td><strong>Autenticacao</strong></td>
+          <td>Env vars, credenciais locais</td>
+          <td>OAuth 2.0, headers, tokens</td>
+        </tr>
+        <tr>
+          <td><strong>Sessoes</strong></td>
+          <td>N/A (conexao unica)</td>
+          <td style="color: var(--green);">Mcp-Session-Id, resumabilidade</td>
+        </tr>
+        <tr>
+          <td><strong>Deployment</strong></td>
+          <td>Zero (roda local)</td>
+          <td>Requer hosting (cloud, container)</td>
+        </tr>
+        <tr>
+          <td><strong>Compartilhamento</strong></td>
+          <td>Apenas a maquina local</td>
+          <td style="color: var(--green);">Equipes, organizacoes</td>
+        </tr>
+        <tr>
+          <td><strong>Config no Claude Code</strong></td>
+          <td><code>--transport stdio</code></td>
+          <td><code>--transport http</code></td>
+        </tr>
+        <tr>
+          <td><strong>type no JSON</strong></td>
+          <td><code>"stdio"</code> (ou omitido)</td>
+          <td><code>"http"</code> ou <code>"streamable-http"</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ SEGURANCA ════════════ -->
+  <h2>Implicacoes de seguranca</h2>
+
+  <p>
+    A escolha do transporte tem impacto direto no modelo de seguranca. Cada abordagem traz
+    riscos e mitigacoes diferentes.
+  </p>
+
+  <div class="grid-2">
+    <div class="card" style="border-left: 3px solid var(--green);">
+      <div class="card-label" style="color: var(--green); background: var(--green-soft);">Seguranca stdio</div>
+      <p style="font-size: 0.9rem; color: var(--text-dim);">
+        <strong style="color: var(--green);">Superficie de ataque reduzida:</strong> sem portas de rede expostas.
+        Comunicacao confinada a pipes do OS entre processos pai/filho.
+      </p>
+      <p style="font-size: 0.9rem; color: var(--text-dim);">
+        <strong style="color: var(--yellow);">Risco principal:</strong> o servidor roda com as
+        <em>mesmas permissoes</em> do seu usuario. Se o codigo do servidor for malicioso, ele tem
+        acesso total ao filesystem, rede e processos.
+      </p>
+      <p style="font-size: 0.9rem; color: var(--text-dim);">
+        <strong style="color: #fff;">Mitigacao:</strong> A especificacao recomenda exibir dialogo de
+        consentimento mostrando o comando exato antes de executar. O Claude Code pede aprovacao para
+        servidores de projeto (<code>.mcp.json</code>) na primeira execucao.
+      </p>
+    </div>
+    <div class="card" style="border-left: 3px solid var(--blue);">
+      <div class="card-label" style="color: var(--blue); background: var(--blue-soft);">Seguranca HTTP</div>
+      <p style="font-size: 0.9rem; color: var(--text-dim);">
+        <strong style="color: var(--blue);">Autenticacao robusta:</strong> suporte nativo a OAuth 2.0,
+        headers customizados, tokens bearer, e <code>headersHelper</code> para esquemas proprietarios.
+      </p>
+      <p style="font-size: 0.9rem; color: var(--text-dim);">
+        <strong style="color: var(--yellow);">Risco principal:</strong> servidores devem validar o header
+        <code>Origin</code> para prevenir ataques de DNS rebinding. Servidores locais devem fazer bind
+        apenas em <code>127.0.0.1</code>, nunca em <code>0.0.0.0</code>.
+      </p>
+      <p style="font-size: 0.9rem; color: var(--text-dim);">
+        <strong style="color: #fff;">Mitigacao:</strong> Usar HTTPS em producao. Implementar
+        autenticacao adequada. Validar Origin em todas as conexoes. Gerenciar sessoes com IDs
+        criptograficamente seguros.
+      </p>
+    </div>
+  </div>
+
+  <div class="callout-red callout">
+    <strong>Alerta de seguranca da spec MCP:</strong> Sem protecoes adequadas (validacao de Origin,
+    bind em localhost, autenticacao), atacantes podem usar DNS rebinding para interagir com servidores
+    MCP locais a partir de websites remotos. Isso se aplica especialmente a servidores HTTP rodando
+    localmente durante desenvolvimento.
+  </div>
+
+  <!-- ════════════ QUANDO USAR CADA UM ════════════ -->
+  <h2>Quando usar cada transporte</h2>
+
+  <h3>Use stdio quando...</h3>
+
+  <div class="grid-3">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">1</span>
+        Acesso local
+      </h4>
+      <p>O servidor precisa ler/escrever arquivos locais, executar comandos shell, ou acessar
+         recursos da maquina (banco local, Docker, etc).</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">2</span>
+        Uso individual
+      </h4>
+      <p>Apenas voce vai usar o servidor. Nao precisa compartilhar com a equipe ou rodar em
+         infra centralizada.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">3</span>
+        Performance critica
+      </h4>
+      <p>A latencia e critica e voce nao pode ter overhead de rede. Ex: ferramentas de build,
+         linters, formatters.</p>
+    </div>
+  </div>
+
+  <h3>Use Streamable HTTP quando...</h3>
+
+  <div class="grid-3">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">1</span>
+        Servico cloud
+      </h4>
+      <p>O servidor conecta a uma API SaaS (GitHub, Notion, Sentry, Slack). Esses servicos ja
+         oferecem endpoints MCP remotos prontos.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">2</span>
+        Uso em equipe
+      </h4>
+      <p>Multiplos desenvolvedores precisam acessar o mesmo servidor MCP. Um servidor HTTP central
+         atende toda a equipe.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">3</span>
+        Resiliencia
+      </h4>
+      <p>Voce precisa de reconexao automatica, gerenciamento de sessao, e o servidor deve sobreviver
+         a desconexoes do cliente.</p>
+    </div>
+  </div>
+
+  <!-- ════════════ EXEMPLO HIBRIDO ════════════ -->
+  <h2>Configuracao hibrida: o melhor dos dois mundos</h2>
+
+  <p>
+    Na pratica, a maioria dos projetos usa uma <strong>combinacao de servidores locais e remotos</strong>.
+    O <code>.mcp.json</code> do projeto pode definir servidores compartilhados (remotos), enquanto cada
+    desenvolvedor adiciona seus servidores locais pessoais via <code>--scope local</code>.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header"><span>.mcp.json -- configuracao hibrida de projeto</span></div>
+    <pre>{
+  <span class="string">"mcpServers"</span>: {
+    <span class="comment">// Servidor remoto: compartilhado com toda a equipe</span>
+    <span class="string">"github"</span>: {
+      <span class="string">"type"</span>: <span class="string">"http"</span>,
+      <span class="string">"url"</span>: <span class="string">"https://api.githubcopilot.com/mcp/"</span>,
+      <span class="string">"headers"</span>: {
+        <span class="string">"Authorization"</span>: <span class="string">"Bearer ${GITHUB_PAT}"</span>
+      }
+    },
+    <span class="comment">// Servidor remoto: monitoramento compartilhado</span>
+    <span class="string">"sentry"</span>: {
+      <span class="string">"type"</span>: <span class="string">"http"</span>,
+      <span class="string">"url"</span>: <span class="string">"https://mcp.sentry.dev/mcp"</span>
+    },
+    <span class="comment">// Servidor local: banco de dados do projeto</span>
+    <span class="string">"postgres"</span>: {
+      <span class="string">"command"</span>: <span class="string">"npx"</span>,
+      <span class="string">"args"</span>: [<span class="string">"-y"</span>, <span class="string">"@bytebase/dbhub"</span>, <span class="string">"--dsn"</span>, <span class="string">"${DATABASE_URL}"</span>]
+    }
+  }
+}</pre>
+  </div>
+
+  <div class="callout-green callout">
+    <strong>Dica de escopo:</strong> Servidores em <code>.mcp.json</code> (scope <code>project</code>)
+    sao versionados no repositorio e compartilhados com a equipe. Servidores pessoais adicionados com
+    <code>--scope local</code> ficam em <code>~/.claude.json</code> e sao privados. Servidores com
+    <code>--scope user</code> ficam disponiveis em todos os seus projetos. A precedencia e:
+    local > project > user > plugins > conectores do claude.ai.
+  </div>
+
+  <!-- ════════════ RESUMO DECISAO ════════════ -->
+  <h2>Arvore de decisao rapida</h2>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Arvore de decisao para escolher entre transporte stdio e Streamable HTTP</title>
+
+      <!-- Root question -->
+      <rect x="250" y="20" width="300" height="50" rx="8" fill="#1a1d27" stroke="#c4956a" stroke-width="1.5"/>
+      <text x="400" y="50" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">O servidor precisa de acesso local?</text>
+
+      <!-- Yes branch -->
+      <line x1="325" y1="70" x2="200" y2="110" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="245" y="90" fill="#6ee7b7" font-size="10" font-weight="600">Sim</text>
+
+      <rect x="70" y="110" width="260" height="45" rx="8" fill="#1a1d27" stroke="#475569" stroke-width="1"/>
+      <text x="200" y="138" text-anchor="middle" fill="#fff" font-size="10">Apenas voce vai usar?</text>
+
+      <line x1="140" y1="155" x2="100" y2="190" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="105" y="178" fill="#6ee7b7" font-size="9">Sim</text>
+      <rect x="30" y="190" width="140" height="40" rx="8" fill="rgba(110,231,183,0.12)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="100" y="215" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="700">stdio</text>
+
+      <line x1="260" y1="155" x2="300" y2="190" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="295" y="178" fill="#fbbf24" font-size="9">Nao</text>
+      <rect x="230" y="190" width="140" height="55" rx="8" fill="rgba(251,191,36,0.08)" stroke="#fbbf24" stroke-width="1"/>
+      <text x="300" y="212" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="600">stdio no .mcp.json</text>
+      <text x="300" y="228" text-anchor="middle" fill="#9ca3af" font-size="8">cada dev roda local</text>
+
+      <!-- No branch -->
+      <line x1="475" y1="70" x2="600" y2="110" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="555" y="90" fill="#60a5fa" font-size="10" font-weight="600">Nao</text>
+
+      <rect x="470" y="110" width="260" height="45" rx="8" fill="#1a1d27" stroke="#475569" stroke-width="1"/>
+      <text x="600" y="138" text-anchor="middle" fill="#fff" font-size="10">E uma API/SaaS com endpoint MCP?</text>
+
+      <line x1="540" y1="155" x2="500" y2="190" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="505" y="178" fill="#6ee7b7" font-size="9">Sim</text>
+      <rect x="430" y="190" width="140" height="40" rx="8" fill="rgba(96,165,250,0.12)" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="500" y="215" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="700">http</text>
+
+      <line x1="660" y1="155" x2="700" y2="190" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="695" y="178" fill="#fbbf24" font-size="9">Nao</text>
+      <rect x="620" y="190" width="160" height="55" rx="8" fill="rgba(251,191,36,0.08)" stroke="#fbbf24" stroke-width="1"/>
+      <text x="700" y="212" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="600">Construa e hospede</text>
+      <text x="700" y="228" text-anchor="middle" fill="#9ca3af" font-size="8">como servidor HTTP</text>
+
+      <!-- Bottom summary -->
+      <rect x="100" y="290" width="600" height="90" rx="10" fill="#1a1d27" stroke="var(--border)" stroke-width="1"/>
+      <text x="400" y="315" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">Resumo pratico</text>
+      <text x="400" y="340" text-anchor="middle" fill="#6ee7b7" font-size="10">stdio = ferramentas locais (filesystem, banco local, scripts, build tools)</text>
+      <text x="400" y="360" text-anchor="middle" fill="#60a5fa" font-size="10">http = servicos remotos (GitHub, Notion, Sentry, APIs da empresa)</text>
+
+    </svg>
+    <p class="diagram-caption">Na duvida: se o servidor precisa tocar no disco local, use stdio. Se conecta a um servico externo, use http.</p>
+  </div>
+
+  <!-- ════════════ TRANSPORTES NO CLAUDE CODE ════════════ -->
+  <h2>Resumo dos transportes suportados pelo Claude Code</h2>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Transporte</th>
+          <th>Flag CLI</th>
+          <th>type no JSON</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong style="color: var(--green);">stdio</strong></td>
+          <td><code>--transport stdio</code></td>
+          <td><code>"stdio"</code> (ou omitido)</td>
+          <td><span style="color: var(--green);">Ativo -- recomendado para local</span></td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--blue);">Streamable HTTP</strong></td>
+          <td><code>--transport http</code></td>
+          <td><code>"http"</code> ou <code>"streamable-http"</code></td>
+          <td><span style="color: var(--green);">Ativo -- recomendado para remoto</span></td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--yellow);">SSE (legado)</strong></td>
+          <td><code>--transport sse</code></td>
+          <td><code>"sse"</code></td>
+          <td><span style="color: var(--yellow);">Deprecated -- use http</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ FONTES ════════════ -->
+  <div class="sources">
+    <h3>Fontes e Referencias</h3>
+    <ul>
+      <li><a href="https://modelcontextprotocol.io/specification/2025-03-26/basic/transports" target="_blank">MCP Specification -- Transports (versao 2025-03-26)</a></li>
+      <li><a href="https://docs.anthropic.com/en/docs/claude-code/mcp" target="_blank">Anthropic Docs -- Connect Claude Code to tools via MCP</a></li>
+      <li><a href="https://modelcontextprotocol.io/specification/2024-11-05/basic/transports#http-with-sse" target="_blank">MCP Specification -- HTTP+SSE Transport (versao 2024-11-05, deprecated)</a></li>
+      <li><a href="https://modelcontextprotocol.io/specification/2025-03-26/basic/lifecycle" target="_blank">MCP Specification -- Lifecycle (inicializacao e sessoes)</a></li>
+      <li><a href="https://modelcontextprotocol.io/specification/draft/basic/security_best_practices" target="_blank">MCP Specification -- Security Best Practices</a></li>
+      <li><a href="https://docs.anthropic.com/en/docs/claude-code/security" target="_blank">Anthropic Docs -- Claude Code Security</a></li>
+      <li><a href="https://modelcontextprotocol.io/docs/learn/architecture" target="_blank">MCP Documentation -- Architecture Overview</a></li>
+    </ul>
+  </div>
+
+  <!-- ════════════ NAV FOOTER ════════════ -->
+  <div class="nav-footer">
+    <a href="modulo-06-topico-01-o-que-e-mcp.html" class="nav-btn">&larr; Topico 1 . O que e MCP</a>
+    <a href="../index.html" class="nav-btn">&#8962; Indice</a>
+    <a href="modulo-06-topico-03-configurando-mcp-json.html" class="nav-btn">Topico 3 . .mcp.json &rarr;</a>
+  </div>
+
+</body>
+</html>

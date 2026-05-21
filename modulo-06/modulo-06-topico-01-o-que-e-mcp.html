@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modulo 6 . Topico 1 -- O que e MCP e como ampliar as capacidades do Claude Code</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-code: #141620;
+      --border: #2a2d3a;
+      --text: #e4e4e7;
+      --text-dim: #9ca3af;
+      --accent: #c4956a;
+      --accent-soft: rgba(196, 149, 106, 0.12);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.12);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .topic-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-soft); padding: 6px 14px;
+      border-radius: 20px; margin-bottom: 1rem;
+    }
+
+    h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+    .subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+    h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+    p { margin-bottom: 1rem; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+    strong { color: #fff; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0;
+    }
+    .card-label {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 6px; margin-bottom: 0.75rem;
+    }
+
+    .diagram-container {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto;
+    }
+    .diagram-container svg { display: block; margin: 0 auto; }
+    .diagram-caption {
+      text-align: center; font-size: 0.85rem; color: var(--text-dim);
+      margin-top: 1rem; font-style: italic;
+    }
+
+    .code-block {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1rem; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim);
+    }
+    .code-block pre {
+      padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8;
+    }
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: var(--purple); }
+    .code-block .string { color: var(--green); }
+    .code-block .tool { color: var(--accent); }
+    .code-block .number { color: var(--yellow); }
+
+    .callout {
+      border-left: 3px solid var(--accent); background: var(--accent-soft);
+      padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem;
+    }
+    .callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+    .callout-red { border-left-color: var(--red); background: var(--red-soft); }
+    .callout-green { border-left-color: var(--green); background: var(--green-soft); }
+    .callout-yellow { border-left-color: var(--yellow); background: var(--yellow-soft); }
+    .callout strong { color: #fff; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+    }
+
+    .mini-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .mini-card h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;
+    }
+    .mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+
+    .icon-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    .sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .sources ul { list-style: none; padding: 0; }
+    .sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+    .sources li::before { content: "\2192 "; color: var(--accent); }
+
+    .nav-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+      color: var(--text); background: var(--bg-card); border: 1px solid var(--border);
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ HEADER ════════════ -->
+  <div class="topic-badge">Modulo 6 . Topico 1</div>
+  <h1>O que e MCP e como ampliar as capacidades do Claude Code</h1>
+  <p class="subtitle">
+    O Model Context Protocol (MCP) e um padrao aberto que permite ao Claude Code se conectar
+    a ferramentas externas, bancos de dados e APIs de forma padronizada. Pense nele como o
+    <strong>USB-C da inteligencia artificial</strong> -- um conector universal que elimina integracoes ad-hoc.
+  </p>
+
+  <!-- ════════════ O PROBLEMA ════════════ -->
+  <h2>O problema: N x M integracoes</h2>
+
+  <p>
+    Antes do MCP, cada aplicacao de IA precisava construir integracoes customizadas para cada
+    ferramenta que quisesse acessar. Se voce tem <strong>N aplicacoes</strong> (Claude Code, Claude Desktop,
+    IDEs com copilots, etc.) e <strong>M ferramentas</strong> (GitHub, Postgres, Sentry, Jira, etc.),
+    o resultado e <strong>N x M integracoes</strong> -- cada uma com seu proprio protocolo, formato
+    de dados e mecanismo de autenticacao.
+  </p>
+
+  <p>
+    O MCP resolve isso introduzindo uma <strong>camada de abstracoes padronizada</strong>. Cada aplicacao
+    implementa o protocolo MCP uma unica vez (como client), e cada ferramenta expoe um MCP server.
+    O resultado: <strong>N + M implementacoes</strong> em vez de N x M.
+  </p>
+
+  <!-- ════════════ DIAGRAMA N x M vs N + M ════════════ -->
+  <div class="diagram-container">
+    <svg viewBox="0 0 860 400" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Diagrama comparativo: N x M integracoes diretas vs N + M com MCP</title>
+
+      <!-- Left side: N x M -->
+      <text x="200" y="30" text-anchor="middle" fill="#f87171" font-size="14" font-weight="700">SEM MCP: N x M integracoes</text>
+
+      <!-- Apps (left column) -->
+      <rect x="30" y="60" width="120" height="32" rx="6" fill="var(--bg-code)" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="90" y="81" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="600">Claude Code</text>
+
+      <rect x="30" y="110" width="120" height="32" rx="6" fill="var(--bg-code)" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="90" y="131" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="600">Claude Desktop</text>
+
+      <rect x="30" y="160" width="120" height="32" rx="6" fill="var(--bg-code)" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="90" y="181" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="600">IDE Copilot</text>
+
+      <!-- Tools (right column) -->
+      <rect x="260" y="60" width="110" height="32" rx="6" fill="var(--bg-code)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="315" y="81" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="600">GitHub</text>
+
+      <rect x="260" y="110" width="110" height="32" rx="6" fill="var(--bg-code)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="315" y="131" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="600">Postgres</text>
+
+      <rect x="260" y="160" width="110" height="32" rx="6" fill="var(--bg-code)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="315" y="181" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="600">Sentry</text>
+
+      <rect x="260" y="210" width="110" height="32" rx="6" fill="var(--bg-code)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="315" y="231" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="600">Jira</text>
+
+      <!-- Spaghetti lines (N x M = 12 connections) -->
+      <g stroke="#f87171" stroke-width="0.8" opacity="0.5">
+        <line x1="150" y1="76" x2="260" y2="76"/><line x1="150" y1="76" x2="260" y2="126"/>
+        <line x1="150" y1="76" x2="260" y2="176"/><line x1="150" y1="76" x2="260" y2="226"/>
+        <line x1="150" y1="126" x2="260" y2="76"/><line x1="150" y1="126" x2="260" y2="126"/>
+        <line x1="150" y1="126" x2="260" y2="176"/><line x1="150" y1="126" x2="260" y2="226"/>
+        <line x1="150" y1="176" x2="260" y2="76"/><line x1="150" y1="176" x2="260" y2="126"/>
+        <line x1="150" y1="176" x2="260" y2="176"/><line x1="150" y1="176" x2="260" y2="226"/>
+      </g>
+
+      <!-- Count label -->
+      <rect x="155" y="260" width="100" height="28" rx="6" fill="rgba(248,113,113,0.15)" stroke="#f87171" stroke-width="0.5"/>
+      <text x="205" y="279" text-anchor="middle" fill="#f87171" font-size="12" font-weight="700">12 integracoes</text>
+
+      <!-- Divider -->
+      <line x1="430" y1="40" x2="430" y2="310" stroke="#2a2d3a" stroke-width="1" stroke-dasharray="6,4"/>
+
+      <!-- Right side: N + M -->
+      <text x="650" y="30" text-anchor="middle" fill="#6ee7b7" font-size="14" font-weight="700">COM MCP: N + M implementacoes</text>
+
+      <!-- Apps (left) -->
+      <rect x="480" y="60" width="120" height="32" rx="6" fill="var(--bg-code)" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="540" y="81" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="600">Claude Code</text>
+
+      <rect x="480" y="110" width="120" height="32" rx="6" fill="var(--bg-code)" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="540" y="131" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="600">Claude Desktop</text>
+
+      <rect x="480" y="160" width="120" height="32" rx="6" fill="var(--bg-code)" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="540" y="181" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="600">IDE Copilot</text>
+
+      <!-- MCP Protocol bar -->
+      <rect x="620" y="55" width="60" height="200" rx="8" fill="rgba(196,149,106,0.15)" stroke="#c4956a" stroke-width="1.5"/>
+      <text x="650" y="145" text-anchor="middle" fill="#c4956a" font-size="11" font-weight="700" transform="rotate(-90 650 145)">PROTOCOLO MCP</text>
+
+      <!-- Tools (right) -->
+      <rect x="700" y="60" width="110" height="32" rx="6" fill="var(--bg-code)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="755" y="81" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="600">GitHub</text>
+
+      <rect x="700" y="110" width="110" height="32" rx="6" fill="var(--bg-code)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="755" y="131" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="600">Postgres</text>
+
+      <rect x="700" y="160" width="110" height="32" rx="6" fill="var(--bg-code)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="755" y="181" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="600">Sentry</text>
+
+      <rect x="700" y="210" width="110" height="32" rx="6" fill="var(--bg-code)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="755" y="231" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="600">Jira</text>
+
+      <!-- Clean lines through MCP -->
+      <g stroke="#c4956a" stroke-width="1.2" opacity="0.7">
+        <line x1="600" y1="76" x2="620" y2="76"/>
+        <line x1="600" y1="126" x2="620" y2="126"/>
+        <line x1="600" y1="176" x2="620" y2="176"/>
+        <line x1="680" y1="76" x2="700" y2="76"/>
+        <line x1="680" y1="126" x2="700" y2="126"/>
+        <line x1="680" y1="176" x2="700" y2="176"/>
+        <line x1="680" y1="226" x2="700" y2="226"/>
+      </g>
+
+      <!-- Count label -->
+      <rect x="600" y="280" width="100" height="28" rx="6" fill="rgba(110,231,183,0.15)" stroke="#6ee7b7" stroke-width="0.5"/>
+      <text x="650" y="299" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="700">7 implementacoes</text>
+
+      <!-- Bottom analogy -->
+      <rect x="170" y="340" width="520" height="40" rx="8" fill="rgba(196,149,106,0.08)" stroke="#c4956a" stroke-width="0.5"/>
+      <text x="430" y="365" text-anchor="middle" fill="#c4956a" font-size="12" font-weight="600">Analogia: USB-C -- um conector padrao que funciona com qualquer dispositivo</text>
+    </svg>
+    <p class="diagram-caption">MCP transforma o problema combinatorio N x M em um problema linear N + M, assim como USB-C padronizou conexoes fisicas.</p>
+  </div>
+
+  <div class="callout-blue callout">
+    <strong>Definicao oficial:</strong> O Model Context Protocol (MCP) e um padrao aberto que permite
+    integracao perfeita entre aplicacoes de LLM e fontes de dados e ferramentas externas. Ele fornece
+    uma forma padronizada de conectar LLMs ao contexto que precisam.
+    <br><small style="color: var(--text-dim);">-- modelcontextprotocol.io</small>
+  </div>
+
+  <!-- ════════════ ARQUITETURA ════════════ -->
+  <h2>Arquitetura: Host, Client, Server</h2>
+
+  <p>
+    O MCP segue uma arquitetura <strong>host-client-server</strong>. O host (como o Claude Code)
+    coordena e gerencia multiplos clients MCP, onde cada client mantem uma conexao dedicada
+    com um MCP server especifico. Os servers, por sua vez, expoem ferramentas, recursos e prompts
+    para os clients consumirem.
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 860 480" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Arquitetura MCP: Host contendo Clients que se conectam a Servers</title>
+
+      <!-- Host boundary -->
+      <rect x="30" y="40" width="380" height="400" rx="12" fill="rgba(96,165,250,0.04)" stroke="#60a5fa" stroke-width="1.5" stroke-dasharray="8,4"/>
+      <text x="220" y="70" text-anchor="middle" fill="#60a5fa" font-size="13" font-weight="700">MCP HOST (Claude Code)</text>
+
+      <!-- LLM block -->
+      <rect x="60" y="100" width="160" height="50" rx="8" fill="rgba(167,139,250,0.12)" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="140" y="121" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="700">Modelo (LLM)</text>
+      <text x="140" y="138" text-anchor="middle" fill="#d4d4d8" font-size="9">Claude Sonnet / Opus</text>
+
+      <!-- Client 1 -->
+      <rect x="250" y="100" width="140" height="50" rx="8" fill="rgba(196,149,106,0.12)" stroke="#c4956a" stroke-width="1.5"/>
+      <text x="320" y="121" text-anchor="middle" fill="#c4956a" font-size="11" font-weight="700">MCP Client 1</text>
+      <text x="320" y="138" text-anchor="middle" fill="#d4d4d8" font-size="9">conexao dedicada</text>
+
+      <!-- Client 2 -->
+      <rect x="250" y="210" width="140" height="50" rx="8" fill="rgba(196,149,106,0.12)" stroke="#c4956a" stroke-width="1.5"/>
+      <text x="320" y="231" text-anchor="middle" fill="#c4956a" font-size="11" font-weight="700">MCP Client 2</text>
+      <text x="320" y="248" text-anchor="middle" fill="#d4d4d8" font-size="9">conexao dedicada</text>
+
+      <!-- Client 3 -->
+      <rect x="250" y="320" width="140" height="50" rx="8" fill="rgba(196,149,106,0.12)" stroke="#c4956a" stroke-width="1.5"/>
+      <text x="320" y="341" text-anchor="middle" fill="#c4956a" font-size="11" font-weight="700">MCP Client 3</text>
+      <text x="320" y="358" text-anchor="middle" fill="#d4d4d8" font-size="9">conexao dedicada</text>
+
+      <!-- LLM to Clients -->
+      <g stroke="#9ca3af" stroke-width="1" stroke-dasharray="4,3">
+        <line x1="220" y1="125" x2="250" y2="125"/>
+        <line x1="180" y1="150" x2="280" y2="210"/>
+        <line x1="180" y1="150" x2="280" y2="320"/>
+      </g>
+
+      <!-- Transport arrows -->
+      <defs>
+        <marker id="arrowGreen" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#6ee7b7"/>
+        </marker>
+        <marker id="arrowGreenReverse" markerWidth="8" markerHeight="6" refX="0" refY="3" orient="auto">
+          <polygon points="8 0, 0 3, 8 6" fill="#6ee7b7"/>
+        </marker>
+      </defs>
+
+      <!-- Transport labels -->
+      <text x="470" y="112" text-anchor="middle" fill="#9ca3af" font-size="9">stdio / HTTP</text>
+      <line x1="390" y1="125" x2="520" y2="125" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+      <line x1="390" y1="132" x2="520" y2="132" stroke="#6ee7b7" stroke-width="1" opacity="0.4" marker-end="url(#arrowGreenReverse)"/>
+
+      <text x="470" y="222" text-anchor="middle" fill="#9ca3af" font-size="9">stdio / HTTP</text>
+      <line x1="390" y1="235" x2="520" y2="235" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+      <line x1="390" y1="242" x2="520" y2="242" stroke="#6ee7b7" stroke-width="1" opacity="0.4" marker-end="url(#arrowGreenReverse)"/>
+
+      <text x="470" y="332" text-anchor="middle" fill="#9ca3af" font-size="9">stdio / HTTP</text>
+      <line x1="390" y1="345" x2="520" y2="345" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowGreen)"/>
+      <line x1="390" y1="352" x2="520" y2="352" stroke="#6ee7b7" stroke-width="1" opacity="0.4" marker-end="url(#arrowGreenReverse)"/>
+
+      <!-- Server 1 -->
+      <rect x="530" y="90" width="290" height="70" rx="8" fill="rgba(110,231,183,0.08)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="675" y="113" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="700">MCP Server: GitHub</text>
+      <text x="580" y="140" fill="#d4d4d8" font-size="9">Tools: create_issue, list_prs</text>
+      <text x="580" y="152" fill="#d4d4d8" font-size="9">Resources: repo_files, issues</text>
+
+      <!-- Server 2 -->
+      <rect x="530" y="200" width="290" height="70" rx="8" fill="rgba(110,231,183,0.08)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="675" y="223" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="700">MCP Server: Postgres</text>
+      <text x="580" y="250" fill="#d4d4d8" font-size="9">Tools: query, list_tables</text>
+      <text x="580" y="262" fill="#d4d4d8" font-size="9">Resources: schema, table_data</text>
+
+      <!-- Server 3 -->
+      <rect x="530" y="310" width="290" height="70" rx="8" fill="rgba(110,231,183,0.08)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="675" y="333" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="700">MCP Server: Sentry</text>
+      <text x="580" y="360" fill="#d4d4d8" font-size="9">Tools: get_issues, resolve_issue</text>
+      <text x="580" y="372" fill="#d4d4d8" font-size="9">Resources: error_events</text>
+
+      <!-- Legend -->
+      <rect x="530" y="410" width="290" height="55" rx="8" fill="rgba(255,255,255,0.02)" stroke="#2a2d3a" stroke-width="0.5"/>
+      <text x="545" y="430" fill="#9ca3af" font-size="9" font-weight="600">LEGENDA</text>
+      <rect x="545" y="440" width="12" height="3" rx="1" fill="#60a5fa"/>
+      <text x="565" y="445" fill="#9ca3af" font-size="9">Host / Client</text>
+      <rect x="660" y="440" width="12" height="3" rx="1" fill="#6ee7b7"/>
+      <text x="680" y="445" fill="#9ca3af" font-size="9">Server</text>
+      <rect x="755" y="440" width="12" height="3" rx="1" fill="#c4956a"/>
+      <text x="775" y="445" fill="#9ca3af" font-size="9">Client</text>
+    </svg>
+    <p class="diagram-caption">O host (Claude Code) cria um client MCP para cada server configurado. Cada client mantem uma conexao dedicada via stdio ou HTTP.</p>
+  </div>
+
+  <h3>Papeis na arquitetura</h3>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Componente</th>
+          <th>Papel</th>
+          <th>Exemplo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong style="color: var(--blue);">MCP Host</strong></td>
+          <td>Aplicacao de IA que coordena e gerencia multiplos MCP clients. Mantem limites de seguranca e isolamento entre clients.</td>
+          <td>Claude Code, Claude Desktop, IDEs com suporte MCP</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--accent);">MCP Client</strong></td>
+          <td>Componente interno ao host que mantem conexao 1:1 com um server. Obtem contexto (tools, resources, prompts) do server e o disponibiliza ao host.</td>
+          <td>Um client para GitHub, outro para Postgres, outro para Sentry</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--green);">MCP Server</strong></td>
+          <td>Programa que expoe capacidades via o protocolo MCP. Pode ser local (processo no seu computador) ou remoto (URL na nuvem).</td>
+          <td><code>npx @modelcontextprotocol/server-github</code>, URL remota do Sentry</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <strong>Detalhe tecnico:</strong> A comunicacao entre client e server usa <strong>JSON-RPC 2.0</strong>.
+    O protocolo e stateful -- client e server negociam capacidades durante a inicializacao
+    (<code>initialize</code> handshake) e mantem sessao ativa durante toda a interacao.
+    As capacidades declaradas determinam quais primitivas e funcionalidades estarao disponiveis.
+  </div>
+
+  <!-- ════════════ CAMADAS DO PROTOCOLO ════════════ -->
+  <h2>As duas camadas do protocolo</h2>
+
+  <p>
+    O MCP opera em duas camadas distintas que separam <em>o que</em> e transmitido de <em>como</em>
+    e transmitido:
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">D</span>
+        Camada de Dados (Data Layer)
+      </h4>
+      <p>Define o protocolo JSON-RPC para comunicacao client-server: gerenciamento de ciclo de vida,
+         negociacao de capacidades e as primitivas centrais (tools, resources, prompts, notifications).
+         E o "contrato" do que pode ser feito.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">T</span>
+        Camada de Transporte (Transport Layer)
+      </h4>
+      <p>Define os mecanismos de comunicacao e canais de troca de dados: como a conexao e estabelecida,
+         como as mensagens sao enquadradas (framing) e como a autorizacao funciona.
+         Dois transportes principais: <code>stdio</code> e <code>Streamable HTTP</code>.</p>
+    </div>
+  </div>
+
+  <!-- ════════════ OS TRES PRIMITIVOS ════════════ -->
+  <h2>As tres primitivas do MCP</h2>
+
+  <p>
+    Servers MCP expoem capacidades atraves de tres primitivas fundamentais. Cada uma tem um papel
+    distinto no ecossistema e determina como o modelo interage com o mundo externo:
+  </p>
+
+  <div class="grid-3">
+    <div class="mini-card" style="border-top: 3px solid var(--accent);">
+      <h4>
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">T</span>
+        Tools
+      </h4>
+      <p>Funcoes executaveis que o modelo pode chamar para realizar acoes ou obter informacoes.
+         Equivalente a funcoes/endpoints que o LLM invoca. Controladas pelo modelo
+         (model-controlled).</p>
+      <div style="margin-top: 0.75rem; font-size: 0.82rem; color: var(--text-dim);">
+        <strong style="color: var(--text); font-size: 0.82rem;">Exemplos:</strong>
+        <code>query_database</code>, <code>create_issue</code>, <code>send_email</code>
+      </div>
+    </div>
+    <div class="mini-card" style="border-top: 3px solid var(--blue);">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">R</span>
+        Resources
+      </h4>
+      <p>Dados estruturados ou conteudo que fornecem contexto adicional ao modelo. Semelhante
+         a endpoints GET -- expoe dados para leitura sem efeitos colaterais.
+         Controlados pela aplicacao (application-controlled).</p>
+      <div style="margin-top: 0.75rem; font-size: 0.82rem; color: var(--text-dim);">
+        <strong style="color: var(--text); font-size: 0.82rem;">Exemplos:</strong>
+        <code>repo://files</code>, <code>db://schema</code>, <code>docs://api-reference</code>
+      </div>
+    </div>
+    <div class="mini-card" style="border-top: 3px solid var(--purple);">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">P</span>
+        Prompts
+      </h4>
+      <p>Templates pre-definidos de instrucoes que guiam a interacao com o modelo. Servers podem
+         expor prompts parametrizaveis que o usuario seleciona.
+         Controlados pelo usuario (user-controlled).</p>
+      <div style="margin-top: 0.75rem; font-size: 0.82rem; color: var(--text-dim);">
+        <strong style="color: var(--text); font-size: 0.82rem;">Exemplos:</strong>
+        <code>review_code</code>, <code>explain_error</code>, <code>generate_migration</code>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Primitiva</th>
+          <th>Controlado por</th>
+          <th>Analogia REST</th>
+          <th>Direcao</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong style="color: var(--accent);">Tools</strong></td>
+          <td>Modelo (LLM decide quando chamar)</td>
+          <td>POST endpoints -- executa acoes</td>
+          <td>Server expoe, modelo invoca</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--blue);">Resources</strong></td>
+          <td>Aplicacao (host/client decide o que carregar)</td>
+          <td>GET endpoints -- le dados</td>
+          <td>Server expoe, aplicacao consome</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--purple);">Prompts</strong></td>
+          <td>Usuario (seleciona qual template usar)</td>
+          <td>Templates parametrizaveis</td>
+          <td>Server define, usuario seleciona</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout-green callout">
+    <strong>Na pratica no Claude Code:</strong> Quando voce configura um MCP server (ex: GitHub), as tools
+    desse server aparecem como funcoes que o Claude pode chamar autonomamente durante a conversa.
+    Voce vera no output algo como <code>mcp__github__create_issue</code> -- o prefixo <code>mcp__</code>
+    identifica que a ferramenta veio de um server MCP.
+  </div>
+
+  <!-- ════════════ CLAUDE CODE COMO HOST ════════════ -->
+  <h2>Claude Code como MCP Host</h2>
+
+  <p>
+    O Claude Code atua como <strong>MCP host</strong>, o que significa que ele:
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">1</span>
+        Gerencia multiplos clients
+      </h4>
+      <p>Cria e mantem um MCP client para cada server configurado. Cada client tem sua propria conexao
+         e isolamento de seguranca, impedindo que um server acesse dados de outro.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">2</span>
+        Negocia capacidades
+      </h4>
+      <p>Na inicializacao, faz handshake com cada server para descobrir quais tools, resources e
+         prompts estao disponiveis. So usa o que o server declarou suportar.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">3</span>
+        Injeta tools no contexto
+      </h4>
+      <p>Disponibiliza as tools dos servers configurados para o modelo. O LLM ve essas tools como
+         funcoes que pode chamar, junto com as tools nativas do Claude Code (Read, Write, Bash, etc.).</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">4</span>
+        Controla permissoes
+      </h4>
+      <p>Permite que voce defina allowlists para tools MCP via <code>/permissions</code> ou
+         <code>.claude/settings.json</code>, controlando o que o modelo pode executar sem confirmacao.</p>
+    </div>
+  </div>
+
+  <h3>Capacidades nativas vs. MCP</h3>
+
+  <p>
+    Sem MCP, o Claude Code ja possui capacidades poderosas: ler e escrever arquivos, executar
+    comandos no terminal, buscar na web. O MCP expande essas capacidades para <strong>qualquer
+    sistema que tenha um server MCP</strong>:
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Capacidade</th>
+          <th>Nativa (sem MCP)</th>
+          <th>Com MCP</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Arquivos</strong></td>
+          <td>Ler/escrever arquivos locais</td>
+          <td>Acessar arquivos em repos remotos, Google Drive, S3</td>
+        </tr>
+        <tr>
+          <td><strong>Banco de dados</strong></td>
+          <td>Executar queries via <code>Bash</code> + CLI do banco</td>
+          <td>Query tipada via server MCP com schema awareness</td>
+        </tr>
+        <tr>
+          <td><strong>Issue tracking</strong></td>
+          <td>Ler issues via web ou CLI</td>
+          <td>Criar, atualizar, fechar issues diretamente no Jira/Linear/GitHub</td>
+        </tr>
+        <tr>
+          <td><strong>Monitoramento</strong></td>
+          <td>Ler logs via terminal</td>
+          <td>Consultar Sentry, Datadog, PagerDuty com contexto estruturado</td>
+        </tr>
+        <tr>
+          <td><strong>Design</strong></td>
+          <td>Nao disponivel</td>
+          <td>Ler componentes e tokens do Figma para gerar codigo fiel</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ CONFIGURACAO BASICA ════════════ -->
+  <h2>Configuracao basica: claude mcp add</h2>
+
+  <p>
+    Adicionar um MCP server ao Claude Code e feito pelo comando <code>claude mcp add</code>.
+    Veja a sintaxe e exemplos:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header"><span>Terminal -- Sintaxe do comando</span></div>
+    <pre><span class="comment"># Sintaxe geral</span>
+<span class="tool">claude mcp add</span> [options] &lt;name&gt; -- &lt;command&gt; [args...]
+
+<span class="comment"># Exemplo: adicionar server do GitHub (local, via stdio)</span>
+<span class="tool">claude mcp add</span> <span class="keyword">--transport</span> stdio github -- \
+  npx -y <span class="string">@modelcontextprotocol/server-github</span>
+
+<span class="comment"># Exemplo: server com variavel de ambiente</span>
+<span class="tool">claude mcp add</span> <span class="keyword">--transport</span> stdio <span class="keyword">--env</span> AIRTABLE_API_KEY=<span class="string">sua_key</span> \
+  airtable -- npx -y <span class="string">airtable-mcp-server</span>
+
+<span class="comment"># Exemplo: server remoto via URL (Streamable HTTP)</span>
+<span class="tool">claude mcp add</span> <span class="keyword">--transport</span> http sentry -- \
+  <span class="string">https://mcp.sentry.dev/sse</span></pre>
+  </div>
+
+  <p>
+    Apos adicionar, o server fica registrado e sera conectado automaticamente quando o Claude Code
+    iniciar. Voce tambem pode configurar servers via arquivo <code>.mcp.json</code> na raiz do projeto,
+    o que permite compartilhar a configuracao com o time:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header"><span>.mcp.json -- Configuracao versionada no repositorio</span></div>
+    <pre>{
+  <span class="string">"mcpServers"</span>: {
+    <span class="string">"github"</span>: {
+      <span class="string">"command"</span>: <span class="string">"npx"</span>,
+      <span class="string">"args"</span>: [<span class="string">"-y"</span>, <span class="string">"@modelcontextprotocol/server-github"</span>],
+      <span class="string">"env"</span>: {
+        <span class="string">"GITHUB_TOKEN"</span>: <span class="string">"${GITHUB_TOKEN}"</span>
+      }
+    },
+    <span class="string">"postgres"</span>: {
+      <span class="string">"command"</span>: <span class="string">"npx"</span>,
+      <span class="string">"args"</span>: [<span class="string">"-y"</span>, <span class="string">"@modelcontextprotocol/server-postgres"</span>, <span class="string">"postgresql://localhost:5432/mydb"</span>]
+    }
+  }
+}</pre>
+  </div>
+
+  <div class="callout-yellow callout">
+    <strong>Dica de debug:</strong> Use a flag <code>--mcp-debug</code> ao iniciar o Claude Code
+    para ver logs detalhados da comunicacao MCP. Isso ajuda a identificar problemas de configuracao,
+    falhas de conexao ou erros de handshake com os servers.
+    <br><code style="font-size: 0.85rem; margin-top: 0.5rem; display: inline-block;">claude --mcp-debug</code>
+  </div>
+
+  <!-- ════════════ ESCOPOS DE CONFIGURACAO ════════════ -->
+  <h2>Escopos de configuracao</h2>
+
+  <p>
+    O Claude Code permite configurar MCP servers em tres escopos diferentes, controlando
+    visibilidade e compartilhamento:
+  </p>
+
+  <div class="grid-3">
+    <div class="mini-card" style="border-top: 3px solid var(--green);">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">L</span>
+        Local (padrao)
+      </h4>
+      <p>Armazenado em <code>~/.claude.json</code> por projeto. Privado para voce, nao compartilhado.
+         Use para servers pessoais ou com credenciais sensiveis.</p>
+    </div>
+    <div class="mini-card" style="border-top: 3px solid var(--blue);">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">P</span>
+        Projeto
+      </h4>
+      <p>Armazenado em <code>.mcp.json</code> na raiz do repo. Versionado no Git, disponivel para
+         todo o time. Ideal para servers compartilhados do projeto.</p>
+    </div>
+    <div class="mini-card" style="border-top: 3px solid var(--purple);">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">U</span>
+        Usuario
+      </h4>
+      <p>Armazenado em <code>~/.claude.json</code> globalmente. Disponivel em todos os projetos
+         do usuario. Use para servers que voce quer em todo lugar (ex: Notion pessoal).</p>
+    </div>
+  </div>
+
+  <!-- ════════════ FLUXO DE UMA CHAMADA ════════════ -->
+  <h2>Ciclo de vida de uma chamada MCP</h2>
+
+  <p>
+    Quando voce pede ao Claude Code algo que requer um MCP server, o fluxo segue estas etapas:
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Etapa</th>
+          <th>O que acontece</th>
+          <th>Quem faz</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong style="color: var(--green);">1. Discover</strong></td>
+          <td>Na inicializacao, o client faz handshake com o server e recebe a lista de tools/resources/prompts disponiveis</td>
+          <td>Client + Server</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--blue);">2. Plan</strong></td>
+          <td>O modelo analisa sua mensagem e decide qual tool MCP usar, com quais argumentos</td>
+          <td>LLM (modelo)</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--accent);">3. Approve</strong></td>
+          <td>Claude Code apresenta a chamada para sua aprovacao (a menos que esteja na allowlist)</td>
+          <td>Host + Usuario</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--purple);">4. Execute</strong></td>
+          <td>O client envia a chamada JSON-RPC para o server, que executa a acao e retorna o resultado</td>
+          <td>Client + Server</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--yellow);">5. Integrate</strong></td>
+          <td>O resultado e injetado no contexto do modelo, que o utiliza para formular a resposta</td>
+          <td>Host + LLM</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ LOCAL vs REMOTO ════════════ -->
+  <h2>Servers locais vs. remotos</h2>
+
+  <p>
+    O MCP suporta dois modelos de deployment para servers, cada um com trade-offs distintos:
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card" style="border-top: 3px solid var(--green);">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">L</span>
+        Server Local (stdio)
+      </h4>
+      <p>Roda como processo local na sua maquina. Comunicacao via stdin/stdout. Latencia minima,
+         sem dependencia de rede. Serve um unico client. Voce gerencia instalacao e atualizacoes.</p>
+    </div>
+    <div class="mini-card" style="border-top: 3px solid var(--purple);">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">R</span>
+        Server Remoto (HTTP)
+      </h4>
+      <p>Roda em uma URL na nuvem. Comunicacao via Streamable HTTP. Pode servir multiplos clients.
+         O vendor gerencia infraestrutura. Suporte nativo a OAuth para autenticacao.</p>
+    </div>
+  </div>
+
+  <div class="callout-blue callout">
+    <strong>Tendencia:</strong> Servers remotos estao se tornando a opcao preferida para ferramentas SaaS.
+    O vendor (ex: Sentry, Linear, Notion) hospeda o server MCP e voce so precisa adicionar a URL
+    ao Claude Code. Sem instalacao, sem atualizacoes manuais, sem processos locais consumindo recursos.
+  </div>
+
+  <!-- ════════════ SEGURANCA ════════════ -->
+  <h2>Modelo de seguranca</h2>
+
+  <p>
+    O MCP implementa seguranca em multiplas camadas:
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">1</span>
+        Isolamento de clients
+      </h4>
+      <p>Cada MCP client roda isolado. Um server malicioso nao consegue acessar dados ou tools de
+         outro server. O host mantem fronteiras de seguranca entre clients.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">2</span>
+        Negociacao de capacidades
+      </h4>
+      <p>Servers so podem oferecer o que declararam no handshake. Clients so aceitam primitivas
+         que o server explicitamente suporta. Nao ha escalacao implicita de permissoes.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">3</span>
+        Aprovacao do usuario
+      </h4>
+      <p>O Claude Code pede sua aprovacao antes de executar tools MCP (a menos que estejam na
+         allowlist). Voce controla exatamente o que o modelo pode fazer.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">4</span>
+        Permissoes granulares
+      </h4>
+      <p>Via <code>/permissions</code> ou <code>.claude/settings.json</code>, voce define allowlists
+         por tool especifica: <code>mcp__github__create_issue</code> pode ser permitido enquanto
+         <code>mcp__github__delete_repo</code> requer aprovacao explicita.</p>
+    </div>
+  </div>
+
+  <!-- ════════════ RESUMO ════════════ -->
+  <h2>Resumo</h2>
+
+  <div class="callout-green callout">
+    <strong>O que voce precisa lembrar:</strong>
+    <ul style="margin-top: 0.5rem; padding-left: 1.25rem; list-style: disc;">
+      <li>MCP e um <strong>padrao aberto</strong> (JSON-RPC 2.0) que padroniza como aplicacoes de IA se conectam a ferramentas externas</li>
+      <li>A arquitetura e <strong>host &rarr; client &rarr; server</strong>, onde o Claude Code e o host</li>
+      <li>Tres primitivas: <strong>Tools</strong> (modelo executa), <strong>Resources</strong> (aplicacao le), <strong>Prompts</strong> (usuario seleciona)</li>
+      <li>Resolve o problema <strong>N x M</strong> de integracoes, reduzindo para <strong>N + M</strong></li>
+      <li>Servers podem ser <strong>locais (stdio)</strong> ou <strong>remotos (HTTP)</strong></li>
+      <li>Configuracao via <code>claude mcp add</code> ou <code>.mcp.json</code> no repositorio</li>
+      <li>Seguranca por isolamento de clients, negociacao de capacidades e aprovacao do usuario</li>
+    </ul>
+  </div>
+
+  <!-- ════════════ FONTES ════════════ -->
+  <div class="sources">
+    <h3>Fontes e Referencias</h3>
+    <ul>
+      <li><a href="https://modelcontextprotocol.io/introduction" target="_blank">Model Context Protocol -- Introduction (site oficial)</a></li>
+      <li><a href="https://modelcontextprotocol.io/specification/2025-11-25" target="_blank">MCP Specification 2025-11-25 (versao mais recente)</a></li>
+      <li><a href="https://spec.modelcontextprotocol.io/specification/draft/architecture/" target="_blank">MCP Specification -- Architecture</a></li>
+      <li><a href="https://docs.anthropic.com/en/docs/claude-code/mcp" target="_blank">Anthropic Docs -- Connect Claude Code to tools via MCP</a></li>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Anthropic -- Best Practices for Claude Code</a></li>
+      <li><a href="https://www.anthropic.com/news/model-context-protocol" target="_blank">Anthropic -- Introducing the Model Context Protocol</a></li>
+      <li><a href="https://www.anthropic.com/news/claude-code-remote-mcp" target="_blank">Anthropic -- Remote MCP support in Claude Code</a></li>
+    </ul>
+  </div>
+
+  <!-- ════════════ NAV FOOTER ════════════ -->
+  <div class="nav-footer">
+    <a href="../modulo-05/modulo-05-topico-05-monitoramento.html" class="nav-btn">&larr; Topico 5 . Monitoramento</a>
+    <a href="../index.html" class="nav-btn">&#8962; Indice</a>
+    <a href="modulo-06-topico-02-stdio-vs-http.html" class="nav-btn">Topico 2 . stdio vs HTTP &rarr;</a>
+  </div>
+
+</body>
+</html>
