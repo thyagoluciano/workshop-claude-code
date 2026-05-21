@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo 3 · Tópico 2 — Como Forçar o Claude a Ler o Código Antes de Escrever</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-code: #141620;
+      --border: #2a2d3a;
+      --text: #e4e4e7;
+      --text-dim: #9ca3af;
+      --accent: #c4956a;
+      --accent-soft: rgba(196, 149, 106, 0.12);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.12);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .topic-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-soft); padding: 6px 14px;
+      border-radius: 20px; margin-bottom: 1rem;
+    }
+
+    h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+    .subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+    h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+    p { margin-bottom: 1rem; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+    strong { color: #fff; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0;
+    }
+    .card-label {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 6px; margin-bottom: 0.75rem;
+    }
+
+    .diagram-container {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto;
+    }
+    .diagram-container svg { display: block; margin: 0 auto; }
+    .diagram-caption {
+      text-align: center; font-size: 0.85rem; color: var(--text-dim);
+      margin-top: 1rem; font-style: italic;
+    }
+
+    .code-block {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1rem; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim);
+    }
+    .code-block pre {
+      padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8;
+    }
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: var(--purple); }
+    .code-block .string { color: var(--green); }
+    .code-block .tool { color: var(--accent); }
+    .code-block .number { color: var(--yellow); }
+
+    .callout {
+      border-left: 3px solid var(--accent); background: var(--accent-soft);
+      padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem;
+    }
+    .callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+    .callout-red { border-left-color: var(--red); background: var(--red-soft); }
+    .callout-green { border-left-color: var(--green); background: var(--green-soft); }
+    .callout strong { color: #fff; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+    }
+
+    .mini-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .mini-card h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;
+    }
+    .mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+
+    .icon-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    .sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .sources ul { list-style: none; padding: 0; }
+    .sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+    .sources li::before { content: "\2192 "; color: var(--accent); }
+
+    .nav-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+      color: var(--text); background: var(--bg-card); border: 1px solid var(--border);
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+
+    /* ── Specific to this topic ── */
+    .vs-row {
+      display: grid; grid-template-columns: 1fr 60px 1fr; gap: 0; margin: 2rem 0;
+      align-items: stretch;
+    }
+    .vs-col {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+    }
+    .vs-col h4 {
+      font-size: 1rem; font-weight: 600; margin-bottom: 1rem;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .vs-divider {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: 700; color: var(--text-dim);
+    }
+    .vs-item {
+      display: flex; gap: 10px; margin-bottom: 0.75rem; font-size: 0.9rem;
+      color: var(--text-dim); align-items: flex-start;
+    }
+    .vs-item .dot {
+      width: 8px; height: 8px; border-radius: 50%; margin-top: 7px; flex-shrink: 0;
+    }
+    @media (max-width: 700px) {
+      .vs-row { grid-template-columns: 1fr; gap: 0.5rem; }
+      .vs-divider { padding: 0.5rem 0; }
+    }
+
+    .prompt-compare {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.5rem 0;
+    }
+    .prompt-compare .code-block { margin: 0; }
+    @media (max-width: 700px) {
+      .prompt-compare { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ HEADER ════════════ -->
+  <div class="topic-badge">Módulo 3 · Tópico 2</div>
+  <h1>Como Forçar o Claude a Ler o Código Antes de Escrever</h1>
+  <p class="subtitle">
+    O erro mais comum ao usar o Claude Code é deixá-lo <strong>escrever código sem antes entender o contexto
+    existente</strong>. Aprenda técnicas de prompt que forçam o agente a explorar, ler e analisar
+    o codebase antes de tocar em qualquer arquivo.
+  </p>
+
+  <!-- ════════════ O PROBLEMA ════════════ -->
+  <h2>O problema: código gerado no vácuo</h2>
+
+  <p>
+    Quando você pede ao Claude Code para implementar algo sem direcionar a leitura do codebase,
+    ele pode gerar código <strong>tecnicamente correto mas contextualmente errado</strong>:
+    usa convenções diferentes das do projeto, cria duplicações, ignora utilitários existentes
+    ou escolhe um padrão arquitetural incompatível.
+  </p>
+
+  <p>
+    A documentação oficial de best practices da Anthropic é direta sobre isso: o Claude Code deve
+    <strong>investigar e ler arquivos relevantes ANTES de responder</strong> perguntas sobre o codebase.
+    Quando o agente não faz isso, o resultado é código que funciona isolado mas não se integra ao projeto.
+  </p>
+
+  <div class="callout-red callout">
+    <strong>Anti-pattern clássico:</strong> Copiar e colar código no chat e pedir "melhore isso".
+    Em vez disso, aponte para o arquivo e deixe o agente ler do file system. Ele terá acesso ao
+    contexto completo -- imports, tipos, convenções do projeto -- ao invés de um trecho isolado.
+  </div>
+
+  <div class="grid-2">
+    <div class="mini-card" style="border-color: var(--red);">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">✗</span>
+        O que acontece sem leitura
+      </h4>
+      <p>Claude cria um controller com Express puro, enquanto o projeto inteiro usa NestJS com decorators. O código funciona, mas quebra todas as convenções.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--green);">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">✓</span>
+        O que acontece com leitura
+      </h4>
+      <p>Claude lê um controller existente, identifica NestJS + class-validator + Swagger decorators, e gera o novo controller seguindo exatamente o mesmo padrão.</p>
+    </div>
+  </div>
+
+  <!-- ════════════ DIAGRAMA: FLUXO ════════════ -->
+  <h2>O fluxo correto: Ler → Analisar → Implementar</h2>
+
+  <p>
+    O Claude Code tem acesso a ferramentas de exploração -- <code>Read</code>, <code>Grep</code>,
+    <code>Glob</code> e <code>Bash</code> -- que permitem navegar o codebase como um desenvolvedor faria.
+    A Anthropic descreve essa abordagem como <strong>recuperação just-in-time</strong>: em vez de
+    pré-processar tudo, o agente mantém referências leves (caminhos de arquivos, padrões de busca)
+    e carrega dados dinamicamente no contexto conforme necessário.
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 800 340" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Fluxo correto: Explorar codebase, Analisar padrões, Planejar mudanças, Implementar com contexto</title>
+
+      <defs>
+        <marker id="arrowB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#60a5fa"/>
+        </marker>
+        <marker id="arrowG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#6ee7b7"/>
+        </marker>
+        <marker id="arrowA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#c4956a"/>
+        </marker>
+        <marker id="arrowY" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#fbbf24"/>
+        </marker>
+      </defs>
+
+      <!-- Phase labels -->
+      <text x="400" y="28" text-anchor="middle" fill="#fff" font-size="14" font-weight="600">Fluxo ideal: do prompt à implementação</text>
+
+      <!-- Step 1: Prompt do usuário -->
+      <rect x="30" y="55" width="150" height="65" rx="12" fill="rgba(167,139,250,0.1)" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="105" y="80" text-anchor="middle" fill="#a78bfa" font-size="12" font-weight="600">Prompt</text>
+      <text x="105" y="97" text-anchor="middle" fill="#d4d4d8" font-size="10">Usuário descreve</text>
+      <text x="105" y="110" text-anchor="middle" fill="#d4d4d8" font-size="10">o objetivo + contexto</text>
+
+      <path d="M185 87 L225 87" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#arrowB)"/>
+
+      <!-- Step 2: Explorar -->
+      <rect x="230" y="55" width="150" height="65" rx="12" fill="rgba(96,165,250,0.1)" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="305" y="80" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="600">1. Explorar</text>
+      <text x="305" y="97" text-anchor="middle" fill="#d4d4d8" font-size="10">Glob, Grep, Read</text>
+      <text x="305" y="110" text-anchor="middle" fill="#d4d4d8" font-size="10">Encontrar arquivos</text>
+
+      <path d="M385 87 L425 87" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arrowY)"/>
+
+      <!-- Step 3: Analisar -->
+      <rect x="430" y="55" width="150" height="65" rx="12" fill="rgba(251,191,36,0.1)" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="505" y="80" text-anchor="middle" fill="#fbbf24" font-size="12" font-weight="600">2. Analisar</text>
+      <text x="505" y="97" text-anchor="middle" fill="#d4d4d8" font-size="10">Identificar padrões,</text>
+      <text x="505" y="110" text-anchor="middle" fill="#d4d4d8" font-size="10">convenções, tipos</text>
+
+      <path d="M585 87 L625 87" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowG)"/>
+
+      <!-- Step 4: Implementar -->
+      <rect x="630" y="55" width="150" height="65" rx="12" fill="rgba(110,231,183,0.1)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="705" y="80" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="600">3. Implementar</text>
+      <text x="705" y="97" text-anchor="middle" fill="#d4d4d8" font-size="10">Edit / Write com</text>
+      <text x="705" y="110" text-anchor="middle" fill="#d4d4d8" font-size="10">contexto completo</text>
+
+      <!-- Detail boxes below -->
+      <rect x="230" y="150" width="150" height="160" rx="10" fill="rgba(96,165,250,0.05)" stroke="#60a5fa" stroke-width="0.5" stroke-dasharray="4,3"/>
+      <text x="305" y="172" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="600">Ferramentas usadas</text>
+      <text x="248" y="195" fill="#d4d4d8" font-size="10">Glob  → estrutura de pastas</text>
+      <text x="248" y="215" fill="#d4d4d8" font-size="10">Grep  → busca por padrões</text>
+      <text x="248" y="235" fill="#d4d4d8" font-size="10">Read  → conteúdo completo</text>
+      <text x="248" y="255" fill="#d4d4d8" font-size="10">Bash  → ls, find, cat</text>
+      <text x="248" y="280" fill="#9ca3af" font-size="9" font-style="italic">Tudo sem gastar tokens</text>
+      <text x="248" y="295" fill="#9ca3af" font-size="9" font-style="italic">de output desnecessários</text>
+
+      <rect x="430" y="150" width="150" height="160" rx="10" fill="rgba(251,191,36,0.05)" stroke="#fbbf24" stroke-width="0.5" stroke-dasharray="4,3"/>
+      <text x="505" y="172" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="600">O que analisa</text>
+      <text x="448" y="195" fill="#d4d4d8" font-size="10">Convenções de naming</text>
+      <text x="448" y="215" fill="#d4d4d8" font-size="10">Frameworks e libs usados</text>
+      <text x="448" y="235" fill="#d4d4d8" font-size="10">Estrutura de pastas</text>
+      <text x="448" y="255" fill="#d4d4d8" font-size="10">Padrões de error handling</text>
+      <text x="448" y="275" fill="#d4d4d8" font-size="10">Tipos e interfaces</text>
+      <text x="448" y="295" fill="#d4d4d8" font-size="10">Testes existentes</text>
+
+      <rect x="630" y="150" width="150" height="160" rx="10" fill="rgba(110,231,183,0.05)" stroke="#6ee7b7" stroke-width="0.5" stroke-dasharray="4,3"/>
+      <text x="705" y="172" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="600">Resultado</text>
+      <text x="648" y="195" fill="#d4d4d8" font-size="10">Código no padrão do</text>
+      <text x="648" y="210" fill="#d4d4d8" font-size="10">projeto existente</text>
+      <text x="648" y="235" fill="#d4d4d8" font-size="10">Imports corretos</text>
+      <text x="648" y="255" fill="#d4d4d8" font-size="10">Reutiliza utilitários</text>
+      <text x="648" y="275" fill="#d4d4d8" font-size="10">Tipos consistentes</text>
+      <text x="648" y="295" fill="#d4d4d8" font-size="10">Testes no mesmo padrão</text>
+    </svg>
+    <p class="diagram-caption">O agente usa Read, Grep e Glob para entender o codebase antes de escrever uma única linha de código.</p>
+  </div>
+
+  <!-- ════════════ TÉCNICAS DE PROMPT ════════════ -->
+  <h2>Técnicas de prompt para forçar leitura</h2>
+
+  <p>
+    A documentação oficial da Anthropic recomenda explicitamente pedir ao Claude que
+    <strong>leia arquivos relevantes e não escreva código ainda</strong> como primeiro passo.
+    Abaixo estão as técnicas mais eficazes, com exemplos concretos.
+  </p>
+
+  <!-- Técnica 1 -->
+  <h3>1. Peça leitura explícita antes de implementar</h3>
+
+  <p>
+    A forma mais direta: instrua o agente a ler primeiro e só depois agir. Isso ativa as
+    ferramentas de exploração (Read, Grep, Glob) antes de qualquer Edit ou Write.
+  </p>
+
+  <div class="prompt-compare">
+    <div class="code-block">
+      <div class="code-header">
+        <span style="color: var(--red);">Prompt ruim</span>
+        <span>Sem direcionamento</span>
+      </div>
+      <pre>
+<span class="string">Crie um endpoint POST /api/users
+que valide o body e salve no banco.</span></pre>
+    </div>
+    <div class="code-block">
+      <div class="code-header">
+        <span style="color: var(--green);">Prompt bom</span>
+        <span>Força leitura</span>
+      </div>
+      <pre>
+<span class="string">Antes de implementar, leia os arquivos
+em src/controllers/ e src/schemas/ para
+entender as convenções do projeto.
+
+Depois, crie um endpoint POST /api/users
+que valide o body e salve no banco,
+seguindo os mesmos padrões.</span></pre>
+    </div>
+  </div>
+
+  <!-- Técnica 2 -->
+  <h3>2. Referencie arquivos existentes como padrão</h3>
+
+  <p>
+    Em vez de descrever o padrão que você quer, <strong>aponte para um arquivo que já o implementa</strong>.
+    Isso funciona como uma especificação viva -- o agente lê o código real e o replica.
+  </p>
+
+  <div class="prompt-compare">
+    <div class="code-block">
+      <div class="code-header">
+        <span style="color: var(--red);">Prompt ruim</span>
+        <span>Descreve o padrão</span>
+      </div>
+      <pre>
+<span class="string">Crie um novo service para Payments.
+Use injeção de dependência, DTOs com
+class-validator, e retorne Result types
+com Either pattern.</span></pre>
+    </div>
+    <div class="code-block">
+      <div class="code-header">
+        <span style="color: var(--green);">Prompt bom</span>
+        <span>Aponta para o padrão</span>
+      </div>
+      <pre>
+<span class="string">Crie um PaymentService seguindo
+exatamente o mesmo padrão de
+src/services/OrderService.ts
+
+Leia esse arquivo primeiro para
+entender a estrutura, DTOs, error
+handling e testes.</span></pre>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Por que isso funciona melhor:</strong> Quando você descreve o padrão em texto, o Claude interpreta
+    suas palavras e pode divergir nos detalhes. Quando você aponta para um arquivo, ele lê o código real
+    e reproduz a mesma estrutura. O código existente é a melhor documentação.
+  </div>
+
+  <!-- Técnica 3 -->
+  <h3>3. Use @-mentions para apontar arquivos específicos</h3>
+
+  <p>
+    O Claude Code suporta <strong>referências com @</strong> para incluir arquivos no contexto.
+    A documentação oficial recomenda: referencie arquivos com @ em vez de descrever onde o código
+    está. O agente lê o arquivo antes de responder.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Usando @-mentions no prompt</span>
+      <span>Claude Code CLI</span>
+    </div>
+    <pre>
+<span class="comment"># O @ faz o Claude ler automaticamente o arquivo antes de agir</span>
+
+<span class="string">Adicione um campo "phone" no formulário de cadastro.
+Veja como os outros campos são feitos em @src/components/SignupForm.tsx
+e o schema de validação em @src/schemas/signup.schema.ts</span>
+
+<span class="comment"># Funciona também com diretórios</span>
+
+<span class="string">Analise a estrutura de @src/modules/auth/ e crie
+um novo módulo de payments seguindo o mesmo padrão.</span></pre>
+  </div>
+
+  <div class="callout-blue callout">
+    <strong>Dica:</strong> O @ é mais eficiente que pedir "leia o arquivo X" porque o conteúdo é incluído
+    diretamente no contexto antes do modelo processar seu prompt. O agente já começa a raciocinar
+    com o código disponível.
+  </div>
+
+  <!-- Técnica 4 -->
+  <h3>4. Peça um plano antes da implementação</h3>
+
+  <p>
+    Pedir um plano força o agente a fazer a fase de exploração e análise explicitamente.
+    A Anthropic recomenda pedir ao Claude que <strong>faça um plano de abordagem</strong>
+    antes de implementar, especialmente para tarefas complexas.
+  </p>
+
+  <div class="prompt-compare">
+    <div class="code-block">
+      <div class="code-header">
+        <span style="color: var(--red);">Prompt ruim</span>
+        <span>Vai direto</span>
+      </div>
+      <pre>
+<span class="string">Refatore o módulo de autenticação
+para usar JWT ao invés de sessions.</span></pre>
+    </div>
+    <div class="code-block">
+      <div class="code-header">
+        <span style="color: var(--green);">Prompt bom</span>
+        <span>Plano primeiro</span>
+      </div>
+      <pre>
+<span class="string">Leia o codebase primeiro e me proponha
+um plano antes de implementar.
+
+Quero migrar autenticação de sessions
+para JWT. Me mostre:
+- Quais arquivos serão afetados
+- Qual a ordem das mudanças
+- Riscos de breaking changes
+
+Não implemente nada ainda.</span></pre>
+    </div>
+  </div>
+
+  <!-- Técnica 5 -->
+  <h3>5. Use subagentes para exploração pesada</h3>
+
+  <p>
+    Para investigações que envolvem muitos arquivos, a Anthropic recomenda delegar a pesquisa
+    a <strong>subagentes</strong>. Eles exploram em um contexto separado, mantendo a conversa
+    principal limpa para a implementação.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Delegando exploração a subagentes</span>
+      <span>Claude Code CLI</span>
+    </div>
+    <pre>
+<span class="string">Use subagentes para investigar:
+
+1. Qual ORM o projeto usa e como as queries são feitas
+2. Qual o padrão de error handling nos services
+3. Como os testes de integração estão estruturados
+
+Depois me apresente um resumo e, com base nisso,
+implemente o CRUD de Products.</span></pre>
+  </div>
+
+  <div class="callout">
+    <strong>Por que subagentes:</strong> Quando o Claude explora dezenas de arquivos em busca de padrões,
+    o contexto principal enche rápido. Subagentes fazem a exploração em contexto isolado e devolvem
+    apenas o resumo, preservando espaço para a implementação real.
+  </div>
+
+  <!-- ════════════ ANTI-PATTERNS ════════════ -->
+  <h2>Anti-patterns: o que NÃO fazer</h2>
+
+  <p>
+    Esses são os erros mais comuns que levam o Claude a escrever código sem contexto suficiente.
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th style="color: var(--red);">Anti-pattern</th>
+          <th>Por que é ruim</th>
+          <th style="color: var(--green);">O que fazer em vez</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Colar código no prompt</td>
+          <td>Perde imports, tipos e contexto do projeto inteiro</td>
+          <td>Aponte para o arquivo com @ ou peça para ler</td>
+        </tr>
+        <tr>
+          <td>Descrever padrões em texto</td>
+          <td>Descrição ambígua leva a interpretações diferentes</td>
+          <td>Aponte para um arquivo que implementa o padrão</td>
+        </tr>
+        <tr>
+          <td>Pedir implementação sem escopo</td>
+          <td>Claude pode explorar centenas de arquivos enchendo o contexto</td>
+          <td>Delimite quais pastas/arquivos importam</td>
+        </tr>
+        <tr>
+          <td>"Investigue tudo sobre X"</td>
+          <td>Exploração infinita que consome a context window</td>
+          <td>Seja específico: "Leia os arquivos em src/auth/"</td>
+        </tr>
+        <tr>
+          <td>Assumir que o Claude conhece o projeto</td>
+          <td>Cada conversa começa do zero, sem memória</td>
+          <td>Sempre forneça pontos de entrada e referências</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ COMPARATIVO COMPLETO ════════════ -->
+  <h2>Grid comparativo: prompts ruins vs. prompts bons</h2>
+
+  <p>
+    Cada cenário abaixo mostra o contraste entre um prompt que gera código no vácuo e um que
+    guia o agente a ler o contexto antes de agir.
+  </p>
+
+  <div class="vs-row">
+    <div class="vs-col" style="border-color: var(--red); border-width: 1.5px;">
+      <h4 style="color: var(--red);">
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">✗</span>
+        Prompts que geram código no vácuo
+      </h4>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--red);"></span>
+        <span>"Crie um middleware de logging"</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--red);"></span>
+        <span>"Adicione paginação na API de produtos"</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--red);"></span>
+        <span>"Implemente autenticação OAuth"</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--red);"></span>
+        <span>"Crie testes para o UserService"</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--red);"></span>
+        <span>"Refatore esse código: [300 linhas coladas]"</span>
+      </div>
+    </div>
+
+    <div class="vs-divider">vs</div>
+
+    <div class="vs-col" style="border-color: var(--green); border-width: 1.5px;">
+      <h4 style="color: var(--green);">
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">✓</span>
+        Prompts que forçam leitura primeiro
+      </h4>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span>"Leia os middlewares em src/middleware/ e crie um de logging no mesmo padrão"</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span>"Veja como a paginação funciona em GET /api/orders e aplique o mesmo padrão em /api/products"</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span>"Analise @src/auth/ e adicione OAuth seguindo as convenções de error handling e config"</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span>"Leia os testes em __tests__/services/ para entender o padrão e crie testes para UserService"</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span>"Leia @src/services/UserService.ts e proponha refatorações. Não mude nada ainda."</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ EXEMPLO COMPLETO ════════════ -->
+  <h2>Exemplo completo: o que acontece por baixo dos panos</h2>
+
+  <p>
+    Quando você dá um prompt bem estruturado que direciona a leitura, esta é a sequência
+    de tool calls que o Claude Code executa internamente:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Prompt do usuário</span>
+      <span>Input</span>
+    </div>
+    <pre>
+<span class="string">Crie um endpoint DELETE /api/products/:id seguindo
+o mesmo padrão de @src/controllers/OrderController.ts
+Leia os testes existentes em @src/__tests__/controllers/
+e crie testes no mesmo formato.</span></pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Sequência de tool calls do agente</span>
+      <span>~12 tool calls</span>
+    </div>
+    <pre>
+<span class="comment">// Fase 1: EXPLORAR — o agente lê tudo que foi referenciado</span>
+<span class="tool">Read</span> { file: <span class="string">"src/controllers/OrderController.ts"</span> }
+<span class="comment">  → identifica: NestJS, decorators, DTO pattern, guard de auth</span>
+
+<span class="tool">Glob</span> { pattern: <span class="string">"src/__tests__/controllers/*.spec.ts"</span> }
+<span class="comment">  → encontra: order.spec.ts, user.spec.ts, health.spec.ts</span>
+
+<span class="tool">Read</span> { file: <span class="string">"src/__tests__/controllers/order.spec.ts"</span> }
+<span class="comment">  → identifica: supertest, factory pattern, cleanup hooks</span>
+
+<span class="comment">// Fase 2: ANALISAR — busca dependências relacionadas</span>
+<span class="tool">Read</span> { file: <span class="string">"src/services/OrderService.ts"</span> }
+<span class="comment">  → identifica: soft delete pattern, Result type</span>
+
+<span class="tool">Grep</span> { pattern: <span class="string">"ProductService|product.service"</span>, glob: <span class="string">"**/*.ts"</span> }
+<span class="comment">  → encontra: ProductService já existe em src/services/</span>
+
+<span class="tool">Read</span> { file: <span class="string">"src/services/ProductService.ts"</span> }
+<span class="comment">  → confirma: já tem findById(), falta delete()</span>
+
+<span class="comment">// Fase 3: IMPLEMENTAR — com contexto completo</span>
+<span class="tool">Edit</span> { file: <span class="string">"src/controllers/ProductController.ts"</span>,
+       <span class="comment">// adiciona o endpoint DELETE seguindo o padrão do OrderController</span> }
+
+<span class="tool">Edit</span> { file: <span class="string">"src/services/ProductService.ts"</span>,
+       <span class="comment">// adiciona método delete() com soft delete pattern</span> }
+
+<span class="tool">Write</span> { file: <span class="string">"src/__tests__/controllers/product-delete.spec.ts"</span>,
+       <span class="comment">// testes no padrão de order.spec.ts</span> }
+
+<span class="comment">// Fase 4: VERIFICAR</span>
+<span class="tool">Bash</span> { command: <span class="string">"npm test -- --grep product"</span> }
+<span class="comment">  → ✓ 4 testes passaram</span></pre>
+  </div>
+
+  <div class="callout-green callout">
+    <strong>Observe o padrão:</strong> Das 12 tool calls, <strong>6 foram de leitura</strong> (Read, Grep, Glob)
+    e apenas 3 de escrita (Edit, Write). O agente gastou mais da metade do esforço
+    entendendo o contexto. Esse é o comportamento ideal.
+  </div>
+
+  <!-- ════════════ TEMPLATE CLAUDE.MD ════════════ -->
+  <h2>Automatizando com CLAUDE.md</h2>
+
+  <p>
+    Para não depender de prompts individuais, você pode configurar o comportamento de leitura
+    diretamente no <code>CLAUDE.md</code> do projeto. O Claude Code carrega esse arquivo
+    automaticamente em toda conversa.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>CLAUDE.md</span>
+      <span>Seção de regras de comportamento</span>
+    </div>
+    <pre>
+<span class="comment">## Regras de implementação</span>
+
+<span class="string">- SEMPRE leia os arquivos existentes na pasta relevante ANTES de criar ou editar
+- Use os controllers em src/controllers/ como referência para novos endpoints
+- Siga o padrão de testes em src/__tests__/ — use factories, supertest, cleanup
+- Leia src/shared/types.ts antes de criar novos tipos
+- Nunca crie utilitários novos sem antes verificar se já existem em src/utils/</span>
+
+<span class="comment">## Padrões do projeto</span>
+
+<span class="string">- Framework: NestJS com TypeORM
+- Validação: class-validator com DTOs
+- Error handling: Result&lt;T, E&gt; com Either pattern
+- Testes: Jest + Supertest para integração, vitest para unit</span></pre>
+  </div>
+
+  <div class="callout-blue callout">
+    <strong>Dica avançada:</strong> Colocar essas instruções no CLAUDE.md elimina a necessidade de repetir
+    "leia antes de escrever" em cada prompt. O agente já começa toda conversa sabendo que deve explorar
+    o codebase antes de agir.
+  </div>
+
+  <!-- ════════════ TEMPLATE DE PROMPTS ════════════ -->
+  <h2>Templates de prompt para copiar e usar</h2>
+
+  <p>
+    Abaixo estão templates prontos que forçam o comportamento de leitura. Adapte para seu contexto.
+  </p>
+
+  <div class="grid-2">
+    <div class="code-block">
+      <div class="code-header">
+        <span>Novo endpoint / feature</span>
+      </div>
+      <pre>
+<span class="string">Antes de implementar, leia:
+- @src/controllers/[Existente]Controller.ts
+- @src/services/[Existente]Service.ts
+- @src/__tests__/[exemplo relevante]
+
+Crie [descrição da feature] seguindo
+exatamente os mesmos padrões.</span></pre>
+    </div>
+    <div class="code-block">
+      <div class="code-header">
+        <span>Refatoração</span>
+      </div>
+      <pre>
+<span class="string">Leia @src/[arquivo a refatorar] e me
+proponha um plano de refatoração.
+
+Considere:
+- Impacto nos imports de outros arquivos
+- Testes que precisam ser atualizados
+- Breaking changes
+
+Não implemente nada ainda, só o plano.</span></pre>
+    </div>
+    <div class="code-block">
+      <div class="code-header">
+        <span>Bug fix</span>
+      </div>
+      <pre>
+<span class="string">O bug: [descrição do comportamento errado]
+
+Antes de corrigir:
+1. Leia o arquivo onde o bug ocorre
+2. Leia os testes existentes para esse módulo
+3. Identifique a causa raiz
+
+Me apresente a análise antes de editar.</span></pre>
+    </div>
+    <div class="code-block">
+      <div class="code-header">
+        <span>Novo módulo completo</span>
+      </div>
+      <pre>
+<span class="string">Use subagentes para analisar:
+1. Estrutura de @src/modules/auth/
+2. Padrões de DI e injeção
+3. Convenções de testes
+
+Depois crie o módulo de [nome] seguindo
+a mesma arquitetura.</span></pre>
+    </div>
+  </div>
+
+  <!-- ════════════ RESUMO ════════════ -->
+  <h2>Resumo: os princípios-chave</h2>
+
+  <div class="grid-3">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">1</span>
+        Aponte, não descreva
+      </h4>
+      <p>Referencie arquivos existentes como padrão em vez de descrever convenções em texto.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">2</span>
+        Peça plano antes de código
+      </h4>
+      <p>"Não implemente ainda" força o agente a explorar e analisar antes de escrever.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">3</span>
+        Automatize no CLAUDE.md
+      </h4>
+      <p>Regras de "leia antes de escrever" no CLAUDE.md valem para toda conversa.</p>
+    </div>
+  </div>
+
+  <!-- ════════════ FONTES ════════════ -->
+  <div class="sources">
+    <h3>Fontes e Referências</h3>
+    <ul>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Anthropic — Best Practices for Claude Code</a></li>
+      <li><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank">Anthropic — Effective Context Engineering for AI Agents</a></li>
+      <li><a href="https://www.anthropic.com/news/how-anthropic-teams-use-claude-code" target="_blank">Anthropic — How Anthropic Teams Use Claude Code</a></li>
+      <li><a href="https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices" target="_blank">Claude Docs — Prompting Best Practices</a></li>
+      <li><a href="https://www.anthropic.com/engineering/building-agents-with-the-claude-agent-sdk" target="_blank">Anthropic — Building Agents with the Claude Agent SDK</a></li>
+      <li><a href="https://www.anthropic.com/research/building-effective-agents" target="_blank">Anthropic — Building Effective Agents (Dez/2024)</a></li>
+    </ul>
+  </div>
+
+  <!-- ════════════ NAV FOOTER ════════════ -->
+  <div class="nav-footer">
+    <a href="modulo-03-topico-01-plan-mode.html" class="nav-btn">← Tópico 1 · Plan Mode</a>
+    <a href="../index.html" class="nav-btn">&#8962; Índice</a>
+    <a href="modulo-03-topico-03-verificacao.html" class="nav-btn">Tópico 3 · Verificação →</a>
+  </div>
+
+</body>
+</html>

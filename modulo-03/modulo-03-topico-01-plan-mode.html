@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modulo 3 . Topico 1 — Plan Mode: separar pesquisa de execucao</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-code: #141620;
+      --border: #2a2d3a;
+      --text: #e4e4e7;
+      --text-dim: #9ca3af;
+      --accent: #c4956a;
+      --accent-soft: rgba(196, 149, 106, 0.12);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.12);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .topic-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-soft); padding: 6px 14px;
+      border-radius: 20px; margin-bottom: 1rem;
+    }
+
+    h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+    .subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+    h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+    p { margin-bottom: 1rem; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+    strong { color: #fff; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0;
+    }
+    .card-label {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 6px; margin-bottom: 0.75rem;
+    }
+
+    .diagram-container {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto;
+    }
+    .diagram-container svg { display: block; margin: 0 auto; }
+    .diagram-caption {
+      text-align: center; font-size: 0.85rem; color: var(--text-dim);
+      margin-top: 1rem; font-style: italic;
+    }
+
+    .code-block {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1rem; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim);
+    }
+    .code-block pre {
+      padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8;
+    }
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: var(--purple); }
+    .code-block .string { color: var(--green); }
+    .code-block .tool { color: var(--accent); }
+    .code-block .number { color: var(--yellow); }
+
+    .callout {
+      border-left: 3px solid var(--accent); background: var(--accent-soft);
+      padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem;
+    }
+    .callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+    .callout-red { border-left-color: var(--red); background: var(--red-soft); }
+    .callout-green { border-left-color: var(--green); background: var(--green-soft); }
+    .callout strong { color: #fff; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+    }
+
+    .mini-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .mini-card h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;
+    }
+    .mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+
+    .icon-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    .sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .sources ul { list-style: none; padding: 0; }
+    .sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+    .sources li::before { content: "\2192 "; color: var(--accent); }
+
+    .nav-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+      color: var(--text); background: var(--bg-card); border: 1px solid var(--border);
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+
+    /* ── Specific to this topic ── */
+    .vs-row {
+      display: grid; grid-template-columns: 1fr 60px 1fr; gap: 0; margin: 2rem 0;
+      align-items: stretch;
+    }
+    .vs-col {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+    }
+    .vs-col h4 {
+      font-size: 1rem; font-weight: 600; margin-bottom: 1rem;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .vs-divider {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: 700; color: var(--text-dim);
+    }
+    .vs-item {
+      display: flex; gap: 10px; margin-bottom: 0.75rem; font-size: 0.9rem;
+      color: var(--text-dim); align-items: flex-start;
+    }
+    .vs-item .dot {
+      width: 8px; height: 8px; border-radius: 50%; margin-top: 7px; flex-shrink: 0;
+    }
+    @media (max-width: 700px) {
+      .vs-row { grid-template-columns: 1fr; gap: 0.5rem; }
+      .vs-divider { padding: 0.5rem 0; }
+    }
+
+    .flow-step {
+      display: flex; align-items: flex-start; gap: 16px; margin-bottom: 0.5rem;
+      position: relative;
+    }
+    .flow-step::before {
+      content: ''; position: absolute; left: 15px; top: 34px;
+      width: 2px; height: calc(100% - 10px); background: var(--border);
+    }
+    .flow-step:last-child::before { display: none; }
+    .flow-num {
+      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; font-weight: 700; color: #fff;
+    }
+    .flow-content h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff; margin-bottom: 2px;
+    }
+    .flow-content p {
+      font-size: 0.88rem; color: var(--text-dim); margin: 0 0 0.75rem;
+    }
+
+    .kbd {
+      display: inline-block; background: rgba(255,255,255,0.08); border: 1px solid var(--border);
+      border-radius: 5px; padding: 2px 8px; font-family: var(--font-mono); font-size: 0.82em;
+      color: #fff; box-shadow: 0 1px 0 rgba(255,255,255,0.06);
+    }
+
+    .tool-tag {
+      display: inline-block; font-size: 0.78rem; font-weight: 600;
+      padding: 2px 8px; border-radius: 4px; margin-right: 4px;
+    }
+    .tool-allowed { background: var(--green-soft); color: var(--green); }
+    .tool-blocked { background: var(--red-soft); color: var(--red); }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ HEADER ════════════ -->
+  <div class="topic-badge">Modulo 3 . Topico 1</div>
+  <h1>Plan Mode: separar pesquisa de execucao</h1>
+  <p class="subtitle">
+    Antes de deixar o agente editar seu codigo, deixe-o <strong>entender o problema</strong>.
+    O Plan Mode transforma o Claude Code em um explorador read-only que le, busca e analisa
+    sem tocar em nenhum arquivo — e isso muda drasticamente a qualidade do output.
+  </p>
+
+  <!-- ════════════ O QUE E ════════════ -->
+  <h2>O que e o Plan Mode?</h2>
+
+  <p>
+    O Plan Mode e um modo de permissao do Claude Code onde o agente pode usar apenas
+    <strong>ferramentas de leitura</strong> — <code>Read</code>, <code>Grep</code>, <code>Glob</code> —
+    mas <strong>nao pode</strong> editar arquivos, escrever novos arquivos ou executar comandos bash.
+    E uma fase de exploracao pura: o Claude le seu codebase, responde perguntas e cria planos
+    de implementacao detalhados, sem risco de alteracoes acidentais.
+  </p>
+
+  <p>
+    A ideia central vem de uma das melhores praticas da Anthropic: <strong>separar pesquisa e planejamento
+    da implementacao</strong> para evitar que o agente resolva o problema errado. Quando voce deixa
+    o Claude pular direto para o codigo, ele pode produzir uma solucao sintaticamente correta mas
+    semanticamente errada — porque nao entendeu o contexto completo.
+  </p>
+
+  <div class="callout-blue callout">
+    <strong>Principio-chave:</strong> "Letting Claude jump straight to coding can produce code that
+    solves the wrong problem. Use plan mode to separate exploration from execution."
+    <br><small style="color: var(--text-dim);">— Anthropic, Best Practices for Claude Code</small>
+  </div>
+
+  <!-- ════════════ COMO ATIVAR ════════════ -->
+  <h2>Como ativar o Plan Mode</h2>
+
+  <p>Existem duas formas de entrar no Plan Mode:</p>
+
+  <div class="grid-2">
+    <div class="mini-card" style="border-color: var(--blue);">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">1</span>
+        Durante a sessao: <span class="kbd">Shift+Tab</span>
+      </h4>
+      <p>
+        Pressione <span class="kbd">Shift+Tab</span> para alternar entre os modos de permissao.
+        O primeiro toque ativa o <strong>auto-accept mode</strong> (aceita edicoes automaticamente).
+        O segundo toque ativa o <strong>Plan Mode</strong>, indicado por
+        <code style="color: var(--yellow);">&#9208; plan mode on</code> no prompt.
+        Um terceiro toque volta ao modo default.
+      </p>
+    </div>
+    <div class="mini-card" style="border-color: var(--green);">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">2</span>
+        Na inicializacao: flag CLI
+      </h4>
+      <p>
+        Inicie o Claude Code ja em Plan Mode passando a flag de permissao:
+      </p>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Iniciando em Plan Mode via CLI</span>
+      <span>Terminal</span>
+    </div>
+    <pre>
+<span class="comment"># Iniciar sessao diretamente em plan mode</span>
+<span class="keyword">claude</span> <span class="string">--permission-mode plan</span>
+
+<span class="comment"># Equivalente: iniciar e depois alternar com Shift+Tab x2</span>
+<span class="keyword">claude</span>
+<span class="comment"># [dentro da sessao] Shift+Tab → Shift+Tab → plan mode on</span></pre>
+  </div>
+
+  <!-- ════════════ O QUE PODE / NAO PODE ════════════ -->
+  <h2>O que o Claude pode e nao pode fazer no Plan Mode</h2>
+
+  <p>
+    No Plan Mode, o agente opera exclusivamente com ferramentas de leitura. Qualquer tentativa
+    de usar uma ferramenta de escrita ou execucao sera bloqueada automaticamente.
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Ferramenta</th>
+          <th>Tipo</th>
+          <th>Plan Mode</th>
+          <th>O que faz</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code style="color: var(--blue);">Read</code></td>
+          <td>Leitura</td>
+          <td><span class="tool-tag tool-allowed">Permitida</span></td>
+          <td>Le conteudo de arquivos</td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--blue);">Grep</code></td>
+          <td>Leitura</td>
+          <td><span class="tool-tag tool-allowed">Permitida</span></td>
+          <td>Busca texto/regex dentro de arquivos</td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--blue);">Glob</code></td>
+          <td>Leitura</td>
+          <td><span class="tool-tag tool-allowed">Permitida</span></td>
+          <td>Busca arquivos por padrao de nome</td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--green);">Edit</code></td>
+          <td>Escrita</td>
+          <td><span class="tool-tag tool-blocked">Bloqueada</span></td>
+          <td>Edita arquivos existentes</td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--green);">Write</code></td>
+          <td>Escrita</td>
+          <td><span class="tool-tag tool-blocked">Bloqueada</span></td>
+          <td>Cria ou sobrescreve arquivos</td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--accent);">Bash</code></td>
+          <td>Execucao</td>
+          <td><span class="tool-tag tool-blocked">Bloqueada</span></td>
+          <td>Executa comandos no terminal</td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--purple);">MCP Tools</code></td>
+          <td>Variavel</td>
+          <td><span class="tool-tag tool-blocked">Bloqueada</span></td>
+          <td>Ferramentas externas (APIs, etc.)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <strong>Implicacao pratica:</strong> No Plan Mode o Claude nao consegue rodar
+    <code>npm test</code>, <code>git log</code> ou qualquer comando bash. Ele precisa inferir o estado
+    do projeto apenas pela leitura do codigo-fonte. Por isso e importante fornecer um bom
+    <code>CLAUDE.md</code> com contexto sobre a arquitetura e convencoes do projeto.
+  </div>
+
+  <!-- ════════════ POR QUE SEPARAR ════════════ -->
+  <h2>Por que separar exploracao de execucao?</h2>
+
+  <p>
+    A separacao entre pesquisa e acao nao e um capricho — e uma estrategia que melhora
+    significativamente os resultados. A documentacao oficial da Anthropic lista tres razoes principais:
+  </p>
+
+  <div class="grid-3">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">!</span>
+        Reduzir erros
+      </h4>
+      <p>Sem exploracao previa, o agente pode editar o arquivo errado, usar o framework errado ou
+         ignorar convencoes do projeto. Plan Mode forca o entendimento antes da acao.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">$</span>
+        Economizar tokens
+      </h4>
+      <p>Um plano validado pelo dev evita ciclos de tentativa-e-erro caros.
+         Retrabalho consome muito mais tokens do que um planejamento inicial cuidadoso.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">?</span>
+        Entender antes de agir
+      </h4>
+      <p>Em codebases complexos, as dependencias e convencoes nao sao obvias.
+         O Plan Mode garante que o agente mapeia o terreno antes de comecar a cavar.</p>
+    </div>
+  </div>
+
+  <!-- ════════════ DIAGRAMA FLUXO ════════════ -->
+  <h2>Fluxo recomendado: Plan, Validate, Execute</h2>
+
+  <p>
+    A Anthropic recomenda um workflow de tres fases para tarefas complexas. A chave esta nos
+    passos 1 e 2 — sem eles, o Claude tende a pular direto para o codigo.
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 820 320" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Fluxo recomendado: Plan Mode (explorar), Validar plano com dev, Modo Default (executar)</title>
+
+      <defs>
+        <marker id="arrowB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#60a5fa"/>
+        </marker>
+        <marker id="arrowG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#6ee7b7"/>
+        </marker>
+        <marker id="arrowA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#c4956a"/>
+        </marker>
+        <marker id="arrowY" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#fbbf24"/>
+        </marker>
+      </defs>
+
+      <!-- Phase 1: Plan Mode -->
+      <rect x="20" y="30" width="230" height="200" rx="14" fill="rgba(96,165,250,0.06)" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="135" y="58" text-anchor="middle" fill="#60a5fa" font-size="13" font-weight="700">FASE 1 — PLAN MODE</text>
+      <text x="135" y="76" text-anchor="middle" fill="#60a5fa" font-size="10">Somente leitura</text>
+
+      <!-- Sub-steps inside phase 1 -->
+      <rect x="40" y="92" width="190" height="36" rx="8" fill="rgba(96,165,250,0.1)" stroke="#60a5fa" stroke-width="0.8"/>
+      <text x="135" y="114" text-anchor="middle" fill="#d4d4d8" font-size="11">Grep / Glob / Read</text>
+
+      <path d="M135 132 L135 148" stroke="#60a5fa" stroke-width="1" marker-end="url(#arrowB)"/>
+
+      <rect x="40" y="152" width="190" height="36" rx="8" fill="rgba(96,165,250,0.1)" stroke="#60a5fa" stroke-width="0.8"/>
+      <text x="135" y="174" text-anchor="middle" fill="#d4d4d8" font-size="11">Cria plano detalhado</text>
+
+      <path d="M135 192 L135 208" stroke="#60a5fa" stroke-width="1" marker-end="url(#arrowB)"/>
+
+      <text x="135" y="226" text-anchor="middle" fill="#60a5fa" font-size="10" font-style="italic">"Aqui esta meu plano..."</text>
+
+      <!-- Arrow phase 1 -> phase 2 -->
+      <path d="M255 130 L295 130" stroke="#fbbf24" stroke-width="2" marker-end="url(#arrowY)"/>
+
+      <!-- Phase 2: Validate -->
+      <rect x="300" y="50" width="210" height="160" rx="14" fill="rgba(251,191,36,0.06)" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="405" y="78" text-anchor="middle" fill="#fbbf24" font-size="13" font-weight="700">FASE 2 — VALIDAR</text>
+      <text x="405" y="96" text-anchor="middle" fill="#fbbf24" font-size="10">Dev revisa o plano</text>
+
+      <rect x="320" y="112" width="170" height="36" rx="8" fill="rgba(251,191,36,0.1)" stroke="#fbbf24" stroke-width="0.8"/>
+      <text x="405" y="134" text-anchor="middle" fill="#d4d4d8" font-size="11">Ajustar / Aprovar / Rejeitar</text>
+
+      <rect x="320" y="158" width="170" height="36" rx="8" fill="rgba(251,191,36,0.1)" stroke="#fbbf24" stroke-width="0.8"/>
+      <text x="405" y="180" text-anchor="middle" fill="#d4d4d8" font-size="11">Feedback do dev</text>
+
+      <!-- Arrow phase 2 -> phase 3 -->
+      <path d="M515 130 L555 130" stroke="#6ee7b7" stroke-width="2" marker-end="url(#arrowG)"/>
+
+      <!-- Phase 3: Execute -->
+      <rect x="560" y="30" width="240" height="200" rx="14" fill="rgba(110,231,183,0.06)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="680" y="58" text-anchor="middle" fill="#6ee7b7" font-size="13" font-weight="700">FASE 3 — EXECUTAR</text>
+      <text x="680" y="76" text-anchor="middle" fill="#6ee7b7" font-size="10">Modo default / auto-accept</text>
+
+      <rect x="580" y="92" width="200" height="36" rx="8" fill="rgba(110,231,183,0.1)" stroke="#6ee7b7" stroke-width="0.8"/>
+      <text x="680" y="114" text-anchor="middle" fill="#d4d4d8" font-size="11">Edit / Write / Bash</text>
+
+      <path d="M680 132 L680 148" stroke="#6ee7b7" stroke-width="1" marker-end="url(#arrowG)"/>
+
+      <rect x="580" y="152" width="200" height="36" rx="8" fill="rgba(110,231,183,0.1)" stroke="#6ee7b7" stroke-width="0.8"/>
+      <text x="680" y="174" text-anchor="middle" fill="#d4d4d8" font-size="11">Testes / Build / Verificacao</text>
+
+      <path d="M680 192 L680 208" stroke="#6ee7b7" stroke-width="1" marker-end="url(#arrowG)"/>
+
+      <text x="680" y="226" text-anchor="middle" fill="#6ee7b7" font-size="10" font-style="italic">Commit / Entrega</text>
+
+      <!-- Bottom note -->
+      <rect x="20" y="265" width="780" height="42" rx="10" fill="rgba(196,149,106,0.06)" stroke="#c4956a" stroke-width="0.8"/>
+      <text x="410" y="284" text-anchor="middle" fill="#c4956a" font-size="11" font-weight="600">
+        Os passos 1 e 2 sao cruciais — sem eles, o Claude tende a pular direto para o codigo
+      </text>
+      <text x="410" y="300" text-anchor="middle" fill="#9ca3af" font-size="10">
+        Fonte: Anthropic — Best Practices for Claude Code
+      </text>
+    </svg>
+    <p class="diagram-caption">Fluxo em tres fases: explorar com ferramentas read-only, validar o plano com o dev, e so entao executar as mudancas.</p>
+  </div>
+
+  <!-- ════════════ QUANDO USAR ════════════ -->
+  <h2>Quando usar (e quando nao usar) o Plan Mode</h2>
+
+  <p>
+    O Plan Mode brilha em cenarios de incerteza e complexidade. Mas para tarefas simples e bem
+    definidas, ele adiciona overhead desnecessario. A regra da Anthropic e direta:
+    se voce consegue descrever o diff em uma frase, pule o planejamento.
+  </p>
+
+  <div class="vs-row">
+    <div class="vs-col" style="border-color: var(--green);">
+      <h4 style="color: var(--green);">
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">+</span>
+        Use Plan Mode quando...
+      </h4>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span><strong style="color: var(--green);">Codebase novo:</strong> voce (ou o Claude) nao conhece a estrutura do projeto</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span><strong style="color: var(--green);">Bug complexo:</strong> o problema envolve multiplos arquivos ou camadas</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span><strong style="color: var(--green);">Tarefa ambigua:</strong> voce nao tem certeza de qual abordagem seguir</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span><strong style="color: var(--green);">Refatoracao grande:</strong> mudancas que afetam muitos arquivos simultaneamente</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span><strong style="color: var(--green);">Multiplos arquivos:</strong> a mudanca toca em diferentes modulos ou camadas</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span><strong style="color: var(--green);">Codigo desconhecido:</strong> voce esta modificando codigo que nao escreveu</span>
+      </div>
+    </div>
+
+    <div class="vs-divider">vs</div>
+
+    <div class="vs-col">
+      <h4 style="color: var(--text-dim);">
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">-</span>
+        Pule o Plan Mode quando...
+      </h4>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--purple);"></span>
+        <span>O escopo e claro e o fix e pequeno (typo, log line, rename)</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--purple);"></span>
+        <span>Voce consegue descrever o diff em uma frase</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--purple);"></span>
+        <span>Voce conhece bem o arquivo e o contexto e limitado</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--purple);"></span>
+        <span>E uma tarefa repetitiva que voce ja fez antes com sucesso</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--purple);"></span>
+        <span>O CLAUDE.md ja documenta bem as convencoes relevantes</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ COMPARACAO ════════════ -->
+  <h2>Comparacao: "code first" vs. "explore first"</h2>
+
+  <p>
+    A diferenca entre pular direto para o codigo e explorar antes e dramatica em tarefas complexas.
+    Veja a comparacao lado a lado:
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Dimensao</th>
+          <th style="color: var(--red);">Sem Plan Mode</th>
+          <th style="color: var(--green);">Com Plan Mode</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Contexto inicial</strong></td>
+          <td>Apenas o prompt do usuario</td>
+          <td>Prompt + leitura do codebase + dependencias mapeadas</td>
+        </tr>
+        <tr>
+          <td><strong>Risco de erro</strong></td>
+          <td style="color: var(--red);">Alto — pode resolver o problema errado</td>
+          <td style="color: var(--green);">Baixo — entendimento validado antes da acao</td>
+        </tr>
+        <tr>
+          <td><strong>Convencoes do projeto</strong></td>
+          <td>Pode ignorar ou adivinhar</td>
+          <td>Identifica padroes existentes e os segue</td>
+        </tr>
+        <tr>
+          <td><strong>Ciclos de correcao</strong></td>
+          <td style="color: var(--red);">Muitos — tentativa e erro</td>
+          <td style="color: var(--green);">Poucos — plano validado reduz retrabalho</td>
+        </tr>
+        <tr>
+          <td><strong>Consumo de tokens</strong></td>
+          <td>Mais tokens (retrabalho caro)</td>
+          <td>Menos tokens totais (acerta mais cedo)</td>
+        </tr>
+        <tr>
+          <td><strong>Previsibilidade</strong></td>
+          <td>Surpresas frequentes no output</td>
+          <td>Dev valida o plano antes — sem surpresas</td>
+        </tr>
+        <tr>
+          <td><strong>Melhor para</strong></td>
+          <td>Tarefas simples e bem definidas</td>
+          <td>Tarefas complexas, ambiguas ou multi-arquivo</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ EXEMPLOS DE PROMPTS ════════════ -->
+  <h2>Exemplos de prompts que funcionam bem no Plan Mode</h2>
+
+  <p>
+    No Plan Mode, voce quer que o Claude <strong>explore e proponha</strong>, nao que execute.
+    Use prompts que pedem analise, mapeamento e planejamento.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Exploracao de codebase novo</span>
+      <span>Plan Mode</span>
+    </div>
+    <pre>
+<span class="comment"># Mapeando a arquitetura</span>
+<span class="string">Explore este projeto e me explique a arquitetura geral.
+Quais sao os principais modulos, como eles se conectam,
+e quais padroes de design sao usados?</span></pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Planejamento antes de refatoracao</span>
+      <span>Plan Mode</span>
+    </div>
+    <pre>
+<span class="comment"># Criando plano de implementacao</span>
+<span class="string">Preciso migrar o sistema de autenticacao de JWT para
+sessions com Redis. Analise o codigo atual de auth,
+mapeie todos os pontos que precisam mudar, e crie um
+plano detalhado de implementacao passo a passo.</span></pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Investigacao de bug complexo</span>
+      <span>Plan Mode</span>
+    </div>
+    <pre>
+<span class="comment"># Investigando sem alterar</span>
+<span class="string">Os testes de integracao do modulo de pagamentos estao
+falhando intermitentemente. Investigue o codigo do
+modulo, as fixtures de teste e as dependencias.
+Me diga o que voce acha que esta causando o problema
+e como voce resolveria.</span></pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Avaliacao de impacto</span>
+      <span>Plan Mode</span>
+    </div>
+    <pre>
+<span class="comment"># Analise de impacto antes de mudar</span>
+<span class="string">Quero renomear o modelo User para Account em todo
+o codebase. Busque todas as referencias, calcule o
+impacto da mudanca e liste todos os arquivos que
+precisariam ser alterados, na ordem correta.</span></pre>
+  </div>
+
+  <div class="callout-green callout">
+    <strong>Dica:</strong> Depois que o Claude apresentar o plano no Plan Mode, voce pode
+    refinar com follow-ups como <em>"e se usarmos o padrao X em vez de Y?"</em> ou
+    <em>"considere tambem o impacto nos testes E2E"</em> — tudo ainda em modo read-only.
+    So mude para o modo de execucao quando o plano estiver solido.
+  </div>
+
+  <!-- ════════════ EXTENDED THINKING ════════════ -->
+  <h2>Como o Extended Thinking complementa o Plan Mode</h2>
+
+  <p>
+    O <strong>Extended Thinking</strong> e o mecanismo que permite ao Claude dedicar mais "tempo de
+    raciocinio" antes de responder. Quando combinado com o Plan Mode, voce tem uma exploracao
+    que e ao mesmo tempo <strong>ampla</strong> (le muitos arquivos) e <strong>profunda</strong>
+    (raciocina mais sobre o que leu).
+  </p>
+
+  <p>
+    No Claude Code, voce pode acionar diferentes niveis de thinking usando palavras-chave
+    especificas no prompt:
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Palavra-chave</th>
+          <th>Nivel de thinking</th>
+          <th>Quando usar</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code style="color: var(--blue);">"think"</code></td>
+          <td>Padrao estendido</td>
+          <td>Tarefas moderadas — bom ponto de partida</td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--yellow);">"think hard"</code></td>
+          <td>Orcamento maior</td>
+          <td>Problemas multi-arquivo ou ambiguos</td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--accent);">"think harder"</code></td>
+          <td>Orcamento alto</td>
+          <td>Arquiteturas complexas ou decisoes criticas</td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--red);">"ultrathink"</code></td>
+          <td>Orcamento maximo</td>
+          <td>Problemas muito complexos que precisam de analise profunda</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Combinando Plan Mode com Extended Thinking</span>
+      <span>Plan Mode</span>
+    </div>
+    <pre>
+<span class="comment"># Exploracao profunda: plan mode + ultrathink</span>
+<span class="string">Think harder sobre a arquitetura deste projeto.
+Analise os padroes de design, identifique pontos de
+acoplamento entre modulos, e proponha um plano de
+refatoracao que melhore a testabilidade sem quebrar
+a API publica.</span></pre>
+  </div>
+
+  <div class="callout">
+    <strong>Combinacao poderosa:</strong> Plan Mode garante que o Claude so le (sem risco de
+    alteracoes). Extended Thinking garante que ele raciocina profundamente sobre o que leu.
+    Juntos, eles produzem planos de implementacao significativamente melhores do que simplesmente
+    pedir ao Claude para "implementar X".
+  </div>
+
+  <!-- ════════════ FLUXO COMPLETO ════════════ -->
+  <h2>Workflow completo na pratica</h2>
+
+  <p>
+    Veja como integrar o Plan Mode no seu fluxo de trabalho diario, do inicio ao fim de uma tarefa:
+  </p>
+
+  <div class="card" style="padding: 2rem;">
+    <div class="flow-step">
+      <div class="flow-num" style="background: var(--blue);">1</div>
+      <div class="flow-content">
+        <h4>Ativar Plan Mode</h4>
+        <p>Inicie com <code>claude --permission-mode plan</code> ou pressione <span class="kbd">Shift+Tab</span> x2 numa sessao existente.</p>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-num" style="background: var(--blue);">2</div>
+      <div class="flow-content">
+        <h4>Descrever a tarefa com contexto</h4>
+        <p>Forneca o objetivo e peca para o Claude explorar o codebase. Ex: <em>"Investigue como o sistema de notificacoes funciona e proponha como adicionar suporte a webhooks."</em></p>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-num" style="background: var(--blue);">3</div>
+      <div class="flow-content">
+        <h4>Iterar sobre o plano (ainda em Plan Mode)</h4>
+        <p>Revise o plano proposto. Faca perguntas, peca ajustes, solicite que considere edge cases. Tudo sem risco — nada e editado.</p>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-num" style="background: var(--yellow);">4</div>
+      <div class="flow-content">
+        <h4>Aprovar o plano</h4>
+        <p>Quando estiver satisfeito, diga algo como <em>"O plano esta bom. Vou sair do plan mode para voce implementar."</em></p>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-num" style="background: var(--green);">5</div>
+      <div class="flow-content">
+        <h4>Mudar para modo de execucao</h4>
+        <p>Pressione <span class="kbd">Shift+Tab</span> para voltar ao modo default (ou auto-accept para mais autonomia). O Claude agora pode editar, escrever e executar.</p>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-num" style="background: var(--green);">6</div>
+      <div class="flow-content">
+        <h4>Executar o plano</h4>
+        <p>Diga <em>"Implemente o plano que voce propos e rode os testes para verificar."</em> O Claude seguira o plano e usara o loop de auto-correcao.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout-red callout">
+    <strong>Anti-pattern:</strong> Nao pule os passos 1-3 em tarefas complexas. Ir direto para
+    a execucao sem explorar o codebase e a causa mais comum de implementacoes que resolvem o
+    problema errado. O investimento de 2-3 minutos em planejamento evita 15-20 minutos de retrabalho.
+  </div>
+
+  <!-- ════════════ FONTES ════════════ -->
+  <div class="sources">
+    <h3>Fontes e Referencias</h3>
+    <ul>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Anthropic — Best Practices for Claude Code</a></li>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-auto-mode" target="_blank">Anthropic — Claude Code Auto Mode: a safer way to skip permissions</a></li>
+      <li><a href="https://docs.claude.com/en/docs/claude-code/cli-reference.md" target="_blank">Claude Docs — CLI Reference (permission modes)</a></li>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-sandboxing" target="_blank">Anthropic — Making Claude Code more secure and autonomous</a></li>
+      <li><a href="https://www.anthropic.com/engineering/claude-think-tool" target="_blank">Anthropic — The "think" tool: Enabling Claude to stop and think</a></li>
+      <li><a href="https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/extended-thinking-tips" target="_blank">Claude Docs — Extended Thinking Tips</a></li>
+    </ul>
+  </div>
+
+  <!-- ════════════ NAV FOOTER ════════════ -->
+  <div class="nav-footer">
+    <a href="../modulo-02/modulo-02-topico-05-skills-vs-claudemd.html" class="nav-btn">&larr; Topico 5 . Skills vs CLAUDE.md</a>
+    <a href="../index.html" class="nav-btn">&#8962; Indice</a>
+    <a href="modulo-03-topico-02-ler-antes-de-escrever.html" class="nav-btn">Topico 2 . Ler antes de escrever &rarr;</a>
+  </div>
+
+</body>
+</html>

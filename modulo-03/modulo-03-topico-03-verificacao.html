@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo 3 · Tópico 3 — Critérios de Verificação: Testes, Screenshots, Outputs Esperados</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-code: #141620;
+      --border: #2a2d3a;
+      --text: #e4e4e7;
+      --text-dim: #9ca3af;
+      --accent: #c4956a;
+      --accent-soft: rgba(196, 149, 106, 0.12);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.12);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .topic-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-soft); padding: 6px 14px;
+      border-radius: 20px; margin-bottom: 1rem;
+    }
+
+    h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+    .subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+    h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+    p { margin-bottom: 1rem; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+    strong { color: #fff; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0;
+    }
+    .card-label {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 6px; margin-bottom: 0.75rem;
+    }
+
+    .diagram-container {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto;
+    }
+    .diagram-container svg { display: block; margin: 0 auto; }
+    .diagram-caption {
+      text-align: center; font-size: 0.85rem; color: var(--text-dim);
+      margin-top: 1rem; font-style: italic;
+    }
+
+    .code-block {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1rem; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim);
+    }
+    .code-block pre {
+      padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8;
+    }
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: var(--purple); }
+    .code-block .string { color: var(--green); }
+    .code-block .tool { color: var(--accent); }
+    .code-block .number { color: var(--yellow); }
+
+    .callout {
+      border-left: 3px solid var(--accent); background: var(--accent-soft);
+      padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem;
+    }
+    .callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+    .callout-red { border-left-color: var(--red); background: var(--red-soft); }
+    .callout-green { border-left-color: var(--green); background: var(--green-soft); }
+    .callout strong { color: #fff; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+    }
+
+    .mini-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .mini-card h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;
+    }
+    .mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+
+    .icon-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    .sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .sources ul { list-style: none; padding: 0; }
+    .sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+    .sources li::before { content: "\2192 "; color: var(--accent); }
+
+    .nav-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+      color: var(--text); background: var(--bg-card); border: 1px solid var(--border);
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ HEADER ════════════ -->
+  <div class="topic-badge">Módulo 3 · Tópico 3</div>
+  <h1>Critérios de Verificação: Testes, Screenshots, Outputs Esperados</h1>
+  <p class="subtitle">
+    O Claude Code funciona em um loop agêntico de <strong>agir → verificar → corrigir</strong>.
+    Sem critérios claros de verificação, esse loop não tem como saber se o trabalho está feito.
+    Definir "o que significa resolvido" é a ação de maior impacto que você pode tomar.
+  </p>
+
+  <!-- ════════════ POR QUE VERIFICAÇÃO IMPORTA ════════════ -->
+  <h2>Por que critérios de verificação são essenciais</h2>
+
+  <p>
+    A documentação oficial de best practices da Anthropic é enfática: incluir testes, screenshots ou
+    outputs esperados para que o Claude possa se auto-verificar é <strong>a ação de maior alavancagem</strong>
+    que você pode fazer ao usar o Claude Code. O modelo performa dramaticamente melhor quando consegue
+    verificar seu próprio trabalho.
+  </p>
+
+  <p>
+    Isso acontece porque o Claude Code opera em um <strong>loop de auto-correção</strong>: ele implementa,
+    verifica, e se algo falhou, analisa o erro e tenta novamente. Sem critérios de verificação claros,
+    esse loop não funciona — o agente não tem como distinguir "feito" de "feito errado". Agentes que
+    conseguem checar e melhorar seu próprio output são fundamentalmente mais confiáveis: eles pegam
+    erros antes que se acumulem, se auto-corrigem quando desviam e melhoram a cada iteração.
+  </p>
+
+  <div class="callout-green callout">
+    <strong>Regra de ouro:</strong> Se você não consegue definir como verificar que a tarefa está feita,
+    provavelmente o Claude Code também não vai conseguir. Antes de escrever o prompt, pergunte-se:
+    "como eu saberia se isso está funcionando?" — e inclua essa resposta no prompt.
+  </div>
+
+  <!-- ════════════ DIAGRAMA: TIPOS DE VERIFICAÇÃO ════════════ -->
+  <h2>Tipos de verificação e quando usar cada um</h2>
+
+  <p>
+    Existem diferentes formas de verificar o trabalho do Claude Code, cada uma adequada a um tipo de
+    tarefa. Na prática, os melhores prompts combinam mais de um tipo de verificação para cobrir
+    diferentes aspectos da mudança.
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 820 480" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Tipos de verificação do Claude Code organizados por categoria</title>
+
+      <defs>
+        <marker id="arrowG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#6ee7b7"/>
+        </marker>
+        <marker id="arrowB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#60a5fa"/>
+        </marker>
+        <marker id="arrowY" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#fbbf24"/>
+        </marker>
+        <marker id="arrowP" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#a78bfa"/>
+        </marker>
+        <marker id="arrowA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#c4956a"/>
+        </marker>
+      </defs>
+
+      <!-- Title -->
+      <text x="410" y="30" text-anchor="middle" fill="#fff" font-size="14" font-weight="600">Tipos de Verificação no Claude Code</text>
+
+      <!-- Central node -->
+      <rect x="320" y="50" width="180" height="50" rx="25" fill="rgba(196,149,106,0.15)" stroke="#c4956a" stroke-width="1.5"/>
+      <text x="410" y="80" text-anchor="middle" fill="#c4956a" font-size="12" font-weight="600">Critério de Verificação</text>
+
+      <!-- ── Branch 1: Testes automatizados ── -->
+      <path d="M320 75 L130 75 L130 130" fill="none" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowG)"/>
+      <rect x="40" y="135" width="180" height="48" rx="10" fill="rgba(110,231,183,0.1)" stroke="#6ee7b7" stroke-width="1"/>
+      <text x="130" y="155" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="600">Testes Automatizados</text>
+      <text x="130" y="172" text-anchor="middle" fill="#d4d4d8" font-size="10">npm test, pytest, go test</text>
+
+      <!-- Sub-items testes -->
+      <rect x="20" y="200" width="90" height="36" rx="8" fill="rgba(110,231,183,0.06)" stroke="#2a2d3a" stroke-width="0.5"/>
+      <text x="65" y="222" text-anchor="middle" fill="#9ca3af" font-size="10">Unitários</text>
+      <rect x="120" y="200" width="110" height="36" rx="8" fill="rgba(110,231,183,0.06)" stroke="#2a2d3a" stroke-width="0.5"/>
+      <text x="175" y="222" text-anchor="middle" fill="#9ca3af" font-size="10">Integração</text>
+
+      <!-- ── Branch 2: Build / Compile ── -->
+      <path d="M350 100 L270 130" fill="none" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#arrowB)"/>
+      <rect x="195" y="275" width="160" height="48" rx="10" fill="rgba(96,165,250,0.1)" stroke="#60a5fa" stroke-width="1"/>
+      <text x="275" y="295" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="600">Build / Compile</text>
+      <text x="275" y="312" text-anchor="middle" fill="#d4d4d8" font-size="10">tsc, cargo build, go build</text>
+
+      <!-- Connect to build -->
+      <path d="M275 183 L275 270" fill="none" stroke="#60a5fa" stroke-width="1" stroke-dasharray="4,3"/>
+
+      <!-- ── Branch 3: Linter / Type Check ── -->
+      <path d="M410 100 L410 130" fill="none" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arrowY)"/>
+      <rect x="325" y="135" width="170" height="48" rx="10" fill="rgba(251,191,36,0.1)" stroke="#fbbf24" stroke-width="1"/>
+      <text x="410" y="155" text-anchor="middle" fill="#fbbf24" font-size="12" font-weight="600">Linter / Type Check</text>
+      <text x="410" y="172" text-anchor="middle" fill="#d4d4d8" font-size="10">eslint, mypy, clippy</text>
+
+      <!-- ── Branch 4: Output esperado ── -->
+      <path d="M470 100 L560 130" fill="none" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrowP)"/>
+      <rect x="475" y="135" width="170" height="48" rx="10" fill="rgba(167,139,250,0.1)" stroke="#a78bfa" stroke-width="1"/>
+      <text x="560" y="155" text-anchor="middle" fill="#a78bfa" font-size="12" font-weight="600">Output Esperado</text>
+      <text x="560" y="172" text-anchor="middle" fill="#d4d4d8" font-size="10">curl, HTTP status, JSON</text>
+
+      <!-- Sub-items output -->
+      <rect x="475" y="200" width="80" height="36" rx="8" fill="rgba(167,139,250,0.06)" stroke="#2a2d3a" stroke-width="0.5"/>
+      <text x="515" y="222" text-anchor="middle" fill="#9ca3af" font-size="10">API resp.</text>
+      <rect x="565" y="200" width="80" height="36" rx="8" fill="rgba(167,139,250,0.06)" stroke="#2a2d3a" stroke-width="0.5"/>
+      <text x="605" y="222" text-anchor="middle" fill="#9ca3af" font-size="10">CLI output</text>
+
+      <!-- ── Branch 5: Visual / Screenshot ── -->
+      <path d="M500 75 L690 75 L690 130" fill="none" stroke="#c4956a" stroke-width="1.5" marker-end="url(#arrowA)"/>
+      <rect x="605" y="135" width="170" height="48" rx="10" fill="rgba(196,149,106,0.1)" stroke="#c4956a" stroke-width="1"/>
+      <text x="690" y="155" text-anchor="middle" fill="#c4956a" font-size="12" font-weight="600">Visual / Screenshot</text>
+      <text x="690" y="172" text-anchor="middle" fill="#d4d4d8" font-size="10">Puppeteer, browser, MCP</text>
+
+      <!-- ── Bottom: feedback loop ── -->
+      <rect x="220" y="370" width="380" height="55" rx="12" fill="rgba(110,231,183,0.08)" stroke="#6ee7b7" stroke-width="1" stroke-dasharray="6,3"/>
+      <text x="410" y="393" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="600">Loop de Auto-Correção</text>
+      <text x="410" y="412" text-anchor="middle" fill="#d4d4d8" font-size="11">Verificação falhou? → Analisar erro → Corrigir → Verificar novamente</text>
+
+      <!-- Arrows down to loop -->
+      <path d="M130 236 L130 340 L220 385" fill="none" stroke="#6ee7b7" stroke-width="1" stroke-dasharray="4,3"/>
+      <path d="M410 183 L410 365" fill="none" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4,3"/>
+      <path d="M560 236 L560 340 L600 370" fill="none" stroke="#a78bfa" stroke-width="1" stroke-dasharray="4,3"/>
+      <path d="M690 183 L690 340 L600 385" fill="none" stroke="#c4956a" stroke-width="1" stroke-dasharray="4,3"/>
+
+      <!-- Legend -->
+      <text x="410" y="465" text-anchor="middle" fill="#6b7280" font-size="10" font-style="italic">Todos os tipos alimentam o loop de auto-correção — quanto mais concreto o critério, melhor o feedback</text>
+    </svg>
+    <p class="diagram-caption">Diferentes tipos de verificação alimentam o loop de auto-correção do Claude Code. Combine-os para cobertura máxima.</p>
+  </div>
+
+  <!-- ════════════ TABELA: VERIFICAÇÃO DETALHADA ════════════ -->
+  <h2>Guia de referência: tipo de verificação × quando usar × como instruir</h2>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Tipo</th>
+          <th>Quando usar</th>
+          <th>Como instruir no prompt</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong style="color: var(--green);">Testes unitários</strong></td>
+          <td>Lógica de negócio, funções puras, utils, parsers, validações</td>
+          <td><code>Rode npm test e garanta que todos passam</code></td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--green);">Testes de integração</strong></td>
+          <td>Fluxos end-to-end, interação entre módulos, API routes</td>
+          <td><code>Rode npm run test:integration -- --grep "auth"</code></td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--blue);">Build / Compile</strong></td>
+          <td>Qualquer mudança em código tipado (TS, Rust, Go, Java)</td>
+          <td><code>Verifique que tsc --noEmit compila sem erros</code></td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--yellow);">Linter</strong></td>
+          <td>Padrões de código, formatação, regras do time</td>
+          <td><code>Rode eslint src/ e corrija qualquer warning</code></td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--yellow);">Type check</strong></td>
+          <td>Mudanças em interfaces, tipos, contratos entre módulos</td>
+          <td><code>Rode mypy src/ e garanta zero erros de tipo</code></td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--purple);">Output esperado</strong></td>
+          <td>APIs, CLIs, scripts, transformações de dados</td>
+          <td><code>O endpoint GET /users deve retornar status 200</code></td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--accent);">Screenshot / Visual</strong></td>
+          <td>UI, componentes visuais, layouts, CSS</td>
+          <td><code>Tire um screenshot e compare com o mock</code></td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--red);">Script customizado</strong></td>
+          <td>Verificações específicas do projeto</td>
+          <td><code>Rode ./scripts/validate.sh e garanta exit 0</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ COMO INSTRUIR ════════════ -->
+  <h2>Como instruir o Claude Code a verificar</h2>
+
+  <p>
+    A chave é ser <strong>explícito e concreto</strong>. Não basta dizer "teste isso" — diga exatamente
+    qual comando rodar, o que constitui sucesso e o que fazer se falhar. O Claude Code funciona melhor
+    com a melhor forma de feedback: regras claramente definidas para um output, e depois explicação de
+    quais regras falharam e por quê.
+  </p>
+
+  <h3>Prompt sem critério de verificação (fraco)</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Prompt sem verificação</span>
+      <span>Evite</span>
+    </div>
+    <pre>
+<span class="comment">// O agente não sabe quando parar nem como validar</span>
+Adicione um endpoint de health check na API.</pre>
+  </div>
+
+  <h3>Prompt com critérios claros de verificação (forte)</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Prompt com verificação explícita</span>
+      <span>Recomendado</span>
+    </div>
+    <pre>
+Adicione um endpoint GET /health na API Express.
+
+<span class="comment">## Critérios de verificação:</span>
+<span class="string">1. Rode `npm test` e garanta que todos os testes passam</span>
+<span class="string">2. Rode `curl http://localhost:3000/health` e verifique que retorna:</span>
+   <span class="keyword">{</span> <span class="string">"status"</span>: <span class="string">"ok"</span>, <span class="string">"timestamp"</span>: <span class="string">"&lt;ISO date&gt;"</span> <span class="keyword">}</span>
+<span class="string">3. Verifique que `tsc --noEmit` compila sem erros</span>
+<span class="string">4. O endpoint deve responder em menos de 50ms</span></pre>
+  </div>
+
+  <div class="callout">
+    <strong>Dica prática:</strong> Cada critério de verificação no prompt se torna um "checkpoint" no loop
+    agêntico. O Claude Code vai executar cada verificação em sequência e, se alguma falhar, vai analisar
+    o erro e voltar para corrigir. Quanto mais concretos os critérios, mais eficiente o loop.
+  </div>
+
+  <!-- ════════════ DEFINIÇÃO DE RESOLVIDO ════════════ -->
+  <h2>Definição de "resolvido": seja explícito sobre quando a tarefa está feita</h2>
+
+  <p>
+    Uma das melhores práticas é definir explicitamente o que significa "feito" para cada tarefa.
+    Sem isso, o agente pode parar cedo demais (entregando código que compila mas não funciona)
+    ou continuar iterando além do necessário. A definição de "done" funciona como critério de parada
+    do loop agêntico.
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card" style="border-color: var(--red);">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">X</span>
+        Definição vaga
+      </h4>
+      <p>"Implemente autenticação JWT."</p>
+      <p style="margin-top: 0.5rem; color: var(--red); font-size: 0.85rem;">Quando o agente sabe que terminou? Quando compila? Quando tem testes? Quando o refresh token funciona?</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--green);">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">OK</span>
+        Definição explícita
+      </h4>
+      <p>"Implemente autenticação JWT. A tarefa está feita quando:"</p>
+      <p style="margin-top: 0.5rem; color: var(--green); font-size: 0.85rem;">1) npm test passa<br>2) POST /login retorna token<br>3) Rotas protegidas retornam 401 sem token<br>4) tsc compila sem erros</p>
+    </div>
+  </div>
+
+  <div class="callout-blue callout">
+    <strong>Regra prática:</strong> Se o seu critério de "feito" não pode ser verificado por um comando
+    no terminal, ele provavelmente é subjetivo demais para o loop agêntico. Transforme-o em algo
+    executável: em vez de "o código deve ser limpo", diga "eslint deve retornar zero warnings".
+  </div>
+
+  <!-- ════════════ TDD COM CLAUDE ════════════ -->
+  <h2>Test-Driven Development (TDD) com Claude Code</h2>
+
+  <p>
+    A abordagem de TDD se torna ainda mais poderosa com coding agêntico. O fluxo recomendado pela
+    documentação oficial da Anthropic transforma testes em critérios de verificação nativos do loop:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Prompt TDD completo</span>
+      <span>Fluxo recomendado</span>
+    </div>
+    <pre>
+Estamos fazendo TDD. Siga este fluxo rigorosamente:
+
+<span class="comment">## Passo 1: Escreva os testes primeiro</span>
+<span class="string">Crie testes para um serviço de cálculo de frete:</span>
+<span class="string">- Frete grátis para pedidos acima de R$ 200</span>
+<span class="string">- Frete fixo R$ 15 para a mesma cidade</span>
+<span class="string">- Frete R$ 30 para outras cidades do mesmo estado</span>
+<span class="string">- Frete R$ 50 para outros estados</span>
+
+<span class="comment">## Passo 2: Confirme que os testes falham</span>
+<span class="string">Rode `npm test -- --grep "frete"` e confirme que todos falham</span>
+<span class="string">(NÃO crie implementações mock)</span>
+
+<span class="comment">## Passo 3: Implemente até todos passarem</span>
+<span class="string">Rode os testes após cada mudança. Continue iterando até:</span>
+<span class="string">- Todos os testes de frete passam</span>
+<span class="string">- `tsc --noEmit` compila sem erros</span>
+<span class="string">- `eslint src/services/shipping*` retorna zero warnings</span></pre>
+  </div>
+
+  <p>
+    Note como cada passo tem uma verificação concreta. O Claude Code vai iterar naturalmente:
+    escrever testes, confirmar que falham, implementar, rodar testes, ver o que ainda falha,
+    ajustar, e repetir -- geralmente levando algumas iterações até que tudo passe.
+  </p>
+
+  <!-- ════════════ VERIFICAÇÃO VISUAL ════════════ -->
+  <h2>Screenshots e verificação visual</h2>
+
+  <p>
+    Para tarefas que envolvem UI, CSS ou componentes visuais, testes automatizados nem sempre capturam
+    o resultado esperado. A Anthropic recomenda usar <strong>verificação visual com screenshots</strong>
+    para esses casos. Times internos da Anthropic usam frequentemente screenshots para mostrar ao Claude Code
+    como querem que interfaces fiquem, e iteram com base em feedback visual em vez de descrever
+    funcionalidades em texto.
+  </p>
+
+  <div class="card">
+    <span class="card-label" style="color: var(--accent); background: var(--accent-soft);">Fluxo de Verificação Visual</span>
+
+    <div style="display: flex; flex-direction: column; gap: 1rem;">
+      <div style="display: flex; align-items: flex-start; gap: 12px;">
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 12px;">1</span>
+        <div>
+          <strong>Forneça um mock visual</strong>
+          <p style="font-size: 0.88rem; color: var(--text-dim); margin: 0;">Copie/cole ou arraste uma imagem de referência, ou passe o caminho do arquivo de design.</p>
+        </div>
+      </div>
+      <div style="display: flex; align-items: flex-start; gap: 12px;">
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 12px;">2</span>
+        <div>
+          <strong>Peça a implementação</strong>
+          <p style="font-size: 0.88rem; color: var(--text-dim); margin: 0;">O Claude Code cria o componente com base no mock.</p>
+        </div>
+      </div>
+      <div style="display: flex; align-items: flex-start; gap: 12px;">
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 12px;">3</span>
+        <div>
+          <strong>Tire um screenshot do resultado</strong>
+          <p style="font-size: 0.88rem; color: var(--text-dim); margin: 0;">Use Puppeteer MCP, Claude in Chrome ou tire manualmente e cole no chat.</p>
+        </div>
+      </div>
+      <div style="display: flex; align-items: flex-start; gap: 12px;">
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 12px;">4</span>
+        <div>
+          <strong>Itere até match</strong>
+          <p style="font-size: 0.88rem; color: var(--text-dim); margin: 0;">O Claude compara visualmente e ajusta até o resultado corresponder ao mock.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Prompt com verificação visual</span>
+      <span>UI/CSS</span>
+    </div>
+    <pre>
+Implemente o componente de card de produto seguindo o mock em
+<span class="string">./designs/product-card.png</span>
+
+<span class="comment">## Verificação:</span>
+<span class="string">1. Use o Puppeteer MCP para abrir http://localhost:3000/products</span>
+<span class="string">2. Tire um screenshot da página</span>
+<span class="string">3. Compare com o mock — espaçamentos, cores e tipografia</span>
+<span class="string">   devem ser visualmente equivalentes</span>
+<span class="string">4. Itere até que o resultado esteja fiel ao design</span>
+<span class="string">5. Garanta que `npm test` ainda passa</span></pre>
+  </div>
+
+  <!-- ════════════ OUTPUT ESPERADO ════════════ -->
+  <h2>Verificação por output esperado</h2>
+
+  <p>
+    Para APIs, CLIs e scripts, a forma mais direta de verificação é definir exatamente o output esperado.
+    Isso dá ao Claude Code um alvo concreto contra o qual comparar o resultado real.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Prompt com output esperado detalhado</span>
+      <span>API endpoint</span>
+    </div>
+    <pre>
+Crie um endpoint GET /api/v1/status que retorne informações do sistema.
+
+<span class="comment">## Output esperado (curl localhost:3000/api/v1/status):</span>
+<span class="keyword">{</span>
+  <span class="string">"status"</span>: <span class="string">"healthy"</span>,
+  <span class="string">"version"</span>: <span class="string">"&lt;valor do package.json&gt;"</span>,
+  <span class="string">"uptime"</span>: <span class="number">&lt;number em segundos&gt;</span>,
+  <span class="string">"database"</span>: <span class="keyword">{</span>
+    <span class="string">"connected"</span>: <span class="keyword">true</span>,
+    <span class="string">"latency_ms"</span>: <span class="number">&lt;number&gt;</span>
+  <span class="keyword">}</span>
+<span class="keyword">}</span>
+
+<span class="comment">## Verificação:</span>
+<span class="string">1. Inicie o servidor com `npm run dev`</span>
+<span class="string">2. Rode `curl -s localhost:3000/api/v1/status | jq .`</span>
+<span class="string">3. Verifique que o response tem status 200</span>
+<span class="string">4. Verifique que o JSON contém todos os campos acima</span>
+<span class="string">5. Rode `npm test` para garantir que nada quebrou</span></pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Prompt com output esperado para CLI</span>
+      <span>Script / CLI</span>
+    </div>
+    <pre>
+Crie um script <span class="string">./scripts/db-migrate.sh</span> que rode as migrações pendentes.
+
+<span class="comment">## Output esperado em caso de sucesso:</span>
+<span class="string">Running pending migrations...</span>
+<span class="string">  ✓ 001_create_users.sql (23ms)</span>
+<span class="string">  ✓ 002_add_email_index.sql (12ms)</span>
+<span class="string">All migrations completed successfully.</span>
+
+<span class="comment">## Output esperado em caso de erro:</span>
+<span class="string">Running pending migrations...</span>
+<span class="string">  ✓ 001_create_users.sql (23ms)</span>
+<span class="string">  ✗ 002_add_email_index.sql — ERROR: column already exists</span>
+<span class="string">Migration failed. Run with --rollback to undo.</span>
+<span class="comment">Exit code: 1</span>
+
+<span class="comment">## Verificação:</span>
+<span class="string">Rode o script e confirme que o output segue o formato acima.</span>
+<span class="string">Teste ambos os cenários (sucesso e erro).</span></pre>
+  </div>
+
+  <!-- ════════════ LOOP DE FEEDBACK ════════════ -->
+  <h2>O loop de feedback: verificação falhou, e agora?</h2>
+
+  <p>
+    O verdadeiro poder dos critérios de verificação aparece quando algo <strong>falha</strong>. Em vez de
+    parar e pedir ajuda, o Claude Code entra em um ciclo de auto-correção: analisa o erro, entende a causa,
+    implementa a correção e verifica novamente. A melhor forma de feedback para o agente são
+    regras claramente definidas, seguidas de uma explicação de quais regras falharam e por quê.
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Loop de feedback: verificação falhou → analisar → corrigir → verificar novamente</title>
+
+      <defs>
+        <marker id="arrowLoop" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#6ee7b7"/>
+        </marker>
+        <marker id="arrowFail" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#f87171"/>
+        </marker>
+        <marker id="arrowOk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#6ee7b7"/>
+        </marker>
+      </defs>
+
+      <!-- Step 1: Implementar -->
+      <rect x="40" y="80" width="130" height="55" rx="12" fill="rgba(196,149,106,0.1)" stroke="#c4956a" stroke-width="1.5"/>
+      <text x="105" y="103" text-anchor="middle" fill="#c4956a" font-size="12" font-weight="600">Implementar</text>
+      <text x="105" y="121" text-anchor="middle" fill="#d4d4d8" font-size="10">Edit / Bash</text>
+
+      <!-- Arrow to Verificar -->
+      <path d="M175 107 L225 107" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowLoop)"/>
+
+      <!-- Step 2: Verificar -->
+      <rect x="230" y="80" width="130" height="55" rx="12" fill="rgba(110,231,183,0.1)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="295" y="103" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="600">Verificar</text>
+      <text x="295" y="121" text-anchor="middle" fill="#d4d4d8" font-size="10">Test / Build / Lint</text>
+
+      <!-- Arrow to Decision -->
+      <path d="M365 107 L420 107" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowLoop)"/>
+
+      <!-- Diamond: Passou? -->
+      <polygon points="490,107 540,67 590,107 540,147" fill="rgba(251,191,36,0.1)" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="540" y="111" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="600">Passou?</text>
+
+      <!-- YES → Done -->
+      <path d="M590 107 L640 107" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowOk)"/>
+      <text x="607" y="98" fill="#6ee7b7" font-size="10" font-weight="600">Sim</text>
+      <rect x="645" y="85" width="45" height="44" rx="10" fill="rgba(110,231,183,0.15)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="667" y="112" text-anchor="middle" fill="#6ee7b7" font-size="16">OK</text>
+
+      <!-- NO → loop back -->
+      <path d="M540 147 L540 210 L105 210 L105 140" fill="none" stroke="#f87171" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowFail)"/>
+      <text x="510" y="180" fill="#f87171" font-size="10" font-weight="600">Nao</text>
+
+      <!-- Label on loop -->
+      <rect x="195" y="195" width="250" height="28" rx="6" fill="rgba(248,113,113,0.08)" stroke="none"/>
+      <text x="320" y="214" text-anchor="middle" fill="#f87171" font-size="11">Analisar erro → ajustar → tentar novamente</text>
+    </svg>
+    <p class="diagram-caption">Quando a verificação falha, o agente analisa o erro, corrige e tenta novamente automaticamente.</p>
+  </div>
+
+  <div class="callout-red callout">
+    <strong>Atenção:</strong> Se você não fornece critérios de verificação, o Claude Code não tem como
+    entrar nesse loop de auto-correção. Ele vai implementar, "achar" que está pronto e parar.
+    O resultado pode compilar mas ter bugs sutis que só seriam pegos por testes.
+  </div>
+
+  <!-- ════════════ HOOKS COMO VERIFICAÇÃO AUTOMÁTICA ════════════ -->
+  <h2>Preview: hooks como verificação automática</h2>
+
+  <p>
+    No <strong>Módulo 7</strong> veremos em detalhes como usar <strong>hooks</strong> do Claude Code
+    para automatizar verificações que hoje você precisa pedir manualmente no prompt. Hooks são
+    comandos shell que executam automaticamente em pontos específicos do ciclo de vida do Claude Code.
+  </p>
+
+  <p>
+    Por exemplo, em vez de repetir "rode eslint após cada edição" em todo prompt, você pode configurar
+    um hook <code>PostToolUse</code> que roda o linter automaticamente toda vez que o Claude Code
+    edita um arquivo. Isso garante verificação contínua sem poluir o prompt.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>.claude/settings.json — preview de hook de verificação</span>
+      <span>Módulo 7</span>
+    </div>
+    <pre>
+<span class="keyword">{</span>
+  <span class="string">"hooks"</span>: <span class="keyword">{</span>
+    <span class="string">"PostToolUse"</span>: <span class="keyword">[</span>
+      <span class="keyword">{</span>
+        <span class="string">"matcher"</span>: <span class="string">"Edit|Write"</span>,
+        <span class="string">"command"</span>: <span class="string">"npx eslint --fix $CLAUDE_FILE_PATH"</span>
+      <span class="keyword">}</span>
+    <span class="keyword">]</span>,
+    <span class="string">"Stop"</span>: <span class="keyword">[</span>
+      <span class="keyword">{</span>
+        <span class="string">"command"</span>: <span class="string">"npm test --silent"</span>
+      <span class="keyword">}</span>
+    <span class="keyword">]</span>
+  <span class="keyword">}</span>
+<span class="keyword">}</span></pre>
+  </div>
+
+  <div class="callout-blue callout">
+    <strong>Preview (Módulo 7):</strong> O hook <code>Stop</code> roda automaticamente quando o Claude Code
+    acha que terminou. Se os testes falharem, o agente recebe o feedback e volta a corrigir — sem
+    intervenção manual. Isso transforma critérios de verificação em guardrails automáticos.
+  </div>
+
+  <!-- ════════════ EXEMPLOS COMPLETOS ════════════ -->
+  <h2>Exemplos de prompts com critérios de verificação claros</h2>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Exemplo 1: Refatoração com segurança</span>
+      <span>Backend</span>
+    </div>
+    <pre>
+Extraia a lógica de cálculo de desconto de <span class="string">OrderService</span> para
+um novo serviço <span class="string">DiscountService</span>.
+
+<span class="comment">## Definição de feito:</span>
+<span class="string">1. Rode `npm test` — todos os testes existentes devem passar</span>
+<span class="string">   (a refatoração não deve mudar comportamento)</span>
+<span class="string">2. Rode `tsc --noEmit` — zero erros de tipo</span>
+<span class="string">3. OrderService não deve mais ter nenhum cálculo de desconto</span>
+<span class="string">4. DiscountService deve ter testes próprios cobrindo:</span>
+<span class="string">   - Desconto por volume (>10 itens: 5%)</span>
+<span class="string">   - Desconto por cupom (código válido e inválido)</span>
+<span class="string">   - Sem desconto (caso padrão)</span></pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Exemplo 2: Nova feature com múltiplas verificações</span>
+      <span>Full-stack</span>
+    </div>
+    <pre>
+Adicione paginação ao endpoint GET /api/products.
+
+<span class="comment">## Requisitos:</span>
+<span class="string">- Query params: ?page=1&limit=20 (defaults)</span>
+<span class="string">- Response inclui metadata: total, page, totalPages, hasNext</span>
+
+<span class="comment">## Verificação (todos devem passar):</span>
+<span class="string">1. `npm test` — testes existentes + novos testes de paginação</span>
+<span class="string">2. `curl "localhost:3000/api/products?page=1&limit=2"` retorna</span>
+<span class="string">   exatamente 2 items + metadata de paginação</span>
+<span class="string">3. `curl "localhost:3000/api/products?page=999"` retorna</span>
+<span class="string">   array vazio com hasNext: false</span>
+<span class="string">4. `curl "localhost:3000/api/products"` (sem params) usa defaults</span>
+<span class="string">5. `tsc --noEmit` compila sem erros</span></pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Exemplo 3: Bug fix com teste de regressão</span>
+      <span>Debug</span>
+    </div>
+    <pre>
+O cálculo de impostos está errado para produtos com isenção.
+Bug reportado: produtos com <span class="string">taxExempt: true</span> ainda incluem ICMS.
+
+<span class="comment">## Verificação:</span>
+<span class="string">1. Primeiro, escreva um teste que reproduz o bug</span>
+<span class="string">   (produto taxExempt com ICMS zero)</span>
+<span class="string">2. Confirme que o teste FALHA antes da correção</span>
+<span class="string">3. Implemente a correção</span>
+<span class="string">4. Confirme que o teste agora PASSA</span>
+<span class="string">5. Rode `npm test` — todos os testes devem passar</span>
+<span class="string">   (a correção não deve quebrar cálculos normais)</span></pre>
+  </div>
+
+  <!-- ════════════ RESUMO VISUAL ════════════ -->
+  <h2>Checklist: verificação eficaz no prompt</h2>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">1</span>
+        Comando executável
+      </h4>
+      <p>Inclua o comando exato que o Claude deve rodar: <code>npm test</code>, <code>tsc --noEmit</code>, <code>curl ...</code></p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">2</span>
+        Output esperado
+      </h4>
+      <p>Defina o que o comando deve retornar: status code, JSON shape, "zero warnings", exit code 0.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">3</span>
+        Critério de parada
+      </h4>
+      <p>Seja explícito: "A tarefa está feita quando todos os 5 critérios acima passam."</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">4</span>
+        Combine verificações
+      </h4>
+      <p>Use testes + build + lint juntos. Cada camada pega um tipo diferente de erro.</p>
+    </div>
+  </div>
+
+  <!-- ════════════ FONTES ════════════ -->
+  <div class="sources">
+    <h3>Fontes e Referências</h3>
+    <ul>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Anthropic — Best Practices for Claude Code</a></li>
+      <li><a href="https://docs.claude.com/en/docs/claude-code/hooks" target="_blank">Claude Docs — Hooks Reference</a></li>
+      <li><a href="https://docs.claude.com/en/docs/claude-code/hooks-guide" target="_blank">Claude Docs — Get Started with Claude Code Hooks</a></li>
+      <li><a href="https://www.anthropic.com/engineering/building-agents-with-the-claude-agent-sdk" target="_blank">Anthropic — Building Agents with the Claude Agent SDK</a></li>
+      <li><a href="https://www.anthropic.com/news/how-anthropic-teams-use-claude-code" target="_blank">Anthropic — How Anthropic Teams Use Claude Code</a></li>
+      <li><a href="https://www.anthropic.com/research/building-effective-agents" target="_blank">Anthropic — Building Effective Agents (Dez/2024)</a></li>
+      <li><a href="https://docs.claude.com/en/docs/test-and-evaluate/define-success" target="_blank">Claude Docs — Define Your Success Criteria</a></li>
+    </ul>
+  </div>
+
+  <!-- ════════════ NAV FOOTER ════════════ -->
+  <div class="nav-footer">
+    <a href="modulo-03-topico-02-ler-antes-de-escrever.html" class="nav-btn">← Tópico 2 · Ler Antes de Escrever</a>
+    <a href="../index.html" class="nav-btn">&#8962; Índice</a>
+    <a href="modulo-03-topico-04-pular-planejamento.html" class="nav-btn">Tópico 4 · Pular Planejamento →</a>
+  </div>
+
+</body>
+</html>

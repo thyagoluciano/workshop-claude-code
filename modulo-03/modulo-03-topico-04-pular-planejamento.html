@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo 3 · Tópico 4 — Quando Pular o Planejamento</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-code: #141620;
+      --border: #2a2d3a;
+      --text: #e4e4e7;
+      --text-dim: #9ca3af;
+      --accent: #c4956a;
+      --accent-soft: rgba(196, 149, 106, 0.12);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.12);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .topic-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-soft); padding: 6px 14px;
+      border-radius: 20px; margin-bottom: 1rem;
+    }
+
+    h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+    .subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+    h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+    p { margin-bottom: 1rem; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+    strong { color: #fff; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0;
+    }
+    .card-label {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 6px; margin-bottom: 0.75rem;
+    }
+
+    .diagram-container {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto;
+    }
+    .diagram-container svg { display: block; margin: 0 auto; }
+    .diagram-caption {
+      text-align: center; font-size: 0.85rem; color: var(--text-dim);
+      margin-top: 1rem; font-style: italic;
+    }
+
+    .code-block {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1rem; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim);
+    }
+    .code-block pre {
+      padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8;
+    }
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: var(--purple); }
+    .code-block .string { color: var(--green); }
+    .code-block .tool { color: var(--accent); }
+    .code-block .number { color: var(--yellow); }
+
+    .callout {
+      border-left: 3px solid var(--accent); background: var(--accent-soft);
+      padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem;
+    }
+    .callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+    .callout-red { border-left-color: var(--red); background: var(--red-soft); }
+    .callout-green { border-left-color: var(--green); background: var(--green-soft); }
+    .callout strong { color: #fff; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+    }
+
+    .mini-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .mini-card h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;
+    }
+    .mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+
+    .icon-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    .sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .sources ul { list-style: none; padding: 0; }
+    .sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+    .sources li::before { content: "\2192 "; color: var(--accent); }
+
+    .nav-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+      color: var(--text); background: var(--bg-card); border: 1px solid var(--border);
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+
+    /* ── Specific to this topic ── */
+    .spectrum-row {
+      display: flex; align-items: stretch; gap: 0; margin: 2rem 0;
+      border-radius: var(--radius); overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .spectrum-item {
+      flex: 1; padding: 1.25rem 1rem; text-align: center;
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; justify-content: flex-start; gap: 6px;
+    }
+    .spectrum-item:last-child { border-right: none; }
+    .spectrum-item .sp-icon { font-size: 1.5rem; }
+    .spectrum-item .sp-label { font-size: 0.8rem; font-weight: 600; color: #fff; }
+    .spectrum-item .sp-desc { font-size: 0.78rem; color: var(--text-dim); line-height: 1.4; }
+    @media (max-width: 700px) {
+      .spectrum-row { flex-direction: column; }
+      .spectrum-item { border-right: none; border-bottom: 1px solid var(--border); }
+      .spectrum-item:last-child { border-bottom: none; }
+    }
+
+    .task-tag {
+      display: inline-block; font-size: 0.75rem; font-weight: 600;
+      padding: 2px 8px; border-radius: 4px; margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ HEADER ════════════ -->
+  <div class="topic-badge">Modulo 3 · Topico 4</div>
+  <h1>Quando Pular o Planejamento</h1>
+  <p class="subtitle">
+    Nem toda tarefa merece um plano detalhado. Over-planning desperdiça tokens, tempo e paciência.
+    A heurística da Anthropic é direta: <strong>se você consegue descrever o diff em uma frase, pule o plano</strong>.
+  </p>
+
+  <!-- ════════════ O PROBLEMA DO OVER-PLANNING ════════════ -->
+  <h2>O custo oculto do over-planning</h2>
+
+  <p>
+    Quando você pede ao Claude Code para planejar antes de agir, ele entra em <strong>plan mode</strong>:
+    lê arquivos, analisa dependências, formula alternativas e apresenta uma proposta antes de escrever
+    qualquer código. Isso é excelente para tarefas complexas — mas para tarefas simples, o planejamento
+    custa mais do que a própria execução.
+  </p>
+
+  <div class="grid-3">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">$</span>
+        Tokens desperdiçados
+      </h4>
+      <p>O plano consome tokens de input e output que poderiam ser usados na execução real da tarefa.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">~</span>
+        Latência desnecessária
+      </h4>
+      <p>O ciclo planejar-aprovar-executar adiciona roundtrips que atrasam entregas triviais.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">?</span>
+        Falsa complexidade
+      </h4>
+      <p>Planejar uma tarefa simples pode fazer o modelo inventar complexidade que não existe.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Regra de ouro (Anthropic):</strong> Se você consegue descrever o diff em uma frase, pule o plano.
+    Plan mode é útil, mas também adiciona overhead. Para tarefas de escopo claro e mudança pequena,
+    a execução direta é mais eficiente.
+  </div>
+
+  <!-- ════════════ DECISION MATRIX SVG ════════════ -->
+  <h2>Decision matrix: quando planejar vs. executar direto</h2>
+
+  <p>
+    A decisão de planejar ou não depende de dois eixos: a <strong>complexidade da tarefa</strong>
+    (quantos arquivos, quanta lógica nova) e o seu <strong>nível de certeza</strong> sobre o que
+    precisa ser feito. Quanto mais simples e mais certo, menos planejamento é necessário.
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 800 480" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Decision matrix: complexidade da tarefa vs. nível de planejamento necessário</title>
+
+      <defs>
+        <marker id="arrowAxis" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#6b7280"/>
+        </marker>
+      </defs>
+
+      <!-- Background grid -->
+      <rect x="120" y="40" width="320" height="190" rx="8" fill="rgba(110,231,183,0.06)" stroke="none"/>
+      <rect x="440" y="40" width="320" height="190" rx="8" fill="rgba(251,191,36,0.06)" stroke="none"/>
+      <rect x="120" y="230" width="320" height="190" rx="8" fill="rgba(96,165,250,0.06)" stroke="none"/>
+      <rect x="440" y="230" width="320" height="190" rx="8" fill="rgba(248,113,113,0.06)" stroke="none"/>
+
+      <!-- Axes -->
+      <line x1="120" y1="420" x2="120" y2="30" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrowAxis)"/>
+      <line x1="120" y1="420" x2="770" y2="420" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrowAxis)"/>
+
+      <!-- Axis labels -->
+      <text x="60" y="230" text-anchor="middle" fill="#9ca3af" font-size="12" font-weight="600" transform="rotate(-90, 60, 230)">COMPLEXIDADE DA TAREFA</text>
+      <text x="440" y="460" text-anchor="middle" fill="#9ca3af" font-size="12" font-weight="600">INCERTEZA SOBRE A ABORDAGEM</text>
+
+      <!-- Axis ticks -->
+      <text x="120" y="450" text-anchor="middle" fill="#6b7280" font-size="10">Baixa</text>
+      <text x="760" y="450" text-anchor="middle" fill="#6b7280" font-size="10">Alta</text>
+      <text x="105" y="415" text-anchor="end" fill="#6b7280" font-size="10">Baixa</text>
+      <text x="105" y="45" text-anchor="end" fill="#6b7280" font-size="10">Alta</text>
+
+      <!-- Quadrant divider -->
+      <line x1="440" y1="40" x2="440" y2="420" stroke="#2a2d3a" stroke-width="1" stroke-dasharray="6,4"/>
+      <line x1="120" y1="230" x2="760" y2="230" stroke="#2a2d3a" stroke-width="1" stroke-dasharray="6,4"/>
+
+      <!-- Q1: Simple + Certain = EXECUTE DIRETO -->
+      <text x="280" y="80" text-anchor="middle" fill="#6ee7b7" font-size="15" font-weight="700">EXECUTE DIRETO</text>
+      <text x="280" y="105" text-anchor="middle" fill="#9ca3af" font-size="11">Prompt direto, sem plano</text>
+      <rect x="180" y="125" width="200" height="30" rx="6" fill="rgba(110,231,183,0.1)" stroke="#6ee7b7" stroke-width="0.5"/>
+      <text x="280" y="145" text-anchor="middle" fill="#d4d4d8" font-size="10">Corrigir typo, renomear variavel</text>
+      <rect x="180" y="162" width="200" height="30" rx="6" fill="rgba(110,231,183,0.1)" stroke="#6ee7b7" stroke-width="0.5"/>
+      <text x="280" y="182" text-anchor="middle" fill="#d4d4d8" font-size="10">Atualizar versao, adicionar campo</text>
+
+      <!-- Q2: Simple + Uncertain = PROMPT COM CONTEXTO -->
+      <text x="600" y="80" text-anchor="middle" fill="#fbbf24" font-size="15" font-weight="700">PROMPT + CONTEXTO</text>
+      <text x="600" y="105" text-anchor="middle" fill="#9ca3af" font-size="11">Descreva o que quer + aponte arquivos</text>
+      <rect x="500" y="125" width="200" height="30" rx="6" fill="rgba(251,191,36,0.1)" stroke="#fbbf24" stroke-width="0.5"/>
+      <text x="600" y="145" text-anchor="middle" fill="#d4d4d8" font-size="10">Adicionar validacao em form existente</text>
+      <rect x="500" y="162" width="200" height="30" rx="6" fill="rgba(251,191,36,0.1)" stroke="#fbbf24" stroke-width="0.5"/>
+      <text x="600" y="182" text-anchor="middle" fill="#d4d4d8" font-size="10">Implementar endpoint seguindo padrao</text>
+
+      <!-- Q3: Complex + Certain = PLAN MODE -->
+      <text x="280" y="270" text-anchor="middle" fill="#60a5fa" font-size="15" font-weight="700">PLAN MODE</text>
+      <text x="280" y="295" text-anchor="middle" fill="#9ca3af" font-size="11">Peca um plano antes de executar</text>
+      <rect x="180" y="315" width="200" height="30" rx="6" fill="rgba(96,165,250,0.1)" stroke="#60a5fa" stroke-width="0.5"/>
+      <text x="280" y="335" text-anchor="middle" fill="#d4d4d8" font-size="10">Refatorar modulo com 10+ arquivos</text>
+      <rect x="180" y="352" width="200" height="30" rx="6" fill="rgba(96,165,250,0.1)" stroke="#60a5fa" stroke-width="0.5"/>
+      <text x="280" y="372" text-anchor="middle" fill="#d4d4d8" font-size="10">Migrar ORM, atualizar schemas</text>
+
+      <!-- Q4: Complex + Uncertain = MULTI-STEP PLAN -->
+      <text x="600" y="270" text-anchor="middle" fill="#f87171" font-size="15" font-weight="700">MULTI-STEP PLAN</text>
+      <text x="600" y="295" text-anchor="middle" fill="#9ca3af" font-size="11">Plano detalhado + iteracao + subagentes</text>
+      <rect x="500" y="315" width="200" height="30" rx="6" fill="rgba(248,113,113,0.1)" stroke="#f87171" stroke-width="0.5"/>
+      <text x="600" y="335" text-anchor="middle" fill="#d4d4d8" font-size="10">Nova feature full-stack complexa</text>
+      <rect x="500" y="352" width="200" height="30" rx="6" fill="rgba(248,113,113,0.1)" stroke="#f87171" stroke-width="0.5"/>
+      <text x="600" y="372" text-anchor="middle" fill="#d4d4d8" font-size="10">Integracao com API desconhecida</text>
+    </svg>
+    <p class="diagram-caption">Quanto mais simples e mais certa a tarefa, menos planejamento e necessario. Adapte a abordagem ao contexto.</p>
+  </div>
+
+  <!-- ════════════ O ESPECTRO ════════════ -->
+  <h2>O espectro: do prompt direto ao plano multi-etapas</h2>
+
+  <p>
+    Planejamento nao e binario — existe um <strong>espectro de niveis</strong> entre "executa agora" e
+    "planeja tudo antes". A documentação da Anthropic sugere calibrar o nivel de planejamento
+    de acordo com a complexidade da tarefa. Desenvolva intuição para escolher o nivel certo.
+  </p>
+
+  <div class="spectrum-row">
+    <div class="spectrum-item" style="background: rgba(110,231,183,0.06);">
+      <span class="sp-icon">1</span>
+      <span class="sp-label" style="color: var(--green);">Prompt direto</span>
+      <span class="sp-desc">Uma frase. Tarefa trivial. O modelo executa sem pensar duas vezes.</span>
+    </div>
+    <div class="spectrum-item" style="background: rgba(251,191,36,0.06);">
+      <span class="sp-icon">2</span>
+      <span class="sp-label" style="color: var(--yellow);">Prompt + contexto</span>
+      <span class="sp-desc">Objetivo + arquivos relevantes + constraints. Clareza sem overhead de plano.</span>
+    </div>
+    <div class="spectrum-item" style="background: rgba(96,165,250,0.06);">
+      <span class="sp-icon">3</span>
+      <span class="sp-label" style="color: var(--blue);">Plan mode</span>
+      <span class="sp-desc">Pede um plano antes de executar. Ideal para mudancas multi-arquivo.</span>
+    </div>
+    <div class="spectrum-item" style="background: rgba(248,113,113,0.06);">
+      <span class="sp-icon">4</span>
+      <span class="sp-label" style="color: var(--red);">Multi-step plan</span>
+      <span class="sp-desc">Plano detalhado, iteracao por etapas, possivel uso de subagentes.</span>
+    </div>
+  </div>
+
+  <!-- ════════════ TAREFAS QUE NÃO PRECISAM DE PLANO ════════════ -->
+  <h2>Tarefas que NAO precisam de plano</h2>
+
+  <p>
+    Para tarefas onde o escopo e claro e a mudanca e pequena, a execucao direta e
+    mais eficiente. Planejar essas tarefas adiciona overhead sem beneficio proporcional.
+    Aqui estão os padroes mais comuns:
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card" style="border-color: var(--green);">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">A</span>
+        Correcoes pontuais
+      </h4>
+      <p>Corrigir typo, fix lint error, atualizar mensagem de erro, ajustar indentacao. Uma linha, um arquivo, zero ambiguidade.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--green);">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">B</span>
+        Renomear e mover
+      </h4>
+      <p>Renomear variavel, funcao ou arquivo. Mover componente de pasta. O modelo sabe fazer find-and-replace global.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--green);">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">C</span>
+        Adicionar campo simples
+      </h4>
+      <p>Novo campo em um model/schema, novo prop em componente, nova coluna em tabela. Padrão ja existe, so replicar.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--green);">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">D</span>
+        Boilerplate e versoes
+      </h4>
+      <p>Gerar boilerplate (test file, component scaffold), atualizar versao no package.json, adicionar dependency.</p>
+    </div>
+  </div>
+
+  <h3>Prompts diretos para tarefas simples</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Exemplos de prompts diretos — sem plano, sem ceremony</span>
+      <span>Claude Code</span>
+    </div>
+    <pre>
+<span class="comment"># Correcao pontual</span>
+<span class="string">Fix the typo in src/utils/validators.ts line 42 — "recieve" should be "receive"</span>
+
+<span class="comment"># Renomear</span>
+<span class="string">Rename the function getUserData to fetchUserProfile in src/api/users.ts and update all call sites</span>
+
+<span class="comment"># Adicionar campo</span>
+<span class="string">Add a "phone" field (optional string) to the User model in src/models/user.ts</span>
+
+<span class="comment"># Atualizar versao</span>
+<span class="string">Bump the version in package.json to 2.4.1</span>
+
+<span class="comment"># Gerar boilerplate</span>
+<span class="string">Create a test file for src/services/payment.ts following the pattern in src/services/__tests__/order.test.ts</span>
+
+<span class="comment"># Adicionar log</span>
+<span class="string">Add a debug log at the start of processOrder in src/services/order.ts showing the orderId</span></pre>
+  </div>
+
+  <div class="callout-green callout">
+    <strong>Perceba o padrao:</strong> Cada prompt descreve o diff em uma frase. Nao ha ambiguidade sobre
+    o que fazer, onde fazer e como verificar. Esse e o sinal de que voce pode pular o planejamento.
+  </div>
+
+  <!-- ════════════ TAREFAS QUE PRECISAM DE PLANO ════════════ -->
+  <h2>Tarefas que PRECISAM de plano</h2>
+
+  <p>
+    Quando a tarefa envolve multiplos arquivos, decisões de design ou territorio desconhecido,
+    o planejamento se paga. O plan mode permite que o Claude Code analise o codebase, avalie
+    alternativas e proponha uma abordagem antes de tocar em qualquer arquivo.
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card" style="border-color: var(--red);">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">1</span>
+        Refatoracao multi-arquivo
+      </h4>
+      <p>Extrair modulo, mudar arquitetura de pasta, split de componente grande. Afeta imports, testes e dependencias cruzadas.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--red);">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">2</span>
+        Migracao de schema/ORM
+      </h4>
+      <p>Mudar estrutura do banco, migrar de ORM, alterar relacoes entre entidades. Efeitos em cascata por todo o backend.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--red);">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">3</span>
+        Nova feature complexa
+      </h4>
+      <p>Feature que envolve frontend + backend + banco + testes. Multiplas decisões de design sobre onde colocar cada parte.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--red);">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">4</span>
+        Integracao com API externa
+      </h4>
+      <p>API desconhecida, autenticacao complexa, tratamento de erros e retries. Precisa investigar antes de implementar.</p>
+    </div>
+  </div>
+
+  <h3>Prompts com planejamento para tarefas complexas</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Exemplos de prompts que pedem planejamento</span>
+      <span>Claude Code</span>
+    </div>
+    <pre>
+<span class="comment"># Refatoracao — pedir plano antes</span>
+<span class="string">I need to extract the payment logic from src/services/order.ts into its own
+module. Before making changes, analyze the current dependencies and create
+a plan for the extraction. Consider what tests need to be updated.</span>
+
+<span class="comment"># Nova feature complexa — ultrathink para raciocinio profundo</span>
+<span class="string">Think hard about how to implement a real-time notification system.
+We use Express + PostgreSQL + Redis. I need: database schema for
+notifications, a service layer, WebSocket integration, and REST
+endpoints. Give me a plan before implementing anything.</span>
+
+<span class="comment"># Integracao com API — explorar antes de agir</span>
+<span class="string">I need to integrate with the Stripe Connect API for marketplace payouts.
+First, read our existing Stripe integration in src/payments/ and plan
+how to add Connect support without breaking the current flow.</span>
+
+<span class="comment"># Migracao — plano detalhado com etapas</span>
+<span class="string">Plan the migration from Sequelize to Prisma for our user-related models.
+List all files that will be affected, propose the migration order, and
+identify potential breaking changes. Don't start implementing yet.</span></pre>
+  </div>
+
+  <!-- ════════════ CALIBRANDO O ESFORCO ════════════ -->
+  <h2>Calibrando o esforco: thinking budget e modelos</h2>
+
+  <p>
+    Além de decidir entre planejar ou executar direto, voce pode calibrar <strong>quanto esforco
+    computacional</strong> o Claude dedica a cada tarefa. A Anthropic oferece dois mecanismos para isso:
+    palavras-chave de thinking e niveis de esforco.
+  </p>
+
+  <h3>Palavras-chave de thinking budget</h3>
+
+  <p>
+    No Claude Code, frases específicas mapeiam diretamente para niveis crescentes de budget de
+    raciocínio. Use-as para calibrar a profundidade de analise:
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Keyword</th>
+          <th>Budget</th>
+          <th>Quando usar</th>
+          <th>Exemplo de tarefa</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code style="color: var(--green);">think</code></td>
+          <td style="color: var(--green);">Baixo</td>
+          <td>Tarefas rotineiras que precisam de algum raciocinio</td>
+          <td>Adicionar tratamento de erro em endpoint</td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--yellow);">think hard</code></td>
+          <td style="color: var(--yellow);">Medio</td>
+          <td>Problemas com multiplas abordagens possiveis</td>
+          <td>Otimizar query N+1 em listagem</td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--accent);">think harder</code></td>
+          <td style="color: var(--accent);">Alto</td>
+          <td>Decisões de arquitetura, trade-offs complexos</td>
+          <td>Redesenhar sistema de cache</td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--red);">ultrathink</code></td>
+          <td style="color: var(--red);">Maximo</td>
+          <td>Problemas criticos que exigem analise exaustiva</td>
+          <td>Investigar race condition em prod</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout-blue callout">
+    <strong>Dica pratica:</strong> Se o modelo esta "overthinking" em tarefas simples, reduza o nivel de
+    esforco do padrao (high) para medium. Isso diminui o budget de raciocinio e acelera a resposta.
+    Para tarefas triviais, um prompt direto sem keywords de thinking ja e suficiente.
+  </div>
+
+  <!-- ════════════ YAGNI DO PLANEJAMENTO ════════════ -->
+  <h2>YAGNI aplicado ao planejamento</h2>
+
+  <p>
+    O principio <strong>YAGNI</strong> (You Ain't Gonna Need It) se aplica perfeitamente ao planejamento
+    com IA. Da mesma forma que voce nao escreve código para features que ninguém pediu, voce
+    nao deveria planejar o que nao precisa ser planejado. Over-planning e o equivalente
+    agêntico de over-engineering.
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card" style="border-color: var(--red);">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">X</span>
+        Over-planning (anti-pattern)
+      </h4>
+      <p>Pedir plano detalhado para renomear uma variavel. O modelo vai analisar dependencias, propor alternativas, considerar impacto em testes... tudo para um rename.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--green);">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">OK</span>
+        Right-sizing (best practice)
+      </h4>
+      <p>Prompt direto para o rename, plano detalhado para a refatoracao de arquitetura. Cada tarefa recebe o nivel de planejamento proporcional a sua complexidade.</p>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Anti-pattern vs. Best practice — mesma tarefa, abordagens diferentes</span>
+      <span>Comparacao</span>
+    </div>
+    <pre>
+<span class="comment"># Anti-pattern: over-planning para tarefa trivial</span>
+<span class="string">"Before making any changes, analyze the entire codebase and create a
+detailed plan for renaming the variable `usr` to `user` in the auth module.
+Consider all possible side effects and propose a rollback strategy."</span>
+<span class="comment">  → Vai gastar 30s+ planejando um rename que levaria 2s</span>
+
+<span class="comment"># Best practice: prompt direto para tarefa trivial</span>
+<span class="string">"Rename `usr` to `user` in src/auth/ and update all references"</span>
+<span class="comment">  → Executa imediatamente, atualiza todos os call sites, pronto</span>
+
+<span class="comment"># Anti-pattern: executar direto tarefa complexa</span>
+<span class="string">"Migrate our entire database layer from MongoDB to PostgreSQL"</span>
+<span class="comment">  → Vai comecar a mudar arquivos sem entender dependencias, vai quebrar tudo</span>
+
+<span class="comment"># Best practice: planejar antes de tarefa complexa</span>
+<span class="string">"Think hard about migrating from MongoDB to PostgreSQL. Read the current
+data layer in src/db/ and src/models/. Create a phased migration plan
+before making any changes."</span>
+<span class="comment">  → Analisa, planeja, executa por etapas com verificacao</span></pre>
+  </div>
+
+  <!-- ════════════ TABELA RESUMO ════════════ -->
+  <h2>Guia rapido: nivel de planejamento por tipo de tarefa</h2>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Tipo de tarefa</th>
+          <th>Planejamento</th>
+          <th>Thinking</th>
+          <th>Formato do prompt</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Fix typo / lint error</td>
+          <td><span style="color: var(--green);">Nenhum</span></td>
+          <td>-</td>
+          <td>Uma frase direta</td>
+        </tr>
+        <tr>
+          <td>Rename / mover arquivo</td>
+          <td><span style="color: var(--green);">Nenhum</span></td>
+          <td>-</td>
+          <td>Uma frase + escopo</td>
+        </tr>
+        <tr>
+          <td>Adicionar campo / prop</td>
+          <td><span style="color: var(--green);">Nenhum</span></td>
+          <td>-</td>
+          <td>Descricao + tipo + arquivo</td>
+        </tr>
+        <tr>
+          <td>Gerar boilerplate</td>
+          <td><span style="color: var(--green);">Nenhum</span></td>
+          <td>-</td>
+          <td>Template + padrao a seguir</td>
+        </tr>
+        <tr>
+          <td>Implementar endpoint</td>
+          <td><span style="color: var(--yellow);">Leve</span></td>
+          <td><code>think</code></td>
+          <td>Objetivo + padrao existente</td>
+        </tr>
+        <tr>
+          <td>Refatorar funcao grande</td>
+          <td><span style="color: var(--yellow);">Leve</span></td>
+          <td><code>think</code></td>
+          <td>O que extrair + onde colocar</td>
+        </tr>
+        <tr>
+          <td>Adicionar validacao complexa</td>
+          <td><span style="color: var(--blue);">Medio</span></td>
+          <td><code>think hard</code></td>
+          <td>Regras + edge cases</td>
+        </tr>
+        <tr>
+          <td>Refatoracao multi-arquivo</td>
+          <td><span style="color: var(--blue);">Medio</span></td>
+          <td><code>think hard</code></td>
+          <td>Pedir plano antes</td>
+        </tr>
+        <tr>
+          <td>Nova feature full-stack</td>
+          <td><span style="color: var(--red);">Alto</span></td>
+          <td><code>think harder</code></td>
+          <td>Plano detalhado por camada</td>
+        </tr>
+        <tr>
+          <td>Migracao de banco/ORM</td>
+          <td><span style="color: var(--red);">Alto</span></td>
+          <td><code>ultrathink</code></td>
+          <td>Plano faseado + rollback</td>
+        </tr>
+        <tr>
+          <td>Investigar bug em prod</td>
+          <td><span style="color: var(--red);">Alto</span></td>
+          <td><code>ultrathink</code></td>
+          <td>Descrever sintomas + logs</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ DICA DE INTUIÇÃO ════════════ -->
+  <h2>Desenvolvendo intuicao</h2>
+
+  <p>
+    A Anthropic reconhece que as recomendacoes de best practices sao pontos de partida, nao regras
+    rigidas. Com o tempo, voce desenvolve intuicao sobre quando planejar e quando executar direto.
+    Essa intuição vem da pratica — e de prestar atencao nos padroes que funcionam para o seu
+    tipo de codebase e fluxo de trabalho.
+  </p>
+
+  <div class="grid-3">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">1</span>
+        Comece direto
+      </h4>
+      <p>Na duvida, tente o prompt direto primeiro. Se o resultado nao for bom, adicione contexto ou peca um plano no proximo turno.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">2</span>
+        Observe os padroes
+      </h4>
+      <p>Note quais tarefas o Claude Code resolve bem de primeira e quais precisam de iteracao. Ajuste seu threshold de planejamento.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">3</span>
+        Adapte ao contexto
+      </h4>
+      <p>Tarefas exploratorias pedem menos plano. Tarefas em código critico pedem mais. Deixe o contexto guiar, nao uma regra fixa.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>A meta final:</strong> Com pratica, voce sabe instintivamente quando ser especifico e quando
+    ser aberto, quando planejar e quando explorar, quando limpar contexto e quando deixar acumular.
+    Nenhum guia substitui essa intuicao — ele so acelera o caminho ate la.
+  </div>
+
+  <!-- ════════════ FONTES ════════════ -->
+  <div class="sources">
+    <h3>Fontes e Referencias</h3>
+    <ul>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Anthropic — Best Practices for Claude Code</a></li>
+      <li><a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/extended-thinking-tips" target="_blank">Claude Docs — Extended Thinking Tips</a></li>
+      <li><a href="https://www.anthropic.com/engineering/claude-think-tool" target="_blank">Anthropic — The "think" tool: Enabling Claude to stop and think</a></li>
+      <li><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank">Anthropic — Effective Context Engineering for AI Agents</a></li>
+      <li><a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/chain-prompts" target="_blank">Claude Docs — Chain Complex Prompts for Stronger Performance</a></li>
+      <li><a href="https://www.anthropic.com/research/building-effective-agents" target="_blank">Anthropic — Building Effective Agents (Dez/2024)</a></li>
+    </ul>
+  </div>
+
+  <!-- ════════════ NAV FOOTER ════════════ -->
+  <div class="nav-footer">
+    <a href="modulo-03-topico-03-verificacao.html" class="nav-btn">&larr; Topico 3 &middot; Verificacao</a>
+    <a href="../index.html" class="nav-btn">&#8962; Indice</a>
+    <a href="modulo-03-topico-05-commits-prs.html" class="nav-btn">Topico 5 &middot; Commits e PRs &rarr;</a>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo 3 · Tópico 5 — Commits Descritivos e Criação de PRs com o Claude</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-code: #141620;
+      --border: #2a2d3a;
+      --text: #e4e4e7;
+      --text-dim: #9ca3af;
+      --accent: #c4956a;
+      --accent-soft: rgba(196, 149, 106, 0.12);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.12);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .topic-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-soft); padding: 6px 14px;
+      border-radius: 20px; margin-bottom: 1rem;
+    }
+
+    h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+    .subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+    h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+    p { margin-bottom: 1rem; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+    strong { color: #fff; }
+    ul, ol { margin-bottom: 1rem; padding-left: 1.5rem; }
+    li { margin-bottom: 0.4rem; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0;
+    }
+    .card-label {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 6px; margin-bottom: 0.75rem;
+    }
+
+    .diagram-container {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto;
+    }
+    .diagram-container svg { display: block; margin: 0 auto; }
+    .diagram-caption {
+      text-align: center; font-size: 0.85rem; color: var(--text-dim);
+      margin-top: 1rem; font-style: italic;
+    }
+
+    .code-block {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1rem; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim);
+    }
+    .code-block pre {
+      padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8;
+    }
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: var(--purple); }
+    .code-block .string { color: var(--green); }
+    .code-block .tool { color: var(--accent); }
+    .code-block .number { color: var(--yellow); }
+    .code-block .cmd { color: var(--blue); }
+    .code-block .flag { color: var(--purple); }
+    .code-block .output { color: var(--text-dim); }
+
+    .callout {
+      border-left: 3px solid var(--accent); background: var(--accent-soft);
+      padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem;
+    }
+    .callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+    .callout-red { border-left-color: var(--red); background: var(--red-soft); }
+    .callout-green { border-left-color: var(--green); background: var(--green-soft); }
+    .callout strong { color: #fff; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+    }
+
+    .mini-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .mini-card h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;
+    }
+    .mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+
+    .icon-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    .sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .sources ul { list-style: none; padding: 0; }
+    .sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+    .sources li::before { content: "\2192 "; color: var(--accent); }
+
+    .nav-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+      color: var(--text); background: var(--bg-card); border: 1px solid var(--border);
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+
+    /* ── Terminal mock ── */
+    .terminal {
+      background: #0d0d0d; border: 1px solid #333; border-radius: var(--radius);
+      margin: 1.5rem 0; overflow: hidden;
+    }
+    .terminal-header {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 16px; background: #1a1a1a; border-bottom: 1px solid #333;
+    }
+    .terminal-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+    }
+    .terminal-title {
+      font-size: 0.78rem; color: #888; margin-left: 8px; font-family: var(--font-mono);
+    }
+    .terminal-body {
+      padding: 1rem 1.25rem; font-family: var(--font-mono); font-size: 0.82rem;
+      line-height: 1.7; color: #ccc; overflow-x: auto;
+    }
+    .terminal-body .prompt { color: var(--green); }
+    .terminal-body .cmd-text { color: #fff; }
+    .terminal-body .dim { color: #666; }
+    .terminal-body .success { color: var(--green); }
+    .terminal-body .info { color: var(--blue); }
+    .terminal-body .warn { color: var(--yellow); }
+    .terminal-body .agent { color: var(--accent); }
+
+    /* ── Flow steps ── */
+    .flow-step {
+      display: flex; align-items: flex-start; gap: 16px; margin-bottom: 0.5rem;
+      position: relative;
+    }
+    .flow-step::before {
+      content: ''; position: absolute; left: 15px; top: 34px;
+      width: 2px; height: calc(100% - 10px); background: var(--border);
+    }
+    .flow-step:last-child::before { display: none; }
+    .flow-num {
+      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; font-weight: 700; color: #fff;
+    }
+    .flow-content h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff; margin-bottom: 2px;
+    }
+    .flow-content p {
+      font-size: 0.88rem; color: var(--text-dim); margin: 0 0 0.75rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ HEADER ════════════ -->
+  <div class="topic-badge">Modulo 3 · Topico 5</div>
+  <h1>Commits Descritivos e Criacao de PRs com o Claude</h1>
+  <p class="subtitle">
+    O Claude Code tem acesso nativo ao Git via Bash tool e pode executar o fluxo completo:
+    criar branch, implementar, testar, commitar com mensagens descritivas e abrir Pull Requests
+    — tudo numa unica sessao, sem voce sair do terminal.
+  </p>
+
+  <!-- ════════════ GIT NATIVO ════════════ -->
+  <h2>Acesso nativo ao Git</h2>
+
+  <p>
+    O Claude Code nao precisa de plugins especiais para interagir com o Git. Atraves da ferramenta
+    <code>Bash</code>, ele executa qualquer comando Git diretamente — <code>git status</code>,
+    <code>git diff</code>, <code>git log</code>, <code>git commit</code>, <code>git push</code>.
+    Muitos engenheiros da Anthropic usam o Claude para mais de 90% de suas interacoes com Git.
+  </p>
+
+  <p>
+    Alem disso, o Claude entende atalhos naturais: quando voce diz "commita isso" ou "cria uma PR",
+    ele sabe exatamente quais comandos executar. Ele analisa o diff das mudancas, o historico recente
+    de commits e o contexto do que foi feito na sessao para compor mensagens descritivas automaticamente.
+  </p>
+
+  <div class="callout-blue callout">
+    <strong>Dica:</strong> Se voce usa GitHub, instale o <code>gh</code> CLI. Com ele disponivel,
+    o Claude pode criar issues, abrir PRs, ler comentarios de review e ate responder a code reviews
+    — tudo direto do terminal.
+  </div>
+
+  <!-- ════════════ DIAGRAMA SVG ════════════ -->
+  <h2>Fluxo completo: da branch ao PR</h2>
+
+  <p>
+    O poder do Claude Code esta em encadear todas as etapas do workflow de desenvolvimento
+    num unico prompt. O diagrama abaixo mostra o fluxo que o agente executa autonomamente:
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 820 200" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Fluxo completo: Branch, Implement, Test, Commit, PR</title>
+
+      <defs>
+        <marker id="arrowFlow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#6ee7b7"/>
+        </marker>
+        <marker id="arrowFail" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#f87171"/>
+        </marker>
+      </defs>
+
+      <!-- Step 1: Branch -->
+      <rect x="10" y="60" width="120" height="70" rx="12" fill="rgba(96,165,250,0.1)" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="70" y="88" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="600">Branch</text>
+      <text x="70" y="108" text-anchor="middle" fill="#d4d4d8" font-size="10">git checkout -b</text>
+      <text x="70" y="122" text-anchor="middle" fill="#6b7280" font-size="9">feat/nova-feature</text>
+
+      <path d="M135 95 L165 95" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowFlow)"/>
+
+      <!-- Step 2: Implement -->
+      <rect x="170" y="60" width="120" height="70" rx="12" fill="rgba(196,149,106,0.1)" stroke="#c4956a" stroke-width="1.5"/>
+      <text x="230" y="88" text-anchor="middle" fill="#c4956a" font-size="12" font-weight="600">Implementar</text>
+      <text x="230" y="108" text-anchor="middle" fill="#d4d4d8" font-size="10">Edit / Write / Bash</text>
+      <text x="230" y="122" text-anchor="middle" fill="#6b7280" font-size="9">codigo + logica</text>
+
+      <path d="M295 95 L325 95" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowFlow)"/>
+
+      <!-- Step 3: Test -->
+      <rect x="330" y="60" width="120" height="70" rx="12" fill="rgba(251,191,36,0.1)" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="390" y="88" text-anchor="middle" fill="#fbbf24" font-size="12" font-weight="600">Testar</text>
+      <text x="390" y="108" text-anchor="middle" fill="#d4d4d8" font-size="10">npm test / pytest</text>
+      <text x="390" y="122" text-anchor="middle" fill="#6b7280" font-size="9">lint + type check</text>
+
+      <!-- Feedback loop (fail) -->
+      <path d="M390 135 L390 170 C390 185, 380 190, 365 190 L245 190 C230 190, 225 185, 225 170 L225 135"
+            fill="none" stroke="#f87171" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#arrowFail)"/>
+      <text x="310" y="185" text-anchor="middle" fill="#f87171" font-size="9" font-style="italic">falhou? corrige e testa de novo</text>
+
+      <path d="M455 95 L485 95" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowFlow)"/>
+
+      <!-- Step 4: Commit -->
+      <rect x="490" y="60" width="120" height="70" rx="12" fill="rgba(167,139,250,0.1)" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="550" y="88" text-anchor="middle" fill="#a78bfa" font-size="12" font-weight="600">Commit</text>
+      <text x="550" y="108" text-anchor="middle" fill="#d4d4d8" font-size="10">git add + commit</text>
+      <text x="550" y="122" text-anchor="middle" fill="#6b7280" font-size="9">conventional commits</text>
+
+      <path d="M615 95 L645 95" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowFlow)"/>
+
+      <!-- Step 5: PR -->
+      <rect x="650" y="60" width="140" height="70" rx="12" fill="rgba(110,231,183,0.15)" stroke="#6ee7b7" stroke-width="2"/>
+      <text x="720" y="88" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="600">Push + PR</text>
+      <text x="720" y="108" text-anchor="middle" fill="#d4d4d8" font-size="10">git push + gh pr create</text>
+      <text x="720" y="122" text-anchor="middle" fill="#6b7280" font-size="9">descricao automatica</text>
+
+      <!-- Top label -->
+      <text x="410" y="35" text-anchor="middle" fill="#6ee7b7" font-size="13" font-weight="600">FLUXO COMPLETO — uma unica sessao do Claude Code</text>
+    </svg>
+    <p class="diagram-caption">O Claude executa todas as etapas autonomamente, incluindo o loop de correcao quando testes falham.</p>
+  </div>
+
+  <!-- ════════════ CLAUDE.MD PARA COMMITS ════════════ -->
+  <h2>Configurando convencoes de commit no CLAUDE.md</h2>
+
+  <p>
+    Para que o Claude gere commits no padrao do seu projeto, a melhor estrategia e documentar
+    a convencao no arquivo <code>CLAUDE.md</code>. O Claude le esse arquivo no inicio de cada sessao
+    e aplica as regras automaticamente em todos os commits que fizer.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>CLAUDE.md — secao de convencoes Git</span>
+      <span>Markdown</span>
+    </div>
+    <pre>
+<span class="comment"># Convencoes de Git</span>
+
+<span class="comment">## Commits</span>
+<span class="string">- Use Conventional Commits: tipo(escopo): descricao</span>
+<span class="string">- Tipos permitidos: feat, fix, refactor, docs, test, chore, ci, perf</span>
+<span class="string">- Mensagem do commit em portugues</span>
+<span class="string">- Corpo do commit deve explicar o "porque", nao o "o que"</span>
+<span class="string">- Referencia issues quando aplicavel: "Closes #123"</span>
+<span class="string">- Commits atomicos: uma mudanca logica por commit</span>
+
+<span class="comment">## Branches</span>
+<span class="string">- Padrao: tipo/descricao-curta (ex: feat/validacao-email)</span>
+<span class="string">- Sempre crie branch a partir da main atualizada</span>
+
+<span class="comment">## PRs</span>
+<span class="string">- Titulo segue o padrao de Conventional Commits</span>
+<span class="string">- Descricao deve incluir: contexto, mudancas feitas, como testar</span>
+<span class="string">- Sempre vincule a issue relacionada</span></pre>
+  </div>
+
+  <div class="callout">
+    <strong>Por que isso funciona tao bem:</strong> O Claude le o CLAUDE.md como parte do seu contexto
+    inicial. Quando voce pede "commita isso", ele ja sabe que deve usar Conventional Commits,
+    escrever em portugues e referenciar issues. Nenhuma instrucao adicional necessaria.
+  </div>
+
+  <!-- ════════════ PROMPTS PARA COMMITS ════════════ -->
+  <h2>Prompts para commits descritivos</h2>
+
+  <p>
+    O Claude entende comandos naturais para gerar commits. Ele analisa o <code>git diff</code>,
+    o historico recente e o contexto da sessao para produzir mensagens que capturam tanto
+    o "o que" quanto o "porque" da mudanca.
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">1</span>
+        Commit simples
+      </h4>
+      <p><code>Commita as mudancas com conventional commits</code></p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">2</span>
+        Commits atomicos
+      </h4>
+      <p><code>Crie commits atomicos separando cada mudanca logica</code></p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">3</span>
+        Commit com contexto
+      </h4>
+      <p><code>Commita referenciando a issue #42 e explicando o motivo da mudanca</code></p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">4</span>
+        Revisao antes do commit
+      </h4>
+      <p><code>Mostre o diff, sugira a mensagem de commit e espere minha aprovacao</code></p>
+    </div>
+  </div>
+
+  <h3>Exemplo: commit atomico gerado pelo Claude</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Output do Claude — commits atomicos</span>
+      <span>git log</span>
+    </div>
+    <pre>
+<span class="string">feat(auth): adiciona validacao de email no formulario de cadastro</span>
+
+<span class="output">A validacao anterior aceitava qualquer string como email,
+permitindo cadastros com dados invalidos. Agora usamos
+z.string().email() do Zod para garantir formato correto
+antes de enviar ao backend.
+
+Closes #42</span>
+
+<span class="dim">---</span>
+
+<span class="string">test(auth): adiciona testes para validacao de email</span>
+
+<span class="output">Cobre cenarios de email valido, invalido e vazio.
+Garante que a mensagem de erro aparece no formulario.</span>
+
+<span class="dim">---</span>
+
+<span class="string">refactor(auth): extrai schema de validacao para arquivo dedicado</span>
+
+<span class="output">Move o schema Zod de SignupForm.tsx para signup.schema.ts
+para manter consistencia com os demais schemas do projeto.</span></pre>
+  </div>
+
+  <div class="callout-green callout">
+    <strong>Note o padrao:</strong> Cada commit e uma unidade logica independente. O Claude separou
+    a implementacao, os testes e o refactor em commits distintos — exatamente como um dev experiente faria.
+    E cada mensagem explica o "porque", nao apenas o "o que".
+  </div>
+
+  <!-- ════════════ CRIANDO PRs ════════════ -->
+  <h2>Criando Pull Requests com o Claude</h2>
+
+  <p>
+    O Claude pode criar PRs completas usando o <code>gh</code> CLI (GitHub CLI) ou via
+    GitHub MCP Server. A grande vantagem: como ele acabou de implementar as mudancas,
+    ele ja sabe exatamente o que mudou, por que mudou e como testar — e usa tudo isso
+    para gerar a descricao automaticamente.
+  </p>
+
+  <h3>Duas formas de criar PRs</h3>
+
+  <div class="grid-2">
+    <div class="mini-card" style="border-color: var(--blue);">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">CLI</span>
+        Via gh CLI (recomendado)
+      </h4>
+      <p>O Claude executa <code>gh pr create</code> diretamente via Bash. Funciona out-of-the-box
+         se o <code>gh</code> estiver instalado e autenticado. Abordagem mais simples e direta.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--purple);">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">MCP</span>
+        Via GitHub MCP Server
+      </h4>
+      <p>Servidor MCP oficial do GitHub que expoe ferramentas de PR, issues e reviews como tools
+         nativas do Claude. Mais rico em funcionalidades para workflows complexos.</p>
+    </div>
+  </div>
+
+  <h3>Prompt para o fluxo completo</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Prompt do usuario</span>
+      <span>Claude Code</span>
+    </div>
+    <pre>
+<span class="string">Implemente a feature descrita na issue #42. Crie uma branch,
+implemente a solucao, escreva testes, rode todos os testes
+para garantir que nada quebrou, commita com conventional commits
+e abra uma PR linkando a issue.</span></pre>
+  </div>
+
+  <!-- ════════════ TERMINAL MOCK ════════════ -->
+  <h2>O fluxo em acao</h2>
+
+  <p>
+    Veja como o Claude Code executa o fluxo completo a partir de um unico prompt.
+    Cada passo e uma tool call real que o agente decide fazer autonomamente:
+  </p>
+
+  <div class="terminal">
+    <div class="terminal-header">
+      <span class="terminal-dot" style="background: #ff5f57;"></span>
+      <span class="terminal-dot" style="background: #febc2e;"></span>
+      <span class="terminal-dot" style="background: #28c840;"></span>
+      <span class="terminal-title">claude-code ~ sessao interativa</span>
+    </div>
+    <div class="terminal-body">
+<span class="prompt">$</span> <span class="cmd-text">claude</span>
+<span class="dim">╭──────────────────────────────────────────────────╮</span>
+<span class="dim">│</span>  <span class="agent">Claude Code</span> v1.0.32                             <span class="dim">│</span>
+<span class="dim">╰──────────────────────────────────────────────────╯</span>
+
+<span class="prompt">&gt;</span> <span class="cmd-text">Implemente a issue #42 (validacao de email no signup).</span>
+   <span class="cmd-text">Crie branch, implemente, teste, commite e abra PR.</span>
+
+<span class="agent">  Claude</span> Vou comecar lendo a issue para entender os requisitos.
+
+  <span class="info">Bash</span>  gh issue view 42
+  <span class="output">  #42 - Adicionar validacao de email no formulario de cadastro</span>
+  <span class="output">  Labels: enhancement, frontend</span>
+  <span class="output">  O campo de email aceita qualquer string...</span>
+
+<span class="agent">  Claude</span> Entendi. Vou criar a branch e buscar o codigo relevante.
+
+  <span class="info">Bash</span>  git checkout -b feat/validacao-email
+  <span class="success">  Switched to a new branch 'feat/validacao-email'</span>
+
+  <span class="info">Grep</span>  pattern: "signup|cadastro" glob: "**/*.tsx"
+  <span class="output">  src/components/SignupForm.tsx</span>
+  <span class="output">  src/schemas/signup.schema.ts</span>
+
+  <span class="info">Read</span>  src/schemas/signup.schema.ts
+  <span class="output">  email: z.string(),  // sem validacao!</span>
+
+  <span class="info">Edit</span>  src/schemas/signup.schema.ts
+  <span class="output">  - email: z.string()</span>
+  <span class="output">  + email: z.string().email('Informe um email valido')</span>
+
+  <span class="info">Write</span> src/__tests__/signup.test.ts
+  <span class="output">  + describe('signup validation', () => { ... })</span>
+
+  <span class="info">Bash</span>  npm test -- --grep signup
+  <span class="success">  PASS  src/__tests__/signup.test.ts</span>
+  <span class="success">  ✓ rejeita email invalido (4ms)</span>
+  <span class="success">  ✓ aceita email valido (2ms)</span>
+  <span class="success">  ✓ exibe mensagem de erro (3ms)</span>
+
+  <span class="info">Bash</span>  npm run lint && npm run typecheck
+  <span class="success">  ✓ No lint errors</span>
+  <span class="success">  ✓ No type errors</span>
+
+<span class="agent">  Claude</span> Tudo passando. Vou criar commits atomicos.
+
+  <span class="info">Bash</span>  git add src/schemas/signup.schema.ts
+  <span class="info">Bash</span>  git commit -m "feat(auth): adiciona validacao de email
+         no formulario de cadastro
+
+         Closes #42"
+
+  <span class="info">Bash</span>  git add src/__tests__/signup.test.ts
+  <span class="info">Bash</span>  git commit -m "test(auth): adiciona testes para validacao
+         de email"
+
+  <span class="info">Bash</span>  git push -u origin feat/validacao-email
+  <span class="success">  ✓ Branch pushed to origin</span>
+
+  <span class="info">Bash</span>  gh pr create --title "feat(auth): validacao de email
+         no signup" --body "## Contexto
+         Resolve #42. O campo de email aceitava qualquer string.
+
+         ## Mudancas
+         - Adicionada validacao .email() no schema Zod
+         - Testes cobrindo email valido, invalido e vazio
+
+         ## Como testar
+         1. Acesse /signup
+         2. Digite um email invalido
+         3. Verifique que a mensagem de erro aparece"
+  <span class="success">  ✓ PR #87 created: feat(auth): validacao de email no signup</span>
+
+<span class="agent">  Claude</span> Pronto! PR #87 criada e linkada a issue #42.
+  <span class="output">  - 2 commits atomicos (feat + test)</span>
+  <span class="output">  - Todos os testes passando</span>
+  <span class="output">  - Lint e typecheck OK</span>
+  <span class="output">  - PR com descricao completa e instrucoes de teste</span>
+    </div>
+  </div>
+
+  <!-- ════════════ DESCRICAO AUTOMATICA ════════════ -->
+  <h2>Descricao de PR gerada automaticamente</h2>
+
+  <p>
+    Uma das maiores vantagens de usar o Claude para criar PRs e que ele gera descricoes
+    ricas e contextuais automaticamente. Como ele acabou de fazer as mudancas, tem todas
+    as informacoes na memoria da sessao: o que mudou, por que mudou, quais arquivos foram
+    alterados, que testes foram adicionados e como testar manualmente.
+  </p>
+
+  <div class="card">
+    <div class="card-label" style="background: var(--green-soft); color: var(--green);">Anatomia de uma boa descricao de PR</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Secao</th>
+          <th>O que contem</th>
+          <th>De onde o Claude tira</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Contexto</strong></td>
+          <td>Por que essa mudanca existe, qual problema resolve</td>
+          <td>Issue original + entendimento do problema</td>
+        </tr>
+        <tr>
+          <td><strong>Mudancas</strong></td>
+          <td>Lista das alteracoes feitas, arquivos modificados</td>
+          <td>Tool calls de Edit/Write que ele executou</td>
+        </tr>
+        <tr>
+          <td><strong>Como testar</strong></td>
+          <td>Passos para verificar manualmente</td>
+          <td>Contexto funcional da implementacao</td>
+        </tr>
+        <tr>
+          <td><strong>Testes</strong></td>
+          <td>Quais testes foram adicionados/modificados</td>
+          <td>Arquivos de teste que ele criou/editou</td>
+        </tr>
+        <tr>
+          <td><strong>Link com issue</strong></td>
+          <td>Referencia cruzada (Closes #N)</td>
+          <td>Issue que motivou a tarefa</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ BOAS PRATICAS ════════════ -->
+  <h2>Boas praticas para commits e PRs com o Claude</h2>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">A</span>
+        Commits atomicos
+      </h4>
+      <p>Peca ao Claude para separar mudancas logicas em commits distintos. Isso facilita
+         review, bisect e eventual revert.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">P</span>
+        Mensagens que explicam o "porque"
+      </h4>
+      <p>O diff ja mostra o "o que". A mensagem de commit deve explicar a motivacao,
+         o contexto e as decisoes de design.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">R</span>
+        Referencia a issues
+      </h4>
+      <p>Inclua <code>Closes #N</code> ou <code>Relates to #N</code> para manter
+         a rastreabilidade entre codigo e requisitos.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">T</span>
+        Teste antes de commitar
+      </h4>
+      <p>Coloque no CLAUDE.md: "Rode os testes antes de todo commit. Nunca commite codigo
+         que quebra testes existentes."</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Regra de ouro no CLAUDE.md:</strong> Inclua a instrucao
+    <code>Commit and push after every meaningful unit of work</code>. Isso cria um historico
+    granular que serve como safety net — se algo der errado, voce pode reverter facilmente.
+  </div>
+
+  <!-- ════════════ REVISAO DE PR ════════════ -->
+  <h2>Revisao de PR com o Claude Code</h2>
+
+  <p>
+    Alem de criar PRs, o Claude Code tambem pode revisar PRs existentes — seus ou de colegas.
+    Ele analisa diffs, identifica problemas e sugere melhorias. Voce pode usar isso tanto
+    interativamente quanto via GitHub Actions para review automatizado.
+  </p>
+
+  <h3>Prompts para revisao</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Prompts de revisao de PR</span>
+      <span>Claude Code</span>
+    </div>
+    <pre>
+<span class="comment"># Revisao geral</span>
+<span class="string">Revise a PR #87. Foque em bugs, seguranca e performance.</span>
+
+<span class="comment"># Corrigir feedback de review</span>
+<span class="string">Leia os comentarios de review na PR #87, corrija o que for</span>
+<span class="string">apontado e faca push para a branch.</span>
+
+<span class="comment"># Revisao com contexto</span>
+<span class="string">Compare a branch feat/validacao-email com main e identifique</span>
+<span class="string">potenciais problemas de seguranca nas mudancas.</span>
+
+<span class="comment"># Review via GitHub Actions (automatico)</span>
+<span class="string">@claude revise esta PR focando em type safety e edge cases</span></pre>
+  </div>
+
+  <div class="callout-blue callout">
+    <strong>GitHub Actions:</strong> A Anthropic oferece uma GitHub Action oficial que permite
+    ao Claude revisar PRs automaticamente a cada push. Com um simples <code>@claude</code>
+    em comentarios de PR, ele analisa o codigo, responde e pode ate implementar correcoes.
+  </div>
+
+  <!-- ════════════ CHECKPOINTS E SAFETY ════════════ -->
+  <h2>Checkpoints e git stash como safety net</h2>
+
+  <p>
+    Em sessoes longas, onde o Claude faz muitas mudancas, e importante ter mecanismos
+    de recuperacao caso algo saia do caminho esperado.
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card" style="border-color: var(--green);">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">CP</span>
+        Checkpoints do Claude Code
+      </h4>
+      <p>O Claude Code salva automaticamente o estado do codigo antes de cada mudanca.
+         Use <code>Esc Esc</code> (duplo escape) ou o comando <code>/rewind</code> para
+         voltar a qualquer ponto anterior. Voce pode restaurar o codigo, a conversa ou ambos.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--blue);">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">GS</span>
+        Git stash estrategico
+      </h4>
+      <p>Antes de mudancas arriscadas, peca ao Claude para fazer <code>git stash</code>.
+         Isso preserva o estado atual na pilha do Git, permitindo recuperacao mesmo
+         se os checkpoints nao cobrirem a situacao.</p>
+    </div>
+  </div>
+
+  <h3>Estrategias de recuperacao</h3>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Situacao</th>
+          <th>Estrategia</th>
+          <th>Comando/Acao</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Claude editou arquivo errado</td>
+          <td>Checkpoint / Rewind</td>
+          <td><code>Esc Esc</code> ou <code>/rewind</code></td>
+        </tr>
+        <tr>
+          <td>Mudanca grande deu errado</td>
+          <td>Git stash antes + pop depois</td>
+          <td><code>git stash</code> / <code>git stash pop</code></td>
+        </tr>
+        <tr>
+          <td>Commits ja feitos estao errados</td>
+          <td>Git reset (soft)</td>
+          <td><code>git reset --soft HEAD~N</code></td>
+        </tr>
+        <tr>
+          <td>Prevenir perdas em sessao longa</td>
+          <td>Commits frequentes</td>
+          <td>Instrucao no CLAUDE.md</td>
+        </tr>
+        <tr>
+          <td>Branch inteira comprometida</td>
+          <td>Nova branch a partir da main</td>
+          <td><code>git checkout main -b novo-attempt</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout-red callout">
+    <strong>Cuidado com operacoes destrutivas:</strong> O Claude Code pede confirmacao antes de executar
+    comandos como <code>git push --force</code>, <code>git reset --hard</code> e amend de commits
+    publicados. Nunca autorize essas operacoes sem entender o que sera perdido.
+  </div>
+
+  <!-- ════════════ WORKFLOW COMPLETO ════════════ -->
+  <h2>Prompt para o workflow completo</h2>
+
+  <p>
+    Aqui estao exemplos de prompts que ativam o fluxo end-to-end.
+    O segredo e ser claro sobre o objetivo e as expectativas de qualidade:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Prompts para fluxo completo</span>
+      <span>Exemplos</span>
+    </div>
+    <pre>
+<span class="comment"># Fluxo completo a partir de issue</span>
+<span class="string">Leia a issue #42 com gh, crie uma branch, implemente a solucao,</span>
+<span class="string">escreva testes, rode o test suite completo, commita com</span>
+<span class="string">conventional commits e abra uma PR linkando a issue.</span>
+
+<span class="comment"># Fluxo com instrucoes de qualidade</span>
+<span class="string">Implemente a feature de exportacao CSV. Crie branch a partir</span>
+<span class="string">da main atualizada. Commits atomicos. Rode lint, typecheck</span>
+<span class="string">e testes antes de cada commit. Abra PR com descricao completa.</span>
+
+<span class="comment"># Correcao de bug com urgencia</span>
+<span class="string">O bug #99 e critico. Crie uma branch hotfix, corrija o problema,</span>
+<span class="string">adicione um teste de regressao, e abra PR para main.</span>
+
+<span class="comment"># Multiplas issues relacionadas</span>
+<span class="string">As issues #50, #51 e #52 sao relacionadas. Crie uma branch</span>
+<span class="string">para resolver as tres. Cada issue deve ser um commit separado.</span>
+<span class="string">Abra uma unica PR referenciando todas.</span></pre>
+  </div>
+
+  <!-- ════════════ CUSTOM COMMANDS ════════════ -->
+  <h2>Automatizando com slash commands</h2>
+
+  <p>
+    Para workflows de commit e PR que voce repete frequentemente, crie
+    <strong>custom slash commands</strong> na pasta <code>.claude/commands/</code>.
+    Esses comandos ficam disponiveis para toda a equipe via Git.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>.claude/commands/pr.md</span>
+      <span>Custom slash command</span>
+    </div>
+    <pre>
+<span class="comment"># Fluxo padrao de PR</span>
+
+<span class="string">1. Rode todos os testes: `npm test`</span>
+<span class="string">2. Rode lint e typecheck: `npm run lint && npm run typecheck`</span>
+<span class="string">3. Se tudo passar, crie commits atomicos com Conventional Commits</span>
+<span class="string">4. Faca push para a branch atual</span>
+<span class="string">5. Crie uma PR com `gh pr create` incluindo:</span>
+<span class="string">   - Titulo no padrao Conventional Commits</span>
+<span class="string">   - Descricao com contexto, mudancas e como testar</span>
+<span class="string">   - Link para issues relacionadas</span>
+<span class="string">6. Se algum teste falhar, corrija antes de prosseguir</span></pre>
+  </div>
+
+  <p>
+    Com isso configurado, basta digitar <code>/pr</code> no Claude Code e ele executa
+    todo o workflow de qualidade, commit e criacao de PR automaticamente.
+  </p>
+
+  <!-- ════════════ RESUMO ════════════ -->
+  <h2>Resumo: o que muda no seu workflow</h2>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Antes (manual)</th>
+          <th>Depois (com Claude Code)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Escrever mensagem de commit pensando no que mudou</td>
+          <td>Claude analisa o diff e gera mensagem contextual</td>
+        </tr>
+        <tr>
+          <td>Separar mudancas em commits manualmente</td>
+          <td>Claude cria commits atomicos automaticamente</td>
+        </tr>
+        <tr>
+          <td>Escrever descricao de PR do zero</td>
+          <td>Claude gera descricao rica a partir do contexto da sessao</td>
+        </tr>
+        <tr>
+          <td>Alternar entre editor, terminal e GitHub</td>
+          <td>Tudo numa unica sessao do Claude Code</td>
+        </tr>
+        <tr>
+          <td>Revisar PR lendo diff manualmente</td>
+          <td>Claude analisa e aponta problemas proativamente</td>
+        </tr>
+        <tr>
+          <td>Corrigir feedback de review manualmente</td>
+          <td>Claude le os comentarios, corrige e faz push</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ FONTES ════════════ -->
+  <div class="sources">
+    <h3>Fontes e Referencias</h3>
+    <ul>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Anthropic — Best Practices for Claude Code</a></li>
+      <li><a href="https://docs.claude.com/en/docs/claude-code/overview" target="_blank">Claude Docs — Claude Code Overview</a></li>
+      <li><a href="https://docs.anthropic.com/en/docs/claude-code/github-actions" target="_blank">Claude Docs — Claude Code GitHub Actions</a></li>
+      <li><a href="https://anthropic.com/news/how-anthropic-teams-use-claude-code" target="_blank">Anthropic — How Anthropic Teams Use Claude Code</a></li>
+      <li><a href="https://www.anthropic.com/news/enabling-claude-code-to-work-more-autonomously" target="_blank">Anthropic — Enabling Claude Code to Work More Autonomously</a></li>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-sandboxing" target="_blank">Anthropic — Claude Code Sandboxing and Security</a></li>
+      <li><a href="https://www.conventionalcommits.org/pt-br/v1.0.0/" target="_blank">Conventional Commits — Especificacao v1.0.0</a></li>
+    </ul>
+  </div>
+
+  <!-- ════════════ NAV FOOTER ════════════ -->
+  <div class="nav-footer">
+    <a href="modulo-03-topico-04-pular-planejamento.html" class="nav-btn">&larr; Topico 4 &middot; Pular Planejamento</a>
+    <a href="../index.html" class="nav-btn">&#8962; Indice</a>
+    <a href="../modulo-04/modulo-04-topico-01-escopo.html" class="nav-btn">Topico 1 &middot; Escopo &rarr;</a>
+  </div>
+
+</body>
+</html>
