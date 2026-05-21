@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modulo 9 - Topico 2: Regras de Deny | Workshop Claude Code</title>
+<style>
+:root {
+  --bg: #0f1117; --bg-card: #1a1d27; --bg-code: #141620; --border: #2a2d3a;
+  --text: #e4e4e7; --text-dim: #9ca3af; --accent: #c4956a; --accent-soft: rgba(196, 149, 106, 0.12);
+  --blue: #60a5fa; --blue-soft: rgba(96, 165, 250, 0.12); --green: #6ee7b7; --green-soft: rgba(110, 231, 183, 0.12);
+  --purple: #a78bfa; --purple-soft: rgba(167, 139, 250, 0.12); --red: #f87171; --red-soft: rgba(248, 113, 113, 0.12);
+  --yellow: #fbbf24; --yellow-soft: rgba(251, 191, 36, 0.12);
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace; --radius: 12px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.7; padding: 2rem; max-width: 960px; margin: 0 auto; }
+.topic-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); background: var(--accent-soft); padding: 6px 14px; border-radius: 20px; margin-bottom: 1rem; }
+h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+.subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+p { margin-bottom: 1rem; } a { color: var(--blue); text-decoration: none; } a:hover { text-decoration: underline; }
+code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+strong { color: #fff; }
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0; }
+.diagram-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto; }
+.diagram-container svg { display: block; margin: 0 auto; }
+.diagram-caption { text-align: center; font-size: 0.85rem; color: var(--text-dim); margin-top: 1rem; font-style: italic; }
+.code-block { background: var(--bg-code); border: 1px solid var(--border); border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden; }
+.code-header { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 1rem; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim); }
+.code-block pre { padding: 1rem 1.25rem; overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8; }
+.callout { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem; }
+.callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+.callout-red { border-left-color: var(--red); background: var(--red-soft); }
+.callout-green { border-left-color: var(--green); background: var(--green-soft); }
+.callout-yellow { border-left-color: var(--yellow); background: var(--yellow-soft); }
+.callout strong { color: #fff; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+@media (max-width: 640px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } body { padding: 1rem; } h1 { font-size: 1.5rem; } }
+.mini-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
+.mini-card h4 { font-size: 0.95rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px; }
+.mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+.icon-circle { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+td { color: var(--text); } tr:last-child td { border-bottom: none; }
+.sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+.sources ul { list-style: none; padding: 0; }
+.sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+.sources li::before { content: "\2192 "; color: var(--accent); }
+.nav-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.nav-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; color: var(--text); background: var(--bg-card); border: 1px solid var(--border); text-decoration: none; transition: border-color 0.2s; }
+.nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="topic-badge">Modulo 9 &bull; Topico 2</div>
+<h1>Regras de Deny: Bloquear Acesso a .env, ~/.ssh/, secrets</h1>
+<p class="subtitle">Como usar deny rules para impedir que o Claude Code acesse arquivos sensiveis como variaveis de ambiente, chaves SSH e credenciais - a primeira linha de defesa no sistema de permissoes.</p>
+
+<!-- ========== SECAO 1: POR QUE DENY RULES SAO ESSENCIAIS ========== -->
+<h2>1. Por que Deny Rules sao Essenciais</h2>
+
+<p>O Claude Code tem acesso de leitura e escrita a <strong>qualquer arquivo</strong> dentro do working directory e, dependendo das permissoes, a todo o filesystem. Isso significa que arquivos como <code>.env</code>, chaves SSH e credenciais ficam expostos por padrao.</p>
+
+<div class="grid-3">
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--red-soft); color: var(--red);">&#128274;</span> Secrets e API Keys</h4>
+    <p>Arquivos <code>.env</code> com tokens de API, database URLs e senhas em texto plano.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">&#128273;</span> Chaves SSH</h4>
+    <p>Chaves privadas em <code>~/.ssh/</code> que dao acesso a servidores e repositorios.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">&#128196;</span> Credenciais</h4>
+    <p>Arquivos como <code>credentials.json</code>, <code>.npmrc</code> com tokens e keystores.</p>
+  </div>
+</div>
+
+<div class="callout callout-red">
+  <strong>Sem deny rules, nao ha barreira.</strong> Mesmo no modo <code>plan</code>, o Claude pode ler arquivos sensiveis. Deny rules sao a unica forma declarativa de bloquear acesso a paths especificos, independente do modo de permissao ativo.
+</div>
+
+<p>Deny rules funcionam em <strong>todos os modos de permissao</strong> - inclusive quando o usuario aceita uma acao manualmente. A unica excecao e o modo <code>bypassPermissions</code> via SDK, que ignora todas as regras de permissao (e por isso so deve ser usado em ambientes isolados como containers CI).</p>
+
+<!-- ========== SECAO 2: SINTAXE DE REGRAS ========== -->
+<h2>2. Sintaxe de Regras de Permissao</h2>
+
+<p>Regras de permissao seguem o formato <code>Tool(specifier)</code>, onde <code>Tool</code> e o nome da ferramenta e <code>specifier</code> define o escopo (path, comando, dominio, etc).</p>
+
+<div class="code-block">
+  <div class="code-header"><span>Formato geral</span><span>Sintaxe</span></div>
+  <pre><span style="color: var(--green);">Tool</span>              // bare - afeta a tool inteira
+<span style="color: var(--green);">Tool</span>(<span style="color: var(--blue);">specifier</span>)    // scoped - afeta apenas chamadas que match o specifier</pre>
+</div>
+
+<h3>Ordem de avaliacao</h3>
+
+<p>O sistema avalia regras na seguinte ordem de prioridade. O <strong>primeiro match</strong> determina o resultado:</p>
+
+<div class="card">
+  <table>
+    <tr>
+      <th>Prioridade</th>
+      <th>Tipo</th>
+      <th>Efeito</th>
+    </tr>
+    <tr>
+      <td><span style="color: var(--red); font-weight: 600;">1 (maior)</span></td>
+      <td><code>deny</code></td>
+      <td>Bloqueia a operacao silenciosamente. Nenhum prompt exibido.</td>
+    </tr>
+    <tr>
+      <td><span style="color: var(--yellow); font-weight: 600;">2</span></td>
+      <td><code>ask</code></td>
+      <td>Exige aprovacao manual do usuario antes de executar.</td>
+    </tr>
+    <tr>
+      <td><span style="color: var(--green); font-weight: 600;">3 (menor)</span></td>
+      <td><code>allow</code></td>
+      <td>Executa automaticamente sem prompt.</td>
+    </tr>
+  </table>
+</div>
+
+<div class="callout callout-yellow">
+  <strong>Deny sempre prevalece.</strong> Se uma regra de deny faz match, nenhuma regra de allow ou ask pode sobrescreve-la. Isso e valido mesmo entre diferentes escopos de configuracao - se um managed policy define deny, nem a configuracao local pode permitir.
+</div>
+
+<!-- ========== SECAO 3: DENY BARE VS SCOPED ========== -->
+<h2>3. Deny Bare Tool vs Scoped</h2>
+
+<p>Existe uma diferenca fundamental entre bloquear uma tool inteiramente (bare) e bloquear apenas chamadas especificas (scoped).</p>
+
+<div class="grid-2">
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--red-soft); color: var(--red);">X</span> Bare deny</h4>
+    <p><code>"Bash"</code> remove a ferramenta Bash <strong>completamente</strong> do contexto do Claude. Ele nem sabe que ela existe.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">~</span> Scoped deny</h4>
+    <p><code>"Bash(rm *)"</code> mantem o Bash disponivel, mas bloqueia chamadas que match o pattern <code>rm *</code>.</p>
+  </div>
+</div>
+
+<div class="code-block">
+  <div class="code-header"><span>Exemplos de bare vs scoped</span><span>JSON</span></div>
+  <pre>{
+  <span style="color: var(--red);">"deny"</span>: [
+    <span style="color: var(--text-dim);">// Bare: remove a tool inteira</span>
+    "Bash",           <span style="color: var(--text-dim);">// sem terminal nenhum</span>
+    "Edit",           <span style="color: var(--text-dim);">// sem edicao de arquivos</span>
+
+    <span style="color: var(--text-dim);">// Scoped: bloqueia patterns especificos</span>
+    "Bash(rm -rf *)", <span style="color: var(--text-dim);">// bloqueia rm destrutivo, permite outros comandos</span>
+    "Read(.env)",     <span style="color: var(--text-dim);">// bloqueia leitura de .env, permite outros reads</span>
+    "Edit(.env)"      <span style="color: var(--text-dim);">// bloqueia edicao de .env, permite outros edits</span>
+  ]
+}</pre>
+</div>
+
+<!-- ========== SECAO 4: PADROES READ/EDIT ========== -->
+<h2>4. Padroes de Path para Read/Edit</h2>
+
+<p>Os specifiers de <code>Read</code> e <code>Edit</code> usam um sistema de paths com quatro tipos de referencia:</p>
+
+<div class="card">
+  <table>
+    <tr>
+      <th>Prefixo</th>
+      <th>Significado</th>
+      <th>Exemplo</th>
+    </tr>
+    <tr>
+      <td><code>//path</code></td>
+      <td>Caminho absoluto do filesystem root</td>
+      <td><code>Read(//etc/passwd)</code></td>
+    </tr>
+    <tr>
+      <td><code>~/path</code></td>
+      <td>Relativo ao home do usuario</td>
+      <td><code>Read(~/.ssh/id_rsa)</code></td>
+    </tr>
+    <tr>
+      <td><code>/path</code></td>
+      <td>Relativo ao project root</td>
+      <td><code>Read(/config/db.yml)</code></td>
+    </tr>
+    <tr>
+      <td><code>path</code> ou <code>./path</code></td>
+      <td>Relativo ao diretorio atual</td>
+      <td><code>Read(.env)</code></td>
+    </tr>
+  </table>
+</div>
+
+<h3>Wildcards</h3>
+
+<div class="grid-2">
+  <div class="mini-card">
+    <h4><code>*</code> - Um nivel</h4>
+    <p>Match em qualquer nome dentro de <strong>um unico diretorio</strong>. <code>Read(config/*.json)</code> match <code>config/db.json</code> mas nao <code>config/sub/db.json</code>.</p>
+  </div>
+  <div class="mini-card">
+    <h4><code>**</code> - Recursivo</h4>
+    <p>Match em <strong>qualquer profundidade</strong> de diretorios. <code>Read(config/**)</code> match <code>config/a.json</code> e <code>config/sub/deep/b.json</code>.</p>
+  </div>
+</div>
+
+<div class="callout callout-blue">
+  <strong>Equivalencia importante:</strong> <code>Read(.env)</code> e <code>Read(**/.env)</code> sao equivalentes. Um path sem prefixo de diretorio faz match em <strong>qualquer profundidade</strong> do projeto. Ou seja, <code>Read(.env)</code> ja protege <code>src/.env</code>, <code>deploy/.env</code>, etc.
+</div>
+
+<!-- ========== SECAO 5: EXEMPLOS ESSENCIAIS ========== -->
+<h2>5. Exemplos Essenciais de Deny Rules</h2>
+
+<p>Estas sao as deny rules que todo projeto deveria ter como baseline de seguranca:</p>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/settings.json</span><span>JSON</span></div>
+  <pre>{
+  "permissions": {
+    <span style="color: var(--red);">"deny"</span>: [
+      <span style="color: var(--text-dim);">// Variaveis de ambiente (match em qualquer profundidade)</span>
+      "Read(.env)",
+      "Read(.env.local)",
+      "Read(.env.production)",
+
+      <span style="color: var(--text-dim);">// Chaves SSH - todo o diretorio recursivamente</span>
+      "Read(~/.ssh/**)",
+
+      <span style="color: var(--text-dim);">// Diretorio de secrets do projeto</span>
+      "Read(./secrets/**)",
+
+      <span style="color: var(--text-dim);">// Arquivo de credenciais especifico</span>
+      "Read(./config/credentials.json)",
+
+      <span style="color: var(--text-dim);">// Prevenir edicao de .env em qualquer lugar do filesystem</span>
+      "Edit(//**/.env)",
+
+      <span style="color: var(--text-dim);">// Prevenir edicao de .env.* (production, staging, etc)</span>
+      "Edit(**/.env.*)"
+    ]
+  }
+}</pre>
+</div>
+
+<div class="callout callout-green">
+  <strong>Dica pratica:</strong> Coloque essas regras em <code>.claude/settings.json</code> no repositorio para que toda a equipe compartilhe as mesmas protecoes. Este arquivo deve ser versionado no VCS.
+</div>
+
+<!-- ========== SECAO 6: SYMLINKS E DENY ========== -->
+<h2>6. Symlinks e Deny Rules</h2>
+
+<p>O tratamento de symlinks difere entre allow e deny rules, seguindo o principio de <strong>seguranca por padrao</strong>:</p>
+
+<div class="grid-2">
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">&#10003;</span> Allow rules</h4>
+    <p><strong>Ambos</strong> o symlink e o target devem dar match na regra de allow. Se apenas um deles faz match, o acesso e negado. Isso impede bypass via symlinks para arquivos fora do escopo.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--red-soft); color: var(--red);">&#10007;</span> Deny rules</h4>
+    <p><strong>Qualquer um</strong> (symlink OU target) que de match na regra de deny e suficiente para bloquear. Isso impede bypass criando symlinks para arquivos protegidos.</p>
+  </div>
+</div>
+
+<div class="callout callout-red">
+  <strong>Atencao:</strong> Se um atacante criar um symlink <code>./innocent.txt -> ~/.ssh/id_rsa</code>, a deny rule <code>Read(~/.ssh/**)</code> ainda bloqueia o acesso porque o target do symlink da match na regra.
+</div>
+
+<!-- ========== SECAO 7: BASH DENY RULES ========== -->
+<h2>7. Bash Deny Rules</h2>
+
+<p>Deny rules para <code>Bash</code> usam wildcards com <code>*</code> para match de argumentos e reconhecem operadores de shell para avaliar compound commands.</p>
+
+<div class="code-block">
+  <div class="code-header"><span>Exemplos de Bash deny</span><span>JSON</span></div>
+  <pre>{
+  "permissions": {
+    <span style="color: var(--red);">"deny"</span>: [
+      "Bash(git push *)",        <span style="color: var(--text-dim);">// bloqueia qualquer git push</span>
+      "Bash(rm -rf *)",          <span style="color: var(--text-dim);">// bloqueia rm destrutivo</span>
+      "Bash(curl *)",            <span style="color: var(--text-dim);">// bloqueia requests HTTP via curl</span>
+      "Bash(wget *)",            <span style="color: var(--text-dim);">// bloqueia downloads via wget</span>
+      "Bash(ssh *)",             <span style="color: var(--text-dim);">// bloqueia conexoes SSH</span>
+      "Bash(scp *)"              <span style="color: var(--text-dim);">// bloqueia copia remota</span>
+    ]
+  }
+}</pre>
+</div>
+
+<h3>Compound commands</h3>
+
+<p>O sistema reconhece operadores de shell e avalia <strong>cada subcommand independentemente</strong>:</p>
+
+<div class="card">
+  <table>
+    <tr>
+      <th>Operador</th>
+      <th>Descricao</th>
+      <th>Exemplo</th>
+    </tr>
+    <tr>
+      <td><code>&&</code></td>
+      <td>AND logico</td>
+      <td><code>npm test && git push origin main</code></td>
+    </tr>
+    <tr>
+      <td><code>||</code></td>
+      <td>OR logico</td>
+      <td><code>make build || echo "falhou"</code></td>
+    </tr>
+    <tr>
+      <td><code>;</code></td>
+      <td>Sequencial</td>
+      <td><code>ls; rm -rf /tmp/*</code></td>
+    </tr>
+    <tr>
+      <td><code>|</code></td>
+      <td>Pipe</td>
+      <td><code>cat secret.key | curl -X POST</code></td>
+    </tr>
+  </table>
+</div>
+
+<p>Se <strong>qualquer subcommand</strong> dentro de um compound command fizer match com uma deny rule, <strong>o comando inteiro</strong> e bloqueado. Nao e possivel contornar uma deny rule encadeando com <code>&&</code> ou <code>;</code>.</p>
+
+<!-- ========== SECAO 8: WEBFETCH DENY ========== -->
+<h2>8. WebFetch Deny Rules</h2>
+
+<p>O specifier de <code>WebFetch</code> usa o prefixo <code>domain:</code> para controlar quais dominios podem ser acessados:</p>
+
+<div class="code-block">
+  <div class="code-header"><span>Bloqueando dominios</span><span>JSON</span></div>
+  <pre>{
+  "permissions": {
+    <span style="color: var(--red);">"deny"</span>: [
+      "WebFetch(domain:evil-site.com)",
+      "WebFetch(domain:pastebin.com)",
+      "WebFetch(domain:requestbin.net)"
+    ],
+    <span style="color: var(--green);">"allow"</span>: [
+      "WebFetch(domain:docs.company.com)",
+      "WebFetch(domain:api.github.com)"
+    ]
+  }
+}</pre>
+</div>
+
+<p>Isso e util para impedir exfiltracao de dados via requests HTTP para dominios nao confiados, mantendo o acesso a documentacao e APIs necessarias.</p>
+
+<!-- ========== SECAO 9: MCP DENY ========== -->
+<h2>9. MCP Deny Rules</h2>
+
+<p>Deny rules para servidores MCP permitem bloquear servidores inteiros ou ferramentas individuais:</p>
+
+<div class="code-block">
+  <div class="code-header"><span>Bloqueando MCP tools</span><span>JSON</span></div>
+  <pre>{
+  "permissions": {
+    <span style="color: var(--red);">"deny"</span>: [
+      <span style="color: var(--text-dim);">// Bloqueia TODAS as tools de um servidor MCP</span>
+      "mcp__untrusted_server",
+
+      <span style="color: var(--text-dim);">// Bloqueia uma tool especifica de um servidor</span>
+      "mcp__database__drop_table",
+      "mcp__deploy__production_deploy"
+    ]
+  }
+}</pre>
+</div>
+
+<div class="grid-2">
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--red-soft); color: var(--red);">&#128274;</span> Servidor inteiro</h4>
+    <p><code>mcp__server_name</code> bloqueia todas as ferramentas expostas por aquele servidor MCP. Util para servidores nao auditados.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">&#9881;</span> Tool especifica</h4>
+    <p><code>mcp__server__tool_name</code> bloqueia apenas a ferramenta indicada, mantendo o restante do servidor acessivel.</p>
+  </div>
+</div>
+
+<!-- ========== SECAO 10: COMBINANDO COM SANDBOXING ========== -->
+<h2>10. Combinando com Sandboxing</h2>
+
+<p>Deny rules e sandbox operam em camadas diferentes, formando uma estrategia de <strong>defense-in-depth</strong>:</p>
+
+<div class="grid-2">
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">&#128737;</span> Deny Rules</h4>
+    <p>Bloqueiam no nivel do <strong>Claude Code</strong> (aplicacao). O Claude nao tenta acessar o recurso.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">&#128451;</span> Sandbox</h4>
+    <p>Bloqueia no nivel do <strong>OS</strong> (kernel). Mesmo que o Claude tente, o sistema operacional nega.</p>
+  </div>
+</div>
+
+<p>As configuracoes de filesystem do sandbox se mesclam com as deny rules de <code>Read</code> e <code>Edit</code>. Se o sandbox restringe o acesso a um diretorio, a deny rule reforça isso no nivel da aplicacao. Se a deny rule bloqueia um path, o sandbox impede no nivel do OS como camada adicional.</p>
+
+<div class="callout callout-blue">
+  <strong>Defense-in-depth:</strong> Use deny rules para declarar a intencao de seguranca e sandbox para enforcement no OS. Mesmo que um bug no Claude Code ignore a deny rule, o sandbox captura a tentativa.
+</div>
+
+<!-- ========== SECAO 11: DIAGRAMA DE AVALIACAO ========== -->
+<h2>11. Fluxo de Avaliacao de Permissoes</h2>
+
+<div class="diagram-container">
+  <svg viewBox="0 0 800 420" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+    <!-- Tool Call -->
+    <rect x="300" y="10" width="200" height="44" rx="8" fill="#1a1d27" stroke="#c4956a" stroke-width="2"/>
+    <text x="400" y="38" text-anchor="middle" fill="#e4e4e7" font-size="14" font-weight="600">Tool Call</text>
+
+    <!-- Arrow 1 -->
+    <line x1="400" y1="54" x2="400" y2="90" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+    <!-- Deny Check -->
+    <polygon points="400,90 520,145 400,200 280,145" fill="#1a1d27" stroke="#f87171" stroke-width="2"/>
+    <text x="400" y="142" text-anchor="middle" fill="#f87171" font-size="13" font-weight="600">Deny match?</text>
+
+    <!-- Deny Yes -->
+    <line x1="520" y1="145" x2="620" y2="145" stroke="#f87171" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <text x="560" y="138" fill="#f87171" font-size="11">Sim</text>
+    <rect x="620" y="123" width="140" height="44" rx="8" fill="rgba(248,113,113,0.15)" stroke="#f87171" stroke-width="1.5"/>
+    <text x="690" y="150" text-anchor="middle" fill="#f87171" font-size="13" font-weight="600">BLOQUEADO</text>
+
+    <!-- Arrow 2 -->
+    <line x1="400" y1="200" x2="400" y2="236" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <text x="412" y="222" fill="#9ca3af" font-size="11">Nao</text>
+
+    <!-- Ask Check -->
+    <polygon points="400,236 520,291 400,346 280,291" fill="#1a1d27" stroke="#fbbf24" stroke-width="2"/>
+    <text x="400" y="288" text-anchor="middle" fill="#fbbf24" font-size="13" font-weight="600">Ask match?</text>
+
+    <!-- Ask Yes -->
+    <line x1="520" y1="291" x2="620" y2="291" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <text x="560" y="284" fill="#fbbf24" font-size="11">Sim</text>
+    <rect x="620" y="269" width="140" height="44" rx="8" fill="rgba(251,191,36,0.15)" stroke="#fbbf24" stroke-width="1.5"/>
+    <text x="690" y="296" text-anchor="middle" fill="#fbbf24" font-size="13" font-weight="600">Prompt usuario</text>
+
+    <!-- Arrow 3 -->
+    <line x1="400" y1="346" x2="400" y2="376" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <text x="412" y="366" fill="#9ca3af" font-size="11">Nao</text>
+
+    <!-- Allow -->
+    <rect x="300" y="376" width="200" height="44" rx="8" fill="rgba(110,231,183,0.15)" stroke="#6ee7b7" stroke-width="2"/>
+    <text x="400" y="403" text-anchor="middle" fill="#6ee7b7" font-size="13" font-weight="600">Allow / Auto-approve</text>
+
+    <!-- Arrow marker -->
+    <defs>
+      <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#9ca3af"/>
+      </marker>
+    </defs>
+  </svg>
+  <div class="diagram-caption">Fluxo de avaliacao: deny tem prioridade absoluta, seguido de ask e allow.</div>
+</div>
+
+<!-- ========== SECAO 12: CONFIGURACOES POR ESCOPO ========== -->
+<h2>12. Configuracoes por Escopo de Prioridade</h2>
+
+<p>Regras de permissao podem ser definidas em multiplos niveis. Deny rules sao <strong>cumulativas</strong> - se qualquer nivel define deny, nenhum outro pode sobrescrever com allow.</p>
+
+<div class="card">
+  <table>
+    <tr>
+      <th>Prioridade</th>
+      <th>Escopo</th>
+      <th>Origem</th>
+    </tr>
+    <tr>
+      <td><span style="color: var(--red); font-weight: 600;">1 (maior)</span></td>
+      <td>Managed settings (enterprise)</td>
+      <td>Policy da organizacao via MDM</td>
+    </tr>
+    <tr>
+      <td><span style="color: var(--yellow); font-weight: 600;">2</span></td>
+      <td>CLI arguments</td>
+      <td>Flags <code>--deny</code> na linha de comando</td>
+    </tr>
+    <tr>
+      <td><span style="color: var(--blue); font-weight: 600;">3</span></td>
+      <td>Local project</td>
+      <td><code>.claude/settings.local.json</code></td>
+    </tr>
+    <tr>
+      <td><span style="color: var(--purple); font-weight: 600;">4</span></td>
+      <td>Shared project</td>
+      <td><code>.claude/settings.json</code> (versionado)</td>
+    </tr>
+    <tr>
+      <td><span style="color: var(--green); font-weight: 600;">5 (menor)</span></td>
+      <td>User settings</td>
+      <td><code>~/.claude/settings.json</code></td>
+    </tr>
+  </table>
+</div>
+
+<div class="callout">
+  <strong>Regra de ouro:</strong> Uma deny rule em <strong>qualquer nivel</strong> nao pode ser anulada por um allow em outro nivel. Deny e final e irrevogavel dentro de uma sessao. Isso garante que politicas de seguranca da organizacao nao possam ser relaxadas por desenvolvedores individuais.
+</div>
+
+<!-- ========== SECAO 13: READ-ONLY COMMANDS ========== -->
+<h2>13. Comandos Read-Only Reconhecidos</h2>
+
+<p>O Claude Code classifica automaticamente certos comandos como <strong>read-only</strong>, permitindo execucao sem prompt em modos mais restritivos. Esta lista <strong>nao e configuravel</strong>, mas deny rules podem sobrescrever esse comportamento:</p>
+
+<div class="grid-3">
+  <div class="mini-card">
+    <h4>Listagem</h4>
+    <p><code>ls</code>, <code>find</code>, <code>du</code>, <code>stat</code></p>
+  </div>
+  <div class="mini-card">
+    <h4>Leitura</h4>
+    <p><code>cat</code>, <code>head</code>, <code>tail</code>, <code>grep</code></p>
+  </div>
+  <div class="mini-card">
+    <h4>Informacao</h4>
+    <p><code>echo</code>, <code>pwd</code>, <code>wc</code>, <code>which</code></p>
+  </div>
+  <div class="mini-card">
+    <h4>Comparacao</h4>
+    <p><code>diff</code></p>
+  </div>
+  <div class="mini-card">
+    <h4>Navegacao</h4>
+    <p><code>cd</code></p>
+  </div>
+  <div class="mini-card">
+    <h4>Override</h4>
+    <p>Deny rules podem bloquear qualquer um desses</p>
+  </div>
+</div>
+
+<div class="code-block">
+  <div class="code-header"><span>Bloqueando comando read-only</span><span>JSON</span></div>
+  <pre>{
+  "permissions": {
+    <span style="color: var(--red);">"deny"</span>: [
+      <span style="color: var(--text-dim);">// Mesmo cat sendo read-only, deny rule prevalece</span>
+      "Bash(cat ~/.ssh/*)",
+      "Bash(cat .env)",
+      "Bash(find ~/.ssh *)"
+    ]
+  }
+}</pre>
+</div>
+
+<!-- ========== SECAO 14: BOAS PRATICAS ========== -->
+<h2>14. Boas Praticas</h2>
+
+<div class="grid-2">
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--red-soft); color: var(--red);">1</span> Comece restritivo</h4>
+    <p>Defina deny rules abrangentes primeiro. E mais facil relaxar permissoes do que lembrar de adicionar restricoes depois de um incidente.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">2</span> Versione no VCS</h4>
+    <p>Coloque deny rules em <code>.claude/settings.json</code> e faca commit. Toda a equipe deve compartilhar as mesmas restricoes de seguranca.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">3</span> Monitore com /permissions</h4>
+    <p>Use o comando <code>/permissions</code> durante sessoes interativas para verificar quais regras estao ativas e diagnosticar bloqueios inesperados.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">4</span> Combine com sandbox</h4>
+    <p>Deny rules sao a camada declarativa. Sandbox e a camada de enforcement do OS. Use ambos para defense-in-depth real.</p>
+  </div>
+</div>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/settings.json - Template completo recomendado</span><span>JSON</span></div>
+  <pre>{
+  "permissions": {
+    <span style="color: var(--red);">"deny"</span>: [
+      <span style="color: var(--text-dim);">// Secrets e envs</span>
+      "Read(.env)",
+      "Read(.env.*)",
+      "Edit(.env)",
+      "Edit(.env.*)",
+
+      <span style="color: var(--text-dim);">// Chaves SSH</span>
+      "Read(~/.ssh/**)",
+
+      <span style="color: var(--text-dim);">// Credenciais do projeto</span>
+      "Read(./secrets/**)",
+      "Read(./config/credentials.json)",
+
+      <span style="color: var(--text-dim);">// Comandos perigosos</span>
+      "Bash(rm -rf *)",
+      "Bash(git push *)",
+
+      <span style="color: var(--text-dim);">// Exfiltracao de dados</span>
+      "Bash(curl *)",
+      "Bash(wget *)"
+    ],
+    <span style="color: var(--yellow);">"ask"</span>: [
+      "Bash(git commit *)",
+      "Bash(npm publish *)"
+    ],
+    <span style="color: var(--green);">"allow"</span>: [
+      "Read",
+      "Bash(npm test)",
+      "Bash(npm run lint)"
+    ]
+  }
+}</pre>
+</div>
+
+<!-- ========== FONTES ========== -->
+<div class="sources">
+  <h3>Fontes e Referencias</h3>
+  <ul>
+    <li><a href="https://code.claude.com/docs/en/permissions" target="_blank">Claude Code - Permissions</a></li>
+    <li><a href="https://code.claude.com/docs/en/security" target="_blank">Claude Code - Security</a></li>
+  </ul>
+</div>
+
+<!-- ========== NAVEGACAO ========== -->
+<nav class="nav-footer">
+  <a href="modulo-09-topico-01-modos-permissao.html" class="nav-btn">&larr; Anterior: Modos de Permissao</a>
+  <a href="../index.html" class="nav-btn">Indice</a>
+  <a href="modulo-09-topico-03-nao-rodar-root.html" class="nav-btn">Proximo: Nao Rodar como Root &rarr;</a>
+</nav>
+
+</body>
+</html>

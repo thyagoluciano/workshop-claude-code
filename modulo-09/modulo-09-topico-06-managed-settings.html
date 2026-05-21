@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modulo 9 - Topico 6: managed-settings.json para Politicas de Equipe/Empresa | Workshop Claude Code</title>
+<style>
+:root {
+  --bg: #0f1117; --bg-card: #1a1d27; --bg-code: #141620; --border: #2a2d3a;
+  --text: #e4e4e7; --text-dim: #9ca3af; --accent: #c4956a; --accent-soft: rgba(196, 149, 106, 0.12);
+  --blue: #60a5fa; --blue-soft: rgba(96, 165, 250, 0.12); --green: #6ee7b7; --green-soft: rgba(110, 231, 183, 0.12);
+  --purple: #a78bfa; --purple-soft: rgba(167, 139, 250, 0.12); --red: #f87171; --red-soft: rgba(248, 113, 113, 0.12);
+  --yellow: #fbbf24; --yellow-soft: rgba(251, 191, 36, 0.12);
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace; --radius: 12px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.7; padding: 2rem; max-width: 960px; margin: 0 auto; }
+.topic-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); background: var(--accent-soft); padding: 6px 14px; border-radius: 20px; margin-bottom: 1rem; }
+h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+.subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+p { margin-bottom: 1rem; } a { color: var(--blue); text-decoration: none; } a:hover { text-decoration: underline; }
+code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+strong { color: #fff; }
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0; }
+.diagram-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto; }
+.diagram-container svg { display: block; margin: 0 auto; }
+.diagram-caption { text-align: center; font-size: 0.85rem; color: var(--text-dim); margin-top: 1rem; font-style: italic; }
+.code-block { background: var(--bg-code); border: 1px solid var(--border); border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden; }
+.code-header { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 1rem; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim); }
+.code-block pre { padding: 1rem 1.25rem; overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8; }
+.callout { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem; }
+.callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+.callout-red { border-left-color: var(--red); background: var(--red-soft); }
+.callout-green { border-left-color: var(--green); background: var(--green-soft); }
+.callout-yellow { border-left-color: var(--yellow); background: var(--yellow-soft); }
+.callout strong { color: #fff; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+@media (max-width: 640px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } body { padding: 1rem; } h1 { font-size: 1.5rem; } }
+.mini-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
+.mini-card h4 { font-size: 0.95rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px; }
+.mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+.icon-circle { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+td { color: var(--text); } tr:last-child td { border-bottom: none; }
+.sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+.sources ul { list-style: none; padding: 0; }
+.sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+.sources li::before { content: "\2192 "; color: var(--accent); }
+.nav-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.nav-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; color: var(--text); background: var(--bg-card); border: 1px solid var(--border); text-decoration: none; transition: border-color 0.2s; }
+.nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="topic-badge">Modulo 9 &bull; Topico 6</div>
+<h1>managed-settings.json para Politicas de Equipe/Empresa</h1>
+<p class="subtitle">
+Configuracoes centralizadas que administradores implantam e que nao podem ser sobrescritas por settings de usuario ou projeto. Controle total de seguranca, permissoes e comportamento do Claude Code em escala organizacional.
+</p>
+
+<!-- ============================================================ -->
+<h2>1. O que sao Managed Settings</h2>
+
+<p>
+Managed settings sao configuracoes definidas por administradores de equipe ou empresa que possuem a <strong>maior prioridade</strong> na hierarquia de settings do Claude Code. Diferente de settings de usuario ou projeto, managed settings <strong>nao podem ser sobrescritos</strong> por nenhuma outra camada de configuracao.
+</p>
+
+<p>
+O objetivo e simples: garantir que politicas de seguranca, restricoes de ferramentas e regras de compliance sejam aplicadas de forma uniforme em toda a organizacao, independente do que cada desenvolvedor configure localmente. Se um admin define que <code>.env</code> nunca deve ser lido, nenhum usuario pode desfazer essa regra.
+</p>
+
+<div class="callout callout-red">
+<strong>Regra fundamental:</strong> Se um <code>deny</code> existe em qualquer nivel da hierarquia de settings, nenhum outro nivel pode fazer <code>allow</code> dessa mesma permissao. O deny sempre vence. Managed settings apenas reforçam isso ao garantir que o deny nao pode ser removido.
+</div>
+
+<p>
+Managed settings suportam todas as propriedades de settings normais (<code>permissions</code>, <code>allowedTools</code>, <code>deniedTools</code>, <code>mcpServers</code>, <code>hooks</code>, etc.) e adicionam propriedades exclusivas que so existem nesse nivel, como <code>disableBypassPermissionsMode</code> e <code>allowManagedMcpServersOnly</code>.
+</p>
+
+<!-- ============================================================ -->
+<h2>2. Hierarquia de Settings</h2>
+
+<p>
+O Claude Code resolve configuracoes em uma ordem de precedencia bem definida. Entender essa hierarquia e essencial para saber o que pode e o que nao pode ser sobrescrito.
+</p>
+
+<table>
+<thead>
+<tr>
+<th>Prioridade</th>
+<th>Camada</th>
+<th>Local</th>
+<th>Pode ser sobrescrito?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1 (maior)</strong></td>
+<td><strong>Managed settings</strong></td>
+<td>MDM / servidor / arquivo de sistema</td>
+<td>Nao - camada final</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>Command line arguments</td>
+<td>Flags na invocacao do CLI</td>
+<td>Sim, por managed</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td>Local project settings</td>
+<td><code>.claude/settings.local.json</code></td>
+<td>Sim, por managed e CLI</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td>Shared project settings</td>
+<td><code>.claude/settings.json</code></td>
+<td>Sim, por niveis superiores</td>
+</tr>
+<tr>
+<td><strong>5 (menor)</strong></td>
+<td>User settings</td>
+<td><code>~/.claude/settings.json</code></td>
+<td>Sim, por todos acima</td>
+</tr>
+</tbody>
+</table>
+
+<div class="callout callout-blue">
+<strong>Deny e absoluto:</strong> Independente da hierarquia de precedencia, se uma regra <code>deny</code> aparece em qualquer camada, ela nao pode ser revertida por um <code>allow</code> em outra camada. O merge de permissoes e aditivo para allows, mas deny sempre prevalece.
+</div>
+
+<!-- ============================================================ -->
+<h2>3. Mecanismos de Entrega</h2>
+
+<p>
+Existem tres formas de entregar managed settings para as maquinas dos desenvolvedores. Cada uma atende cenarios diferentes de infraestrutura e escala.
+</p>
+
+<div class="grid-3">
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">1</span> MDM / OS-level</h4>
+<p>Politicas nativas do sistema operacional. Registry keys no Windows, plist no macOS, arquivos em <code>/etc</code> no Linux. Ideal para organizacoes que ja possuem infraestrutura de MDM (Jamf, Intune, etc.).</p>
+</div>
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">2</span> Arquivo no sistema</h4>
+<p>Arquivo <code>managed-settings.json</code> posicionado em local padrao do OS. Pode ser distribuido por scripts de provisionamento, Ansible, Chef, ou qualquer ferramenta de config management.</p>
+</div>
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">3</span> Server-managed</h4>
+<p>Entregue pela API da Anthropic no momento da autenticacao. Configurado via interface web no <code>claude.ai</code>. Sem necessidade de infraestrutura de endpoint ou deploy em maquinas.</p>
+</div>
+</div>
+
+<h3>Locais de arquivo por sistema operacional</h3>
+
+<div class="code-block">
+<div class="code-header"><span>Caminhos padrao do managed-settings.json</span></div>
+<pre>
+# macOS
+~/Library/Application Support/claude-code/managed-settings.json
+
+# Linux
+/etc/claude-code/managed-settings.json
+
+# Windows
+%APPDATA%\claude-code\managed-settings.json
+</pre>
+</div>
+
+<!-- ============================================================ -->
+<h2>4. Server-Managed Settings</h2>
+
+<p>
+Server-managed settings sao a forma mais conveniente de aplicar politicas em escala. As configuracoes sao definidas na interface web do <code>claude.ai</code> e entregues automaticamente para cada instancia do Claude Code via API durante a autenticacao.
+</p>
+
+<div class="card">
+<h3>Como funciona</h3>
+<ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
+<li>Configurado em <strong>Claude.ai > Admin Settings > Claude Code > Managed settings</strong></li>
+<li>Entregue pela API no momento da autenticacao do usuario</li>
+<li><strong>Refresh automatico a cada hora</strong> durante sessoes ativas</li>
+<li>Sem necessidade de infraestrutura de endpoint ou deploy nas maquinas</li>
+<li>Requisitos de versao: <strong>v2.1.38+</strong> (Teams) ou <strong>v2.1.30+</strong> (Enterprise)</li>
+</ul>
+</div>
+
+<div class="callout callout-green">
+<strong>Vantagem operacional:</strong> Com server-managed settings, voce atualiza a politica em um unico lugar (painel web) e todas as instancias do Claude Code na organizacao recebem a atualizacao automaticamente no proximo refresh, sem tocar em nenhuma maquina.
+</div>
+
+<!-- ============================================================ -->
+<h2>5. Settings Exclusivos de Managed</h2>
+
+<p>
+Alem de suportar todas as propriedades de settings normais, managed settings oferecem configuracoes exclusivas que so existem nesse nivel. Essas propriedades controlam aspectos criticos de seguranca e compliance.
+</p>
+
+<table>
+<thead>
+<tr>
+<th>Propriedade</th>
+<th>Descricao</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>allowManagedHooksOnly</code></td>
+<td>Quando <code>true</code>, so hooks de managed settings, SDK e plugins forcados em <code>enabledPlugins</code> sao carregados. Hooks de user/project sao bloqueados.</td>
+</tr>
+<tr>
+<td><code>allowManagedMcpServersOnly</code></td>
+<td>Restringe MCP servers exclusivamente aos definidos em <code>allowedMcpServers</code> de managed settings.</td>
+</tr>
+<tr>
+<td><code>allowManagedPermissionRulesOnly</code></td>
+<td>Previne user e project de definir regras <code>allow</code>, <code>ask</code> ou <code>deny</code>. So regras managed se aplicam.</td>
+</tr>
+<tr>
+<td><code>disableBypassPermissionsMode</code></td>
+<td>Impede o uso de <code>--dangerously-skip-permissions</code> e bypass mode. Critico para compliance.</td>
+</tr>
+<tr>
+<td><code>disableAutoMode</code></td>
+<td>Impede que usuarios ativem auto mode, forcando confirmacao manual de acoes.</td>
+</tr>
+<tr>
+<td><code>blockedMarketplaces</code></td>
+<td>Lista de URLs de marketplaces de plugins que devem ser bloqueados.</td>
+</tr>
+<tr>
+<td><code>strictKnownMarketplaces</code></td>
+<td>Controla quais marketplaces de plugins sao permitidos. Somente fontes aprovadas.</td>
+</tr>
+<tr>
+<td><code>channelsEnabled</code></td>
+<td>Habilita ou desabilita o recurso de channels na organizacao.</td>
+</tr>
+<tr>
+<td><code>allowedChannelPlugins</code></td>
+<td>Allowlist de plugins que podem ser usados em channels.</td>
+</tr>
+<tr>
+<td><code>forceRemoteSettingsRefresh</code></td>
+<td>Bloqueia startup do CLI ate que managed settings sejam buscados com sucesso. Modelo fail-closed.</td>
+</tr>
+<tr>
+<td><code>sandbox.filesystem.allowManagedReadPathsOnly</code></td>
+<td>Restringe leitura de filesystem somente a paths definidos em managed settings.</td>
+</tr>
+<tr>
+<td><code>sandbox.network.allowManagedDomainsOnly</code></td>
+<td>Restringe acesso de rede somente a dominios definidos em managed settings.</td>
+</tr>
+<tr>
+<td><code>pluginTrustMessage</code></td>
+<td>Mensagem customizada exibida quando o usuario e solicitado a confiar em um plugin.</td>
+</tr>
+<tr>
+<td><code>wslInheritsWindowsSettings</code></td>
+<td>Permite que WSL herde managed settings definidos no lado Windows.</td>
+</tr>
+</tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2>6. Exemplos Praticos de Politicas</h2>
+
+<h3>6.1 Forcar deny rules para arquivos sensiveis</h3>
+
+<div class="code-block">
+<div class="code-header"><span>managed-settings.json - Proteger .env e .ssh</span></div>
+<pre>
+{
+  "permissions": {
+    "deny": [
+      "Read(.env*)",
+      "Read(.ssh/**)",
+      "Write(.env*)",
+      "Write(.ssh/**)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)"
+    ]
+  }
+}
+</pre>
+</div>
+
+<h3>6.2 Desabilitar bypass permissions mode</h3>
+
+<div class="code-block">
+<div class="code-header"><span>managed-settings.json - Bloquear bypass</span></div>
+<pre>
+{
+  "disableBypassPermissionsMode": true,
+  "disableAutoMode": false
+}
+</pre>
+</div>
+
+<h3>6.3 Restringir MCP servers a lista aprovada</h3>
+
+<div class="code-block">
+<div class="code-header"><span>managed-settings.json - MCP allowlist</span></div>
+<pre>
+{
+  "allowManagedMcpServersOnly": true,
+  "mcpServers": {
+    "internal-docs": {
+      "command": "npx",
+      "args": ["@company/mcp-docs-server"]
+    },
+    "approved-db": {
+      "command": "npx",
+      "args": ["@company/mcp-db-readonly"]
+    }
+  }
+}
+</pre>
+</div>
+
+<h3>6.4 Forcar sandbox habilitado</h3>
+
+<div class="code-block">
+<div class="code-header"><span>managed-settings.json - Sandbox obrigatorio</span></div>
+<pre>
+{
+  "sandbox": {
+    "enabled": true,
+    "filesystem": {
+      "allowManagedReadPathsOnly": true,
+      "readPaths": ["/home/*/projects", "/opt/shared"]
+    },
+    "network": {
+      "allowManagedDomainsOnly": true,
+      "allowedDomains": [
+        "api.anthropic.com",
+        "registry.npmjs.org",
+        "github.com"
+      ]
+    }
+  }
+}
+</pre>
+</div>
+
+<h3>6.5 Definir defaultMode para toda equipe</h3>
+
+<div class="code-block">
+<div class="code-header"><span>managed-settings.json - Modo padrao</span></div>
+<pre>
+{
+  "defaultMode": "acceptEdits",
+  "disableAutoMode": true
+}
+</pre>
+</div>
+
+<!-- ============================================================ -->
+<h2>7. Fail-Closed Enforcement</h2>
+
+<p>
+A propriedade <code>forceRemoteSettingsRefresh</code> implementa um modelo <strong>fail-closed</strong> para managed settings. Quando habilitada, o CLI do Claude Code <strong>bloqueia o startup</strong> ate que os managed settings sejam buscados com sucesso do servidor.
+</p>
+
+<div class="card">
+<h3>Comportamento fail-closed</h3>
+<ul style="margin-top: 0.5rem; padding-left: 1.5rem;">
+<li>Se o fetch dos managed settings <strong>falha</strong> (timeout, rede indisponivel), o CLI <strong>nao inicia</strong></li>
+<li>Garante que politicas estao <strong>sempre atualizadas</strong> antes de qualquer operacao</li>
+<li>Previne cenarios onde um desenvolvedor trabalha com politicas desatualizadas ou sem politicas</li>
+<li>Essencial para ambientes com requisitos rigorosos de compliance (SOC2, HIPAA, etc.)</li>
+</ul>
+</div>
+
+<div class="callout callout-red">
+<strong>Impacto operacional:</strong> Com <code>forceRemoteSettingsRefresh: true</code>, se o servidor de settings estiver fora do ar, <strong>nenhum desenvolvedor</strong> consegue usar o Claude Code. Avalie esse tradeoff entre seguranca e disponibilidade antes de habilitar.
+</div>
+
+<div class="code-block">
+<div class="code-header"><span>managed-settings.json - Fail-closed</span></div>
+<pre>
+{
+  "forceRemoteSettingsRefresh": true
+}
+</pre>
+</div>
+
+<!-- ============================================================ -->
+<h2>8. Managed Hooks</h2>
+
+<p>
+Quando <code>allowManagedHooksOnly</code> e <code>true</code>, o Claude Code carrega <strong>somente</strong> hooks definidos em tres fontes:
+</p>
+
+<div class="grid-3">
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">1</span> Managed settings</h4>
+<p>Hooks definidos diretamente no arquivo managed-settings.json ou via server-managed settings.</p>
+</div>
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">2</span> SDK</h4>
+<p>Hooks registrados programaticamente via Claude Code SDK em integracoes customizadas.</p>
+</div>
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">3</span> Plugins forcados</h4>
+<p>Hooks de plugins listados em <code>enabledPlugins</code> dentro de managed settings.</p>
+</div>
+</div>
+
+<p>
+Hooks definidos por usuario (<code>~/.claude/settings.json</code>), por projeto (<code>.claude/settings.json</code>) e por plugins nao forcados sao <strong>completamente ignorados</strong>. Isso garante que nenhum hook nao autorizado execute em maquinas da organizacao.
+</p>
+
+<div class="code-block">
+<div class="code-header"><span>managed-settings.json - Hooks gerenciados</span></div>
+<pre>
+{
+  "allowManagedHooksOnly": true,
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "command": "/opt/company/hooks/audit-write.sh $TOOL_INPUT"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "command": "/opt/company/hooks/log-bash-output.sh $TOOL_INPUT"
+      }
+    ]
+  }
+}
+</pre>
+</div>
+
+<!-- ============================================================ -->
+<h2>9. Managed MCP</h2>
+
+<p>
+A propriedade <code>allowManagedMcpServersOnly</code> restringe os MCP servers disponíveis exclusivamente aos definidos em managed settings. Isso impede que desenvolvedores adicionem MCP servers arbitrarios, potencialmente inseguros.
+</p>
+
+<div class="callout callout-yellow">
+<strong>Merge parcial:</strong> Enquanto <code>allowedMcpServers</code> vem exclusivamente de managed settings quando essa flag esta ativa, <code>deniedMcpServers</code> ainda faz merge de todas as fontes (user, project, managed). Ou seja, qualquer camada pode <strong>bloquear</strong> um server, mas so managed pode <strong>permitir</strong>.
+</div>
+
+<div class="code-block">
+<div class="code-header"><span>managed-settings.json - MCP restrito</span></div>
+<pre>
+{
+  "allowManagedMcpServersOnly": true,
+  "mcpServers": {
+    "company-knowledge-base": {
+      "command": "npx",
+      "args": ["@company/mcp-kb", "--readonly"]
+    },
+    "jira-integration": {
+      "command": "npx",
+      "args": ["@company/mcp-jira"]
+    }
+  },
+  "deniedMcpServers": ["*filesystem*", "*sqlite*"]
+}
+</pre>
+</div>
+
+<!-- ============================================================ -->
+<h2>10. Managed Permissions</h2>
+
+<p>
+Com <code>allowManagedPermissionRulesOnly</code> habilitado, usuarios e projetos <strong>nao podem</strong> definir regras <code>allow</code>, <code>ask</code> ou <code>deny</code>. Somente as regras de permissao definidas em managed settings se aplicam.
+</p>
+
+<p>
+Isso e particularmente util quando a organizacao quer um conjunto uniforme de permissoes que nao pode ser relaxado por projetos individuais. Um projeto nao pode fazer <code>allow</code> para uma ferramenta que a politica corporativa define como <code>ask</code>.
+</p>
+
+<div class="code-block">
+<div class="code-header"><span>managed-settings.json - Permissoes centralizadas</span></div>
+<pre>
+{
+  "allowManagedPermissionRulesOnly": true,
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "ListDir"
+    ],
+    "ask": [
+      "Write",
+      "Edit",
+      "MultiEdit"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(curl * | bash)",
+      "Read(.env*)",
+      "Read(**/*.key)"
+    ]
+  }
+}
+</pre>
+</div>
+
+<!-- ============================================================ -->
+<h2>11. Exemplo JSON Completo</h2>
+
+<p>
+Uma configuracao managed realista que combina deny rules, sandbox, restricoes de MCP, controle de hooks e enforcement fail-closed.
+</p>
+
+<div class="code-block">
+<div class="code-header"><span>managed-settings.json - Configuracao corporativa completa</span></div>
+<pre>
+{
+  "disableBypassPermissionsMode": true,
+  "disableAutoMode": false,
+  "forceRemoteSettingsRefresh": true,
+  "allowManagedHooksOnly": true,
+  "allowManagedMcpServersOnly": true,
+  "allowManagedPermissionRulesOnly": true,
+  "defaultMode": "acceptEdits",
+  "pluginTrustMessage": "Este plugin foi aprovado pela equipe de seguranca.",
+
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "ListDir"
+    ],
+    "ask": [
+      "Write",
+      "Edit",
+      "MultiEdit",
+      "Bash"
+    ],
+    "deny": [
+      "Read(.env*)",
+      "Read(.ssh/**)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)",
+      "Write(.env*)",
+      "Write(.ssh/**)",
+      "Bash(rm -rf /)",
+      "Bash(curl * | sh)",
+      "Bash(wget * | sh)"
+    ]
+  },
+
+  "sandbox": {
+    "enabled": true,
+    "filesystem": {
+      "allowManagedReadPathsOnly": true,
+      "readPaths": [
+        "/home/*/projects",
+        "/opt/shared/libs"
+      ]
+    },
+    "network": {
+      "allowManagedDomainsOnly": true,
+      "allowedDomains": [
+        "api.anthropic.com",
+        "registry.npmjs.org",
+        "github.com",
+        "*.company-internal.com"
+      ]
+    }
+  },
+
+  "mcpServers": {
+    "company-docs": {
+      "command": "npx",
+      "args": ["@company/mcp-docs-server", "--readonly"]
+    },
+    "approved-db": {
+      "command": "npx",
+      "args": ["@company/mcp-postgres", "--read-only"]
+    }
+  },
+  "deniedMcpServers": ["*filesystem*", "*sqlite*", "*exec*"],
+
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "command": "/opt/company/hooks/audit-changes.sh"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "command": "/opt/company/hooks/log-bash.sh $TOOL_INPUT"
+      }
+    ]
+  }
+}
+</pre>
+</div>
+
+<!-- ============================================================ -->
+<h2>12. Diagrama: Hierarquia de Settings</h2>
+
+<div class="diagram-container">
+<svg viewBox="0 0 700 440" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+  <!-- Piramide -->
+  <defs>
+    <linearGradient id="grad-managed" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f87171" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#f87171" stop-opacity="0.08"/>
+    </linearGradient>
+    <linearGradient id="grad-cli" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#fbbf24" stop-opacity="0.06"/>
+    </linearGradient>
+    <linearGradient id="grad-local" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c4956a" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#c4956a" stop-opacity="0.06"/>
+    </linearGradient>
+    <linearGradient id="grad-shared" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#60a5fa" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#60a5fa" stop-opacity="0.06"/>
+    </linearGradient>
+    <linearGradient id="grad-user" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#a78bfa" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#a78bfa" stop-opacity="0.06"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Nivel 1 - Managed (topo) -->
+  <polygon points="350,30 430,100 270,100" fill="url(#grad-managed)" stroke="#f87171" stroke-width="2"/>
+  <text x="350" y="82" text-anchor="middle" fill="#f87171" font-size="11" font-weight="700">MANAGED</text>
+
+  <!-- Nivel 2 - CLI -->
+  <polygon points="270,105 430,105 475,175 225,175" fill="url(#grad-cli)" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="350" y="148" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="600">CLI ARGUMENTS</text>
+
+  <!-- Nivel 3 - Local Project -->
+  <polygon points="225,180 475,180 520,250 180,250" fill="url(#grad-local)" stroke="#c4956a" stroke-width="1.5"/>
+  <text x="350" y="222" text-anchor="middle" fill="#c4956a" font-size="11" font-weight="600">LOCAL PROJECT SETTINGS</text>
+
+  <!-- Nivel 4 - Shared Project -->
+  <polygon points="180,255 520,255 565,325 135,325" fill="url(#grad-shared)" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="350" y="297" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="600">SHARED PROJECT SETTINGS</text>
+
+  <!-- Nivel 5 - User (base) -->
+  <polygon points="135,330 565,330 610,400 90,400" fill="url(#grad-user)" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="350" y="372" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="600">USER SETTINGS</text>
+
+  <!-- Seta de prioridade -->
+  <line x1="650" y1="400" x2="650" y2="40" stroke="#9ca3af" stroke-width="1.5" stroke-dasharray="4,4"/>
+  <polygon points="650,35 644,50 656,50" fill="#9ca3af"/>
+  <text x="650" y="420" text-anchor="middle" fill="#9ca3af" font-size="10">PRIORIDADE</text>
+
+  <!-- Labels de arquivos -->
+  <text x="480" y="82" fill="#9ca3af" font-size="9">MDM / servidor / OS-level</text>
+  <text x="510" y="148" fill="#9ca3af" font-size="9">--flag na linha de comando</text>
+  <text x="545" y="222" fill="#9ca3af" font-size="9">.claude/settings.local.json</text>
+  <text x="585" y="297" fill="#9ca3af" font-size="9">.claude/settings.json</text>
+  <text x="625" y="372" fill="#9ca3af" font-size="9">~/.claude/settings.json</text>
+
+  <!-- Lock icon no topo -->
+  <rect x="337" y="42" width="26" height="18" rx="3" fill="none" stroke="#f87171" stroke-width="1.5"/>
+  <path d="M343,42 L343,36 A7,7 0 0,1 357,36 L357,42" fill="none" stroke="#f87171" stroke-width="1.5"/>
+</svg>
+<div class="diagram-caption">Hierarquia de settings: managed no topo (mais restritivo, nao pode ser sobrescrito), user na base (menor prioridade)</div>
+</div>
+
+<!-- ============================================================ -->
+<h2>13. ConfigChange Hooks e Auditoria</h2>
+
+<p>
+Para auditar mudancas de settings durante uma sessao ativa, voce pode utilizar hooks nos eventos <code>ConfigChange</code>. Isso permite registrar quando um desenvolvedor tenta alterar configuracoes locais enquanto o Claude Code esta em execucao.
+</p>
+
+<p>
+Alem disso, hooks <code>SubagentStart</code> e <code>SubagentStop</code> permitem monitorar quando subagentes sao criados e destruidos, garantindo visibilidade sobre toda a arvore de execucao.
+</p>
+
+<div class="code-block">
+<div class="code-header"><span>managed-settings.json - Hooks de auditoria</span></div>
+<pre>
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write(.claude/settings*)",
+        "command": "/opt/company/hooks/alert-settings-change.sh $TOOL_INPUT"
+      }
+    ],
+    "SubagentStart": [
+      {
+        "matcher": "",
+        "command": "/opt/company/hooks/log-subagent.sh start $TOOL_INPUT"
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "",
+        "command": "/opt/company/hooks/log-subagent.sh stop $TOOL_INPUT"
+      }
+    ]
+  }
+}
+</pre>
+</div>
+
+<div class="callout">
+<strong>Centralizacao de logs:</strong> Os hooks de auditoria devem enviar dados para um sistema centralizado (Splunk, Datadog, ELK stack). Os scripts em <code>/opt/company/hooks/</code> atuam como shims que formatam e encaminham eventos para a infraestrutura de observabilidade da organizacao.
+</div>
+
+<!-- ============================================================ -->
+<h2>14. OpenTelemetry Monitoring</h2>
+
+<p>
+O Claude Code suporta <strong>OpenTelemetry (OTel)</strong> para rastrear e auditar atividade em escala organizacional. Metricas e traces permitem que equipes de seguranca e compliance monitorem o uso do Claude Code em tempo real.
+</p>
+
+<div class="grid-2">
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">T</span> Traces</h4>
+<p>Spans para cada invocacao de ferramenta, chamada de API e execucao de hook. Permitem reconstruir a sequencia completa de acoes de uma sessao.</p>
+</div>
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">M</span> Metricas</h4>
+<p>Contadores de ferramentas usadas, tokens consumidos, tempo de execucao, erros e rejeicoes de permissao. Dashboards para visibilidade organizacional.</p>
+</div>
+</div>
+
+<p>
+Para habilitar OTel, configure as variaveis de ambiente padrao do OpenTelemetry. O Claude Code exporta dados no formato OTLP, compativel com qualquer backend OTel (Jaeger, Zipkin, Grafana Tempo, etc.).
+</p>
+
+<div class="code-block">
+<div class="code-header"><span>Variaveis de ambiente para OpenTelemetry</span></div>
+<pre>
+export OTEL_EXPORTER_OTLP_ENDPOINT="https://otel-collector.company.com:4318"
+export OTEL_EXPORTER_OTLP_HEADERS="Authorization=Bearer $OTEL_TOKEN"
+export OTEL_SERVICE_NAME="claude-code"
+export OTEL_TRACES_EXPORTER="otlp"
+export OTEL_METRICS_EXPORTER="otlp"
+</pre>
+</div>
+
+<div class="callout callout-blue">
+<strong>Compliance e auditoria:</strong> Combinando managed settings com OpenTelemetry, voce cria uma camada completa de governanca: as politicas garantem <strong>o que pode ser feito</strong>, e OTel registra <strong>o que foi feito</strong>. Juntas, atendem requisitos de auditoria para SOC2, ISO 27001, HIPAA e similares.
+</div>
+
+<!-- ============================================================ -->
+
+<div class="sources">
+<h3>Fontes e Referencias</h3>
+<ul>
+<li><a href="https://code.claude.com/docs/en/permissions" target="_blank">Claude Code - Permissions</a></li>
+<li><a href="https://code.claude.com/docs/en/settings" target="_blank">Claude Code - Settings</a></li>
+<li><a href="https://code.claude.com/docs/en/server-managed-settings" target="_blank">Claude Code - Server Managed Settings</a></li>
+<li><a href="https://www.anthropic.com/news/claude-code-on-team-and-enterprise" target="_blank">Anthropic - Claude Code on Team and Enterprise</a></li>
+<li><a href="https://code.claude.com/docs/en/admin-setup" target="_blank">Claude Code - Admin Setup</a></li>
+</ul>
+</div>
+
+<nav class="nav-footer">
+<a href="modulo-09-topico-05-cves-repositorios-maliciosos.html" class="nav-btn">&larr; Anterior</a>
+<a href="../index.html" class="nav-btn">Indice</a>
+<a href="../index.html" class="nav-btn">Indice &rarr;</a>
+</nav>
+
+</body>
+</html>

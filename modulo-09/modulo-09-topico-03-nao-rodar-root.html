@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modulo 9 - Topico 3: Nunca Rodar Como Root | Workshop Claude Code</title>
+<style>
+:root {
+  --bg: #0f1117; --bg-card: #1a1d27; --bg-code: #141620; --border: #2a2d3a;
+  --text: #e4e4e7; --text-dim: #9ca3af; --accent: #c4956a; --accent-soft: rgba(196, 149, 106, 0.12);
+  --blue: #60a5fa; --blue-soft: rgba(96, 165, 250, 0.12); --green: #6ee7b7; --green-soft: rgba(110, 231, 183, 0.12);
+  --purple: #a78bfa; --purple-soft: rgba(167, 139, 250, 0.12); --red: #f87171; --red-soft: rgba(248, 113, 113, 0.12);
+  --yellow: #fbbf24; --yellow-soft: rgba(251, 191, 36, 0.12);
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace; --radius: 12px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.7; padding: 2rem; max-width: 960px; margin: 0 auto; }
+.topic-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); background: var(--accent-soft); padding: 6px 14px; border-radius: 20px; margin-bottom: 1rem; }
+h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+.subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+p { margin-bottom: 1rem; } a { color: var(--blue); text-decoration: none; } a:hover { text-decoration: underline; }
+code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+strong { color: #fff; }
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0; }
+.diagram-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto; }
+.diagram-container svg { display: block; margin: 0 auto; }
+.diagram-caption { text-align: center; font-size: 0.85rem; color: var(--text-dim); margin-top: 1rem; font-style: italic; }
+.code-block { background: var(--bg-code); border: 1px solid var(--border); border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden; }
+.code-header { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 1rem; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim); }
+.code-block pre { padding: 1rem 1.25rem; overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8; }
+.callout { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem; }
+.callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+.callout-red { border-left-color: var(--red); background: var(--red-soft); }
+.callout-green { border-left-color: var(--green); background: var(--green-soft); }
+.callout-yellow { border-left-color: var(--yellow); background: var(--yellow-soft); }
+.callout strong { color: #fff; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+@media (max-width: 640px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } body { padding: 1rem; } h1 { font-size: 1.5rem; } }
+.mini-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
+.mini-card h4 { font-size: 0.95rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px; }
+.mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+.icon-circle { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+td { color: var(--text); } tr:last-child td { border-bottom: none; }
+ul, ol { margin-bottom: 1rem; padding-left: 1.5rem; }
+li { margin-bottom: 0.4rem; }
+.sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+.sources ul { list-style: none; padding: 0; }
+.sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+.sources li::before { content: "\2192 "; color: var(--accent); }
+.nav-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.nav-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; color: var(--text); background: var(--bg-card); border: 1px solid var(--border); text-decoration: none; transition: border-color 0.2s; }
+.nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="topic-badge">Modulo 9 &bull; Topico 3</div>
+<h1>Nunca Rodar Claude Code como Root</h1>
+<p class="subtitle">
+Sandboxing e isolamento: por que o Claude Code recusa executar com privilegios elevados, como o sandbox protege seu sistema e como configurar isolamento adequado para ambientes de producao.
+</p>
+
+<!-- ============================================================ -->
+<h2>1. O Risco de Rodar como Root</h2>
+
+<p>
+O Claude Code implementa uma <strong>protecao hard-coded</strong> contra execucao com privilegios de root quando o bypass de permissoes esta ativo. Se voce tentar rodar com <code>--dangerously-skip-permissions</code> como root ou via sudo, o processo sera encerrado imediatamente com a seguinte mensagem:
+</p>
+
+<div class="code-block">
+<div class="code-header"><span>Erro ao tentar rodar como root com bypass</span></div>
+<pre>
+$ sudo claude --dangerously-skip-permissions
+
+Error: --dangerously-skip-permissions cannot be used with
+root/sudo privileges for security reasons.
+</pre>
+</div>
+
+<p>
+Esse check existe porque a combinacao de <strong>root access + sem permission checks</strong> cria o cenario mais perigoso possivel: um agente autonomo com poder total sobre o sistema operacional, sem nenhuma barreira entre uma instrucao e a execucao.
+</p>
+
+<div class="callout callout-blue">
+<strong>Excecao:</strong> O check de root e <strong>pulado automaticamente</strong> quando o Claude Code detecta que esta rodando dentro de um sandbox reconhecido (como um container Docker ou dev container). Nesses ambientes, root dentro do container nao significa root no host.
+</div>
+
+<!-- ============================================================ -->
+<h2>2. Por Que Essa Restricao Existe</h2>
+
+<p>
+Um agente de IA com root access e sem permission checks pode causar danos irreversiveis ao sistema. Os vetores de ataque incluem:
+</p>
+
+<div class="grid-2">
+<div class="mini-card" style="border-color: var(--red);">
+<h4><span class="icon-circle" style="background: var(--red-soft); color: var(--red);">1</span> Arquivos de sistema</h4>
+<p>Modificar <code>/etc/passwd</code>, <code>/etc/shadow</code>, <code>/etc/sudoers</code> ou qualquer binario em <code>/usr/bin</code>. Pode criar backdoors permanentes.</p>
+</div>
+<div class="mini-card" style="border-color: var(--red);">
+<h4><span class="icon-circle" style="background: var(--red-soft); color: var(--red);">2</span> Malware</h4>
+<p>Instalar pacotes maliciosos, rootkits ou scripts de persistencia que sobrevivem a reboot. Registrar servicos systemd para execucao automatica.</p>
+</div>
+<div class="mini-card" style="border-color: var(--red);">
+<h4><span class="icon-circle" style="background: var(--red-soft); color: var(--red);">3</span> Rede</h4>
+<p>Alterar configuracoes de rede, DNS, firewall. Redirecionar trafego, abrir portas para acesso externo. Modificar <code>/etc/hosts</code> ou regras iptables.</p>
+</div>
+<div class="mini-card" style="border-color: var(--red);">
+<h4><span class="icon-circle" style="background: var(--red-soft); color: var(--red);">4</span> Dados de terceiros</h4>
+<p>Acessar dados de outros usuarios do sistema: <code>/home/*</code>, bancos de dados locais, chaves SSH, tokens de API e credenciais armazenadas.</p>
+</div>
+</div>
+
+<p>
+O ponto critico e que esses danos podem acontecer como resultado de <strong>prompt injection</strong>: um arquivo malicioso no repositorio ou uma resposta de API comprometida pode instruir o agente a executar comandos destrutivos. Com root e sem checks, nao ha nenhuma camada de defesa.
+</p>
+
+<!-- ============================================================ -->
+<h2>3. Sandboxing como Alternativa</h2>
+
+<p>
+Em vez de rodar como root com bypass de permissoes, a abordagem correta e usar <strong>sandboxing</strong>. O sandbox do Claude Code opera em duas camadas independentes que se complementam:
+</p>
+
+<div class="grid-2">
+<div class="mini-card" style="border-color: var(--blue);">
+<h4><span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">FS</span> Filesystem Isolation</h4>
+<p>Controla quais diretorios e arquivos podem ser lidos e escritos. Impede acesso a areas sensiveis do sistema mesmo que um comando tente acessar.</p>
+</div>
+<div class="mini-card" style="border-color: var(--purple);">
+<h4><span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">NET</span> Network Isolation</h4>
+<p>Controla quais dominios podem ser acessados via rede. Impede exfiltracao de dados e download de scripts maliciosos mesmo dentro do sandbox.</p>
+</div>
+</div>
+
+<p>
+As duas camadas sao <strong>enforced no nivel do sistema operacional</strong>, nao apenas no nivel da aplicacao. Isso significa que mesmo scripts e subprocessos spawnados pelo Claude Code estao sujeitos as mesmas restricoes: nao ha como escapar via <code>bash -c</code> ou subshells.
+</p>
+
+<!-- ============================================================ -->
+<h2>4. Filesystem Isolation</h2>
+
+<p>
+O comportamento padrao do sandbox de filesystem e:
+</p>
+
+<table>
+<thead>
+<tr>
+<th>Operacao</th>
+<th>Escopo padrao</th>
+<th>Configuravel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Write</strong></td>
+<td>Working directory e subdiretorios apenas</td>
+<td>Sim (<code>allowWrite</code>)</td>
+</tr>
+<tr>
+<td><strong>Read</strong></td>
+<td>Computador inteiro (exceto denied)</td>
+<td>Sim (<code>denyRead</code>, <code>allowRead</code>)</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+As configuracoes de filesystem sao granulares e permitem controle fino sobre o que o sandbox pode acessar:
+</p>
+
+<div class="code-block">
+<div class="code-header"><span>Opcoes de configuracao do filesystem sandbox</span></div>
+<pre>
+{
+  "sandbox": {
+    "filesystem": {
+      "allowWrite": [
+        ".",              // working directory (padrao)
+        "/tmp/build",     // diretorio temporario
+        "~/.kube"         // config do kubernetes
+      ],
+      "denyWrite": [
+        "~/.ssh",         // nunca escrever em chaves SSH
+        "~/.gnupg"        // nunca escrever em GPG keys
+      ],
+      "denyRead": [
+        "~/.aws",         // bloquear leitura de credenciais AWS
+        "/etc/shadow"     // bloquear leitura de senhas
+      ],
+      "allowRead": [
+        ".",              // garantir leitura do projeto
+        "/usr/local/lib"  // libs necessarias
+      ]
+    }
+  }
+}
+</pre>
+</div>
+
+<h3>Enforcement no nivel do OS</h3>
+
+<p>
+O sandbox de filesystem nao e implementado apenas no nivel da aplicacao. O Claude Code usa mecanismos nativos do sistema operacional:
+</p>
+
+<table>
+<thead>
+<tr>
+<th>Plataforma</th>
+<th>Mecanismo</th>
+<th>Detalhes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>macOS</strong></td>
+<td>Seatbelt (sandbox-exec)</td>
+<td>Kernel-level enforcement. Mesmo processos filhos sao restritos. Impossivel bypassar sem root no host.</td>
+</tr>
+<tr>
+<td><strong>Linux / WSL2</strong></td>
+<td>bubblewrap (bwrap)</td>
+<td>Usa namespaces do kernel para isolamento. Cria um ambiente restrito com montagens controladas.</td>
+</tr>
+</tbody>
+</table>
+
+<div class="callout callout-green">
+<strong>Protecao contra escape:</strong> O enforcement no OS significa que mesmo que o Claude Code execute <code>bash -c "cat /etc/shadow"</code>, o kernel bloqueia o acesso. Nao e uma restricao de software que pode ser contornada com subprocessos criativos.
+</div>
+
+<!-- ============================================================ -->
+<h2>5. Network Isolation</h2>
+
+<p>
+O sandbox de rede funciona atraves de um <strong>proxy server que roda fora do sandbox</strong>. Todo trafego de rede gerado dentro do sandbox e forcado a passar por esse proxy, que aplica as restricoes configuradas.
+</p>
+
+<div class="card">
+<p><strong>Como funciona:</strong></p>
+<ul>
+<li>Um proxy server e iniciado <strong>fora</strong> do sandbox antes do Claude Code comecar</li>
+<li>Dentro do sandbox, todas conexoes de rede sao redirecionadas para o proxy</li>
+<li>O proxy verifica cada request contra a <strong>allowlist de dominios</strong></li>
+<li>Dominios nao listados exigem <strong>confirmacao do usuario</strong></li>
+<li>A cobertura inclui <strong>todos scripts, programas e subprocessos</strong> executados dentro do sandbox</li>
+</ul>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span>Configuracao de network isolation</span></div>
+<pre>
+{
+  "sandbox": {
+    "network": {
+      "allowDomains": [
+        "registry.npmjs.org",
+        "api.github.com",
+        "pypi.org",
+        "rubygems.org"
+      ]
+    }
+  }
+}
+</pre>
+</div>
+
+<p>
+Quando um processo dentro do sandbox tenta acessar um dominio que nao esta na allowlist, o proxy intercepta a requisicao e solicita confirmacao do usuario antes de permitir. Isso previne tanto <strong>exfiltracao de dados</strong> (envio de dados sensiveis para servidores externos) quanto <strong>download de payloads maliciosos</strong>.
+</p>
+
+<!-- ============================================================ -->
+<h2>6. Modos de Sandbox</h2>
+
+<p>
+O sandbox do Claude Code opera em dois modos distintos que afetam como os comandos sao aprovados:
+</p>
+
+<div class="grid-2">
+<div class="mini-card" style="border-color: var(--green);">
+<h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">A</span> Auto-allow mode</h4>
+<p>Comandos bash tentam rodar dentro do sandbox e sao <strong>auto-aprovados sem prompt</strong>. O sandbox substitui a necessidade de confirmacao manual porque as restricoes de filesystem e rede ja limitam o dano possivel. Usado com <code>--dangerously-skip-permissions</code>.</p>
+</div>
+<div class="mini-card" style="border-color: var(--blue);">
+<h4><span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">R</span> Regular permissions mode</h4>
+<p>Todos os comandos passam pelo <strong>fluxo normal de permissoes</strong>, mesmo estando sandboxed. O sandbox atua como camada adicional de defesa, nao como substituto. Modo padrao quando nao se usa bypass.</p>
+</div>
+</div>
+
+<p>
+A diferenca pratica e significativa: no auto-allow mode, o sandbox e a <strong>unica barreira de seguranca</strong>. No regular mode, ele e uma <strong>camada adicional</strong> sobre o fluxo de permissoes. Para ambientes de CI/CD e automacao, o auto-allow mode com sandbox bem configurado e a abordagem recomendada.
+</p>
+
+<div class="callout callout-yellow">
+<strong>Regra de ouro:</strong> Se voce precisa de <code>--dangerously-skip-permissions</code>, ative sempre o sandbox. A combinacao de bypass sem sandbox e root e exatamente o cenario que o Claude Code recusa executar.
+</div>
+
+<!-- ============================================================ -->
+<h2>7. Configuracao Pratica</h2>
+
+<p>
+Uma configuracao completa de sandbox combina filesystem e network isolation. Aqui esta um exemplo para um projeto Node.js tipico:
+</p>
+
+<div class="code-block">
+<div class="code-header"><span>.claude/settings.json - Sandbox completo</span></div>
+<pre>
+{
+  "sandbox": {
+    "enabled": true,
+    "filesystem": {
+      "allowWrite": [
+        ".",
+        "/tmp/build",
+        "~/.npm",
+        "~/.kube"
+      ],
+      "denyWrite": [
+        "~/.ssh",
+        "~/.gnupg",
+        "~/.aws"
+      ],
+      "denyRead": [
+        "~/"
+      ],
+      "allowRead": [
+        ".",
+        "/usr/local/lib/node_modules",
+        "~/.npmrc"
+      ]
+    },
+    "network": {
+      "allowDomains": [
+        "registry.npmjs.org",
+        "api.github.com",
+        "*.githubusercontent.com"
+      ]
+    }
+  }
+}
+</pre>
+</div>
+
+<p>
+Observe o padrao <code>denyRead: ["~/"]</code> com <code>allowRead: ["."]</code>. Isso cria um modelo de <strong>deny-by-default</strong> para leitura: o sandbox nao pode ler nada no home directory do usuario, exceto o diretorio do projeto atual. Essa e a configuracao mais segura para projetos que nao precisam acessar configuracoes globais.
+</p>
+
+<h3>Exemplo: projeto com Kubernetes</h3>
+
+<div class="code-block">
+<div class="code-header"><span>Sandbox para projeto que interage com k8s</span></div>
+<pre>
+{
+  "sandbox": {
+    "enabled": true,
+    "filesystem": {
+      "allowWrite": [
+        ".",
+        "/tmp/build",
+        "~/.kube/cache"
+      ],
+      "allowRead": [
+        ".",
+        "~/.kube/config",
+        "/usr/local/bin/kubectl"
+      ],
+      "denyRead": [
+        "~/.aws",
+        "~/.ssh"
+      ]
+    },
+    "network": {
+      "allowDomains": [
+        "*.k8s.io",
+        "registry.npmjs.org"
+      ]
+    }
+  }
+}
+</pre>
+</div>
+
+<!-- ============================================================ -->
+<h2>8. Dev Containers</h2>
+
+<p>
+Para isolamento total, <strong>dev containers</strong> sao a alternativa recomendada. Um dev container roda o Claude Code dentro de um container Docker dedicado, com seu proprio filesystem, rede e usuario. O root dentro do container nao tem nenhum privilegio no host.
+</p>
+
+<div class="card">
+<p><strong>Vantagens do dev container:</strong></p>
+<ul>
+<li>Isolamento completo do sistema host</li>
+<li>Ambiente reproduzivel e descartavel</li>
+<li>Root no container e seguro (nao afeta o host)</li>
+<li>Network isolation nativa via Docker networking</li>
+<li>Possibilidade de limitar recursos (CPU, memoria, disco)</li>
+</ul>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span>.devcontainer/devcontainer.json</span></div>
+<pre>
+{
+  "name": "claude-code-sandbox",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "remoteUser": "vscode",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {}
+  },
+  "postCreateCommand": "npm install",
+  "customizations": {
+    "claude-code": {
+      "sandbox": {
+        "enabled": true
+      }
+    }
+  }
+}
+</pre>
+</div>
+
+<div class="callout callout-blue">
+<strong>Non-root user:</strong> A pratica recomendada e usar um usuario <strong>nao-root dentro do container</strong> (como <code>vscode</code> ou <code>node</code>). Isso adiciona uma camada extra de defesa: mesmo dentro do container isolado, o agente nao tem privilegios de root. Para detalhes, consulte a <a href="https://code.claude.com/docs/en/devcontainer">documentacao de dev containers</a>.
+</div>
+
+<!-- ============================================================ -->
+<h2>9. Protecao Contra Prompt Injection com Sandbox</h2>
+
+<p>
+O sandbox e uma defesa critica contra <strong>prompt injection</strong>. Mesmo que um atacante consiga injetar instrucoes maliciosas (via arquivo no repositorio, resposta de API comprometida, ou conteudo de pagina web), o sandbox limita drasticamente o que o agente consegue fazer.
+</p>
+
+<h3>Cenario: injection bem-sucedida</h3>
+
+<p>
+Imagine que um arquivo malicioso no repositorio instrui o Claude Code a executar comandos destrutivos. Sem sandbox, esses comandos seriam executados normalmente. Com sandbox ativo:
+</p>
+
+<table>
+<thead>
+<tr>
+<th>Acao maliciosa</th>
+<th>Sem sandbox</th>
+<th>Com sandbox</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Modificar <code>~/.bashrc</code></td>
+<td style="color: var(--red);">Executa</td>
+<td style="color: var(--green);">Bloqueado pelo filesystem</td>
+</tr>
+<tr>
+<td>Alterar binarios em <code>/bin/</code></td>
+<td style="color: var(--red);">Executa (com root)</td>
+<td style="color: var(--green);">Bloqueado pelo filesystem</td>
+</tr>
+<tr>
+<td>Exfiltrar dados via <code>curl</code></td>
+<td style="color: var(--red);">Executa</td>
+<td style="color: var(--green);">Bloqueado pelo network proxy</td>
+</tr>
+<tr>
+<td>Baixar script malicioso</td>
+<td style="color: var(--red);">Executa</td>
+<td style="color: var(--green);">Bloqueado pelo network proxy</td>
+</tr>
+<tr>
+<td>Ler chaves SSH</td>
+<td style="color: var(--red);">Executa</td>
+<td style="color: var(--green);">Bloqueado pelo filesystem</td>
+</tr>
+<tr>
+<td>Instalar pacote malicioso</td>
+<td style="color: var(--red);">Executa</td>
+<td style="color: var(--green);">Bloqueado (rede + filesystem)</td>
+</tr>
+</tbody>
+</table>
+
+<div class="callout callout-green">
+<strong>Defense in depth:</strong> O sandbox nao impede a injection em si (o agente ainda pode ser enganado), mas impede que a injection cause dano real. E uma camada de <strong>contencao</strong>, nao de <strong>prevencao</strong>. Combine com regras de deny no CLAUDE.md e hooks de validacao para multiplas camadas de defesa.
+</div>
+
+<!-- ============================================================ -->
+<h2>10. Limitacoes do Sandbox</h2>
+
+<p>
+O sandbox do Claude Code tem limitacoes praticas que voce precisa conhecer antes de adotar em producao:
+</p>
+
+<h3>Performance</h3>
+
+<p>
+O overhead de performance e <strong>minimo</strong> na maioria dos casos. O Seatbelt (macOS) e o bubblewrap (Linux) operam no nivel do kernel com custo negligivel. O proxy de rede adiciona uma pequena latencia em cada request, mas e imperceptivel na pratica.
+</p>
+
+<h3>Incompatibilidades</h3>
+
+<table>
+<thead>
+<tr>
+<th>Ferramenta</th>
+<th>Problema</th>
+<th>Solucao</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>watchman</strong></td>
+<td>Incompativel com sandbox de filesystem</td>
+<td>Desabilitar watchman ou usar polling</td>
+</tr>
+<tr>
+<td><strong>docker CLI</strong></td>
+<td>Nao consegue acessar Docker socket dentro do sandbox</td>
+<td>Adicionar docker aos <code>excludedCommands</code></td>
+</tr>
+<tr>
+<td><strong>WSL1</strong></td>
+<td>Nao suportado (requer namespaces do kernel)</td>
+<td>Migrar para WSL2</td>
+</tr>
+</tbody>
+</table>
+
+<div class="code-block">
+<div class="code-header"><span>Excluindo comandos incompativeis do sandbox</span></div>
+<pre>
+{
+  "sandbox": {
+    "enabled": true,
+    "excludedCommands": [
+      "docker",
+      "docker-compose",
+      "watchman"
+    ]
+  }
+}
+</pre>
+</div>
+
+<h3>Sandbox aninhado em Docker</h3>
+
+<p>
+Quando o Claude Code roda dentro de um container Docker e tenta criar seu proprio sandbox, existe um conflito de namespaces. A opcao <code>enableWeakerNestedSandbox</code> resolve isso, mas com uma <strong>reducao na seguranca</strong>:
+</p>
+
+<div class="code-block">
+<div class="code-header"><span>Sandbox aninhado (Linux/Docker)</span></div>
+<pre>
+{
+  "sandbox": {
+    "enabled": true,
+    "enableWeakerNestedSandbox": true
+  }
+}
+</pre>
+</div>
+
+<div class="callout callout-red">
+<strong>Atencao:</strong> <code>enableWeakerNestedSandbox</code> enfraquece as garantias de isolamento. Use apenas quando necessario (Claude Code dentro de Docker) e combine com restricoes adicionais do proprio container. A alternativa preferida e usar dev containers com isolamento nativo.
+</div>
+
+<!-- ============================================================ -->
+<h2>11. Escape Hatch: dangerouslyDisableSandbox</h2>
+
+<p>
+Quando um comando falha por restricoes do sandbox, o Claude Code pode <strong>tentar novamente sem sandbox</strong> usando o mecanismo de escape hatch. Isso nao e automatico: o comando passa pelo fluxo normal de permissoes e requer aprovacao do usuario.
+</p>
+
+<div class="card">
+<p><strong>Fluxo do escape hatch:</strong></p>
+<ol>
+<li>Comando e executado dentro do sandbox</li>
+<li>Comando falha por restricao de filesystem ou rede</li>
+<li>Claude Code detecta que a falha e relacionada ao sandbox</li>
+<li>Claude pode fazer retry com <code>dangerouslyDisableSandbox: true</code></li>
+<li>O retry passa pelo <strong>fluxo normal de permissoes</strong></li>
+<li>Usuario decide se permite a execucao fora do sandbox</li>
+</ol>
+</div>
+
+<p>
+Para ambientes onde voce quer <strong>impedir completamente</strong> que comandos escapem do sandbox, desabilite essa opcao:
+</p>
+
+<div class="code-block">
+<div class="code-header"><span>Desabilitando o escape hatch</span></div>
+<pre>
+{
+  "sandbox": {
+    "enabled": true,
+    "allowUnsandboxedCommands": false
+  }
+}
+</pre>
+</div>
+
+<p>
+Com <code>allowUnsandboxedCommands: false</code>, nenhum comando pode escapar do sandbox, mesmo com aprovacao do usuario. Essa e a configuracao mais restritiva e recomendada para ambientes de CI/CD e automacao.
+</p>
+
+<!-- ============================================================ -->
+<h2>12. Camadas de Seguranca</h2>
+
+<div class="diagram-container">
+<svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+  <defs>
+    <marker id="arrow-down" markerWidth="8" markerHeight="6" refX="4" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="#c4956a"/>
+    </marker>
+  </defs>
+
+  <!-- Layer 1: OS -->
+  <rect x="40" y="20" width="620" height="70" rx="12" fill="none" stroke="#f87171" stroke-width="2"/>
+  <rect x="40" y="20" width="620" height="70" rx="12" fill="rgba(248, 113, 113, 0.06)"/>
+  <text x="60" y="45" fill="#f87171" font-size="11" font-weight="600" letter-spacing="0.06em">CAMADA 1: SISTEMA OPERACIONAL</text>
+  <text x="60" y="68" fill="#9ca3af" font-size="10">Seatbelt (macOS) | bubblewrap (Linux/WSL2) - Enforcement no kernel</text>
+  <text x="580" y="62" fill="#f87171" font-size="22" text-anchor="middle" font-weight="700">OS</text>
+
+  <!-- Arrow -->
+  <line x1="350" y1="90" x2="350" y2="115" stroke="#c4956a" stroke-width="1.5" marker-end="url(#arrow-down)"/>
+
+  <!-- Layer 2: Sandbox Config -->
+  <rect x="80" y="120" width="540" height="70" rx="12" fill="none" stroke="#fbbf24" stroke-width="2"/>
+  <rect x="80" y="120" width="540" height="70" rx="12" fill="rgba(251, 191, 36, 0.06)"/>
+  <text x="100" y="145" fill="#fbbf24" font-size="11" font-weight="600" letter-spacing="0.06em">CAMADA 2: SANDBOX CONFIG</text>
+  <text x="100" y="168" fill="#9ca3af" font-size="10">filesystem.allowWrite/denyRead | network.allowDomains | excludedCommands</text>
+  <text x="560" y="162" fill="#fbbf24" font-size="18" text-anchor="middle" font-weight="700">CFG</text>
+
+  <!-- Arrow -->
+  <line x1="350" y1="190" x2="350" y2="215" stroke="#c4956a" stroke-width="1.5" marker-end="url(#arrow-down)"/>
+
+  <!-- Layer 3: Permission Rules -->
+  <rect x="120" y="220" width="460" height="70" rx="12" fill="none" stroke="#a78bfa" stroke-width="2"/>
+  <rect x="120" y="220" width="460" height="70" rx="12" fill="rgba(167, 139, 250, 0.06)"/>
+  <text x="140" y="245" fill="#a78bfa" font-size="11" font-weight="600" letter-spacing="0.06em">CAMADA 3: PERMISSION RULES</text>
+  <text x="140" y="268" fill="#9ca3af" font-size="10">allowedTools | deniedTools | CLAUDE.md deny rules | Hooks</text>
+  <text x="520" y="262" fill="#a78bfa" font-size="18" text-anchor="middle" font-weight="700">PERM</text>
+
+  <!-- Arrow -->
+  <line x1="350" y1="290" x2="350" y2="315" stroke="#c4956a" stroke-width="1.5" marker-end="url(#arrow-down)"/>
+
+  <!-- Layer 4: Claude Code -->
+  <rect x="180" y="320" width="340" height="70" rx="12" fill="none" stroke="#60a5fa" stroke-width="2"/>
+  <rect x="180" y="320" width="340" height="70" rx="12" fill="rgba(96, 165, 250, 0.06)"/>
+  <text x="200" y="345" fill="#60a5fa" font-size="11" font-weight="600" letter-spacing="0.06em">CAMADA 4: CLAUDE CODE</text>
+  <text x="200" y="368" fill="#9ca3af" font-size="10">Agente executa comandos dentro das restricoes</text>
+  <text x="460" y="362" fill="#60a5fa" font-size="18" text-anchor="middle" font-weight="700">AI</text>
+
+  <!-- User approval annotation -->
+  <rect x="560" y="330" width="120" height="50" rx="8" fill="#1a1d27" stroke="#6ee7b7" stroke-width="1.5"/>
+  <text x="620" y="352" text-anchor="middle" fill="#6ee7b7" font-size="10" font-weight="600">USER APPROVAL</text>
+  <text x="620" y="368" text-anchor="middle" fill="#9ca3af" font-size="9">Ultima barreira</text>
+
+  <!-- Arrow from Claude to User -->
+  <path d="M520,355 L556,355" fill="none" stroke="#6ee7b7" stroke-width="1.2" stroke-dasharray="4,3"/>
+
+  <!-- Legend -->
+  <text x="350" y="410" text-anchor="middle" fill="#9ca3af" font-size="10">Cada camada deve ser violada para que um ataque tenha sucesso</text>
+</svg>
+<div class="diagram-caption">Camadas de seguranca do Claude Code: do kernel do OS ate a aprovacao do usuario</div>
+</div>
+
+<p>
+O modelo de seguranca do Claude Code segue o principio de <strong>defense in depth</strong>. Um atacante precisaria comprometer todas as quatro camadas simultaneamente para causar dano. O sandbox sozinho ja bloqueia a maioria dos vetores de ataque, mas combinado com permission rules e aprovacao do usuario, o sistema se torna extremamente resiliente.
+</p>
+
+<!-- ============================================================ -->
+<h2>13. Boas Praticas</h2>
+
+<div class="grid-3">
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">1</span> Comece restritivo</h4>
+<p>Inicie com <code>denyRead: ["~/"]</code> e <code>allowRead: ["."]</code>. Adicione permissoes conforme necessario, nunca o contrario.</p>
+</div>
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">2</span> Monitore violations</h4>
+<p>Acompanhe os logs de sandbox para identificar comandos bloqueados. Isso ajuda a ajustar a configuracao sem abrir brechas desnecessarias.</p>
+</div>
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">3</span> Configs por ambiente</h4>
+<p>Use configuracoes diferentes para dev, staging e CI. O ambiente de CI deve ser o mais restritivo, dev pode ser mais permissivo.</p>
+</div>
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">4</span> Combine com permissions</h4>
+<p>Sandbox e permission rules sao complementares. Use ambos: sandbox para enforcement no OS, permissions para controle granular no Claude Code.</p>
+</div>
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">5</span> Use containers</h4>
+<p>Para tarefas sensiveis (rodar codigo de terceiros, processar dados confidenciais), use dev containers com usuario nao-root para isolamento total.</p>
+</div>
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--red-soft); color: var(--red);">6</span> Nunca desabilite tudo</h4>
+<p>Evite <code>allowUnsandboxedCommands: true</code> em ambientes de CI/CD. Se o sandbox atrapalha, ajuste a configuracao em vez de desabilitar.</p>
+</div>
+</div>
+
+<div class="callout">
+<strong>Resumo da regra de ouro:</strong> Nunca rode Claude Code como root com <code>--dangerously-skip-permissions</code>. Use sandbox para automacao, dev containers para isolamento total, e combine todas as camadas de seguranca disponiveis. O custo de configurar o sandbox e minimo comparado ao risco de um agente comprometido com acesso irrestrito ao sistema.
+</div>
+
+<!-- ============================================================ -->
+<div class="sources">
+<h3>Fontes</h3>
+<ul>
+<li><a href="https://code.claude.com/docs/en/sandboxing">Claude Code Sandboxing - Documentacao Oficial</a></li>
+<li><a href="https://code.claude.com/docs/en/security">Claude Code Security - Documentacao Oficial</a></li>
+<li><a href="https://www.anthropic.com/engineering/claude-code-sandboxing">Claude Code Sandboxing - Anthropic Engineering</a></li>
+</ul>
+</div>
+
+<!-- ============================================================ -->
+<div class="nav-footer">
+<a href="modulo-09-topico-02-regras-deny.html" class="nav-btn">&larr; Anterior: Regras Deny</a>
+<a href="../index.html" class="nav-btn">Indice</a>
+<a href="modulo-09-topico-04-prompt-injection.html" class="nav-btn">Proximo: Prompt Injection &rarr;</a>
+</div>
+
+</body>
+</html>

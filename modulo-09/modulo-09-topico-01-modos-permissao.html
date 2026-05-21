@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modulo 9 - Topico 1: Modos de Permissao | Workshop Claude Code</title>
+<style>
+:root {
+  --bg: #0f1117; --bg-card: #1a1d27; --bg-code: #141620; --border: #2a2d3a;
+  --text: #e4e4e7; --text-dim: #9ca3af; --accent: #c4956a; --accent-soft: rgba(196, 149, 106, 0.12);
+  --blue: #60a5fa; --blue-soft: rgba(96, 165, 250, 0.12); --green: #6ee7b7; --green-soft: rgba(110, 231, 183, 0.12);
+  --purple: #a78bfa; --purple-soft: rgba(167, 139, 250, 0.12); --red: #f87171; --red-soft: rgba(248, 113, 113, 0.12);
+  --yellow: #fbbf24; --yellow-soft: rgba(251, 191, 36, 0.12);
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace; --radius: 12px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.7; padding: 2rem; max-width: 960px; margin: 0 auto; }
+.topic-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); background: var(--accent-soft); padding: 6px 14px; border-radius: 20px; margin-bottom: 1rem; }
+h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+.subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+p { margin-bottom: 1rem; } a { color: var(--blue); text-decoration: none; } a:hover { text-decoration: underline; }
+code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+strong { color: #fff; }
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0; }
+.diagram-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto; }
+.diagram-container svg { display: block; margin: 0 auto; }
+.diagram-caption { text-align: center; font-size: 0.85rem; color: var(--text-dim); margin-top: 1rem; font-style: italic; }
+.code-block { background: var(--bg-code); border: 1px solid var(--border); border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden; }
+.code-header { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 1rem; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim); }
+.code-block pre { padding: 1rem 1.25rem; overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8; }
+.callout { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem; }
+.callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+.callout-red { border-left-color: var(--red); background: var(--red-soft); }
+.callout-green { border-left-color: var(--green); background: var(--green-soft); }
+.callout-yellow { border-left-color: var(--yellow); background: var(--yellow-soft); }
+.callout strong { color: #fff; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+@media (max-width: 640px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } body { padding: 1rem; } h1 { font-size: 1.5rem; } }
+.mini-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
+.mini-card h4 { font-size: 0.95rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px; }
+.mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+.icon-circle { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+td { color: var(--text); } tr:last-child td { border-bottom: none; }
+.sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+.sources ul { list-style: none; padding: 0; }
+.sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+.sources li::before { content: "\2192 "; color: var(--accent); }
+.nav-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.nav-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; color: var(--text); background: var(--bg-card); border: 1px solid var(--border); text-decoration: none; transition: border-color 0.2s; }
+.nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="topic-badge">Modulo 9 &bull; Topico 1</div>
+<h1>Modos de Permissao: plan, default, acceptEdits, auto, dontAsk, bypass</h1>
+<p class="subtitle">
+  O Claude Code oferece seis modos de permissao que controlam quanta autonomia o agente tem para executar acoes. Do planejamento read-only ate a execucao irrestrita, cada modo atende a um cenario especifico de risco e produtividade.
+</p>
+
+<!-- ================================================ -->
+<h2>Visao Geral dos Modos</h2>
+
+<p>
+  Os modos de permissao formam um espectro de autonomia. No extremo conservador, <code>plan</code> so le e propoe. No extremo oposto, <code>bypassPermissions</code> executa tudo sem nenhum check. Escolher o modo certo depende do contexto: quanto voce confia no ambiente, quao critico e o codigo, e se ha supervisao humana disponivel.
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Modo</th>
+      <th>Reads</th>
+      <th>Edits</th>
+      <th>Bash</th>
+      <th>Prompt?</th>
+      <th>Best for</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>plan</strong></td>
+      <td style="color: var(--green);">Auto</td>
+      <td style="color: var(--red);">Nao</td>
+      <td style="color: var(--yellow);">Read-only</td>
+      <td>N/A</td>
+      <td>Investigar antes de agir, entender scope</td>
+    </tr>
+    <tr>
+      <td><strong>default</strong></td>
+      <td style="color: var(--green);">Auto</td>
+      <td style="color: var(--yellow);">Prompt</td>
+      <td style="color: var(--yellow);">Prompt</td>
+      <td>Sim</td>
+      <td>Uso geral com supervisao humana</td>
+    </tr>
+    <tr>
+      <td><strong>acceptEdits</strong></td>
+      <td style="color: var(--green);">Auto</td>
+      <td style="color: var(--green);">Auto</td>
+      <td style="color: var(--yellow);">FS auto, resto prompt</td>
+      <td>Parcial</td>
+      <td>Desenvolvimento ativo, refatoracao</td>
+    </tr>
+    <tr>
+      <td><strong>auto</strong></td>
+      <td style="color: var(--green);">Auto</td>
+      <td style="color: var(--green);">Auto</td>
+      <td style="color: var(--green);">Classifier</td>
+      <td>Raro</td>
+      <td>Fluxo autonomo com guardrails</td>
+    </tr>
+    <tr>
+      <td><strong>dontAsk</strong></td>
+      <td style="color: var(--green);">Auto</td>
+      <td style="color: var(--red);">Deny*</td>
+      <td style="color: var(--red);">Deny*</td>
+      <td>Nunca</td>
+      <td>CI/CD, pipelines automatizados</td>
+    </tr>
+    <tr>
+      <td><strong>bypassPermissions</strong></td>
+      <td style="color: var(--green);">Auto</td>
+      <td style="color: var(--green);">Auto</td>
+      <td style="color: var(--green);">Auto</td>
+      <td>Nunca</td>
+      <td>Containers isolados, VMs descartaveis</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout callout-blue">
+  <strong>* dontAsk:</strong> Somente acoes listadas em <code>permissions.allow</code> sao executadas. Todo o resto e automaticamente negado sem prompt. Ideal quando nenhum humano esta disponivel para aprovar.
+</div>
+
+<!-- ================================================ -->
+<h2>Default Mode</h2>
+
+<p>
+  O modo <strong>default</strong> e o comportamento padrao do Claude Code. Operacoes de leitura (Read, Glob, Grep, LS) sao executadas automaticamente sem pedir aprovacao. Qualquer operacao que modifique o sistema &mdash; editar arquivos, rodar comandos bash, executar MCP tools &mdash; exige aprovacao explicita do usuario.
+</p>
+
+<h3>Comportamento de aprovacao</h3>
+
+<p>
+  Quando o Claude solicita aprovacao para uma acao, voce tem quatro opcoes:
+</p>
+
+<div class="grid-2">
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">Y</span> Yes</h4>
+    <p>Aprova esta execucao especifica. O Claude prossegue e pode pedir novamente para a proxima acao similar.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">A</span> Yes, don't ask again</h4>
+    <p>Aprova e adiciona a tool/comando ao <code>permissions.allow</code> do projeto. Persiste entre sessoes para aquele projeto.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--red-soft); color: var(--red);">N</span> No</h4>
+    <p>Rejeita esta execucao. O Claude recebe o feedback de que a acao foi negada e pode tentar uma abordagem alternativa.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">E</span> Edit</h4>
+    <p>Permite editar o comando ou argumento antes de aprovar. Util para ajustar um comando bash antes de rodar.</p>
+  </div>
+</div>
+
+<div class="code-block">
+  <div class="code-header"><span>Terminal</span><span>bash</span></div>
+  <pre># Iniciar em default mode (padrao, nao precisa de flag)
+claude
+
+# Equivalente explicito
+claude --permission-mode default</pre>
+</div>
+
+<div class="callout">
+  <strong>Dica:</strong> Quando voce seleciona "Yes, don't ask again", a regra e salva em <code>.claude/settings.local.json</code>. Isso significa que ela persiste entre sessoes naquele projeto especifico, mas nao se propaga para outros projetos.
+</div>
+
+<!-- ================================================ -->
+<h2>acceptEdits Mode</h2>
+
+<p>
+  O modo <strong>acceptEdits</strong> auto-aprova todas as operacoes de edicao de arquivos (Write, Edit) e comandos de filesystem (<code>mkdir</code>, <code>touch</code>, <code>rm</code>, <code>mv</code>, <code>cp</code>, <code>chmod</code>, <code>sed</code>). Comandos bash que nao sejam operacoes de filesystem continuam pedindo aprovacao.
+</p>
+
+<h3>O que e auto-aprovado</h3>
+
+<ul style="margin-bottom: 1rem; padding-left: 1.5rem; color: var(--text-dim);">
+  <li>Todas as operacoes de leitura (como no default)</li>
+  <li>Write e Edit em qualquer arquivo dentro do working directory</li>
+  <li>Comandos de filesystem: <code>mkdir</code>, <code>touch</code>, <code>rm</code>, <code>mv</code>, <code>cp</code>, <code>chmod</code>, <code>sed</code></li>
+</ul>
+
+<h3>O que ainda pede prompt</h3>
+
+<ul style="margin-bottom: 1rem; padding-left: 1.5rem; color: var(--text-dim);">
+  <li>Comandos bash genericos (<code>npm install</code>, <code>git push</code>, <code>curl</code>, etc.)</li>
+  <li>Operacoes em paths fora do working directory</li>
+  <li>MCP tool calls</li>
+</ul>
+
+<div class="code-block">
+  <div class="code-header"><span>Terminal</span><span>bash</span></div>
+  <pre># Iniciar em acceptEdits mode
+claude --permission-mode acceptEdits
+
+# Ou: a partir do default, pressione Shift+Tab uma vez</pre>
+</div>
+
+<div class="callout callout-green">
+  <strong>Shift+Tab cycling:</strong> No CLI interativo, <code>Shift+Tab</code> alterna entre os modos na ordem: <code>default</code> &rarr; <code>acceptEdits</code> &rarr; <code>plan</code> &rarr; <code>default</code>. O modo atual aparece no indicador na parte inferior do terminal.
+</div>
+
+<!-- ================================================ -->
+<h2>Plan Mode</h2>
+
+<p>
+  No modo <strong>plan</strong>, o Claude pesquisa o codebase e propoe mudancas sem executar nenhuma. Ele pode ler arquivos e rodar comandos shell read-only, mas nao pode editar arquivos, criar novos ou executar comandos destrutivos. O objetivo e gerar um plano de acao detalhado antes de qualquer modificacao.
+</p>
+
+<div class="code-block">
+  <div class="code-header"><span>Terminal</span><span>bash</span></div>
+  <pre># Iniciar em plan mode
+claude --permission-mode plan
+
+# Ou: a partir do default, pressione Shift+Tab duas vezes
+# Ou: use o comando /plan dentro de uma sessao ativa</pre>
+</div>
+
+<h3>Fluxo de aprovacao do plano</h3>
+
+<p>
+  Depois que o Claude apresenta o plano, voce tem varias opcoes para prosseguir:
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Opcao</th>
+      <th>Comportamento</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Aprovar &rarr; auto mode</strong></td>
+      <td>Executa o plano com autonomia total (requer elegibilidade para auto mode)</td>
+    </tr>
+    <tr>
+      <td><strong>Aprovar &rarr; acceptEdits</strong></td>
+      <td>Executa com auto-approve de edits, mas pede confirmacao para bash commands</td>
+    </tr>
+    <tr>
+      <td><strong>Aprovar &rarr; revisao manual</strong></td>
+      <td>Executa em default mode, pedindo aprovacao para cada acao</td>
+    </tr>
+    <tr>
+      <td><strong>Continuar planejando</strong></td>
+      <td>Pede ao Claude para aprofundar o plano, investigar mais areas ou considerar alternativas</td>
+    </tr>
+    <tr>
+      <td><strong>Ultraplan</strong></td>
+      <td>Planejamento extensivo e multi-passo com subagentes de pesquisa para tarefas complexas</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout callout-blue">
+  <strong>Ctrl+G:</strong> Abre o plano no seu editor externo configurado (<code>$EDITOR</code>) para edicao manual. Voce pode reorganizar, remover ou adicionar passos antes de aprovar. O Claude respeita o plano editado como instrucao.
+</div>
+
+<!-- ================================================ -->
+<h2>Auto Mode</h2>
+
+<p>
+  O modo <strong>auto</strong> permite que o Claude execute a maioria das acoes autonomamente, com um <strong>classifier model</strong> de seguranca que avalia cada acao antes da execucao. O classifier e um modelo separado que decide se uma acao e segura no contexto atual.
+</p>
+
+<div class="callout callout-red">
+  <strong>Research preview:</strong> Auto mode esta em preview e tem requisitos especificos de elegibilidade.
+</div>
+
+<h3>Requisitos</h3>
+
+<div class="grid-2">
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">P</span> Plano elegivel</h4>
+    <p>Max, Team, Enterprise ou API. O plano Pro <strong>nao</strong> e elegivel para auto mode.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">M</span> Modelo compativel</h4>
+    <p>Sonnet 4.6, Opus 4.6 ou Opus 4.7. Modelos anteriores nao suportam o classifier.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">A</span> API provider</h4>
+    <p>Somente Anthropic API direta. Bedrock, Vertex e Azure AI Foundry <strong>nao</strong> suportam auto mode.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">F</span> Flag ou UI</h4>
+    <p><code>claude --permission-mode auto</code> ou selecione via Shift+Tab / interface grafica.</p>
+  </div>
+</div>
+
+<h3>O que o classifier bloqueia</h3>
+
+<p>
+  O classifier de seguranca avalia cada tool call individualmente. Acoes classificadas como potencialmente perigosas sao bloqueadas e o usuario e notificado:
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Categoria</th>
+      <th>Exemplos bloqueados</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Execucao remota</strong></td>
+      <td><code>curl ... | bash</code>, download e execute de scripts remotos</td>
+    </tr>
+    <tr>
+      <td><strong>Exfiltracao de dados</strong></td>
+      <td>Enviar conteudo de arquivos locais para endpoints externos</td>
+    </tr>
+    <tr>
+      <td><strong>Deploy production</strong></td>
+      <td>Deploys para ambientes de producao, terraform apply, etc.</td>
+    </tr>
+    <tr>
+      <td><strong>Delecao em massa</strong></td>
+      <td><code>rm -rf</code> em diretorios criticos, DROP TABLE, truncate</td>
+    </tr>
+    <tr>
+      <td><strong>Permissoes IAM</strong></td>
+      <td>Modificar roles, policies, service accounts</td>
+    </tr>
+    <tr>
+      <td><strong>Force push</strong></td>
+      <td><code>git push --force</code> para main/master</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>O que o classifier permite</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Categoria</th>
+      <th>Exemplos permitidos</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Operacoes de arquivo locais</strong></td>
+      <td>Criar, editar, mover, deletar arquivos no projeto</td>
+    </tr>
+    <tr>
+      <td><strong>Gerenciamento de dependencias</strong></td>
+      <td><code>npm install</code>, <code>pip install</code>, <code>cargo add</code></td>
+    </tr>
+    <tr>
+      <td><strong>HTTP read-only</strong></td>
+      <td><code>curl -s</code> para leitura, requests GET para APIs</td>
+    </tr>
+    <tr>
+      <td><strong>Git no branch atual</strong></td>
+      <td><code>git push</code> para o branch corrente (nao main/master)</td>
+    </tr>
+    <tr>
+      <td><strong>Build e teste</strong></td>
+      <td><code>npm run build</code>, <code>pytest</code>, <code>cargo test</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Boundaries da conversa</h3>
+
+<p>
+  Regras definidas em CLAUDE.md, <code>permissions.deny</code> e managed policies sao respeitadas pelo classifier. Se voce definir <code>"deny": ["Bash(npm publish)"]</code>, o classifier bloqueara <code>npm publish</code> mesmo em auto mode. As boundaries da conversa sao inputs para a decisao do classifier, nao apenas sugestoes.
+</p>
+
+<h3>Fallback automatico</h3>
+
+<div class="callout callout-yellow">
+  <strong>Limites de bloqueio:</strong> Apos <strong>3 bloqueios consecutivos</strong> ou <strong>20 bloqueios totais</strong> em uma sessao, o auto mode faz fallback automatico para o modo default, exigindo aprovacao manual para todas as acoes subsequentes.
+</div>
+
+<!-- ================================================ -->
+<h2>dontAsk Mode</h2>
+
+<p>
+  O modo <strong>dontAsk</strong> nunca solicita aprovacao ao usuario. Acoes que estao explicitamente listadas em <code>permissions.allow</code> sao executadas automaticamente. Qualquer acao que nao esta na allowlist e automaticamente <strong>negada</strong> sem prompt.
+</p>
+
+<div class="code-block">
+  <div class="code-header"><span>Terminal</span><span>bash</span></div>
+  <pre># Ideal para CI/CD pipelines
+claude --permission-mode dontAsk \
+  --allowedTools "Read,Write,Edit,Bash(npm test),Bash(npm run lint)"</pre>
+</div>
+
+<p>
+  Este modo e projetado para ambientes onde nenhum humano esta disponivel para responder prompts &mdash; CI/CD, scripts automatizados, cron jobs. A combinacao de <code>dontAsk</code> com uma allowlist restrita garante que o Claude executa apenas as acoes previstas.
+</p>
+
+<div class="callout">
+  <strong>Configuracao recomendada:</strong> Em pipelines, combine <code>dontAsk</code> com <code>--allowedTools</code> e timeouts. Sem uma allowlist, o Claude nao consegue fazer nada alem de ler arquivos, pois todas as acoes modificadoras serao negadas.
+</div>
+
+<!-- ================================================ -->
+<h2>bypassPermissions Mode</h2>
+
+<p>
+  O modo <strong>bypassPermissions</strong> pula <strong>todos</strong> os checks de permissao. Nenhuma acao e avaliada, nenhum prompt e exibido, nenhum classifier e consultado. O Claude executa tudo diretamente.
+</p>
+
+<div class="callout callout-red">
+  <strong>Restricoes criticas:</strong>
+  <br>&bull; <strong>Nao pode ser ativado mid-session</strong> &mdash; requer a flag <code>--dangerously-skip-permissions</code> ao iniciar
+  <br>&bull; <strong>Recusado com root/sudo</strong> &mdash; o Claude Code se recusa a rodar em bypass como root
+  <br>&bull; <strong>Somente em ambientes isolados</strong> &mdash; containers Docker, VMs descartaveis, sandboxes CI
+</div>
+
+<div class="code-block">
+  <div class="code-header"><span>Terminal</span><span>bash</span></div>
+  <pre># Equivalente a bypassPermissions
+claude --dangerously-skip-permissions
+
+# Flag explicita de permission mode
+claude --permission-mode bypassPermissions
+
+# Em Docker (uso tipico)
+docker run -it my-sandbox claude --dangerously-skip-permissions -p "fix all linting errors"</pre>
+</div>
+
+<p>
+  Este modo existe exclusivamente para ambientes descartaveis onde o custo de um erro e zero (container que sera destruido) e a produtividade maxima e desejada. Nunca use em maquinas de desenvolvimento com dados reais.
+</p>
+
+<!-- ================================================ -->
+<h2>Protected Paths</h2>
+
+<p>
+  Independente do modo de permissao (exceto <code>bypassPermissions</code>), certos paths <strong>nunca sao auto-aprovados</strong>. Mesmo em <code>auto</code> ou <code>acceptEdits</code>, modificacoes nesses paths exigem aprovacao manual.
+</p>
+
+<h3>Diretorios protegidos</h3>
+
+<div class="code-block">
+  <div class="code-header"><span>Paths</span><span>Sempre pedem aprovacao</span></div>
+  <pre>.git/              # Internals do git
+.vscode/           # Configuracao do VS Code
+.idea/             # Configuracao do IntelliJ/JetBrains
+.husky/            # Git hooks
+.claude/           # Configuracao do Claude Code
+                   # (exceto: commands/, agents/, skills/, worktrees/)</pre>
+</div>
+
+<h3>Arquivos protegidos</h3>
+
+<div class="grid-2">
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--red-soft); color: var(--red);">G</span> Git config</h4>
+    <p><code>.gitconfig</code>, <code>.gitmodules</code></p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">S</span> Shell config</h4>
+    <p><code>.bashrc</code>, <code>.bash_profile</code>, <code>.zshrc</code>, <code>.zprofile</code>, <code>.profile</code></p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">T</span> Tooling config</h4>
+    <p><code>.ripgreprc</code></p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">C</span> Claude config</h4>
+    <p><code>.mcp.json</code>, <code>.claude.json</code></p>
+  </div>
+</div>
+
+<div class="callout callout-yellow">
+  <strong>Excecoes em .claude/:</strong> Os subdiretorios <code>commands/</code>, <code>agents/</code>, <code>skills/</code> e <code>worktrees/</code> dentro de <code>.claude/</code> <strong>nao</strong> sao protegidos. O Claude pode criar e editar slash commands, subagentes, skills e worktree configs sem pedir aprovacao nos modos que auto-aprovam edits.
+</div>
+
+<!-- ================================================ -->
+<h2>Como Trocar de Modo</h2>
+
+<h3>No CLI interativo</h3>
+
+<div class="code-block">
+  <div class="code-header"><span>Terminal</span><span>Atalhos</span></div>
+  <pre># Shift+Tab: alterna entre default, acceptEdits e plan
+# O modo atual aparece no indicador da barra inferior
+
+# Comando /plan: entra diretamente em plan mode
+/plan
+
+# Volta para o modo anterior ao sair do plan</pre>
+</div>
+
+<h3>Via flag de inicializacao</h3>
+
+<div class="code-block">
+  <div class="code-header"><span>Terminal</span><span>bash</span></div>
+  <pre>claude --permission-mode default
+claude --permission-mode acceptEdits
+claude --permission-mode plan
+claude --permission-mode auto
+claude --permission-mode dontAsk
+claude --permission-mode bypassPermissions</pre>
+</div>
+
+<h3>Como padrao em settings</h3>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/settings.json</span><span>JSON</span></div>
+  <pre>{
+  "defaultMode": "acceptEdits"
+}</pre>
+</div>
+
+<p>
+  O <code>defaultMode</code> define qual modo o Claude Code usa quando inicia sem a flag <code>--permission-mode</code>. Pode ser definido no nivel de projeto (<code>.claude/settings.json</code>) ou de usuario (<code>~/.claude/settings.json</code>).
+</p>
+
+<h3>No VS Code, Desktop e Web</h3>
+
+<p>
+  Nas interfaces graficas, o indicador de modo aparece na parte inferior do painel do Claude. Clique nele para alternar entre os modos disponiveis. A disponibilidade de cada modo depende do seu plano e configuracao.
+</p>
+
+<!-- ================================================ -->
+<h2>Espectro de Autonomia</h2>
+
+<div class="diagram-container">
+  <svg viewBox="0 0 860 280" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+    <!-- Background -->
+    <rect x="20" y="20" width="820" height="240" rx="12" fill="none" stroke="#2a2d3a" stroke-width="1" stroke-dasharray="6,4"/>
+
+    <!-- Spectrum bar -->
+    <defs>
+      <linearGradient id="spectrumGrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#60a5fa"/>
+        <stop offset="50%" stop-color="#c4956a"/>
+        <stop offset="100%" stop-color="#f87171"/>
+      </linearGradient>
+      <marker id="arrowR" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#4a4d5a"/></marker>
+    </defs>
+
+    <!-- Axis -->
+    <rect x="80" y="125" width="700" height="6" rx="3" fill="url(#spectrumGrad)" opacity="0.5"/>
+
+    <!-- Labels -->
+    <text x="80" y="110" fill="#60a5fa" font-size="10" font-weight="600">MAIS CONTROLE</text>
+    <text x="700" y="110" fill="#f87171" font-size="10" font-weight="600" text-anchor="end">MAIS AUTONOMIA</text>
+
+    <!-- Mode markers -->
+    <!-- plan -->
+    <circle cx="120" cy="128" r="6" fill="#60a5fa"/>
+    <rect x="80" y="148" width="80" height="55" rx="6" fill="rgba(96,165,250,0.12)" stroke="#60a5fa" stroke-width="1"/>
+    <text x="120" y="166" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="600">plan</text>
+    <text x="120" y="182" text-anchor="middle" fill="#9ca3af" font-size="9">Read-only</text>
+    <text x="120" y="195" text-anchor="middle" fill="#9ca3af" font-size="9">Propoe, nao faz</text>
+
+    <!-- default -->
+    <circle cx="250" cy="128" r="6" fill="#6ee7b7"/>
+    <rect x="210" y="148" width="80" height="55" rx="6" fill="rgba(110,231,183,0.12)" stroke="#6ee7b7" stroke-width="1"/>
+    <text x="250" y="166" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="600">default</text>
+    <text x="250" y="182" text-anchor="middle" fill="#9ca3af" font-size="9">Reads auto</text>
+    <text x="250" y="195" text-anchor="middle" fill="#9ca3af" font-size="9">Resto: prompt</text>
+
+    <!-- acceptEdits -->
+    <circle cx="390" cy="128" r="6" fill="#fbbf24"/>
+    <rect x="340" y="148" width="100" height="55" rx="6" fill="rgba(251,191,36,0.12)" stroke="#fbbf24" stroke-width="1"/>
+    <text x="390" y="166" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="600">acceptEdits</text>
+    <text x="390" y="182" text-anchor="middle" fill="#9ca3af" font-size="9">Edits + FS auto</text>
+    <text x="390" y="195" text-anchor="middle" fill="#9ca3af" font-size="9">Bash: prompt</text>
+
+    <!-- auto -->
+    <circle cx="530" cy="128" r="6" fill="#c4956a"/>
+    <rect x="490" y="148" width="80" height="55" rx="6" fill="rgba(196,149,106,0.12)" stroke="#c4956a" stroke-width="1"/>
+    <text x="530" y="166" text-anchor="middle" fill="#c4956a" font-size="12" font-weight="600">auto</text>
+    <text x="530" y="182" text-anchor="middle" fill="#9ca3af" font-size="9">Classifier</text>
+    <text x="530" y="195" text-anchor="middle" fill="#9ca3af" font-size="9">avalia tudo</text>
+
+    <!-- dontAsk -->
+    <circle cx="640" cy="128" r="6" fill="#a78bfa"/>
+    <rect x="600" y="148" width="80" height="55" rx="6" fill="rgba(167,139,250,0.12)" stroke="#a78bfa" stroke-width="1"/>
+    <text x="640" y="166" text-anchor="middle" fill="#a78bfa" font-size="12" font-weight="600">dontAsk</text>
+    <text x="640" y="182" text-anchor="middle" fill="#9ca3af" font-size="9">Allow ou deny</text>
+    <text x="640" y="195" text-anchor="middle" fill="#9ca3af" font-size="9">Sem prompt</text>
+
+    <!-- bypass -->
+    <circle cx="750" cy="128" r="6" fill="#f87171"/>
+    <rect x="710" y="148" width="80" height="55" rx="6" fill="rgba(248,113,113,0.12)" stroke="#f87171" stroke-width="1"/>
+    <text x="750" y="166" text-anchor="middle" fill="#f87171" font-size="12" font-weight="600">bypass</text>
+    <text x="750" y="182" text-anchor="middle" fill="#9ca3af" font-size="9">Tudo auto</text>
+    <text x="750" y="195" text-anchor="middle" fill="#9ca3af" font-size="9">Sem checks</text>
+
+    <!-- Bottom labels -->
+    <text x="430" y="235" text-anchor="middle" fill="#9ca3af" font-size="11">Shift+Tab alterna entre plan, default e acceptEdits no CLI</text>
+    <text x="430" y="252" text-anchor="middle" fill="#4a4d5a" font-size="10">auto e bypass requerem flag explicita ou configuracao</text>
+  </svg>
+  <div class="diagram-caption">Espectro de autonomia: do controle total (plan) ate execucao irrestrita (bypass)</div>
+</div>
+
+<!-- ================================================ -->
+<h2>Quando Usar Cada Modo</h2>
+
+<div class="grid-3">
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">P</span> plan</h4>
+    <p>Codebase desconhecido. Investigar bug complexo. Entender impacto antes de refatorar. Revisar arquitetura. Gerar plano para aprovar manualmente.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">D</span> default</h4>
+    <p>Primeiro contato com o projeto. Mudancas sensiveis. Producao. Quando voce quer revisar cada acao. Onboarding de novos devs no Claude Code.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">A</span> acceptEdits</h4>
+    <p>Refatoracao ativa. Desenvolvimento feature em branch. Quando voce confia nos edits mas quer ver os comandos. Pair programming com Claude.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">U</span> auto</h4>
+    <p>Tarefas well-scoped com baixo risco. Implementar feature inteira em branch isolado. Bug fixes com testes. Quando quer velocidade com guardrails.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">K</span> dontAsk</h4>
+    <p>CI/CD pipelines. GitHub Actions. Scripts automatizados sem usuario interativo. Linting e formatacao automatica. Pre-commit hooks.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--red-soft); color: var(--red);">B</span> bypass</h4>
+    <p>Containers Docker descartaveis. VMs de CI efemeras. Sandboxes de teste. Nunca em maquinas com dados reais ou acesso a producao.</p>
+  </div>
+</div>
+
+<!-- ================================================ -->
+<h2>Comparacao Rapida: Fluxo de Decisao</h2>
+
+<div class="card">
+  <p>Use este fluxo para escolher o modo adequado:</p>
+  <ol style="padding-left: 1.5rem; color: var(--text-dim); line-height: 2;">
+    <li>Precisa <strong>apenas investigar</strong> sem modificar nada? &rarr; <code>plan</code></li>
+    <li>Quer <strong>revisar cada acao</strong> antes de executar? &rarr; <code>default</code></li>
+    <li>Confia nos <strong>edits de arquivo</strong> mas quer ver comandos? &rarr; <code>acceptEdits</code></li>
+    <li>Quer <strong>autonomia com guardrails</strong> de seguranca? &rarr; <code>auto</code></li>
+    <li>Nao tem <strong>usuario interativo</strong> disponivel? &rarr; <code>dontAsk</code> + allowlist</li>
+    <li>Ambiente <strong>100% descartavel</strong> sem dados reais? &rarr; <code>bypassPermissions</code></li>
+  </ol>
+</div>
+
+<div class="callout callout-green">
+  <strong>Recomendacao pratica:</strong> Comece com <code>default</code>, evolua para <code>acceptEdits</code> quando estiver confortavel com o projeto, e use <code>plan</code> antes de mudancas grandes. Reserve <code>auto</code> para tarefas bem definidas em branches isolados.
+</div>
+
+<!-- ================================================ -->
+
+<div class="sources">
+  <h3>Fontes</h3>
+  <ul>
+    <li><a href="https://code.claude.com/docs/en/permission-modes">Claude Code - Permission Modes (Documentacao Oficial)</a></li>
+    <li><a href="https://code.claude.com/docs/en/permissions">Claude Code - Permissions (Documentacao Oficial)</a></li>
+    <li><a href="https://www.anthropic.com/engineering/claude-code-auto-mode">Anthropic Engineering - Claude Code Auto Mode</a></li>
+  </ul>
+</div>
+
+<nav class="nav-footer">
+  <a href="../modulo-08/modulo-08-topico-05-padroes-multi-agente.html" class="nav-btn">&larr; Topico 5 &bull; Padroes Multi-Agente</a>
+  <a href="../index.html" class="nav-btn">Indice</a>
+  <a href="modulo-09-topico-02-regras-deny.html" class="nav-btn">Topico 2 &bull; Regras Deny &rarr;</a>
+</nav>
+
+</body>
+</html>
