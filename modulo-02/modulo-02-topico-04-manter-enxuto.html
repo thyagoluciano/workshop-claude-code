@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo 2 · Tópico 4 — Mantendo o CLAUDE.md enxuto</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-code: #141620;
+      --border: #2a2d3a;
+      --text: #e4e4e7;
+      --text-dim: #9ca3af;
+      --accent: #c4956a;
+      --accent-soft: rgba(196, 149, 106, 0.12);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.12);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .topic-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-soft); padding: 6px 14px;
+      border-radius: 20px; margin-bottom: 1rem;
+    }
+
+    h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+    .subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+    h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+    p { margin-bottom: 1rem; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+    strong { color: #fff; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0;
+    }
+    .card-label {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 6px; margin-bottom: 0.75rem;
+    }
+
+    .diagram-container {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto;
+    }
+    .diagram-container svg { display: block; margin: 0 auto; }
+    .diagram-caption {
+      text-align: center; font-size: 0.85rem; color: var(--text-dim);
+      margin-top: 1rem; font-style: italic;
+    }
+
+    .code-block {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1rem; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim);
+    }
+    .code-block pre {
+      padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8;
+    }
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: var(--purple); }
+    .code-block .string { color: var(--green); }
+    .code-block .tool { color: var(--accent); }
+    .code-block .number { color: var(--yellow); }
+    .code-block .deleted { color: var(--red); text-decoration: line-through; opacity: 0.7; }
+    .code-block .added { color: var(--green); }
+
+    .callout {
+      border-left: 3px solid var(--accent); background: var(--accent-soft);
+      padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem;
+    }
+    .callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+    .callout-red { border-left-color: var(--red); background: var(--red-soft); }
+    .callout-green { border-left-color: var(--green); background: var(--green-soft); }
+    .callout-yellow { border-left-color: var(--yellow); background: var(--yellow-soft); }
+    .callout strong { color: #fff; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+    }
+
+    .mini-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .mini-card h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;
+    }
+    .mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+
+    .icon-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    .sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .sources ul { list-style: none; padding: 0; }
+    .sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+    .sources li::before { content: "\2192 "; color: var(--accent); }
+
+    .nav-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+      color: var(--text); background: var(--bg-card); border: 1px solid var(--border);
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+
+    /* ── Specific to this topic ── */
+    .token-meter {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 0.75rem;
+    }
+    .token-meter .meter-label {
+      font-size: 0.85rem; color: var(--text-dim); width: 160px; flex-shrink: 0;
+    }
+    .token-meter .meter-track {
+      flex: 1; height: 12px; background: var(--bg-code);
+      border-radius: 6px; border: 1px solid var(--border); overflow: hidden;
+    }
+    .token-meter .meter-fill {
+      height: 100%; border-radius: 5px;
+    }
+    .token-meter .meter-value {
+      font-size: 0.8rem; color: #fff; width: 80px; text-align: right; flex-shrink: 0;
+      font-family: var(--font-mono);
+    }
+
+    .before-after {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0; margin: 2rem 0;
+    }
+    .before-after .ba-col {
+      overflow: hidden;
+    }
+    .before-after .ba-col:first-child .code-block {
+      border-radius: var(--radius) 0 0 var(--radius);
+      border-right: none;
+    }
+    .before-after .ba-col:last-child .code-block {
+      border-radius: 0 var(--radius) var(--radius) 0;
+    }
+    @media (max-width: 700px) {
+      .before-after { grid-template-columns: 1fr; }
+      .before-after .ba-col:first-child .code-block,
+      .before-after .ba-col:last-child .code-block {
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+      }
+    }
+
+    .flow-step {
+      display: flex; align-items: flex-start; gap: 16px; margin-bottom: 0.5rem;
+      position: relative;
+    }
+    .flow-step::before {
+      content: ''; position: absolute; left: 15px; top: 34px;
+      width: 2px; height: calc(100% - 10px); background: var(--border);
+    }
+    .flow-step:last-child::before { display: none; }
+    .flow-num {
+      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; font-weight: 700; color: #fff;
+    }
+    .flow-content h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff; margin-bottom: 2px;
+    }
+    .flow-content p {
+      font-size: 0.88rem; color: var(--text-dim); margin: 0 0 0.75rem;
+    }
+
+    ul.compact-list {
+      list-style: none; padding: 0; margin: 1rem 0;
+    }
+    ul.compact-list li {
+      padding: 0.4rem 0; font-size: 0.92rem; color: var(--text-dim);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+    ul.compact-list li:last-child { border-bottom: none; }
+    ul.compact-list li .bullet {
+      color: var(--accent); font-weight: 700; flex-shrink: 0; margin-top: 1px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ HEADER ════════════ -->
+  <div class="topic-badge">Modulo 2 . Topico 4</div>
+  <h1>Mantendo o CLAUDE.md enxuto</h1>
+  <p class="subtitle">
+    A regra de ouro: <strong>"Se eu removesse isso, o Claude cometeria erros?"</strong>
+    Cada linha do seu CLAUDE.md consome tokens em toda mensagem. Aprenda a manter apenas o que realmente
+    muda o comportamento do modelo.
+  </p>
+
+  <!-- ════════════ O PRINCÍPIO ════════════ -->
+  <h2>O principio: cada linha paga aluguel em tokens</h2>
+
+  <p>
+    O CLAUDE.md e carregado automaticamente no inicio de <strong>toda conversa</strong> com o Claude Code.
+    Isso significa que cada linha do arquivo consome tokens em cada mensagem que voce envia. Um CLAUDE.md
+    com 500 linhas de instrucoes detalhadas pode parecer completo, mas na pratica ele
+    <strong>compete por atencao</strong> com o seu codigo e o seu prompt.
+  </p>
+
+  <p>
+    A Anthropic recomenda explicitamente manter o CLAUDE.md conciso. A documentacao oficial de
+    best practices orienta que voce pergunte, para cada linha: <strong>"Se eu removesse isso, o Claude
+    cometeria erros?"</strong> Se a resposta for nao, aquela linha esta desperdicando tokens.
+  </p>
+
+  <div class="callout-red callout">
+    <strong>Alerta:</strong> CLAUDE.md inchados fazem o Claude <strong>ignorar suas instrucoes reais</strong>.
+    Quanto mais tokens de contexto sao consumidos por instrucoes genericas, menos "atencao" o modelo
+    tem para o que realmente importa. Isso e o fenomeno de <em>context rot</em> documentado pela Anthropic.
+  </div>
+
+  <!-- ════════════ CUSTO EM TOKENS ════════════ -->
+  <h2>O custo real: tokens consumidos em CADA mensagem</h2>
+
+  <p>
+    Para entender o impacto, vamos visualizar quantos tokens diferentes tamanhos de CLAUDE.md
+    consomem. Lembre-se: esses tokens sao adicionados ao contexto em <strong>toda interacao</strong>,
+    nao apenas na primeira mensagem.
+  </p>
+
+  <div class="card">
+    <div class="token-meter">
+      <span class="meter-label" style="color: var(--green);">Enxuto (50 linhas)</span>
+      <div class="meter-track">
+        <div class="meter-fill" style="width: 8%; background: var(--green);"></div>
+      </div>
+      <span class="meter-value">~800 tk</span>
+    </div>
+    <div class="token-meter">
+      <span class="meter-label" style="color: var(--blue);">Moderado (150 linhas)</span>
+      <div class="meter-track">
+        <div class="meter-fill" style="width: 25%; background: var(--blue);"></div>
+      </div>
+      <span class="meter-value">~2.500 tk</span>
+    </div>
+    <div class="token-meter">
+      <span class="meter-label" style="color: var(--yellow);">Detalhado (300 linhas)</span>
+      <div class="meter-track">
+        <div class="meter-fill" style="width: 50%; background: var(--yellow);"></div>
+      </div>
+      <span class="meter-value">~5.000 tk</span>
+    </div>
+    <div class="token-meter">
+      <span class="meter-label" style="color: var(--red);">Inchado (600+ linhas)</span>
+      <div class="meter-track">
+        <div class="meter-fill" style="width: 100%; background: var(--red);"></div>
+      </div>
+      <span class="meter-value">~10.000 tk</span>
+    </div>
+
+    <p style="font-size: 0.85rem; color: var(--text-dim); margin: 1rem 0 0; text-align: center;">
+      Em uma sessao com 50 mensagens, um CLAUDE.md de 10k tokens adiciona <strong style="color: var(--red);">~500k tokens</strong> ao custo total
+      (prompt caching reduz o custo financeiro, mas nao reduz a competicao por atencao no contexto).
+    </p>
+  </div>
+
+  <div class="callout-blue callout">
+    <strong>Como medir:</strong> Use o comando <code>/usage</code> no Claude Code para ver o consumo de tokens
+    da sua sessao. O comando <code>/context</code> mostra exatamente o que esta ocupando espaco no contexto atual.
+    A Anthropic recomenda manter o CLAUDE.md <strong>abaixo de 200 linhas</strong>.
+  </div>
+
+  <!-- ════════════ DIAGRAMA DE DECISÃO ════════════ -->
+  <h2>Flowchart: "Devo adicionar isso ao CLAUDE.md?"</h2>
+
+  <p>
+    Antes de adicionar qualquer instrucao ao CLAUDE.md, passe pelo seguinte fluxo de decisao.
+    Esse processo ajuda a evitar o acumulo de instrucoes desnecessarias ao longo do tempo.
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Flowchart de decisao: devo adicionar isso ao CLAUDE.md?</title>
+
+      <defs>
+        <marker id="arrowA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#6ee7b7"/>
+        </marker>
+        <marker id="arrowR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#f87171"/>
+        </marker>
+        <marker id="arrowY" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#fbbf24"/>
+        </marker>
+        <marker id="arrowB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#60a5fa"/>
+        </marker>
+      </defs>
+
+      <!-- Start -->
+      <rect x="280" y="10" width="240" height="44" rx="22" fill="rgba(196,149,106,0.15)" stroke="#c4956a" stroke-width="1.5"/>
+      <text x="400" y="37" text-anchor="middle" fill="#c4956a" font-size="13" font-weight="600">Nova instrucao para CLAUDE.md</text>
+
+      <!-- Arrow down -->
+      <path d="M400 54 L400 80" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowA)"/>
+
+      <!-- Decision 1 -->
+      <polygon points="400,85 530,135 400,185 270,135" fill="rgba(251,191,36,0.1)" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="400" y="130" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="600">O Claude erra sem</text>
+      <text x="400" y="145" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="600">essa instrucao?</text>
+
+      <!-- NO right -->
+      <path d="M530 135 L620 135" stroke="#f87171" stroke-width="1.5" marker-end="url(#arrowR)"/>
+      <text x="570" y="128" fill="#f87171" font-size="11" font-weight="600">Nao</text>
+
+      <!-- Discard box -->
+      <rect x="625" y="112" width="150" height="46" rx="10" fill="rgba(248,113,113,0.1)" stroke="#f87171" stroke-width="1.5"/>
+      <text x="700" y="133" text-anchor="middle" fill="#f87171" font-size="12" font-weight="600">Nao adicione.</text>
+      <text x="700" y="148" text-anchor="middle" fill="#d4d4d8" font-size="10">Tokens desperdicados</text>
+
+      <!-- YES down -->
+      <path d="M400 185 L400 215" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowA)"/>
+      <text x="412" y="205" fill="#6ee7b7" font-size="11" font-weight="600">Sim</text>
+
+      <!-- Decision 2 -->
+      <polygon points="400,220 530,270 400,320 270,270" fill="rgba(96,165,250,0.1)" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="400" y="265" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="600">Aplica a TODAS</text>
+      <text x="400" y="280" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="600">as sessoes?</text>
+
+      <!-- NO right to rules -->
+      <path d="M530 270 L620 270" stroke="#f87171" stroke-width="1.5" marker-end="url(#arrowR)"/>
+      <text x="570" y="263" fill="#f87171" font-size="11" font-weight="600">Nao</text>
+
+      <!-- Rules box -->
+      <rect x="625" y="247" width="155" height="46" rx="10" fill="rgba(167,139,250,0.1)" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="702" y="267" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="600">.claude/rules/ ou</text>
+      <text x="702" y="282" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="600">Skill dedicada</text>
+
+      <!-- YES down -->
+      <path d="M400 320 L400 350" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowA)"/>
+      <text x="412" y="340" fill="#6ee7b7" font-size="11" font-weight="600">Sim</text>
+
+      <!-- Decision 3 -->
+      <polygon points="400,355 530,405 400,455 270,405" fill="rgba(110,231,183,0.1)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="400" y="400" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="600">Pode ser escrito</text>
+      <text x="400" y="415" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="600">como bullet conciso?</text>
+
+      <!-- NO right -->
+      <path d="M530 405 L620 405" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arrowY)"/>
+      <text x="570" y="398" fill="#fbbf24" font-size="11" font-weight="600">Nao</text>
+
+      <!-- Simplify box -->
+      <rect x="625" y="382" width="155" height="46" rx="10" fill="rgba(251,191,36,0.1)" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="702" y="402" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="600">Simplifique primeiro.</text>
+      <text x="702" y="417" text-anchor="middle" fill="#d4d4d8" font-size="10">Bullet > paragrafo</text>
+
+      <!-- YES down -->
+      <path d="M400 455 L400 480" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowA)"/>
+      <text x="412" y="472" fill="#6ee7b7" font-size="11" font-weight="600">Sim</text>
+
+      <!-- Add box -->
+      <rect x="310" y="485" width="180" height="30" rx="15" fill="rgba(110,231,183,0.2)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="400" y="505" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="700">Adicione ao CLAUDE.md</text>
+    </svg>
+    <p class="diagram-caption">Tres perguntas filtram a maioria das instrucoes desnecessarias antes de elas chegarem ao seu CLAUDE.md.</p>
+  </div>
+
+  <!-- ════════════ TÉCNICAS ════════════ -->
+  <h2>Tecnicas para manter o CLAUDE.md enxuto</h2>
+
+  <p>
+    A documentacao oficial da Anthropic trata o CLAUDE.md como um prompt que deve ser refinado
+    iterativamente. Aqui estao as tecnicas mais efetivas para mante-lo conciso:
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">1</span>
+        Bullets em vez de paragrafos
+      </h4>
+      <p>Uma instrucao por linha, sem texto explicativo. O Claude entende perfeitamente
+         <code>- Use pnpm, nao npm</code> sem precisar de um paragrafo justificando.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">2</span>
+        Referencie, nao cole
+      </h4>
+      <p>Em vez de colar snippets inteiros, aponte para o arquivo:
+         <code>- Siga o padrao de src/utils/api-client.ts</code>. O Claude pode ler o arquivo sob demanda.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">3</span>
+        Mova instrucoes especificas para rules/
+      </h4>
+      <p>Instrucoes que so se aplicam a certos tipos de arquivo pertencem a
+         <code>.claude/rules/</code>, nao ao CLAUDE.md global. Rules sao carregadas sob demanda, nao em toda sessao.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">4</span>
+        Mova workflows para Skills
+      </h4>
+      <p>Instrucoes detalhadas sobre processos especificos (review de PR, migracoes, deploy)
+         devem virar Skills. Skills sao carregadas <strong>on-demand</strong>, nao em toda sessao.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">5</span>
+        Use enfase com criterio
+      </h4>
+      <p>A Anthropic usa <code>IMPORTANT</code> e <code>YOU MUST</code> para melhorar aderencia, mas
+         se tudo e "IMPORTANT", nada e. Reserve para 2-3 regras criticas.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">6</span>
+        Remova o obvio
+      </h4>
+      <p>Nao instrua o Claude a "escrever codigo limpo" ou "seguir boas praticas" --
+         ele ja faz isso. So documente comportamentos que <em>diferem</em> do padrao.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Dica da Anthropic:</strong> Trate o CLAUDE.md como um prompt de producao. A equipe
+    da Anthropic relata que ocasionalmente passa o CLAUDE.md pelo prompt improver e ajusta instrucoes
+    adicionando enfase para melhorar a aderencia. Itere sobre o CLAUDE.md como voce iteraria sobre qualquer prompt critico.
+  </div>
+
+  <!-- ════════════ FLUXO DE MANUTENÇÃO ════════════ -->
+  <h2>Fluxo de manutencao: o ciclo de vida de uma regra</h2>
+
+  <p>
+    O CLAUDE.md e documentacao viva -- deve evoluir junto com o projeto. A Anthropic descreve um
+    loop de melhoria continua onde o Claude Code ajuda a refinar as proprias instrucoes
+    do CLAUDE.md com base no uso real.
+  </p>
+
+  <div class="card">
+    <div class="flow-step">
+      <div class="flow-num" style="background: var(--red);">1</div>
+      <div class="flow-content">
+        <h4>Observe um erro recorrente</h4>
+        <p>O Claude insiste em usar <code>npm</code> quando seu projeto usa <code>pnpm</code>,
+           ou gera testes com Jest quando voce usa Vitest.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num" style="background: var(--yellow);">2</div>
+      <div class="flow-content">
+        <h4>Adicione uma regra concisa</h4>
+        <p>Adicione ao CLAUDE.md: <code>- IMPORTANT: Use pnpm, nunca npm</code>.
+           Mantenha como bullet point, uma linha, sem explicacao longa.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num" style="background: var(--blue);">3</div>
+      <div class="flow-content">
+        <h4>Teste em sessoes reais</h4>
+        <p>Nas proximas sessoes, observe se o Claude agora acerta. Se sim, a regra esta pagando
+           seu aluguel. Se nao, ajuste a redacao ou adicione enfase.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num" style="background: var(--green);">4</div>
+      <div class="flow-content">
+        <h4>Revise periodicamente</h4>
+        <p>A cada sprint ou mensalmente, revise o CLAUDE.md inteiro. Remova regras que o modelo
+           ja segue por padrao, instrucoes para features removidas, ou duplicacoes.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num" style="background: var(--purple);">5</div>
+      <div class="flow-content">
+        <h4>Promova ou rebaixe</h4>
+        <p>Regras especificas demais vao para <code>.claude/rules/</code>.
+           Workflows detalhados viram Skills. So o essencial fica no CLAUDE.md raiz.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ ANTES / DEPOIS ════════════ -->
+  <h2>Exemplo pratico: refatorando um CLAUDE.md</h2>
+
+  <p>
+    Veja como transformar um CLAUDE.md inchado em uma versao enxuta e efetiva, aplicando
+    as tecnicas acima. O objetivo e manter apenas instrucoes que mudam o comportamento do Claude.
+  </p>
+
+  <div class="before-after">
+    <div class="ba-col">
+      <div class="code-block">
+        <div class="code-header">
+          <span style="color: var(--red);">ANTES (~95 linhas, ~1.500 tokens)</span>
+        </div>
+        <pre>
+<span class="comment"># Projeto E-commerce API</span>
+
+<span class="deleted">Este e um projeto de API REST para um
+e-commerce construido com Node.js e
+TypeScript. O projeto segue principios
+de clean architecture e SOLID.</span>
+
+<span class="deleted">## Tecnologias utilizadas
+- Node.js 20
+- TypeScript 5.x
+- Express.js
+- PostgreSQL com Prisma ORM
+- Jest para testes
+- ESLint e Prettier</span>
+
+<span class="deleted">## Instrucoes gerais
+Por favor, sempre escreva codigo limpo
+e bem documentado. Siga as melhores
+praticas de desenvolvimento de software.
+Use nomes descritivos para variaveis e
+funcoes. Mantenha as funcoes pequenas e
+com uma unica responsabilidade.</span>
+
+<span class="deleted">## Como rodar o projeto
+1. Clone o repositorio
+2. Rode npm install
+3. Configure o .env
+4. Rode npx prisma migrate dev
+5. Rode npm run dev</span>
+
+<span class="deleted">## Estrutura de pastas
+src/
+  controllers/  - Controllers REST
+  services/     - Logica de negocio
+  repositories/ - Acesso a dados
+  middlewares/  - Middlewares Express
+  utils/        - Funcoes utilitarias
+  types/        - Tipos TypeScript
+  ...</span>
+
+<span class="comment"># (continua por mais 50 linhas...)</span></pre>
+      </div>
+    </div>
+    <div class="ba-col">
+      <div class="code-block">
+        <div class="code-header">
+          <span style="color: var(--green);">DEPOIS (~20 linhas, ~300 tokens)</span>
+        </div>
+        <pre>
+<span class="comment"># CLAUDE.md</span>
+
+<span class="added">## Comandos</span>
+<span class="added">- Build: `pnpm build`</span>
+<span class="added">- Test: `pnpm test`</span>
+<span class="added">- Lint: `pnpm lint`</span>
+<span class="added">- Dev: `pnpm dev`</span>
+<span class="added">- Migrations: `pnpm prisma migrate dev`</span>
+
+<span class="added">## Regras de codigo</span>
+<span class="added">- IMPORTANT: Use pnpm, nunca npm</span>
+<span class="added">- Erros com AppError (src/utils/errors.ts)</span>
+<span class="added">- Validacao de input com Zod schemas</span>
+<span class="added">- Testes: Vitest, nao Jest</span>
+<span class="added">- Siga padrao de src/services/order.ts</span>
+
+<span class="added">## Convencoes</span>
+<span class="added">- Commits: conventional commits (pt-BR)</span>
+<span class="added">- Branches: feat/, fix/, chore/</span>
+<span class="added">- PRs precisam de testes</span>
+
+
+<span class="comment"># Reducao: ~80% menos tokens</span>
+<span class="comment"># Tudo que foi removido: o Claude ja</span>
+<span class="comment"># sabe ou pode inferir do codigo</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <h3>O que foi removido e por que</h3>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Conteudo removido</th>
+          <th>Motivo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Descricao do projeto</td>
+          <td>O Claude infere isso do <code>package.json</code> e da estrutura de pastas</td>
+        </tr>
+        <tr>
+          <td>Lista de tecnologias</td>
+          <td>Visivel no <code>package.json</code>, <code>tsconfig.json</code> e imports</td>
+        </tr>
+        <tr>
+          <td>"Escreva codigo limpo"</td>
+          <td>Comportamento padrao do modelo -- nao agrega valor</td>
+        </tr>
+        <tr>
+          <td>Como rodar o projeto</td>
+          <td>Redundante com scripts no <code>package.json</code> (exceto pnpm vs npm)</td>
+        </tr>
+        <tr>
+          <td>Estrutura de pastas</td>
+          <td>O Claude usa <code>Glob</code> e <code>Read</code> para explorar a estrutura</td>
+        </tr>
+        <tr>
+          <td>Paragrafos explicativos</td>
+          <td>Substituidos por bullets concisos -- mesma informacao, menos tokens</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout-green callout">
+    <strong>Resultado:</strong> De ~1.500 tokens para ~300 tokens -- uma reducao de 80%. Em 50 mensagens,
+    isso economiza <strong>~60.000 tokens</strong> de contexto. Mais importante: as instrucoes que restaram
+    tem maior chance de serem seguidas, porque o modelo nao precisa competir com "ruido".
+  </div>
+
+  <!-- ════════════ ONDE COLOCAR O QUÊ ════════════ -->
+  <h2>Onde colocar cada tipo de instrucao</h2>
+
+  <p>
+    O Claude Code oferece multiplos locais para armazenar instrucoes. A chave e colocar
+    cada tipo de informacao no local certo para minimizar o consumo de tokens do CLAUDE.md raiz.
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Tipo de instrucao</th>
+          <th>Onde colocar</th>
+          <th>Carregamento</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Comandos de build/test/lint</td>
+          <td><code>CLAUDE.md</code> (raiz)</td>
+          <td>Toda sessao</td>
+        </tr>
+        <tr>
+          <td>Convencoes globais do projeto</td>
+          <td><code>CLAUDE.md</code> (raiz)</td>
+          <td>Toda sessao</td>
+        </tr>
+        <tr>
+          <td>Preferencias pessoais</td>
+          <td><code>CLAUDE.local.md</code></td>
+          <td>Toda sessao (so sua)</td>
+        </tr>
+        <tr>
+          <td>Regras para tipo de arquivo</td>
+          <td><code>.claude/rules/*.md</code></td>
+          <td>Sob demanda (por path)</td>
+        </tr>
+        <tr>
+          <td>Workflows (PR review, deploy)</td>
+          <td><code>.claude/skills/*.md</code></td>
+          <td>Sob demanda (invocado)</td>
+        </tr>
+        <tr>
+          <td>Preferencias globais (todos os projetos)</td>
+          <td><code>~/.claude/CLAUDE.md</code></td>
+          <td>Toda sessao</td>
+        </tr>
+        <tr>
+          <td>Regras de subpastas (monorepo)</td>
+          <td><code>packages/*/CLAUDE.md</code></td>
+          <td>Sob demanda (por path)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout-blue callout">
+    <strong>Principio-chave:</strong> Quanto mais especifica a instrucao, mais fundo na hierarquia ela deve ficar.
+    O CLAUDE.md raiz e "caro" em tokens -- so o que e verdadeiramente global deve estar la.
+    A documentacao oficial recomenda manter o CLAUDE.md abaixo de 200 linhas movendo instrucoes
+    especializadas para Skills.
+  </div>
+
+  <!-- ════════════ MÉTRICAS ════════════ -->
+  <h2>Como calcular o custo do seu CLAUDE.md</h2>
+
+  <p>
+    Voce pode estimar quantos tokens seu CLAUDE.md consome usando ferramentas simples.
+    A regra geral e: ~1 token para cada 4 caracteres em ingles, ou ~1 token para cada 3 caracteres em portugues.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Estimando tokens do seu CLAUDE.md</span>
+      <span>Terminal</span>
+    </div>
+    <pre>
+<span class="comment"># Contagem rapida de caracteres e estimativa de tokens</span>
+$ wc -c CLAUDE.md
+<span class="number">1847</span> CLAUDE.md
+
+<span class="comment"># Estimativa: ~1847 / 3 = ~616 tokens (portugues)</span>
+<span class="comment"># Estimativa: ~1847 / 4 = ~462 tokens (ingles)</span>
+
+<span class="comment"># Contagem de linhas (meta: &lt; 200)</span>
+$ wc -l CLAUDE.md
+<span class="number">47</span> CLAUDE.md
+
+<span class="comment"># No Claude Code, use /usage para ver o consumo real</span>
+<span class="comment"># e /context para ver o que esta no contexto atual</span></pre>
+  </div>
+
+  <div class="grid-3">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">$</span>
+        Custo por sessao
+      </h4>
+      <p>Um CLAUDE.md de 500 tokens a $3/MTok (input cacheado) custa ~$0.0015 por mensagem.
+         Em 50 msgs: ~$0.075 por sessao.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">$</span>
+        Custo por mes
+      </h4>
+      <p>Com 10 sessoes/dia, 20 dias/mes: ~$15/mes so do CLAUDE.md.
+         Um CLAUDE.md enxuto reduz para ~$3/mes.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">!</span>
+        Custo real
+      </h4>
+      <p>O custo financeiro e secundario. O custo real e a <strong>perda de atencao</strong>:
+         instrucoes ignoradas porque o contexto esta poluido.</p>
+    </div>
+  </div>
+
+  <!-- ════════════ DOCUMENTAÇÃO VIVA ════════════ -->
+  <h2>CLAUDE.md como documentacao viva</h2>
+
+  <p>
+    O CLAUDE.md nao e um documento estatico -- e uma <strong>ferramenta de calibracao</strong> que deve evoluir
+    junto com o projeto. A Anthropic descreve um loop de melhoria onde o Claude Code ajuda a refinar
+    suas proprias instrucoes com base no uso real.
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">+</span>
+        Quando adicionar
+      </h4>
+      <p>O Claude comete o mesmo erro mais de uma vez; uma convencao do projeto nao pode ser inferida
+         do codigo; um comando de build/test nao e obvio.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">-</span>
+        Quando remover
+      </h4>
+      <p>O modelo ja segue a regra por padrao; a feature foi removida; a instrucao e redundante
+         com outra; a regra nunca mudou o comportamento do Claude.</p>
+    </div>
+  </div>
+
+  <div class="callout-yellow callout">
+    <strong>Anti-pattern:</strong> Muitas equipes tratam o CLAUDE.md como um "README para o Claude" -- documentando
+    tudo sobre o projeto de forma exaustiva. Mas o Claude ja sabe explorar o codebase com suas ferramentas.
+    O CLAUDE.md deve conter apenas o que o Claude <em>nao consegue descobrir sozinho</em>.
+  </div>
+
+  <!-- ════════════ RESUMO ════════════ -->
+  <h2>Resumo: checklist do CLAUDE.md enxuto</h2>
+
+  <div class="card">
+    <ul class="compact-list">
+      <li>
+        <span class="bullet">1.</span>
+        <span>Para cada linha, pergunte: <strong>"Removendo isso, o Claude erraria?"</strong></span>
+      </li>
+      <li>
+        <span class="bullet">2.</span>
+        <span>Mantenha abaixo de <strong>200 linhas</strong> (recomendacao oficial da Anthropic)</span>
+      </li>
+      <li>
+        <span class="bullet">3.</span>
+        <span>Use <strong>bullet points</strong>, nao paragrafos explicativos</span>
+      </li>
+      <li>
+        <span class="bullet">4.</span>
+        <span><strong>Referencie arquivos</strong> em vez de colar codigo</span>
+      </li>
+      <li>
+        <span class="bullet">5.</span>
+        <span>Mova instrucoes especificas para <strong>.claude/rules/</strong></span>
+      </li>
+      <li>
+        <span class="bullet">6.</span>
+        <span>Mova workflows detalhados para <strong>Skills</strong></span>
+      </li>
+      <li>
+        <span class="bullet">7.</span>
+        <span>Reserve <code>IMPORTANT</code> e <code>YOU MUST</code> para <strong>2-3 regras criticas</strong></span>
+      </li>
+      <li>
+        <span class="bullet">8.</span>
+        <span>Nao documente o que o Claude ja <strong>infere do codigo</strong> (stack, estrutura, etc.)</span>
+      </li>
+      <li>
+        <span class="bullet">9.</span>
+        <span><strong>Revise periodicamente</strong> e remova regras obsoletas</span>
+      </li>
+      <li>
+        <span class="bullet">10.</span>
+        <span>Use <code>/usage</code> e <code>/context</code> para <strong>monitorar o consumo</strong></span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- ════════════ FONTES ════════════ -->
+  <div class="sources">
+    <h3>Fontes e Referencias</h3>
+    <ul>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Anthropic — Best Practices for Claude Code</a></li>
+      <li><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank">Anthropic — Effective Context Engineering for AI Agents</a></li>
+      <li><a href="https://docs.claude.com/en/docs/claude-code/costs" target="_blank">Claude Docs — Manage Costs Effectively</a></li>
+      <li><a href="https://docs.claude.com/en/docs/agents-and-tools/tool-use/memory-tool" target="_blank">Claude Docs — Memory Tool</a></li>
+      <li><a href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills" target="_blank">Anthropic — Equipping Agents with Skills</a></li>
+      <li><a href="https://www.anthropic.com/news/how-anthropic-teams-use-claude-code" target="_blank">Anthropic — How Anthropic Teams Use Claude Code</a></li>
+    </ul>
+  </div>
+
+  <!-- ════════════ NAV FOOTER ════════════ -->
+  <div class="nav-footer">
+    <a href="modulo-02-topico-03-init.html" class="nav-btn">&larr; Topico 3 . /init</a>
+    <a href="../index.html" class="nav-btn">&#8962; Indice</a>
+    <a href="modulo-02-topico-05-skills-vs-claudemd.html" class="nav-btn">Topico 5 . Skills vs CLAUDE.md &rarr;</a>
+  </div>
+
+</body>
+</html>

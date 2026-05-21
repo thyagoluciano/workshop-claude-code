@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo 2 · Tópico 3 — Usando /init para gerar CLAUDE.md</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-code: #141620;
+      --border: #2a2d3a;
+      --text: #e4e4e7;
+      --text-dim: #9ca3af;
+      --accent: #c4956a;
+      --accent-soft: rgba(196, 149, 106, 0.12);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.12);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .topic-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-soft); padding: 6px 14px;
+      border-radius: 20px; margin-bottom: 1rem;
+    }
+
+    h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+    .subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+    h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+    p { margin-bottom: 1rem; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+    strong { color: #fff; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0;
+    }
+    .card-label {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 6px; margin-bottom: 0.75rem;
+    }
+
+    .diagram-container {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto;
+    }
+    .diagram-container svg { display: block; margin: 0 auto; }
+    .diagram-caption {
+      text-align: center; font-size: 0.85rem; color: var(--text-dim);
+      margin-top: 1rem; font-style: italic;
+    }
+
+    .code-block {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1rem; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim);
+    }
+    .code-block pre {
+      padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8;
+    }
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: var(--purple); }
+    .code-block .string { color: var(--green); }
+    .code-block .tool { color: var(--accent); }
+    .code-block .number { color: var(--yellow); }
+
+    .callout {
+      border-left: 3px solid var(--accent); background: var(--accent-soft);
+      padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem;
+    }
+    .callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+    .callout-red { border-left-color: var(--red); background: var(--red-soft); }
+    .callout-green { border-left-color: var(--green); background: var(--green-soft); }
+    .callout strong { color: #fff; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+    }
+
+    .mini-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .mini-card h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;
+    }
+    .mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+
+    .icon-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    .sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .sources ul { list-style: none; padding: 0; }
+    .sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+    .sources li::before { content: "\2192 "; color: var(--accent); }
+
+    .nav-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+      color: var(--text); background: var(--bg-card); border: 1px solid var(--border);
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+
+    /* ── Terminal mock ── */
+    .terminal {
+      background: #0c0e14; border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden; margin: 1.5rem 0;
+    }
+    .terminal-bar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 16px; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border);
+    }
+    .terminal-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+    }
+    .terminal-title {
+      font-size: 0.78rem; color: var(--text-dim); margin-left: 8px;
+      font-family: var(--font-mono);
+    }
+    .terminal-body {
+      padding: 1rem 1.25rem; font-family: var(--font-mono);
+      font-size: 0.85rem; line-height: 1.7; color: #d4d4d8;
+    }
+    .terminal-body .prompt { color: var(--green); }
+    .terminal-body .cmd { color: #fff; font-weight: 600; }
+    .terminal-body .output { color: var(--text-dim); }
+    .terminal-body .highlight { color: var(--accent); }
+    .terminal-body .success { color: var(--green); }
+    .terminal-body .info { color: var(--blue); }
+    .terminal-body .dim { color: #4b5563; }
+
+    /* ── Flow steps ── */
+    .flow-step {
+      display: flex; align-items: flex-start; gap: 16px; margin-bottom: 0.5rem;
+      position: relative;
+    }
+    .flow-step::before {
+      content: ''; position: absolute; left: 15px; top: 34px;
+      width: 2px; height: calc(100% - 10px); background: var(--border);
+    }
+    .flow-step:last-child::before { display: none; }
+    .flow-num {
+      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; font-weight: 700; color: #fff;
+    }
+    .flow-content h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff; margin-bottom: 2px;
+    }
+    .flow-content p {
+      font-size: 0.88rem; color: var(--text-dim); margin: 0 0 0.75rem;
+    }
+
+    /* ── VS row ── */
+    .vs-row {
+      display: grid; grid-template-columns: 1fr 60px 1fr; gap: 0; margin: 2rem 0;
+      align-items: stretch;
+    }
+    .vs-col {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+    }
+    .vs-col h4 {
+      font-size: 1rem; font-weight: 600; margin-bottom: 1rem;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .vs-divider {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: 700; color: var(--text-dim);
+    }
+    .vs-item {
+      display: flex; gap: 10px; margin-bottom: 0.75rem; font-size: 0.9rem;
+      color: var(--text-dim); align-items: flex-start;
+    }
+    .vs-item .dot {
+      width: 8px; height: 8px; border-radius: 50%; margin-top: 7px; flex-shrink: 0;
+    }
+    @media (max-width: 700px) {
+      .vs-row { grid-template-columns: 1fr; gap: 0.5rem; }
+      .vs-divider { padding: 0.5rem 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ HEADER ════════════ -->
+  <div class="topic-badge">Modulo 2 . Topico 3</div>
+  <h1>Usando <code>/init</code> para gerar um CLAUDE.md base</h1>
+  <p class="subtitle">
+    O comando <code>/init</code> analisa seu codebase e gera automaticamente um arquivo CLAUDE.md
+    com as convenções, comandos e estrutura do projeto. É o ponto de partida mais rápido
+    — mas nunca o resultado final.
+  </p>
+
+  <!-- ════════════ O QUE O /init FAZ ════════════ -->
+  <h2>O que o comando <code>/init</code> faz</h2>
+
+  <p>
+    Quando você digita <code>/init</code> no Claude Code, ele não simplesmente cria um arquivo vazio.
+    O Claude recebe acesso ao seu codebase e <strong>explora ativamente</strong> a estrutura do projeto
+    para construir um CLAUDE.md que reflita a realidade do repositório. Ele age como um agente:
+    lê arquivos de configuração, examina a árvore de diretórios, identifica padrões de código
+    e sintetiza tudo em instruções persistentes.
+  </p>
+
+  <p>
+    Se um CLAUDE.md já existir no projeto, o <code>/init</code> <strong>não sobrescreve</strong> o
+    arquivo existente — ele sugere melhorias e adições. Isso torna seguro rodar o comando
+    mesmo em projetos que já possuem configuração.
+  </p>
+
+  <div class="callout-blue callout">
+    <strong>Novidade:</strong> Com a variável de ambiente <code>CLAUDE_CODE_NEW_INIT=1</code>,
+    o <code>/init</code> entra em um fluxo interativo multi-fase: pergunta quais artefatos configurar
+    (CLAUDE.md, skills, hooks), explora o codebase com um subagente, faz perguntas de follow-up
+    e apresenta uma proposta revisável antes de escrever qualquer arquivo.
+  </div>
+
+  <!-- ════════════ O QUE O /init ANALISA ════════════ -->
+  <h2>O que o <code>/init</code> analisa</h2>
+
+  <p>
+    O Claude Code percorre o repositório buscando sinais sobre a stack, a arquitetura e as
+    convenções do projeto. Os principais alvos de análise incluem:
+  </p>
+
+  <div class="grid-3">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">P</span>
+        Manifesto do projeto
+      </h4>
+      <p><code>package.json</code>, <code>pyproject.toml</code>, <code>Cargo.toml</code>, <code>go.mod</code> — identifica linguagem, dependências e scripts disponíveis.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">C</span>
+        Arquivos de configuração
+      </h4>
+      <p><code>tsconfig.json</code>, <code>.eslintrc</code>, <code>Dockerfile</code>, <code>Makefile</code> — detecta tooling de build, lint e deploy.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">D</span>
+        Estrutura de diretórios
+      </h4>
+      <p>Identifica pastas como <code>src/</code>, <code>tests/</code>, <code>lib/</code>, <code>api/</code> — mapeia a arquitetura e os módulos principais.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">F</span>
+        Frameworks e padrões
+      </h4>
+      <p>Detecta React, Next.js, Express, Django, Spring Boot e outros — ajusta convenções ao ecossistema.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">T</span>
+        Testes e CI
+      </h4>
+      <p>Encontra test runners (<code>jest</code>, <code>pytest</code>, <code>vitest</code>), pipelines CI e scripts de verificação.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">A</span>
+        Configs de outros agentes
+      </h4>
+      <p>Lê <code>AGENTS.md</code>, <code>.cursorrules</code>, <code>.windsurfrules</code> e incorpora as partes relevantes ao CLAUDE.md gerado.</p>
+    </div>
+  </div>
+
+  <!-- ════════════ TERMINAL MOCK ════════════ -->
+  <h2>O <code>/init</code> em ação</h2>
+
+  <p>
+    Veja como é a experiência de rodar o <code>/init</code> em um projeto Node.js/TypeScript
+    típico. O Claude analisa o repositório e gera o arquivo em segundos:
+  </p>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="terminal-dot" style="background: #f87171;"></div>
+      <div class="terminal-dot" style="background: #fbbf24;"></div>
+      <div class="terminal-dot" style="background: #6ee7b7;"></div>
+      <span class="terminal-title">~/projects/meu-app</span>
+    </div>
+    <div class="terminal-body">
+      <span class="prompt">$</span> <span class="cmd">claude</span><br>
+      <br>
+      <span class="output">Claude Code v1.0.26</span><br>
+      <span class="dim">Ctrl+C to interrupt, /help for slash commands</span><br>
+      <br>
+      <span class="prompt">></span> <span class="cmd">/init</span><br>
+      <br>
+      <span class="info">Analyzing project structure...</span><br>
+      <span class="output">  Reading package.json</span><br>
+      <span class="output">  Reading tsconfig.json</span><br>
+      <span class="output">  Scanning directory tree (src/, tests/, config/)</span><br>
+      <span class="output">  Reading .eslintrc.js</span><br>
+      <span class="output">  Checking existing CI configuration</span><br>
+      <span class="output">  Detecting test framework (vitest)</span><br>
+      <br>
+      <span class="success">Created CLAUDE.md with project conventions.</span><br>
+      <br>
+      <span class="highlight">Summary of generated CLAUDE.md:</span><br>
+      <span class="output">  - Build command: npm run build</span><br>
+      <span class="output">  - Test command: npm run test</span><br>
+      <span class="output">  - Lint command: npm run lint</span><br>
+      <span class="output">  - Framework: Next.js 14 + TypeScript</span><br>
+      <span class="output">  - Architecture: App Router, src/ layout</span><br>
+      <span class="output">  - 3 key conventions detected</span><br>
+      <br>
+      <span class="dim">Review the generated file and refine as needed.</span>
+    </div>
+  </div>
+
+  <!-- ════════════ OUTPUT GERADO ════════════ -->
+  <h2>Exemplo de CLAUDE.md gerado pelo <code>/init</code></h2>
+
+  <p>
+    Abaixo está um exemplo realista do que o <code>/init</code> gera para um projeto Next.js
+    com TypeScript. Note que o conteúdo é objetivo, focado em comandos e estrutura — exatamente
+    o tipo de informação que o Claude precisa para ser produtivo:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>CLAUDE.md (gerado pelo /init)</span>
+      <span>~45 linhas</span>
+    </div>
+    <pre>
+<span class="comment"># Project: meu-app</span>
+
+<span class="comment">## Commands</span>
+<span class="string">- Build: `npm run build`</span>
+<span class="string">- Dev server: `npm run dev`</span>
+<span class="string">- Test all: `npm run test`</span>
+<span class="string">- Test single: `npx vitest run path/to/test.ts`</span>
+<span class="string">- Lint: `npm run lint`</span>
+<span class="string">- Type check: `npx tsc --noEmit`</span>
+<span class="string">- Format: `npx prettier --write .`</span>
+
+<span class="comment">## Architecture</span>
+<span class="string">- Framework: Next.js 14 with App Router</span>
+<span class="string">- Language: TypeScript (strict mode)</span>
+<span class="string">- Styling: Tailwind CSS</span>
+<span class="string">- State management: Zustand</span>
+<span class="string">- Database: Prisma ORM with PostgreSQL</span>
+
+<span class="comment">## Project Structure</span>
+<span class="string">- src/app/         → App Router pages and layouts</span>
+<span class="string">- src/components/  → Reusable React components</span>
+<span class="string">- src/lib/         → Shared utilities and helpers</span>
+<span class="string">- src/server/      → Server-side logic (actions, API)</span>
+<span class="string">- src/types/       → TypeScript type definitions</span>
+<span class="string">- prisma/          → Database schema and migrations</span>
+<span class="string">- tests/           → Test files (mirrors src/ structure)</span>
+
+<span class="comment">## Code Style</span>
+<span class="string">- Use named exports (not default exports)</span>
+<span class="string">- Prefer `interface` over `type` for object shapes</span>
+<span class="string">- Use absolute imports with `@/` prefix</span>
+
+<span class="comment">## Testing</span>
+<span class="string">- Test runner: Vitest</span>
+<span class="string">- Test files: `*.test.ts` or `*.test.tsx`</span>
+<span class="string">- Coverage: `npm run test:coverage`</span></pre>
+  </div>
+
+  <div class="callout">
+    <strong>Observe o padrão:</strong> O output é curto, factual e orientado a ação. Ele lista
+    comandos que o Claude pode executar, descreve a estrutura para navegação e registra convenções
+    para manter consistência. Não há texto narrativo ou explicações longas — exatamente como
+    a documentação oficial recomenda.
+  </div>
+
+  <!-- ════════════ O QUE FAZER DEPOIS ════════════ -->
+  <h2>O que fazer depois do <code>/init</code></h2>
+
+  <p>
+    O CLAUDE.md gerado é um <strong>primeiro rascunho</strong>, não um produto final. O Claude
+    consegue descobrir informações técnicas (comandos, frameworks, estrutura), mas não consegue
+    adivinhar decisões de design, regras de negócio ou preferências do time. Depois de rodar
+    o <code>/init</code>, você deve:
+  </p>
+
+  <div class="flow-step">
+    <div class="flow-num" style="background: var(--green-soft); color: var(--green);">1</div>
+    <div class="flow-content">
+      <h4>Revisar o conteúdo gerado</h4>
+      <p>Abra o CLAUDE.md e verifique se os comandos estão corretos, se a estrutura reflete a realidade
+         e se nenhuma informação sensível foi incluída (variáveis de ambiente, paths internos, etc.).</p>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="flow-num" style="background: var(--blue-soft); color: var(--blue);">2</div>
+    <div class="flow-content">
+      <h4>Adicionar o que o Claude não descobriu</h4>
+      <p>Regras de negócio, convenções do time, padrões de commit, arquivos que não devem ser tocados,
+         decisões arquiteturais que não estão óbvias no código.</p>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="flow-num" style="background: var(--yellow-soft); color: var(--yellow);">3</div>
+    <div class="flow-content">
+      <h4>Remover o que é redundante</h4>
+      <p>Se o Claude já consegue inferir algo direto do código (ex: "usa TypeScript"), não precisa
+         repetir. Foque no que ele <em>não</em> consegue descobrir sozinho.</p>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="flow-num" style="background: var(--accent-soft); color: var(--accent);">4</div>
+    <div class="flow-content">
+      <h4>Commitar e iterar</h4>
+      <p>Commite o CLAUDE.md no repositório para que o time todo se beneficie. Atualize conforme
+         o projeto evolui — regras mudam, dependências são atualizadas, convenções novas surgem.</p>
+    </div>
+  </div>
+
+  <div class="callout-red callout">
+    <strong>Armadilha comum:</strong> Rodar o <code>/init</code> e nunca mais tocar no CLAUDE.md.
+    O arquivo envelhece junto com o projeto. Trate-o como documentação viva — atualize quando
+    mudar padrões, adicionar dependências ou alterar processos de build/test.
+  </div>
+
+  <!-- ════════════ /init NÃO É RESULTADO FINAL ════════════ -->
+  <h2>O <code>/init</code> como ponto de partida</h2>
+
+  <p>
+    O <code>/init</code> é uma ferramenta de <strong>bootstrap</strong>, não de conclusão. Ele resolve
+    o problema do "papel em branco" — a dificuldade de começar a escrever um CLAUDE.md do zero.
+    Mas o valor real do arquivo vem das informações que <em>você</em> adiciona: o conhecimento
+    que está na cabeça do time e não no código.
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>O que o <code>/init</code> descobre</th>
+          <th>O que você precisa adicionar</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Comandos de build, test, lint</td>
+          <td>Ordem de execução dos comandos, pré-requisitos</td>
+        </tr>
+        <tr>
+          <td>Framework e linguagem</td>
+          <td>Decisões de design: por que esse framework, quais alternativas foram descartadas</td>
+        </tr>
+        <tr>
+          <td>Estrutura de diretórios</td>
+          <td>Regras de organização: onde cada tipo de arquivo deve ficar</td>
+        </tr>
+        <tr>
+          <td>Dependências instaladas</td>
+          <td>Dependências proibidas, alternativas preferidas</td>
+        </tr>
+        <tr>
+          <td>Padrões de naming detectados</td>
+          <td>Convenções de naming explícitas, exceções</td>
+        </tr>
+        <tr>
+          <td>Existência de testes</td>
+          <td>Cobertura mínima esperada, padrões de mock, fixtures</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ QUANDO USAR /init vs MANUAL ════════════ -->
+  <h2>Quando usar <code>/init</code> vs. criar manualmente</h2>
+
+  <div class="vs-row">
+    <div class="vs-col" style="border-color: var(--green); border-width: 1.5px;">
+      <h4 style="color: var(--green);">
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">A</span>
+        Use <code>/init</code> quando...
+      </h4>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span>Está trazendo o Claude Code para um projeto existente pela primeira vez</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span>O projeto tem configurações padrão que o Claude pode detectar automaticamente</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span>Quer um ponto de partida rápido para iterar sobre</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span>O repositório já tem <code>AGENTS.md</code> ou <code>.cursorrules</code> que podem ser incorporados</span>
+      </div>
+    </div>
+
+    <div class="vs-divider">vs</div>
+
+    <div class="vs-col">
+      <h4 style="color: var(--text-dim);">
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">M</span>
+        Crie manualmente quando...
+      </h4>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--purple);"></span>
+        <span>O projeto é muito novo e ainda não tem configurações ou código significativo</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--purple);"></span>
+        <span>Você precisa de um CLAUDE.md altamente específico com regras de negócio complexas</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--purple);"></span>
+        <span>Quer começar minimal e só adicionar regras conforme problemas aparecem</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--purple);"></span>
+        <span>Já existe um CLAUDE.md maduro e você só quer ajustes finos</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ DIAGRAMA: WORKFLOW ════════════ -->
+  <h2>Workflow recomendado</h2>
+
+  <p>
+    O fluxo ideal combina a velocidade do <code>/init</code> com a curadoria humana. O resultado
+    é um CLAUDE.md que evolui junto com o projeto:
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 820 200" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Workflow recomendado: /init, revisar, complementar, commitar, iterar</title>
+
+      <defs>
+        <marker id="arrowFlow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#6ee7b7"/>
+        </marker>
+        <marker id="arrowLoop2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#c4956a"/>
+        </marker>
+      </defs>
+
+      <!-- Step 1: /init -->
+      <rect x="10" y="55" width="120" height="70" rx="12" fill="rgba(110,231,183,0.1)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="70" y="82" text-anchor="middle" fill="#6ee7b7" font-size="14" font-weight="700">/init</text>
+      <text x="70" y="102" text-anchor="middle" fill="#d4d4d8" font-size="10">Gera o rascunho</text>
+
+      <path d="M135 90 L175 90" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowFlow)"/>
+
+      <!-- Step 2: Revisar -->
+      <rect x="180" y="55" width="120" height="70" rx="12" fill="rgba(96,165,250,0.1)" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="240" y="82" text-anchor="middle" fill="#60a5fa" font-size="13" font-weight="600">Revisar</text>
+      <text x="240" y="102" text-anchor="middle" fill="#d4d4d8" font-size="10">Validar comandos</text>
+
+      <path d="M305 90 L345 90" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowFlow)"/>
+
+      <!-- Step 3: Complementar -->
+      <rect x="350" y="55" width="130" height="70" rx="12" fill="rgba(251,191,36,0.1)" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="415" y="82" text-anchor="middle" fill="#fbbf24" font-size="13" font-weight="600">Complementar</text>
+      <text x="415" y="102" text-anchor="middle" fill="#d4d4d8" font-size="10">Adicionar contexto</text>
+
+      <path d="M485 90 L525 90" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowFlow)"/>
+
+      <!-- Step 4: Commitar -->
+      <rect x="530" y="55" width="120" height="70" rx="12" fill="rgba(167,139,250,0.1)" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="590" y="82" text-anchor="middle" fill="#a78bfa" font-size="13" font-weight="600">Commitar</text>
+      <text x="590" y="102" text-anchor="middle" fill="#d4d4d8" font-size="10">Versionar no git</text>
+
+      <path d="M655 90 L695 90" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowFlow)"/>
+
+      <!-- Step 5: Iterar -->
+      <rect x="700" y="55" width="110" height="70" rx="12" fill="rgba(196,149,106,0.1)" stroke="#c4956a" stroke-width="1.5"/>
+      <text x="755" y="82" text-anchor="middle" fill="#c4956a" font-size="13" font-weight="600">Iterar</text>
+      <text x="755" y="102" text-anchor="middle" fill="#d4d4d8" font-size="10">Evoluir sempre</text>
+
+      <!-- Feedback loop: Iterar → Revisar -->
+      <path d="M755 130 L755 170 C755 185, 745 190, 730 190 L260 190 C245 190, 240 185, 240 170 L240 130"
+            fill="none" stroke="#c4956a" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrowLoop2)"/>
+      <text x="490" y="185" text-anchor="middle" fill="#c4956a" font-size="11" font-style="italic">
+        Projeto muda → atualizar CLAUDE.md
+      </text>
+
+      <!-- Labels -->
+      <text x="70" y="42" text-anchor="middle" fill="#6ee7b7" font-size="10" font-weight="600">CLAUDE</text>
+      <text x="240" y="42" text-anchor="middle" fill="#60a5fa" font-size="10" font-weight="600">HUMANO</text>
+      <text x="415" y="42" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="600">HUMANO</text>
+      <text x="590" y="42" text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="600">GIT</text>
+      <text x="755" y="42" text-anchor="middle" fill="#c4956a" font-size="10" font-weight="600">CONTÍNUO</text>
+    </svg>
+    <p class="diagram-caption">O <code>/init</code> é o passo 1 de um processo contínuo. O CLAUDE.md evolui com o projeto.</p>
+  </div>
+
+  <!-- ════════════ DICAS COMPLEMENTARES ════════════ -->
+  <h2>Dicas para aproveitar melhor o <code>/init</code></h2>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">1</span>
+        Rode na raiz do projeto
+      </h4>
+      <p>O <code>/init</code> analisa a partir do diretório atual. Se rodar em uma subpasta, o CLAUDE.md
+         será parcial. Sempre rode na raiz do repositório.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">2</span>
+        Use a tecla # para updates rápidos
+      </h4>
+      <p>Depois do <code>/init</code>, use a tecla <code>#</code> durante o trabalho para instruir o Claude
+         a adicionar novas convenções diretamente ao CLAUDE.md.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">3</span>
+        Mantenha abaixo de 200 linhas
+      </h4>
+      <p>A documentação oficial recomenda manter cada CLAUDE.md abaixo de 200 linhas. Use
+         <code>.claude/rules/</code> para regras específicas por tipo de arquivo.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">4</span>
+        Revise com o time
+      </h4>
+      <p>O CLAUDE.md é compartilhado via git. Antes de commitar, peça feedback do time — as instruções
+         afetam a experiência de todos que usam Claude Code no projeto.</p>
+    </div>
+  </div>
+
+  <div class="callout-green callout">
+    <strong>Dica avançada:</strong> Use <code>/memory</code> para ver todos os arquivos CLAUDE.md e regras
+    carregados na sessão atual. É útil para auditar se o <code>/init</code> gerou algo que conflita com
+    instruções existentes em subdiretórios ou no <code>~/.claude/CLAUDE.md</code> pessoal.
+  </div>
+
+  <!-- ════════════ FONTES ════════════ -->
+  <div class="sources">
+    <h3>Fontes e Referências</h3>
+    <ul>
+      <li><a href="https://code.claude.com/docs/en/memory" target="_blank">Claude Code Docs — How Claude remembers your project (CLAUDE.md e Auto Memory)</a></li>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Anthropic — Best Practices for Claude Code</a></li>
+      <li><a href="https://code.claude.com/docs/en/cli-reference" target="_blank">Claude Code Docs — CLI Reference</a></li>
+      <li><a href="https://code.claude.com/docs/en/best-practices" target="_blank">Claude Code Docs — Best Practices</a></li>
+      <li><a href="https://code.claude.com/docs/en/features-overview" target="_blank">Claude Code Docs — Extend Claude Code (Features Overview)</a></li>
+    </ul>
+  </div>
+
+  <!-- ════════════ NAV FOOTER ════════════ -->
+  <div class="nav-footer">
+    <a href="modulo-02-topico-02-claudemd-o-que-nao-incluir.html" class="nav-btn">&larr; Topico 2 . O que nao incluir</a>
+    <a href="../index.html" class="nav-btn">&#8962; Indice</a>
+    <a href="modulo-02-topico-04-manter-enxuto.html" class="nav-btn">Topico 4 . Manter enxuto &rarr;</a>
+  </div>
+
+</body>
+</html>

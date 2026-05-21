@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo 2 · Tópico 2 — O que nunca incluir no CLAUDE.md</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-code: #141620;
+      --border: #2a2d3a;
+      --text: #e4e4e7;
+      --text-dim: #9ca3af;
+      --accent: #c4956a;
+      --accent-soft: rgba(196, 149, 106, 0.12);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.12);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .topic-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-soft); padding: 6px 14px;
+      border-radius: 20px; margin-bottom: 1rem;
+    }
+
+    h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+    .subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+    h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+    p { margin-bottom: 1rem; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+    strong { color: #fff; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0;
+    }
+    .card-label {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 6px; margin-bottom: 0.75rem;
+    }
+
+    .diagram-container {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto;
+    }
+    .diagram-container svg { display: block; margin: 0 auto; }
+    .diagram-caption {
+      text-align: center; font-size: 0.85rem; color: var(--text-dim);
+      margin-top: 1rem; font-style: italic;
+    }
+
+    .code-block {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1rem; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim);
+    }
+    .code-block pre {
+      padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8;
+    }
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: var(--purple); }
+    .code-block .string { color: var(--green); }
+    .code-block .tool { color: var(--accent); }
+    .code-block .number { color: var(--yellow); }
+
+    .callout {
+      border-left: 3px solid var(--accent); background: var(--accent-soft);
+      padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem;
+    }
+    .callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+    .callout-red { border-left-color: var(--red); background: var(--red-soft); }
+    .callout-green { border-left-color: var(--green); background: var(--green-soft); }
+    .callout strong { color: #fff; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+    }
+
+    .mini-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .mini-card h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;
+    }
+    .mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+
+    .icon-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    .sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .sources ul { list-style: none; padding: 0; }
+    .sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+    .sources li::before { content: "\2192 "; color: var(--accent); }
+
+    .nav-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+      color: var(--text); background: var(--bg-card); border: 1px solid var(--border);
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+
+    /* ── Specific to this topic ── */
+    .vs-row {
+      display: grid; grid-template-columns: 1fr 60px 1fr; gap: 0; margin: 2rem 0;
+      align-items: stretch;
+    }
+    .vs-col {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+    }
+    .vs-col h4 {
+      font-size: 1rem; font-weight: 600; margin-bottom: 1rem;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .vs-divider {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: 700; color: var(--text-dim);
+    }
+    .vs-item {
+      display: flex; gap: 10px; margin-bottom: 0.75rem; font-size: 0.9rem;
+      color: var(--text-dim); align-items: flex-start;
+    }
+    .vs-item .dot {
+      width: 8px; height: 8px; border-radius: 50%; margin-top: 7px; flex-shrink: 0;
+    }
+    @media (max-width: 700px) {
+      .vs-row { grid-template-columns: 1fr; gap: 0.5rem; }
+      .vs-divider { padding: 0.5rem 0; }
+    }
+
+    .strike { text-decoration: line-through; color: var(--red); opacity: 0.7; }
+    .good-line { color: var(--green); }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ HEADER ════════════ -->
+  <div class="topic-badge">Modulo 2 &middot; Topico 2</div>
+  <h1>O que nunca incluir no CLAUDE.md</h1>
+  <p class="subtitle">
+    O Claude ja sabe programar. Ele conhece linguagens, frameworks, APIs populares e padroes de design.
+    Incluir esse tipo de informacao no <code>CLAUDE.md</code> nao ajuda &mdash; <strong>atrapalha</strong>.
+    Cada token desperdicado com o obvio e um token a menos para o que realmente importa.
+  </p>
+
+  <!-- ════════════ O QUE O CLAUDE JÁ SABE ════════════ -->
+  <h2>O que o Claude ja sabe (e voce nao precisa ensinar)</h2>
+
+  <p>
+    O Claude foi treinado em vastos conjuntos de dados que incluem documentacao oficial, repositorios open-source,
+    artigos tecnicos e livros. Isso significa que ele ja possui conhecimento profundo sobre uma enorme gama de
+    tecnologias. Repetir esse conhecimento no <code>CLAUDE.md</code> consome tokens sem agregar valor.
+  </p>
+
+  <div class="grid-3">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">L</span>
+        Linguagens
+      </h4>
+      <p>Python, JavaScript/TypeScript, Java, Go, Rust, C/C++, Ruby, PHP, Swift, Kotlin, SQL e dezenas de outras.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">F</span>
+        Frameworks
+      </h4>
+      <p>React, Next.js, Vue, Angular, Django, Flask, Spring Boot, Rails, Express, FastAPI, NestJS e muitos mais.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">A</span>
+        APIs e Ferramentas
+      </h4>
+      <p>REST, GraphQL, gRPC, Docker, Kubernetes, AWS/GCP/Azure, Git, CI/CD, bancos SQL e NoSQL.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">P</span>
+        Padroes de Design
+      </h4>
+      <p>SOLID, MVC, Repository, Factory, Observer, Strategy, Dependency Injection, Clean Architecture.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">T</span>
+        Testes
+      </h4>
+      <p>Jest, Pytest, JUnit, Mocha, Vitest, Testing Library, Cypress, Playwright &mdash; e como escrever bons testes.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">D</span>
+        DevOps &amp; Infra
+      </h4>
+      <p>Terraform, Ansible, GitHub Actions, GitLab CI, Dockerfile best practices, networking basics.</p>
+    </div>
+  </div>
+
+  <div class="callout-blue callout">
+    <strong>Regra de ouro:</strong> Se a informacao pode ser encontrada na documentacao oficial de uma tecnologia
+    amplamente usada, o Claude provavelmente ja sabe. Nao repita no <code>CLAUDE.md</code>.
+  </div>
+
+  <!-- ════════════ ANTI-PATTERNS ════════════ -->
+  <h2>Anti-patterns: o que nao colocar</h2>
+
+  <p>
+    A documentacao da Anthropic sobre best practices para Claude Code e context engineering
+    enfatiza que contexto e um recurso finito com retornos decrescentes. Cada token adicionado
+    ao contexto dilui a atencao do modelo sobre os tokens que realmente importam. Eis os anti-patterns
+    mais comuns:
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Anti-pattern</th>
+          <th>Por que e ruim</th>
+          <th>O que fazer em vez disso</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Colar documentacao de bibliotecas</strong></td>
+          <td>O Claude ja conhece React, Zod, Prisma etc. Duplicar a docs gasta tokens.</td>
+          <td>Documente apenas convencoes <em>do seu projeto</em> com essa lib.</td>
+        </tr>
+        <tr>
+          <td><strong>Tutoriais genericos</strong></td>
+          <td>"Como criar um componente React" e conhecimento base do modelo.</td>
+          <td>Documente <em>como o seu time</em> cria componentes (naming, pasta, testes).</td>
+        </tr>
+        <tr>
+          <td><strong>Codigo boilerplate</strong></td>
+          <td>Templates longos poluem o contexto; o modelo ja sabe gerar boilerplate.</td>
+          <td>Referencie arquivos-exemplo: "siga o padrao de <code>src/components/Button.tsx</code>".</td>
+        </tr>
+        <tr>
+          <td><strong>Regras que o modelo ja segue</strong></td>
+          <td>Dizer "use <code>const</code> em vez de <code>var</code>" e instruir o obvio.</td>
+          <td>So documente se o Claude erra repetidamente sem a instrucao.</td>
+        </tr>
+        <tr>
+          <td><strong>Explicacoes de conceitos</strong></td>
+          <td>"O que e REST", "como funciona async/await" nao e informacao de projeto.</td>
+          <td>Foque em decisoes arquiteturais especificas do seu sistema.</td>
+        </tr>
+        <tr>
+          <td><strong>Lista exaustiva de edge cases</strong></td>
+          <td>O modelo se perde em listas longas de regras. Itens importantes se diluem.</td>
+          <td>Cubra os casos criticos e use exemplos canonicos para o resto.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ CONTEXT ROT ════════════ -->
+  <h2>O problema do CLAUDE.md muito longo: context rot</h2>
+
+  <p>
+    A Anthropic documenta o conceito de <strong>context rot</strong> no artigo sobre context engineering:
+    a medida que o numero de tokens no contexto aumenta, a capacidade do modelo de recordar informacoes
+    com precisao diminui. Isso acontece porque a arquitetura transformer exige que cada token
+    "preste atencao" a todos os outros tokens &mdash; com n tokens, sao n&sup2; relacoes para gerenciar.
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 750 320" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Diagrama mostrando como context rot afeta a atencao do modelo</title>
+
+      <!-- Axes -->
+      <line x1="80" y1="260" x2="700" y2="260" stroke="#475569" stroke-width="1.5"/>
+      <line x1="80" y1="260" x2="80" y2="40" stroke="#475569" stroke-width="1.5"/>
+
+      <!-- Y axis label -->
+      <text x="30" y="150" text-anchor="middle" fill="var(--text-dim)" font-size="11" transform="rotate(-90, 30, 150)">Precisao de recall (%)</text>
+
+      <!-- X axis label -->
+      <text x="390" y="295" text-anchor="middle" fill="var(--text-dim)" font-size="11">Tokens no contexto</text>
+
+      <!-- Y ticks -->
+      <text x="70" y="264" text-anchor="end" fill="var(--text-dim)" font-size="10">0</text>
+      <text x="70" y="204" text-anchor="end" fill="var(--text-dim)" font-size="10">25</text>
+      <text x="70" y="154" text-anchor="end" fill="var(--text-dim)" font-size="10">50</text>
+      <text x="70" y="104" text-anchor="end" fill="var(--text-dim)" font-size="10">75</text>
+      <text x="70" y="64" text-anchor="end" fill="var(--text-dim)" font-size="10">100</text>
+
+      <!-- X ticks -->
+      <text x="130" y="278" text-anchor="middle" fill="var(--text-dim)" font-size="10">1K</text>
+      <text x="250" y="278" text-anchor="middle" fill="var(--text-dim)" font-size="10">10K</text>
+      <text x="400" y="278" text-anchor="middle" fill="var(--text-dim)" font-size="10">50K</text>
+      <text x="550" y="278" text-anchor="middle" fill="var(--text-dim)" font-size="10">100K</text>
+      <text x="680" y="278" text-anchor="middle" fill="var(--text-dim)" font-size="10">200K</text>
+
+      <!-- Grid lines -->
+      <line x1="80" y1="200" x2="700" y2="200" stroke="#2a2d3a" stroke-width="0.5" stroke-dasharray="4,4"/>
+      <line x1="80" y1="150" x2="700" y2="150" stroke="#2a2d3a" stroke-width="0.5" stroke-dasharray="4,4"/>
+      <line x1="80" y1="100" x2="700" y2="100" stroke="#2a2d3a" stroke-width="0.5" stroke-dasharray="4,4"/>
+
+      <!-- Curve - attention/recall degrades -->
+      <path d="M100 65 C180 68, 220 75, 280 95 C340 115, 420 145, 500 175 C560 195, 620 215, 680 230"
+            fill="none" stroke="var(--green)" stroke-width="2.5"/>
+
+      <!-- Danger zone shading -->
+      <rect x="450" y="40" width="250" height="220" rx="0" fill="rgba(248,113,113,0.06)"/>
+      <text x="575" y="55" text-anchor="middle" fill="var(--red)" font-size="10" font-weight="600">ZONA DE RISCO</text>
+
+      <!-- Safe zone label -->
+      <text x="200" y="55" text-anchor="middle" fill="var(--green)" font-size="10" font-weight="600">ZONA IDEAL</text>
+
+      <!-- Annotation: CLAUDE.md bloated -->
+      <rect x="470" y="155" width="200" height="50" rx="8" fill="rgba(248,113,113,0.1)" stroke="var(--red)" stroke-width="1"/>
+      <text x="570" y="175" text-anchor="middle" fill="var(--red)" font-size="11" font-weight="600">CLAUDE.md inchado</text>
+      <text x="570" y="193" text-anchor="middle" fill="var(--text-dim)" font-size="10">consome orcamento de atencao</text>
+
+      <!-- Annotation: CLAUDE.md lean -->
+      <rect x="110" y="85" width="180" height="50" rx="8" fill="rgba(110,231,183,0.1)" stroke="var(--green)" stroke-width="1"/>
+      <text x="200" y="105" text-anchor="middle" fill="var(--green)" font-size="11" font-weight="600">CLAUDE.md enxuto</text>
+      <text x="200" y="123" text-anchor="middle" fill="var(--text-dim)" font-size="10">alto sinal, baixo ruido</text>
+    </svg>
+    <p class="diagram-caption">Context rot: quanto mais tokens no contexto, menor a precisao de recall. Um CLAUDE.md inchado empurra o modelo para a zona de risco.</p>
+  </div>
+
+  <div class="callout-red callout">
+    <strong>Impacto pratico:</strong> O <code>CLAUDE.md</code> e carregado no inicio de cada conversa. Se ele
+    tem 5.000 tokens de informacao redundante, isso significa 5.000 tokens a menos disponiveis para o seu
+    codigo-fonte, outputs de ferramentas e historico de conversa &mdash; justamente onde o modelo mais
+    precisa de atencao.
+  </div>
+
+  <!-- ════════════ REGRA PRÁTICA ════════════ -->
+  <h2>Regra pratica: o teste da remocao</h2>
+
+  <p>
+    Antes de adicionar qualquer linha ao <code>CLAUDE.md</code>, faca a si mesmo uma pergunta simples:
+  </p>
+
+  <div class="diagram-container" style="text-align: center; padding: 2.5rem;">
+    <p style="font-size: 1.3rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem; font-style: italic;">
+      "Se eu remover essa linha, o Claude produziria um output errado?"
+    </p>
+    <p style="font-size: 0.95rem; color: var(--text-dim); margin: 0;">
+      Se a resposta for <strong style="color: var(--red);">nao</strong> &rarr; remova a linha.<br>
+      Se a resposta for <strong style="color: var(--green);">sim</strong> &rarr; mantenha.
+    </p>
+  </div>
+
+  <p>
+    Essa heuristica simples funciona porque filtra exatamente o que importa: informacao que o modelo
+    <em>nao consegue inferir</em> sozinho. Se o Claude ja faz algo corretamente sem a instrucao,
+    a instrucao e redundante e so adiciona ruido ao contexto.
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">X</span>
+        Falha no teste
+      </h4>
+      <p>"Use TypeScript para novos arquivos" &mdash; se o projeto ja e 100% TS, o Claude infere isso ao ler o codebase.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">&#10003;</span>
+        Passa no teste
+      </h4>
+      <p>"Nunca use <code>any</code>; use <code>unknown</code> e faca type narrowing" &mdash; e uma convencao do time que o Claude nao infere sozinho.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">X</span>
+        Falha no teste
+      </h4>
+      <p>"Componentes React devem retornar JSX" &mdash; isso e a definicao literal de um componente React.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">&#10003;</span>
+        Passa no teste
+      </h4>
+      <p>"Componentes de pagina vao em <code>app/(routes)/</code>, componentes reutilizaveis em <code>src/ui/</code>" &mdash; e a estrutura especifica deste projeto.</p>
+    </div>
+  </div>
+
+  <!-- ════════════ ANTES / DEPOIS ════════════ -->
+  <h2>Antes e depois: CLAUDE.md inchado vs. enxuto</h2>
+
+  <p>
+    Veja a transformacao de um <code>CLAUDE.md</code> real. A versao "antes" tem informacao redundante
+    que o Claude ja sabe; a versao "depois" mantem apenas o que e especifico do projeto.
+  </p>
+
+  <h3>Exemplo: secao sobre estilo de codigo</h3>
+
+  <div class="vs-row">
+    <div class="vs-col" style="border-color: var(--red); border-width: 1.5px;">
+      <h4 style="color: var(--red);">
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">X</span>
+        Antes (inchado) &mdash; ~350 tokens
+      </h4>
+      <div class="code-block" style="margin-top: 0.5rem;">
+        <div class="code-header"><span>CLAUDE.md</span><span>ruim</span></div>
+        <pre>
+<span class="comment"># Estilo de Codigo</span>
+
+<span class="strike">- Use TypeScript para todo o codigo</span>
+<span class="strike">- Use const para variaveis que nao mudam</span>
+<span class="strike">- Use let apenas quando necessario</span>
+<span class="strike">- Nunca use var</span>
+<span class="strike">- Use arrow functions para callbacks</span>
+<span class="strike">- Use async/await em vez de .then()</span>
+<span class="strike">- Use template literals em vez de concatenacao</span>
+<span class="strike">- Sempre trate erros com try/catch</span>
+<span class="strike">- Use interfaces para definir contratos</span>
+<span class="strike">- Use enums para valores constantes</span>
+<span class="strike">- Componentes React devem ser funcionais</span>
+<span class="strike">- Use hooks em vez de class components</span>
+<span class="strike">- Importe React no topo do arquivo</span>
+<span class="strike">- Exporte componentes como default export</span>
+- Prefixe interfaces com I (ex: IUser)
+- Use barrel exports em cada pasta
+- Erros de dominio estendem AppError
+- Use Zod para validacao, nunca yup</pre>
+      </div>
+    </div>
+
+    <div class="vs-divider">vs</div>
+
+    <div class="vs-col" style="border-color: var(--green); border-width: 1.5px;">
+      <h4 style="color: var(--green);">
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">&#10003;</span>
+        Depois (enxuto) &mdash; ~80 tokens
+      </h4>
+      <div class="code-block" style="margin-top: 0.5rem;">
+        <div class="code-header"><span>CLAUDE.md</span><span>bom</span></div>
+        <pre>
+<span class="comment"># Estilo de Codigo</span>
+
+<span class="good-line">- Prefixe interfaces com I (ex: IUser)</span>
+<span class="good-line">- Use barrel exports (index.ts) em cada pasta</span>
+<span class="good-line">- Erros de dominio devem estender AppError</span>
+<span class="good-line">  (ver src/core/errors.ts)</span>
+<span class="good-line">- Validacao: sempre Zod, nunca yup ou joi</span>
+<span class="good-line">- named exports apenas (sem default export)</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <p>
+    Resultado: de ~350 tokens para ~80 tokens &mdash; uma reducao de <strong>77%</strong> &mdash;
+    sem perder nenhuma informacao que o Claude precisaria. As 14 linhas removidas descrevem praticas
+    que sao padrao moderno de TypeScript/React e que o modelo ja segue por default.
+  </p>
+
+  <h3>Exemplo: secao sobre testes</h3>
+
+  <div class="vs-row">
+    <div class="vs-col" style="border-color: var(--red); border-width: 1.5px;">
+      <h4 style="color: var(--red);">
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">X</span>
+        Antes (inchado)
+      </h4>
+      <div class="code-block" style="margin-top: 0.5rem;">
+        <div class="code-header"><span>CLAUDE.md</span><span>ruim</span></div>
+        <pre>
+<span class="comment"># Testes</span>
+
+<span class="strike">- Escreva testes unitarios para toda funcao</span>
+<span class="strike">- Use describe/it para organizar testes</span>
+<span class="strike">- Use expect() para assertions</span>
+<span class="strike">- Mocke dependencias externas</span>
+<span class="strike">- Testes devem ser independentes entre si</span>
+<span class="strike">- Nao teste detalhes de implementacao</span>
+- Rodar testes: <span class="string">pnpm test</span>
+- Rodar um arquivo: <span class="string">pnpm test -- path/file</span>
+- Cobertura minima: 80% por modulo
+- Testes e2e ficam em tests/e2e/
+- Use <span class="string">createTestUser()</span> de test-utils</pre>
+      </div>
+    </div>
+
+    <div class="vs-divider">vs</div>
+
+    <div class="vs-col" style="border-color: var(--green); border-width: 1.5px;">
+      <h4 style="color: var(--green);">
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">&#10003;</span>
+        Depois (enxuto)
+      </h4>
+      <div class="code-block" style="margin-top: 0.5rem;">
+        <div class="code-header"><span>CLAUDE.md</span><span>bom</span></div>
+        <pre>
+<span class="comment"># Testes</span>
+
+<span class="good-line">- Rodar: pnpm test</span>
+<span class="good-line">- Rodar arquivo: pnpm test -- path/file</span>
+<span class="good-line">- Cobertura minima: 80% por modulo</span>
+<span class="good-line">- e2e: tests/e2e/ (usa Playwright)</span>
+<span class="good-line">- Fixtures: usar createTestUser() de</span>
+<span class="good-line">  src/test-utils/factories.ts</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ TABELA COMPARATIVA ════════════ -->
+  <h2>Checklist: incluir ou nao incluir?</h2>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Tipo de informacao</th>
+          <th style="text-align: center; color: var(--red);">Nao incluir</th>
+          <th style="text-align: center; color: var(--green);">Incluir</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Sintaxe da linguagem</td>
+          <td style="text-align: center; color: var(--red);">X</td>
+          <td style="text-align: center;"></td>
+        </tr>
+        <tr>
+          <td>API de frameworks populares</td>
+          <td style="text-align: center; color: var(--red);">X</td>
+          <td style="text-align: center;"></td>
+        </tr>
+        <tr>
+          <td>Padroes de design classicos</td>
+          <td style="text-align: center; color: var(--red);">X</td>
+          <td style="text-align: center;"></td>
+        </tr>
+        <tr>
+          <td>Boas praticas universais (DRY, SOLID...)</td>
+          <td style="text-align: center; color: var(--red);">X</td>
+          <td style="text-align: center;"></td>
+        </tr>
+        <tr>
+          <td>Como rodar testes / build / lint</td>
+          <td style="text-align: center;"></td>
+          <td style="text-align: center; color: var(--green);">&#10003;</td>
+        </tr>
+        <tr>
+          <td>Estrutura de pastas do projeto</td>
+          <td style="text-align: center;"></td>
+          <td style="text-align: center; color: var(--green);">&#10003;</td>
+        </tr>
+        <tr>
+          <td>Convencoes especificas do time</td>
+          <td style="text-align: center;"></td>
+          <td style="text-align: center; color: var(--green);">&#10003;</td>
+        </tr>
+        <tr>
+          <td>Libs internas ou pouco conhecidas</td>
+          <td style="text-align: center;"></td>
+          <td style="text-align: center; color: var(--green);">&#10003;</td>
+        </tr>
+        <tr>
+          <td>Decisoes arquiteturais e trade-offs</td>
+          <td style="text-align: center;"></td>
+          <td style="text-align: center; color: var(--green);">&#10003;</td>
+        </tr>
+        <tr>
+          <td>Comandos customizados do projeto</td>
+          <td style="text-align: center;"></td>
+          <td style="text-align: center; color: var(--green);">&#10003;</td>
+        </tr>
+        <tr>
+          <td>Workarounds e gotchas conhecidos</td>
+          <td style="text-align: center;"></td>
+          <td style="text-align: center; color: var(--green);">&#10003;</td>
+        </tr>
+        <tr>
+          <td>Padroes de naming do projeto</td>
+          <td style="text-align: center;"></td>
+          <td style="text-align: center; color: var(--green);">&#10003;</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ PRINCÍPIO CONTEXT ENGINEERING ════════════ -->
+  <h2>O principio por tras: context engineering</h2>
+
+  <p>
+    A Anthropic define <strong>context engineering</strong> como a pratica de curar e manter o conjunto
+    otimo de tokens durante a inferencia do LLM. O principio guia e encontrar o <strong>menor conjunto
+    possivel de tokens de alto sinal</strong> que maximize a probabilidade do resultado desejado.
+  </p>
+
+  <p>
+    Aplicado ao <code>CLAUDE.md</code>, isso significa:
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">1</span>
+        Alto sinal
+      </h4>
+      <p>Cada linha deve conter informacao que o modelo nao consegue descobrir sozinho lendo o codebase ou usando suas ferramentas.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">2</span>
+        Baixo ruido
+      </h4>
+      <p>Remova tudo que e conhecimento geral, documentacao de libs, ou praticas que o modelo ja segue por padrao.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">3</span>
+        Token-eficiente
+      </h4>
+      <p>Use frases curtas e diretas. Prefira bullet points a paragrafos. Referencie arquivos em vez de colar codigo.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">4</span>
+        Documento vivo
+      </h4>
+      <p>Revise periodicamente. Se o Claude acerta sem a instrucao, remova-a. Se erra repetidamente, adicione.</p>
+    </div>
+  </div>
+
+  <div class="callout-green callout">
+    <strong>Dica da Anthropic:</strong> O Claude Code usa um modelo hibrido: o <code>CLAUDE.md</code> e
+    carregado no contexto no inicio, enquanto primitivos como <code>glob</code> e <code>grep</code>
+    permitem ao modelo navegar pelo codebase e recuperar arquivos just-in-time. Isso significa que
+    o <code>CLAUDE.md</code> nao precisa (e nao deve) conter tudo &mdash; o agente sabe buscar o que precisa.
+  </div>
+
+  <!-- ════════════ DICAS FINAIS ════════════ -->
+  <h2>Resumo: como manter o CLAUDE.md saudavel</h2>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 30%;">Pratica</th>
+          <th>Descricao</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Aplique o teste da remocao</strong></td>
+          <td>"Se eu remover essa linha, o Claude erraria?" &mdash; Se nao, remova.</td>
+        </tr>
+        <tr>
+          <td><strong>Referencie, nao copie</strong></td>
+          <td>Em vez de colar 50 linhas de boilerplate, aponte para um arquivo-exemplo no codebase.</td>
+        </tr>
+        <tr>
+          <td><strong>Prune regularmente</strong></td>
+          <td>Modelos melhoram com o tempo. Instrucoes que eram necessarias antes podem ser redundantes agora.</td>
+        </tr>
+        <tr>
+          <td><strong>Mexa no minimo viavel</strong></td>
+          <td>Comece com pouco e adicione apenas quando encontrar falhas reais, nao antecipadas.</td>
+        </tr>
+        <tr>
+          <td><strong>Use exemplos canonicos</strong></td>
+          <td>Um bom exemplo vale mais que 10 regras escritas. Aponte para "o arquivo modelo" do projeto.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <strong>Lembre-se:</strong> O objetivo do <code>CLAUDE.md</code> nao e ensinar o Claude a programar.
+    E dar a ele o contexto <em>especifico do seu projeto</em> que ele nao teria de outra forma.
+    Menos e mais &mdash; desde que o "menos" seja altamente relevante.
+  </div>
+
+  <!-- ════════════ FONTES ════════════ -->
+  <div class="sources">
+    <h3>Fontes e Referencias</h3>
+    <ul>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Anthropic &mdash; Best Practices for Claude Code</a></li>
+      <li><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank">Anthropic &mdash; Effective Context Engineering for AI Agents (2025)</a></li>
+      <li><a href="https://www.anthropic.com/research/building-effective-agents" target="_blank">Anthropic &mdash; Building Effective Agents (Dez/2024)</a></li>
+      <li><a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices" target="_blank">Anthropic Docs &mdash; Prompting Best Practices</a></li>
+      <li><a href="https://www.anthropic.com/news/how-anthropic-teams-use-claude-code" target="_blank">Anthropic &mdash; How Anthropic Teams Use Claude Code</a></li>
+      <li><a href="https://research.trychroma.com/context-rot" target="_blank">Chroma Research &mdash; Context Rot (referenciado pela Anthropic)</a></li>
+    </ul>
+  </div>
+
+  <!-- ════════════ NAV FOOTER ════════════ -->
+  <div class="nav-footer">
+    <a href="modulo-02-topico-01-claudemd-o-que-incluir.html" class="nav-btn">&larr; Topico 1 &middot; O que incluir</a>
+    <a href="../index.html" class="nav-btn">&#8962; Indice</a>
+    <a href="modulo-02-topico-03-init.html" class="nav-btn">Topico 3 &middot; /init &rarr;</a>
+  </div>
+
+</body>
+</html>

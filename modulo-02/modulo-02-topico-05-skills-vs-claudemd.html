@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo 2 · Tópico 5 — Skills vs. CLAUDE.md: quando usar cada um</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-code: #141620;
+      --border: #2a2d3a;
+      --text: #e4e4e7;
+      --text-dim: #9ca3af;
+      --accent: #c4956a;
+      --accent-soft: rgba(196, 149, 106, 0.12);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.12);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .topic-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-soft); padding: 6px 14px;
+      border-radius: 20px; margin-bottom: 1rem;
+    }
+
+    h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+    .subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+    h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+    p { margin-bottom: 1rem; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+    strong { color: #fff; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0;
+    }
+    .card-label {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 6px; margin-bottom: 0.75rem;
+    }
+
+    .diagram-container {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto;
+    }
+    .diagram-container svg { display: block; margin: 0 auto; }
+    .diagram-caption {
+      text-align: center; font-size: 0.85rem; color: var(--text-dim);
+      margin-top: 1rem; font-style: italic;
+    }
+
+    .code-block {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1rem; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim);
+    }
+    .code-block pre {
+      padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8;
+    }
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: var(--purple); }
+    .code-block .string { color: var(--green); }
+    .code-block .tool { color: var(--accent); }
+    .code-block .number { color: var(--yellow); }
+
+    .callout {
+      border-left: 3px solid var(--accent); background: var(--accent-soft);
+      padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem;
+    }
+    .callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+    .callout-red { border-left-color: var(--red); background: var(--red-soft); }
+    .callout-green { border-left-color: var(--green); background: var(--green-soft); }
+    .callout strong { color: #fff; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+    }
+
+    .mini-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .mini-card h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;
+    }
+    .mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+
+    .icon-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    .sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .sources ul { list-style: none; padding: 0; }
+    .sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+    .sources li::before { content: "\2192 "; color: var(--accent); }
+
+    .nav-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+      color: var(--text); background: var(--bg-card); border: 1px solid var(--border);
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+
+    /* ── Specific to this topic ── */
+    .vs-row {
+      display: grid; grid-template-columns: 1fr 60px 1fr; gap: 0; margin: 2rem 0;
+      align-items: stretch;
+    }
+    .vs-col {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+    }
+    .vs-col h4 {
+      font-size: 1rem; font-weight: 600; margin-bottom: 1rem;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .vs-divider {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: 700; color: var(--text-dim);
+    }
+    .vs-item {
+      display: flex; gap: 10px; margin-bottom: 0.75rem; font-size: 0.9rem;
+      color: var(--text-dim); align-items: flex-start;
+    }
+    .vs-item .dot {
+      width: 8px; height: 8px; border-radius: 50%; margin-top: 7px; flex-shrink: 0;
+    }
+    @media (max-width: 700px) {
+      .vs-row { grid-template-columns: 1fr; gap: 0.5rem; }
+      .vs-divider { padding: 0.5rem 0; }
+    }
+
+    .tree-line {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      line-height: 1.8;
+      color: var(--text-dim);
+    }
+    .tree-line .folder { color: var(--blue); font-weight: 600; }
+    .tree-line .file { color: var(--text); }
+    .tree-line .highlight { color: var(--accent); font-weight: 600; }
+    .tree-line .dim { color: #475569; }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ HEADER ════════════ -->
+  <div class="topic-badge">Modulo 2 . Topico 5</div>
+  <h1>Skills vs. CLAUDE.md: quando usar cada um</h1>
+  <p class="subtitle">
+    O Claude Code oferece dois mecanismos para injetar contexto e instrucoes: o <strong>CLAUDE.md</strong> (sempre presente)
+    e as <strong>Skills</strong> (sob demanda). Saber quando usar cada um e a chave para manter o contexto enxuto e os
+    workflows eficientes.
+  </p>
+
+  <!-- ════════════ CONCEITOS FUNDAMENTAIS ════════════ -->
+  <h2>Dois mecanismos, dois propositos</h2>
+
+  <p>
+    O Claude Code carrega contexto de formas diferentes dependendo do mecanismo. O <strong>CLAUDE.md</strong> e
+    lido automaticamente no inicio de <em>toda</em> conversa — ele contem as regras permanentes do projeto.
+    As <strong>Skills</strong> sao carregadas apenas quando invocadas (via <code>/comando</code>) ou quando o
+    Claude decide autonomamente que sao relevantes para a tarefa atual.
+  </p>
+
+  <p>
+    Essa distincao e fundamental: tudo que esta no CLAUDE.md consome tokens em <em>todas</em> as conversas,
+    mesmo quando nao e relevante. Skills, por outro lado, so consomem tokens quando acionadas. A regra
+    pratica e simples: se a instrucao se aplica a <strong>toda conversa</strong>, vai no CLAUDE.md. Se e um
+    <strong>workflow especifico</strong>, vira uma skill.
+  </p>
+
+  <!-- ════════════ COMPARACAO VISUAL ════════════ -->
+  <h2>Comparacao lado a lado</h2>
+
+  <div class="vs-row">
+    <div class="vs-col" style="border-color: var(--blue); border-width: 1.5px;">
+      <h4 style="color: var(--blue);">
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">&#128196;</span>
+        CLAUDE.md
+      </h4>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--blue);"></span>
+        <span>Carregado <strong style="color: var(--blue);">automaticamente</strong> em toda conversa</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--blue);"></span>
+        <span>Contem convencoes que se aplicam <em>sempre</em></span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--blue);"></span>
+        <span>Estilo de codigo, comandos de build, regras de commit</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--blue);"></span>
+        <span>Deve ser conciso (recomendado &lt; 200 linhas)</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--blue);"></span>
+        <span>Consome tokens em <strong style="color: var(--blue);">toda</strong> interacao</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--blue);"></span>
+        <span>Equivale ao que voce repetiria a todo novo colega</span>
+      </div>
+    </div>
+
+    <div class="vs-divider">vs</div>
+
+    <div class="vs-col" style="border-color: var(--green); border-width: 1.5px;">
+      <h4 style="color: var(--green);">
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">&#9889;</span>
+        Skills
+      </h4>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span>Carregadas <strong style="color: var(--green);">sob demanda</strong> via <code>/comando</code></span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span>Contem workflows especificos e repetiveis</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span>Review de PR, geracao de testes, debugging, deploy</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span>Podem ser extensas — so carregam quando necessario</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span>Consomem tokens <strong style="color: var(--green);">apenas quando acionadas</strong></span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span>Equivale a um runbook ou checklist do time</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ DIAGRAMA ════════════ -->
+  <h2>Como o Claude Code carrega cada um</h2>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 800 340" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Diagrama: CLAUDE.md e carregado automaticamente, Skills sao carregadas sob demanda</title>
+
+      <defs>
+        <marker id="arrowB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#60a5fa"/>
+        </marker>
+        <marker id="arrowG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#6ee7b7"/>
+        </marker>
+        <marker id="arrowDim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#475569"/>
+        </marker>
+      </defs>
+
+      <!-- Title -->
+      <text x="400" y="25" text-anchor="middle" fill="#d4d4d8" font-size="14" font-weight="600">Fluxo de carregamento de contexto</text>
+
+      <!-- User starts conversation -->
+      <rect x="290" y="45" width="220" height="44" rx="10" fill="rgba(196,149,106,0.1)" stroke="#c4956a" stroke-width="1.5"/>
+      <text x="400" y="72" text-anchor="middle" fill="#c4956a" font-size="12" font-weight="600">Usuario inicia conversa</text>
+
+      <!-- Arrow down splits to two -->
+      <path d="M400 89 L400 115" stroke="#475569" stroke-width="1.5" marker-end="url(#arrowDim)"/>
+
+      <!-- CLAUDE.md path (left) -->
+      <rect x="60" y="120" width="260" height="50" rx="10" fill="rgba(96,165,250,0.1)" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="190" y="142" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="600">CLAUDE.md carregado</text>
+      <text x="190" y="158" text-anchor="middle" fill="#d4d4d8" font-size="10">Automaticamente, sempre, toda conversa</text>
+
+      <!-- Skills path (right) -->
+      <rect x="480" y="120" width="260" height="50" rx="10" fill="rgba(110,231,183,0.06)" stroke="#475569" stroke-width="1" stroke-dasharray="5,3"/>
+      <text x="610" y="142" text-anchor="middle" fill="#6b7280" font-size="12">Skills NAO carregadas</text>
+      <text x="610" y="158" text-anchor="middle" fill="#475569" font-size="10">Aguardando invocacao</text>
+
+      <!-- Connector from center to both -->
+      <path d="M400 115 L190 120" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#arrowB)"/>
+      <path d="M400 115 L610 120" stroke="#475569" stroke-width="1" stroke-dasharray="5,3" marker-end="url(#arrowDim)"/>
+
+      <!-- Arrow from CLAUDE.md to context -->
+      <path d="M190 170 L190 200" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#arrowB)"/>
+
+      <rect x="80" y="205" width="220" height="40" rx="8" fill="rgba(96,165,250,0.08)" stroke="#60a5fa" stroke-width="0.8"/>
+      <text x="190" y="230" text-anchor="middle" fill="#60a5fa" font-size="11">Contexto ativo na janela</text>
+
+      <!-- User invokes skill -->
+      <rect x="480" y="195" width="260" height="44" rx="10" fill="rgba(196,149,106,0.1)" stroke="#c4956a" stroke-width="1"/>
+      <text x="610" y="213" text-anchor="middle" fill="#c4956a" font-size="11">Usuario digita /review</text>
+      <text x="610" y="228" text-anchor="middle" fill="#d4d4d8" font-size="10">ou Claude detecta relevancia</text>
+
+      <!-- Arrow from skill invocation to skill loaded -->
+      <path d="M610 239 L610 260" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowG)"/>
+
+      <rect x="480" y="265" width="260" height="50" rx="10" fill="rgba(110,231,183,0.1)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="610" y="287" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="600">Skill carregada</text>
+      <text x="610" y="303" text-anchor="middle" fill="#d4d4d8" font-size="10">Instrucoes injetadas no contexto</text>
+
+      <!-- Labels -->
+      <text x="190" y="280" text-anchor="middle" fill="#60a5fa" font-size="10" font-style="italic">Tokens consumidos SEMPRE</text>
+      <text x="610" y="330" text-anchor="middle" fill="#6ee7b7" font-size="10" font-style="italic">Tokens consumidos SO AGORA</text>
+    </svg>
+    <p class="diagram-caption">O CLAUDE.md consome tokens em toda conversa. Skills so entram no contexto quando invocadas.</p>
+  </div>
+
+  <!-- ════════════ QUANDO USAR CLAUDE.MD ════════════ -->
+  <h2>Quando usar CLAUDE.md</h2>
+
+  <p>
+    O CLAUDE.md e o lugar para informacoes que o Claude precisa ter em <strong>toda interacao</strong>,
+    independentemente da tarefa. Pense nele como o onboarding que voce daria a um novo desenvolvedor
+    no primeiro dia: convencoes do projeto, comandos essenciais e regras inegociaveis.
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">&#128295;</span>
+        Comandos de build e teste
+      </h4>
+      <p><code>pnpm test</code>, <code>pytest -x</code>, <code>make build</code> — comandos que o Claude precisa saber em qualquer tarefa de desenvolvimento.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">&#128209;</span>
+        Convencoes de codigo
+      </h4>
+      <p>Estilo de imports, naming conventions, patterns obrigatorios (ex: "sempre use Result type para erros", "componentes React com arrow functions").</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">&#128230;</span>
+        Estrutura do projeto
+      </h4>
+      <p>Descricao breve da arquitetura, pastas principais e onde cada tipo de codigo vive. Contexto que o Claude nao consegue inferir so do codigo.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">&#9888;&#65039;</span>
+        Regras e restricoes
+      </h4>
+      <p>"Nunca edite arquivos gerados", "sempre use commits convencionais", "nao adicione dependencias sem perguntar". Regras que se aplicam a toda tarefa.</p>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>CLAUDE.md (exemplo enxuto)</span>
+      <span>~30 linhas</span>
+    </div>
+    <pre>
+<span class="comment"># Projeto: API de Pagamentos</span>
+
+<span class="comment">## Build & Test</span>
+<span class="string">- Use `pnpm` (nao npm ou yarn)</span>
+<span class="string">- Rodar testes: `pnpm test`</span>
+<span class="string">- Lint: `pnpm lint`</span>
+<span class="string">- Build: `pnpm build`</span>
+
+<span class="comment">## Convencoes</span>
+<span class="string">- TypeScript strict mode</span>
+<span class="string">- Erros com Result&lt;T, E&gt; (nunca throw)</span>
+<span class="string">- Testes com Vitest, co-locados com o codigo</span>
+<span class="string">- Imports absolutos via @/</span>
+
+<span class="comment">## Arquitetura</span>
+<span class="string">- src/domain/ — entidades e regras de negocio</span>
+<span class="string">- src/infra/ — adaptadores externos (DB, APIs)</span>
+<span class="string">- src/api/ — controllers e rotas Express</span>
+
+<span class="comment">## Regras</span>
+<span class="string">- Commits com Conventional Commits (feat:, fix:, etc.)</span>
+<span class="string">- Nunca edite arquivos em src/generated/</span>
+<span class="string">- Nao adicione dependencias sem perguntar</span></pre>
+  </div>
+
+  <div class="callout-blue callout">
+    <strong>Regra de ouro:</strong> Se voce se pega repetindo a mesma instrucao em varias conversas com o Claude Code,
+    ela pertence ao CLAUDE.md. Se e algo que so faz sentido em um tipo especifico de tarefa, e candidata a skill.
+  </div>
+
+  <!-- ════════════ QUANDO USAR SKILLS ════════════ -->
+  <h2>Quando usar Skills</h2>
+
+  <p>
+    Skills sao workflows repetiveis que voce invoca com <code>/nome-da-skill</code> ou que o Claude
+    carrega automaticamente quando detecta que sao relevantes. Elas encapsulam <strong>procedimentos
+    especificos</strong> — como um runbook que o time segue para review, deploy ou debugging.
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">&#128269;</span>
+        Review de Pull Request
+      </h4>
+      <p>Checklist de review: verificar tipos, testes, performance, seguranca, convencoes do projeto. Procedimento complexo demais para o CLAUDE.md.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">&#129514;</span>
+        Geracao de testes
+      </h4>
+      <p>Template de como gerar testes no padrao do projeto: setup, mocks, assertions, coverage minima. Carregado so quando voce pede para criar testes.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">&#128027;</span>
+        Debugging estruturado
+      </h4>
+      <p>Passos padrao para investigar bugs: reproduzir, isolar, identificar causa raiz, corrigir, adicionar teste de regressao.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">&#128640;</span>
+        Deploy e release
+      </h4>
+      <p>Checklist de release: bump de versao, changelog, tag git, validacao de CI. Workflow que so roda em momentos especificos.</p>
+    </div>
+  </div>
+
+  <!-- ════════════ COMO CRIAR UMA SKILL ════════════ -->
+  <h2>Como criar uma Skill</h2>
+
+  <p>
+    Uma skill e um diretorio contendo um arquivo <code>SKILL.md</code> como ponto de entrada.
+    O <code>SKILL.md</code> tem duas partes: um <strong>frontmatter YAML</strong> (entre marcadores <code>---</code>)
+    que informa ao Claude quando usar a skill, e o <strong>conteudo markdown</strong> com as instrucoes
+    que o Claude segue quando a skill e acionada.
+  </p>
+
+  <h3>Estrutura de diretorios</h3>
+
+  <div class="card">
+    <div class="tree-line">
+      <span class="folder">~/.claude/skills/</span> <span class="dim">.............. skills pessoais (todos os projetos)</span><br>
+      <span class="dim">&nbsp;&nbsp;|--</span> <span class="folder">review/</span><br>
+      <span class="dim">&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;|--</span> <span class="highlight">SKILL.md</span> <span class="dim">.............. ponto de entrada</span><br>
+      <span class="dim">&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;|--</span> <span class="file">checklist.md</span> <span class="dim">.......... arquivo de apoio (opcional)</span><br>
+      <span class="dim">&nbsp;&nbsp;|--</span> <span class="folder">debug/</span><br>
+      <span class="dim">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|--</span> <span class="highlight">SKILL.md</span><br>
+      <br>
+      <span class="folder">.claude/skills/</span> <span class="dim">................. skills do projeto (compartilhadas via git)</span><br>
+      <span class="dim">&nbsp;&nbsp;|--</span> <span class="folder">create-migration/</span><br>
+      <span class="dim">&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;|--</span> <span class="highlight">SKILL.md</span><br>
+      <span class="dim">&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;|--</span> <span class="file">template.sql</span> <span class="dim">......... template para Claude preencher</span><br>
+      <span class="dim">&nbsp;&nbsp;|--</span> <span class="folder">create-endpoint/</span><br>
+      <span class="dim">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|--</span> <span class="highlight">SKILL.md</span><br>
+      <span class="dim">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|--</span> <span class="file">example-output.ts</span> <span class="dim">.. exemplo de saida esperada</span>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Pessoal vs. Projeto:</strong> Skills em <code>~/.claude/skills/</code> sao suas e funcionam em qualquer
+    repositorio. Skills em <code>.claude/skills/</code> (na raiz do projeto) sao compartilhadas com o time via
+    git — o ideal para padronizar workflows da equipe.
+  </div>
+
+  <h3>Anatomia de um SKILL.md</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>.claude/skills/review/SKILL.md</span>
+      <span>Skill de projeto</span>
+    </div>
+    <pre>
+<span class="keyword">---</span>
+<span class="keyword">name</span>: <span class="string">review</span>
+<span class="keyword">description</span>: <span class="string">Faz code review seguindo o padrao do time.</span>
+  <span class="string">Usar quando o usuario pedir para revisar codigo,</span>
+  <span class="string">PR ou changeset.</span>
+<span class="keyword">---</span>
+
+<span class="comment"># Code Review</span>
+
+Ao revisar codigo, siga este checklist:
+
+<span class="comment">## 1. Corretude</span>
+<span class="string">- O codigo faz o que se propoe?</span>
+<span class="string">- Existem edge cases nao tratados?</span>
+<span class="string">- Os tipos estao corretos (sem any desnecessario)?</span>
+
+<span class="comment">## 2. Testes</span>
+<span class="string">- Existem testes para o caso feliz?</span>
+<span class="string">- Existem testes para os edge cases?</span>
+<span class="string">- Os testes passam? Rode `pnpm test` para verificar.</span>
+
+<span class="comment">## 3. Seguranca</span>
+<span class="string">- Inputs sao validados/sanitizados?</span>
+<span class="string">- Dados sensiveis nao sao logados?</span>
+
+<span class="comment">## 4. Performance</span>
+<span class="string">- Queries N+1?</span>
+<span class="string">- Operacoes desnecessarias em loops?</span>
+
+<span class="comment">## Formato da saida</span>
+<span class="string">Apresente os achados em categorias:</span>
+<span class="string">critico, sugestao, elogio.</span></pre>
+  </div>
+
+  <h3>Campos do frontmatter</h3>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Campo</th>
+          <th>Obrigatorio?</th>
+          <th>Funcao</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>name</code></td>
+          <td>Nao</td>
+          <td>Nome do <code>/slash-command</code>. Se omitido, usa o nome da pasta.</td>
+        </tr>
+        <tr>
+          <td><code>description</code></td>
+          <td>Recomendado</td>
+          <td>Ajuda o Claude a decidir quando carregar a skill automaticamente. Quanto mais descritivo, melhor o matching.</td>
+        </tr>
+        <tr>
+          <td><code>disable-model-invocation</code></td>
+          <td>Nao</td>
+          <td>Se <code>true</code>, a skill so e acionada manualmente via <code>/comando</code>. O Claude nao a invoca sozinho.</td>
+        </tr>
+        <tr>
+          <td><code>allowed-tools</code></td>
+          <td>Nao</td>
+          <td>Lista de ferramentas que a skill pode usar (ex: <code>Read</code>, <code>Grep</code>, <code>Bash</code>).</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout-green callout">
+    <strong>Dica:</strong> O Claude Code monitora os diretorios de skills em tempo real. Adicionar, editar ou remover
+    uma skill em <code>~/.claude/skills/</code> ou <code>.claude/skills/</code> tem efeito imediato na sessao
+    corrente, sem necessidade de reiniciar.
+  </div>
+
+  <!-- ════════════ SKILL COM ARQUIVOS DE APOIO ════════════ -->
+  <h2>Skills com arquivos de apoio</h2>
+
+  <p>
+    Skills podem incluir arquivos auxiliares alem do <code>SKILL.md</code>: templates para o Claude preencher,
+    exemplos de saida esperada, scripts auxiliares, ou documentacao de referencia. Isso permite criar skills
+    mais sofisticadas sem sobrecarregar o arquivo principal.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>.claude/skills/create-endpoint/SKILL.md</span>
+      <span>Skill com template</span>
+    </div>
+    <pre>
+<span class="keyword">---</span>
+<span class="keyword">name</span>: <span class="string">create-endpoint</span>
+<span class="keyword">description</span>: <span class="string">Cria um novo endpoint REST seguindo o padrao</span>
+  <span class="string">do projeto. Usar quando pedirem para criar rota,</span>
+  <span class="string">endpoint ou API nova.</span>
+<span class="keyword">---</span>
+
+<span class="comment"># Criar novo endpoint</span>
+
+Use o template em <span class="string">`./template-controller.ts`</span> como base.
+Veja o exemplo de saida em <span class="string">`./example-output.ts`</span>.
+
+<span class="comment">## Passos</span>
+<span class="string">1. Crie o schema Zod em `src/schemas/`</span>
+<span class="string">2. Crie o controller baseado no template</span>
+<span class="string">3. Registre a rota em `src/api/routes.ts`</span>
+<span class="string">4. Crie testes unitarios co-locados</span>
+<span class="string">5. Rode `pnpm test` para verificar</span></pre>
+  </div>
+
+  <!-- ════════════ TABELA COMPARATIVA ════════════ -->
+  <h2>Tabela comparativa detalhada</h2>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Dimensao</th>
+          <th style="color: var(--blue);">CLAUDE.md</th>
+          <th style="color: var(--green);">Skills</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Quando carrega</strong></td>
+          <td>Automaticamente, em toda conversa</td>
+          <td>Sob demanda (<code>/comando</code>) ou por deteccao automatica do Claude</td>
+        </tr>
+        <tr>
+          <td><strong>Consumo de tokens</strong></td>
+          <td>Sempre — cada token conta em toda interacao</td>
+          <td>Apenas quando acionada</td>
+        </tr>
+        <tr>
+          <td><strong>Escopo ideal</strong></td>
+          <td>Convencoes globais, regras permanentes</td>
+          <td>Workflows especificos, procedimentos repetiveis</td>
+        </tr>
+        <tr>
+          <td><strong>Tamanho recomendado</strong></td>
+          <td>&lt; 200 linhas (quanto menor, melhor)</td>
+          <td>Sem limite pratico — pode incluir templates e exemplos</td>
+        </tr>
+        <tr>
+          <td><strong>Formato</strong></td>
+          <td>Markdown simples</td>
+          <td>SKILL.md com frontmatter YAML + arquivos de apoio</td>
+        </tr>
+        <tr>
+          <td><strong>Local (pessoal)</strong></td>
+          <td><code>~/.claude/CLAUDE.md</code></td>
+          <td><code>~/.claude/skills/nome/</code></td>
+        </tr>
+        <tr>
+          <td><strong>Local (projeto)</strong></td>
+          <td><code>./CLAUDE.md</code> na raiz do repo</td>
+          <td><code>./.claude/skills/nome/</code></td>
+        </tr>
+        <tr>
+          <td><strong>Compartilhamento</strong></td>
+          <td>Commitado no git (arquivo unico)</td>
+          <td>Commitado no git (diretorio com SKILL.md + apoio)</td>
+        </tr>
+        <tr>
+          <td><strong>Invocacao</strong></td>
+          <td>Implicita (sempre ativo)</td>
+          <td>Explicita (<code>/review</code>) ou automatica pelo Claude</td>
+        </tr>
+        <tr>
+          <td><strong>Exemplo tipico</strong></td>
+          <td>"Use pnpm, nao npm"</td>
+          <td>"Faca review seguindo este checklist de 40 itens"</td>
+        </tr>
+        <tr>
+          <td><strong>Analogia</strong></td>
+          <td>Regras da casa (valem sempre)</td>
+          <td>Manual de procedimentos (consulta quando precisa)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ EXEMPLO DE MIGRAÇÃO ════════════ -->
+  <h2>Exemplo pratico: migrando do CLAUDE.md para uma Skill</h2>
+
+  <p>
+    Um sinal claro de que algo deve sair do CLAUDE.md e virar uma skill: voce tem um bloco grande de
+    instrucoes que so se aplica a um tipo especifico de tarefa. Veja como migrar um procedimento de
+    "criacao de migration SQL" que estava inchando o CLAUDE.md.
+  </p>
+
+  <h3>Antes: tudo no CLAUDE.md</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>CLAUDE.md (antes — 45+ linhas so de migrations)</span>
+      <span class="string" style="color: var(--red);">Problema: ocupa tokens sempre</span>
+    </div>
+    <pre>
+<span class="comment"># Projeto: API de Pagamentos</span>
+
+<span class="comment">## Build & Test</span>
+<span class="string">- pnpm test, pnpm lint, pnpm build</span>
+
+<span class="comment">## Convencoes</span>
+<span class="string">- TypeScript strict, Result&lt;T,E&gt;, Vitest</span>
+
+<span class="comment">## Como criar migrations (!!!)</span>
+<span class="string">- Use o formato: YYYYMMDDHHMMSS_descricao.sql</span>
+<span class="string">- Sempre crie UP e DOWN</span>
+<span class="string">- Use transacoes (BEGIN/COMMIT)</span>
+<span class="string">- Nunca use DROP sem IF EXISTS</span>
+<span class="string">- Adicione comentarios em cada ALTER</span>
+<span class="string">- Valide com: pnpm db:migrate:dry-run</span>
+<span class="string">- Teste rollback: pnpm db:migrate:down</span>
+<span class="string">- Template:</span>
+<span class="string">  BEGIN;</span>
+<span class="string">  -- UP: descricao da mudanca</span>
+<span class="string">  ALTER TABLE ...</span>
+<span class="string">  COMMIT;</span>
+<span class="string">  -- DOWN</span>
+<span class="string">  BEGIN;</span>
+<span class="string">  ALTER TABLE ...</span>
+<span class="string">  COMMIT;</span>
+<span class="comment">  ... (+20 linhas de regras e exemplos)</span></pre>
+  </div>
+
+  <h3>Depois: CLAUDE.md enxuto + Skill dedicada</h3>
+
+  <div class="grid-2">
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <span>CLAUDE.md (depois)</span>
+          <span class="string" style="color: var(--green);">Enxuto</span>
+        </div>
+        <pre>
+<span class="comment"># Projeto: API de Pagamentos</span>
+
+<span class="comment">## Build & Test</span>
+<span class="string">- pnpm test, pnpm lint, pnpm build</span>
+
+<span class="comment">## Convencoes</span>
+<span class="string">- TypeScript strict</span>
+<span class="string">- Result&lt;T,E&gt; para erros</span>
+<span class="string">- Vitest co-locado</span>
+
+<span class="comment">## Regras</span>
+<span class="string">- Conventional Commits</span>
+<span class="string">- Nao editar src/generated/</span></pre>
+      </div>
+    </div>
+    <div>
+      <div class="code-block">
+        <div class="code-header">
+          <span>.claude/skills/create-migration/SKILL.md</span>
+          <span class="string" style="color: var(--green);">Sob demanda</span>
+        </div>
+        <pre>
+<span class="keyword">---</span>
+<span class="keyword">name</span>: <span class="string">create-migration</span>
+<span class="keyword">description</span>: <span class="string">Cria migration</span>
+  <span class="string">SQL no padrao do projeto.</span>
+<span class="keyword">---</span>
+
+<span class="comment"># Criar Migration</span>
+
+<span class="string">## Formato do arquivo</span>
+<span class="string">YYYYMMDDHHMMSS_descricao.sql</span>
+
+<span class="string">## Regras</span>
+<span class="string">- Sempre UP e DOWN</span>
+<span class="string">- Transacoes obrigatorias</span>
+<span class="string">- DROP com IF EXISTS</span>
+<span class="string">- Comentario em ALTER</span>
+
+<span class="string">## Validacao</span>
+<span class="string">`pnpm db:migrate:dry-run`</span>
+<span class="string">`pnpm db:migrate:down`</span>
+
+Veja template em
+<span class="string">`./template.sql`</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Resultado:</strong> O CLAUDE.md ficou mais enxuto (menos tokens em toda conversa) e o procedimento
+    de migration agora e uma skill dedicada que so consome tokens quando o usuario digita <code>/create-migration</code>
+    ou quando o Claude detecta que a tarefa envolve criar uma migration.
+  </div>
+
+  <!-- ════════════ LEGADO: .claude/commands ════════════ -->
+  <h2>Nota sobre .claude/commands (formato legado)</h2>
+
+  <p>
+    Antes das Skills, o Claude Code usava o diretorio <code>.claude/commands/</code> com arquivos
+    <code>.md</code> simples (sem frontmatter YAML). Esse formato ainda funciona, mas o formato
+    recomendado agora e <code>.claude/skills/nome/SKILL.md</code>, que suporta tanto invocacao
+    via <code>/comando</code> quanto invocacao autonoma pelo Claude.
+  </p>
+
+  <div class="callout-blue callout">
+    <strong>Precedencia:</strong> Se uma skill e um comando legado tiverem o mesmo nome, a <strong>skill tem
+    precedencia</strong>. Se voce tem arquivos em <code>.claude/commands/</code>, considere migra-los para
+    o formato de skills para aproveitar o frontmatter YAML e a deteccao automatica.
+  </div>
+
+  <!-- ════════════ DECISÃO RÁPIDA ════════════ -->
+  <h2>Arvore de decisao: CLAUDE.md ou Skill?</h2>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 750 360" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Arvore de decisao para escolher entre CLAUDE.md e Skill</title>
+
+      <defs>
+        <marker id="arrowD" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#9ca3af"/>
+        </marker>
+      </defs>
+
+      <!-- Question 1 -->
+      <polygon points="375,20 540,65 375,110 210,65" fill="rgba(251,191,36,0.1)" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="375" y="60" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="600">A instrucao se aplica</text>
+      <text x="375" y="75" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="600">a TODA conversa?</text>
+
+      <!-- YES to CLAUDE.md -->
+      <path d="M280 85 L140 130" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#arrowD)"/>
+      <text x="190" y="100" fill="#6ee7b7" font-size="11" font-weight="600">Sim</text>
+
+      <rect x="40" y="135" width="200" height="45" rx="10" fill="rgba(96,165,250,0.15)" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="140" y="162" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="600">CLAUDE.md</text>
+
+      <!-- NO -->
+      <path d="M470 85 L600 130" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#arrowD)"/>
+      <text x="550" y="100" fill="#f87171" font-size="11" font-weight="600">Nao</text>
+
+      <!-- Question 2 -->
+      <polygon points="610,135 750,180 610,225 470,180" fill="rgba(251,191,36,0.1)" stroke="#fbbf24" stroke-width="1"/>
+      <text x="610" y="173" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="600">E um procedimento</text>
+      <text x="610" y="188" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="600">repetivel?</text>
+
+      <!-- YES to Skill -->
+      <path d="M540 205 L420 245" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#arrowD)"/>
+      <text x="465" y="220" fill="#6ee7b7" font-size="11" font-weight="600">Sim</text>
+
+      <rect x="310" y="250" width="200" height="45" rx="10" fill="rgba(110,231,183,0.15)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="410" y="277" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="600">Skill</text>
+
+      <!-- NO to maybe just a prompt -->
+      <path d="M680 205 L680 255" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#arrowD)"/>
+      <text x="698" y="230" fill="#f87171" font-size="11" font-weight="600">Nao</text>
+
+      <rect x="580" y="260" width="160" height="45" rx="10" fill="rgba(167,139,250,0.1)" stroke="#a78bfa" stroke-width="1"/>
+      <text x="660" y="280" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="600">Instrucao inline</text>
+      <text x="660" y="295" text-anchor="middle" fill="#9ca3af" font-size="10">(direto no prompt)</text>
+
+      <!-- Extra info boxes -->
+      <text x="140" y="200" text-anchor="middle" fill="#9ca3af" font-size="10">Convencoes, build, regras</text>
+      <text x="410" y="315" text-anchor="middle" fill="#9ca3af" font-size="10">Review, migration, deploy</text>
+      <text x="660" y="325" text-anchor="middle" fill="#9ca3af" font-size="10">Tarefa unica, sem recorrencia</text>
+    </svg>
+    <p class="diagram-caption">Fluxo de decisao: se se aplica a toda conversa, vai no CLAUDE.md. Se e um workflow repetivel, crie uma skill. Caso contrario, instrua diretamente no prompt.</p>
+  </div>
+
+  <!-- ════════════ DICAS FINAIS ════════════ -->
+  <h2>Dicas para manter o equiibrio</h2>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">&#128202;</span>
+        Audite periodicamente
+      </h4>
+      <p>Revise o CLAUDE.md a cada sprint. Se uma secao so foi relevante em 1 de cada 10 conversas, migre para skill.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">&#128101;</span>
+        Skills de projeto no git
+      </h4>
+      <p>Commite skills em <code>.claude/skills/</code> para que todo o time use os mesmos workflows. PRs para skills tambem merecem review.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">&#128273;</span>
+        Descriptions descritivas
+      </h4>
+      <p>Escreva descriptions claras no frontmatter. O Claude usa esse texto para decidir quando carregar a skill automaticamente.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">&#128230;</span>
+        Arquivos de apoio
+      </h4>
+      <p>Use templates e exemplos de saida como arquivos separados na pasta da skill. Mantém o SKILL.md focado em instrucoes.</p>
+    </div>
+  </div>
+
+  <div class="callout-red callout">
+    <strong>Anti-pattern:</strong> Colocar tudo no CLAUDE.md "porque e mais facil". Um CLAUDE.md com 500+ linhas
+    degrada a aderencia do Claude as instrucoes e desperica tokens em toda conversa. Se voce tem mais de
+    200 linhas, e hora de extrair skills.
+  </div>
+
+  <!-- ════════════ FONTES ════════════ -->
+  <div class="sources">
+    <h3>Fontes e Referencias</h3>
+    <ul>
+      <li><a href="https://docs.anthropic.com/en/docs/claude-code/slash-commands" target="_blank">Claude Docs — Extend Claude with Skills (slash commands)</a></li>
+      <li><a href="https://docs.anthropic.com/en/docs/claude-code/memory" target="_blank">Claude Docs — How Claude Remembers Your Project (CLAUDE.md)</a></li>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Anthropic — Claude Code Best Practices</a></li>
+      <li><a href="https://www.anthropic.com/news/skills" target="_blank">Anthropic — Introducing Agent Skills</a></li>
+      <li><a href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills" target="_blank">Anthropic — Equipping Agents for the Real World with Agent Skills</a></li>
+      <li><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank">Anthropic — Effective Context Engineering for AI Agents</a></li>
+    </ul>
+  </div>
+
+  <!-- ════════════ NAV FOOTER ════════════ -->
+  <div class="nav-footer">
+    <a href="modulo-02-topico-04-manter-enxuto.html" class="nav-btn">&larr; Topico 4 &middot; Manter enxuto</a>
+    <a href="../index.html" class="nav-btn">&#8962; Indice</a>
+    <a href="../modulo-03/modulo-03-topico-01-plan-mode.html" class="nav-btn">Topico 1 &middot; Plan Mode &rarr;</a>
+  </div>
+
+</body>
+</html>

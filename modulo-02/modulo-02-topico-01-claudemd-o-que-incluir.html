@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo 2 · Tópico 1 — O que incluir no CLAUDE.md</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-code: #141620;
+      --border: #2a2d3a;
+      --text: #e4e4e7;
+      --text-dim: #9ca3af;
+      --accent: #c4956a;
+      --accent-soft: rgba(196, 149, 106, 0.12);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.12);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .topic-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-soft); padding: 6px 14px;
+      border-radius: 20px; margin-bottom: 1rem;
+    }
+
+    h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+    .subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+    h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+    p { margin-bottom: 1rem; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+    strong { color: #fff; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0;
+    }
+    .card-label {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 6px; margin-bottom: 0.75rem;
+    }
+
+    .diagram-container {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto;
+    }
+    .diagram-container svg { display: block; margin: 0 auto; }
+    .diagram-caption {
+      text-align: center; font-size: 0.85rem; color: var(--text-dim);
+      margin-top: 1rem; font-style: italic;
+    }
+
+    .code-block {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1rem; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim);
+    }
+    .code-block pre {
+      padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8;
+    }
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: var(--purple); }
+    .code-block .string { color: var(--green); }
+    .code-block .tool { color: var(--accent); }
+    .code-block .number { color: var(--yellow); }
+
+    .callout {
+      border-left: 3px solid var(--accent); background: var(--accent-soft);
+      padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem;
+    }
+    .callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+    .callout-red { border-left-color: var(--red); background: var(--red-soft); }
+    .callout-green { border-left-color: var(--green); background: var(--green-soft); }
+    .callout strong { color: #fff; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+    }
+
+    .mini-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .mini-card h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;
+    }
+    .mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+
+    .icon-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    .sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .sources ul { list-style: none; padding: 0; }
+    .sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+    .sources li::before { content: "\2192 "; color: var(--accent); }
+
+    .nav-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+      color: var(--text); background: var(--bg-card); border: 1px solid var(--border);
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+
+    /* ── Specific to this topic ── */
+    .hierarchy-list {
+      list-style: none; padding: 0; margin: 1rem 0;
+    }
+    .hierarchy-list li {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 0.75rem 0; border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+    .hierarchy-list li:last-child { border-bottom: none; }
+    .hierarchy-num {
+      width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700; color: #fff;
+    }
+
+    .section-label {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 6px; margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ HEADER ════════════ -->
+  <div class="topic-badge">Módulo 2 · Tópico 1</div>
+  <h1>O que incluir no CLAUDE.md</h1>
+  <p class="subtitle">
+    O <code>CLAUDE.md</code> é o arquivo que dá memória ao Claude Code entre sessões. Ele define
+    <strong>comandos de build</strong>, <strong>estilo de código</strong>, <strong>convenções de branch</strong>
+    e tudo aquilo que o Claude erraria sem instruções explícitas.
+  </p>
+
+  <!-- ════════════ O QUE E ════════════ -->
+  <h2>O que é o CLAUDE.md?</h2>
+
+  <p>
+    O <code>CLAUDE.md</code> é um arquivo Markdown que o Claude Code lê automaticamente no início de
+    <strong>toda sessão</strong>. Ele funciona como uma "cola" persistente: tudo que você escreveria
+    num onboarding de novo dev — comandos de build, convenções do projeto, armadilhas conhecidas —
+    vai nesse arquivo. O conteúdo é injetado no context window como uma mensagem de usuário, logo
+    após o system prompt.
+  </p>
+
+  <p>
+    Não existe um formato obrigatório. O arquivo é Markdown puro, e o Claude o interpreta como
+    instruções. Quanto mais <strong>específico e conciso</strong>, maior a aderência. A documentação
+    oficial recomenda manter o arquivo com menos de 200 linhas por CLAUDE.md.
+  </p>
+
+  <div class="callout-blue callout">
+    <strong>Comando rápido:</strong> Execute <code>/init</code> dentro do Claude Code para gerar um
+    <code>CLAUDE.md</code> inicial automaticamente. O Claude analisa seu codebase e cria um arquivo
+    com comandos de build, instruções de teste e convenções que ele descobriu. Se já existir um,
+    o <code>/init</code> sugere melhorias sem sobrescrever.
+  </div>
+
+  <!-- ════════════ ONDE FICA ════════════ -->
+  <h2>Onde o CLAUDE.md pode ficar</h2>
+
+  <p>
+    O Claude Code suporta <code>CLAUDE.md</code> em vários locais, cada um com um escopo diferente.
+    Todos são carregados e concatenados — nenhum sobrescreve o outro. A tabela abaixo lista na
+    ordem de carregamento, do escopo mais amplo ao mais específico:
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Escopo</th>
+          <th>Local</th>
+          <th>Compartilhado com</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong style="color: var(--red);">Política gerenciada</strong></td>
+          <td><code>/Library/Application Support/ClaudeCode/CLAUDE.md</code> (macOS)</td>
+          <td>Todos os usuários da organização</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--purple);">Usuário</strong></td>
+          <td><code>~/.claude/CLAUDE.md</code></td>
+          <td>Só você (todos os projetos)</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--blue);">Projeto</strong></td>
+          <td><code>./CLAUDE.md</code> ou <code>./.claude/CLAUDE.md</code></td>
+          <td>Time (via controle de versão)</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--green);">Local</strong></td>
+          <td><code>./CLAUDE.local.md</code></td>
+          <td>Só você (projeto atual) — adicione ao <code>.gitignore</code></td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--yellow);">Subdiretório</strong></td>
+          <td><code>./src/api/CLAUDE.md</code> (qualquer subdir)</td>
+          <td>Time — carregado sob demanda</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <strong>Detalhe importante:</strong> Arquivos <code>CLAUDE.md</code> na raiz do projeto e nos
+    diretórios acima são carregados integralmente no início da sessão. Arquivos em
+    <strong>subdiretórios</strong> são carregados <strong>sob demanda</strong>, apenas quando o
+    Claude lê arquivos naquele diretório. Isso permite escalar instruções em monorepos sem
+    poluir o contexto.
+  </div>
+
+  <!-- ════════════ DIAGRAMA DE HIERARQUIA ════════════ -->
+  <h2>Hierarquia de carregamento</h2>
+
+  <p>
+    O Claude Code percorre a árvore de diretórios de baixo para cima (do <code>cwd</code> até a raiz)
+    buscando arquivos <code>CLAUDE.md</code> e <code>CLAUDE.local.md</code>. Todos são concatenados
+    em sequência, do mais genérico ao mais específico. Dentro de cada diretório,
+    <code>CLAUDE.local.md</code> é adicionado <em>depois</em> de <code>CLAUDE.md</code>.
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 780 420" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Hierarquia de carregamento dos arquivos CLAUDE.md</title>
+
+      <defs>
+        <marker id="arrowDown" viewBox="0 0 10 10" refX="5" refY="10" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L5,10 L10,0" fill="#6ee7b7"/>
+        </marker>
+        <marker id="arrowRight" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#60a5fa"/>
+        </marker>
+      </defs>
+
+      <!-- Title -->
+      <text x="390" y="28" text-anchor="middle" fill="#fff" font-size="14" font-weight="600">Ordem de carregamento (do mais amplo ao mais específico)</text>
+
+      <!-- Level 1: Managed Policy -->
+      <rect x="200" y="50" width="380" height="48" rx="10" fill="rgba(248,113,113,0.1)" stroke="#f87171" stroke-width="1.5"/>
+      <text x="220" y="70" fill="#f87171" font-size="10" font-weight="600">POLÍTICA GERENCIADA</text>
+      <text x="220" y="86" fill="#d4d4d8" font-size="11">/Library/.../ClaudeCode/CLAUDE.md</text>
+      <text x="555" y="80" fill="#6b7280" font-size="10">Escopo: org</text>
+
+      <!-- Arrow -->
+      <path d="M390 100 L390 118" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+
+      <!-- Level 2: User -->
+      <rect x="200" y="120" width="380" height="48" rx="10" fill="rgba(167,139,250,0.1)" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="220" y="140" fill="#a78bfa" font-size="10" font-weight="600">USUÁRIO</text>
+      <text x="220" y="156" fill="#d4d4d8" font-size="11">~/.claude/CLAUDE.md</text>
+      <text x="555" y="150" fill="#6b7280" font-size="10">Escopo: você</text>
+
+      <!-- Arrow -->
+      <path d="M390 170 L390 188" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+
+      <!-- Level 3: Project -->
+      <rect x="200" y="190" width="380" height="48" rx="10" fill="rgba(96,165,250,0.1)" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="220" y="210" fill="#60a5fa" font-size="10" font-weight="600">PROJETO</text>
+      <text x="220" y="226" fill="#d4d4d8" font-size="11">./CLAUDE.md  +  ./.claude/rules/*.md</text>
+      <text x="555" y="220" fill="#6b7280" font-size="10">Escopo: time</text>
+
+      <!-- Arrow -->
+      <path d="M390 240 L390 258" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+
+      <!-- Level 4: Local -->
+      <rect x="200" y="260" width="380" height="48" rx="10" fill="rgba(110,231,183,0.1)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="220" y="280" fill="#6ee7b7" font-size="10" font-weight="600">LOCAL (PESSOAL)</text>
+      <text x="220" y="296" fill="#d4d4d8" font-size="11">./CLAUDE.local.md  (no .gitignore)</text>
+      <text x="555" y="290" fill="#6b7280" font-size="10">Escopo: você</text>
+
+      <!-- Arrow -->
+      <path d="M390 310 L390 328" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+
+      <!-- Level 5: Subdirectory -->
+      <rect x="200" y="330" width="380" height="48" rx="10" fill="rgba(251,191,36,0.1)" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="6,3"/>
+      <text x="220" y="350" fill="#fbbf24" font-size="10" font-weight="600">SUBDIRETÓRIO (sob demanda)</text>
+      <text x="220" y="366" fill="#d4d4d8" font-size="11">./src/api/CLAUDE.md  ./packages/core/CLAUDE.md</text>
+      <text x="555" y="360" fill="#6b7280" font-size="10">Lazy load</text>
+
+      <!-- Side annotation -->
+      <line x1="170" y1="60" x2="170" y2="300" stroke="#2a2d3a" stroke-width="1"/>
+      <text x="160" y="185" text-anchor="end" fill="#6ee7b7" font-size="11" font-weight="600" transform="rotate(-90 160 185)">Carregado no início</text>
+
+      <line x1="170" y1="340" x2="170" y2="375" stroke="#2a2d3a" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="160" y="360" text-anchor="end" fill="#fbbf24" font-size="10" transform="rotate(-90 160 360)">On demand</text>
+
+      <!-- Priority arrow on the right -->
+      <path d="M620 65 L620 370" stroke="#475569" stroke-width="1" stroke-dasharray="4,3"/>
+      <text x="640" y="65" fill="#475569" font-size="10">Menor</text>
+      <text x="640" y="80" fill="#475569" font-size="10">prioridade</text>
+      <text x="640" y="355" fill="#475569" font-size="10">Maior</text>
+      <text x="640" y="370" fill="#475569" font-size="10">prioridade</text>
+      <path d="M630 85 L630 340" stroke="#475569" stroke-width="1"/>
+      <polygon points="627,340 630,350 633,340" fill="#475569"/>
+
+    </svg>
+    <p class="diagram-caption">Instruções mais específicas (mais perto do cwd) são lidas por último e têm maior prioridade contextual.</p>
+  </div>
+
+  <!-- ════════════ O QUE INCLUIR ════════════ -->
+  <h2>O que incluir no CLAUDE.md</h2>
+
+  <p>
+    A documentação oficial recomenda tratar o <code>CLAUDE.md</code> como o lugar para registrar aquilo
+    que você teria que re-explicar ao Claude em toda sessão. A regra de ouro: <strong>se o Claude erra
+    algo pela segunda vez, adicione a correção ao CLAUDE.md.</strong>
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card" style="border-color: var(--accent);">
+      <h4>
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">1</span>
+        Comandos de build, test e lint
+      </h4>
+      <p>Comandos exatos para compilar, rodar testes (incluindo testes de um único arquivo) e verificar estilo. O Claude usa esses comandos para auto-verificação.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--blue);">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">2</span>
+        Estilo de código
+      </h4>
+      <p>Indentação, aspas, convenções de import, padrões de nomenclatura. Coisas que o linter/formatter cobram mas que o Claude pode gerar diferente.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--green);">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">3</span>
+        Convenções de branch e commit
+      </h4>
+      <p>Formato de mensagem de commit, estratégia de branching (trunk-based, GitFlow), regras de PR. O Claude pode criar commits e branches automaticamente.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--purple);">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">4</span>
+        Arquitetura e layout do projeto
+      </h4>
+      <p>Onde ficam os handlers de API, componentes, schemas, testes. Evita que o Claude crie arquivos em locais errados.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--yellow);">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">5</span>
+        Workflows e padrões do projeto
+      </h4>
+      <p>Como criar um novo endpoint, como rodar migrations, como fazer deploy. Padrões que o time segue e que o Claude deve replicar.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--red);">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">6</span>
+        Armadilhas e gotchas
+      </h4>
+      <p>Comportamentos inesperados do projeto, workarounds conhecidos, dependências com versões fixas. Tudo que um dev novo erraria.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Critério de inclusão:</strong> Adicione ao <code>CLAUDE.md</code> quando uma dessas
+    situações ocorrer: (1) o Claude comete o mesmo erro pela segunda vez, (2) um code review pega
+    algo que o Claude deveria saber, (3) você digita a mesma correção que já digitou na sessão anterior,
+    (4) um novo membro do time precisaria do mesmo contexto.
+  </div>
+
+  <!-- ════════════ EXEMPLO COMPLETO ════════════ -->
+  <h2>Exemplo: um bom CLAUDE.md de projeto</h2>
+
+  <p>
+    Abaixo está um exemplo realista de <code>CLAUDE.md</code> para um projeto backend em Node.js/TypeScript.
+    Note como cada seção é curta, específica e verificável:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>CLAUDE.md</span>
+      <span>Exemplo de projeto backend</span>
+    </div>
+    <pre>
+<span class="comment"># Projeto: API de Pedidos</span>
+
+<span class="comment">## Comandos</span>
+<span class="string">- Build: `npm run build`</span>
+<span class="string">- Testes (todos): `npm test`</span>
+<span class="string">- Teste unico: `npm test -- --grep "nome do teste"`</span>
+<span class="string">- Lint: `npm run lint`</span>
+<span class="string">- Lint fix: `npm run lint:fix`</span>
+<span class="string">- Dev server: `npm run dev` (porta 3001)</span>
+
+<span class="comment">## Estilo de Codigo</span>
+<span class="string">- TypeScript strict mode, sem `any`</span>
+<span class="string">- Usar ES modules (import/export), nunca CommonJS (require)</span>
+<span class="string">- Indentacao: 2 espacos</span>
+<span class="string">- Aspas simples para strings</span>
+<span class="string">- Sempre desestruturar imports quando possivel</span>
+<span class="string">- Tipos em arquivos separados: `src/types/&lt;dominio&gt;.ts`</span>
+
+<span class="comment">## Convencoes de Git</span>
+<span class="string">- Commits: Conventional Commits (feat:, fix:, chore:, docs:)</span>
+<span class="string">- Branches: `feat/JIRA-123-descricao-curta`</span>
+<span class="string">- Sempre rodar `npm test` antes de commitar</span>
+<span class="string">- PRs devem ter descricao com "O que" e "Por que"</span>
+
+<span class="comment">## Estrutura do Projeto</span>
+<span class="string">- Handlers de API: `src/api/handlers/`</span>
+<span class="string">- Schemas Zod: `src/schemas/`</span>
+<span class="string">- Servicos de dominio: `src/services/`</span>
+<span class="string">- Testes: colocados ao lado do arquivo (`*.test.ts`)</span>
+<span class="string">- Migrations: `src/db/migrations/`</span>
+
+<span class="comment">## Padroes Importantes</span>
+<span class="string">- Novos endpoints seguem o padrao de `src/api/handlers/orders.ts`</span>
+<span class="string">- Toda rota precisa de schema Zod para validação de input</span>
+<span class="string">- Erros usam a classe `AppError` de `src/lib/errors.ts`</span>
+<span class="string">- Logs via `src/lib/logger.ts`, nunca `console.log`</span>
+
+<span class="comment">## Gotchas</span>
+<span class="string">- O Redis local roda na porta 6380 (nao 6379)</span>
+<span class="string">- Migrations precisam de `DATABASE_URL` no .env</span>
+<span class="string">- O ESLint tem regra customizada: no-floating-promises</span></pre>
+  </div>
+
+  <div class="callout-green callout">
+    <strong>Por que funciona:</strong> Cada instrução é concreta e verificável.
+    "Indentação: 2 espaços" é melhor que "formate o código direito". "Handlers em
+    <code>src/api/handlers/</code>" é melhor que "mantenha os arquivos organizados".
+    O Claude consegue seguir instruções específicas com muito mais consistência.
+  </div>
+
+  <!-- ════════════ EXEMPLO 2: FRONTEND ════════════ -->
+  <h3>Exemplo: CLAUDE.md para projeto frontend React</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>CLAUDE.md</span>
+      <span>Exemplo de projeto frontend</span>
+    </div>
+    <pre>
+<span class="comment"># Portal do Cliente</span>
+
+<span class="comment">## Comandos</span>
+<span class="string">- Dev: `pnpm dev` (porta 5173)</span>
+<span class="string">- Build: `pnpm build`</span>
+<span class="string">- Testes: `pnpm test`</span>
+<span class="string">- Teste unico: `pnpm test -- OrderForm.test.tsx`</span>
+<span class="string">- Storybook: `pnpm storybook`</span>
+
+<span class="comment">## Estilo de Codigo</span>
+<span class="string">- React 18 com function components (sem classes)</span>
+<span class="string">- Styled Components para estilos (nao CSS modules)</span>
+<span class="string">- Zustand para estado global, React Query para server state</span>
+<span class="string">- Formularios com React Hook Form + Zod</span>
+<span class="string">- Imports absolutos via alias `@/` → `src/`</span>
+
+<span class="comment">## Estrutura de Componentes</span>
+<span class="string">- Componentes em `src/components/&lt;NomeComponente&gt;/`</span>
+<span class="string">- Cada pasta contem: index.tsx, styles.ts, types.ts, *.test.tsx</span>
+<span class="string">- Paginas em `src/pages/` seguindo rotas do React Router</span>
+<span class="string">- Hooks customizados em `src/hooks/`</span>
+
+<span class="comment">## Convencoes</span>
+<span class="string">- Nomes de componentes: PascalCase</span>
+<span class="string">- Nomes de hooks: camelCase com prefixo `use`</span>
+<span class="string">- Sem default exports (usar named exports)</span>
+<span class="string">- Testes com Testing Library, sem enzyme</span></pre>
+  </div>
+
+  <!-- ════════════ .claude/rules/ ════════════ -->
+  <h2>Organizando regras com .claude/rules/</h2>
+
+  <p>
+    Para projetos grandes, você pode dividir instruções em vários arquivos dentro do diretório
+    <code>.claude/rules/</code>. Cada arquivo cobre um tópico e tem um nome descritivo. Regras
+    podem ser <strong>condicionais</strong> — ativadas apenas quando o Claude trabalha com
+    arquivos que correspondem a um padrão de path.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Estrutura de diretório</span>
+      <span>.claude/rules/</span>
+    </div>
+    <pre>
+<span class="string">your-project/</span>
+├── <span class="tool">.claude/</span>
+│   ├── <span class="keyword">CLAUDE.md</span>           <span class="comment"># Instruções principais do projeto</span>
+│   └── <span class="tool">rules/</span>
+│       ├── <span class="string">code-style.md</span>   <span class="comment"># Diretrizes de estilo</span>
+│       ├── <span class="string">testing.md</span>      <span class="comment"># Convenções de testes</span>
+│       ├── <span class="string">security.md</span>     <span class="comment"># Requisitos de segurança</span>
+│       └── <span class="string">api-design.md</span>   <span class="comment"># Regras de design de API</span></pre>
+  </div>
+
+  <h3>Regras condicionais por path</h3>
+
+  <p>
+    Regras podem ser restritas a arquivos específicos usando frontmatter YAML com o campo
+    <code>paths</code>. Essas regras só entram no contexto quando o Claude lê arquivos que
+    correspondem aos padrões — economizando espaço no context window:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>.claude/rules/api-design.md</span>
+      <span>Regra condicional</span>
+    </div>
+    <pre>
+<span class="keyword">---</span>
+<span class="keyword">paths:</span>
+  <span class="string">- "src/api/**/*.ts"</span>
+<span class="keyword">---</span>
+
+<span class="comment"># Regras de API</span>
+
+<span class="string">- Todo endpoint deve ter validação de input com Zod</span>
+<span class="string">- Usar o formato padrão de resposta de erro</span>
+<span class="string">- Incluir comentários OpenAPI nos handlers</span>
+<span class="string">- Novos endpoints seguem o padrão de orders.ts</span></pre>
+  </div>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Padrão glob</th>
+          <th>O que corresponde</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>**/*.ts</code></td>
+          <td>Todos os arquivos TypeScript em qualquer diretório</td>
+        </tr>
+        <tr>
+          <td><code>src/**/*</code></td>
+          <td>Todos os arquivos dentro de <code>src/</code></td>
+        </tr>
+        <tr>
+          <td><code>src/components/*.tsx</code></td>
+          <td>Componentes React em um diretório específico</td>
+        </tr>
+        <tr>
+          <td><code>**/*.{ts,tsx}</code></td>
+          <td>Todos os arquivos TS e TSX (brace expansion)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ IMPORTS ════════════ -->
+  <h2>Importando outros arquivos com @</h2>
+
+  <p>
+    Arquivos <code>CLAUDE.md</code> suportam imports com a sintaxe <code>@path/to/file</code>.
+    Os arquivos importados são expandidos e carregados no contexto junto com o CLAUDE.md que os
+    referência. Paths relativos são resolvidos em relação ao arquivo que contém o import.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>CLAUDE.md</span>
+      <span>Usando imports</span>
+    </div>
+    <pre>
+<span class="comment"># Meu Projeto</span>
+
+<span class="string">Veja @README.md para visão geral do projeto.</span>
+<span class="string">Consulte @package.json para comandos npm disponíveis.</span>
+
+<span class="comment"># Workflow de Git</span>
+<span class="string">Siga as instruções em @docs/git-workflow.md</span>
+
+<span class="comment"># Instruções adicionais</span>
+<span class="string">- Sempre rodar testes antes de commitar</span>
+<span class="string">- Usar Conventional Commits</span></pre>
+  </div>
+
+  <div class="callout-blue callout">
+    <strong>Import vs. rules/:</strong> Imports com <code>@</code> carregam o conteúdo no início da
+    sessao (aumentam o contexto). Regras em <code>.claude/rules/</code> com <code>paths</code> carregam
+    sob demanda. Para projetos grandes, prefira rules condicionais para economizar contexto.
+  </div>
+
+  <!-- ════════════ AUTO MEMORY ════════════ -->
+  <h2>CLAUDE.md vs. Auto Memory</h2>
+
+  <p>
+    Além do <code>CLAUDE.md</code> (que você escreve), existe o <strong>auto memory</strong> — notas
+    que o proprio Claude escreve para si mesmo ao longo das sessões. São dois sistemas
+    complementares:
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th></th>
+          <th>CLAUDE.md</th>
+          <th>Auto Memory</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Quem escreve</strong></td>
+          <td>Voce</td>
+          <td>O Claude</td>
+        </tr>
+        <tr>
+          <td><strong>Conteúdo</strong></td>
+          <td>Instruções e regras</td>
+          <td>Padrões e aprendizados</td>
+        </tr>
+        <tr>
+          <td><strong>Armazenamento</strong></td>
+          <td>No repositório do projeto</td>
+          <td><code>~/.claude/projects/&lt;projeto&gt;/memory/</code></td>
+        </tr>
+        <tr>
+          <td><strong>Carregamento</strong></td>
+          <td>Integral na sessão</td>
+          <td>Primeiras 200 linhas do MEMORY.md</td>
+        </tr>
+        <tr>
+          <td><strong>Usar para</strong></td>
+          <td>Padrões de código, workflows, arquitetura</td>
+          <td>Comandos de build, insights de debug, preferências</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ DICAS PRATICAS ════════════ -->
+  <h2>Dicas práticas para começar</h2>
+
+  <div class="grid-2">
+    <div class="mini-card" style="border-color: var(--green);">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">1</span>
+        Comece com /init
+      </h4>
+      <p>Execute <code>/init</code> no seu projeto. O Claude analisa o codebase e gera um CLAUDE.md inicial. Refine a partir dai.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--blue);">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">2</span>
+        Itere como um prompt
+      </h4>
+      <p>O CLAUDE.md é injetado como contexto, então trate-o como um prompt que você refina. Teste, observe o comportamento e ajuste.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--purple);">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">3</span>
+        Mantenha conciso
+      </h4>
+      <p>Menos de 200 linhas por arquivo. Se estiver crescendo demais, mova instruções específicas para <code>.claude/rules/</code> com path scoping.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--yellow);">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">4</span>
+        Seja específico e verificável
+      </h4>
+      <p>"Indentação: 2 espaços" funciona. "Formate o código direito" não funciona. O Claude segue instruções concretas com muito mais consistência.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--accent);">
+      <h4>
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">5</span>
+        Adicione ao .gitignore o local
+      </h4>
+      <p>Adicione <code>CLAUDE.local.md</code> ao <code>.gitignore</code>. Use-o para preferências pessoais que não devem ser compartilhadas com o time.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--red);">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">6</span>
+        Elimine o que é redundante
+      </h4>
+      <p>Se o Claude já faz algo correto sem a instrução, remova-a. Instruções desnecessárias consomem contexto e diluem as importantes.</p>
+    </div>
+  </div>
+
+  <div class="callout-red callout">
+    <strong>Erro comum:</strong> Arquivos CLAUDE.md com mais de 200 linhas onde metade das instruções
+    são redundantes ou vagas. O Claude começa a ignorar regras quando o arquivo é muito longo porque
+    as instruções importantes se perdem no ruído. A solução é podar impiedosamente e mover instruções
+    específicas para <code>.claude/rules/</code>.
+  </div>
+
+  <!-- ════════════ COMPATIBILIDADE ════════════ -->
+  <h2>Compatibilidade com outros agentes</h2>
+
+  <p>
+    Se o seu repositório já usa <code>AGENTS.md</code> para outros agentes de código, você pode
+    criar um <code>CLAUDE.md</code> que importa o arquivo existente com a sintaxe <code>@</code>,
+    evitando duplicação:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>CLAUDE.md</span>
+      <span>Importando AGENTS.md existente</span>
+    </div>
+    <pre>
+<span class="string">@AGENTS.md</span>
+
+<span class="comment">## Claude Code</span>
+
+<span class="string">- Usar plan mode para mudanças em `src/billing/`</span>
+<span class="string">- Sempre rodar `make lint` antes de commitar</span></pre>
+  </div>
+
+  <p>
+    Alternativamente, um symlink também funciona se você não precisa adicionar instruções
+    específicas do Claude: <code>ln -s AGENTS.md CLAUDE.md</code>. O comando <code>/init</code>
+    em um repo que já tem <code>AGENTS.md</code> lê o arquivo e incorpora as partes relevantes
+    no <code>CLAUDE.md</code> gerado. Ele também lê configs como <code>.cursorrules</code> e
+    <code>.windsurfrules</code>.
+  </p>
+
+  <!-- ════════════ FONTES ════════════ -->
+  <div class="sources">
+    <h3>Fontes e Referências</h3>
+    <ul>
+      <li><a href="https://code.claude.com/docs/en/memory" target="_blank">Claude Code Docs — Store instructions and memories (CLAUDE.md)</a></li>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Anthropic — Best Practices for Claude Code</a></li>
+      <li><a href="https://code.claude.com/docs/en/best-practices" target="_blank">Claude Code Docs — Best Practices</a></li>
+      <li><a href="https://code.claude.com/docs/en/claude-directory" target="_blank">Claude Code Docs — Explore the .claude directory</a></li>
+      <li><a href="https://code.claude.com/docs/en/context-window" target="_blank">Claude Code Docs — Explore the context window</a></li>
+    </ul>
+  </div>
+
+  <!-- ════════════ NAV FOOTER ════════════ -->
+  <div class="nav-footer">
+    <a href="../modulo-01/modulo-01-topico-04-instalacao.html" class="nav-btn">&larr; Tópico 4 &middot; Instalação</a>
+    <a href="../index.html" class="nav-btn">&#8962; Índice</a>
+    <a href="modulo-02-topico-02-claudemd-o-que-nao-incluir.html" class="nav-btn">Tópico 2 &middot; O que não incluir &rarr;</a>
+  </div>
+
+</body>
+</html>
