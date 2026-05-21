@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modulo 5 . Topico 1 -- Por que a performance degrada conforme o contexto enche</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-code: #141620;
+      --border: #2a2d3a;
+      --text: #e4e4e7;
+      --text-dim: #9ca3af;
+      --accent: #c4956a;
+      --accent-soft: rgba(196, 149, 106, 0.12);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.12);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .topic-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-soft); padding: 6px 14px;
+      border-radius: 20px; margin-bottom: 1rem;
+    }
+
+    h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+    .subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+    h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+    p { margin-bottom: 1rem; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+    strong { color: #fff; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0;
+    }
+    .card-label {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 6px; margin-bottom: 0.75rem;
+    }
+
+    .diagram-container {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto;
+    }
+    .diagram-container svg { display: block; margin: 0 auto; }
+    .diagram-caption {
+      text-align: center; font-size: 0.85rem; color: var(--text-dim);
+      margin-top: 1rem; font-style: italic;
+    }
+
+    .code-block {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1rem; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim);
+    }
+    .code-block pre {
+      padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8;
+    }
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: var(--purple); }
+    .code-block .string { color: var(--green); }
+    .code-block .tool { color: var(--accent); }
+    .code-block .number { color: var(--yellow); }
+
+    .callout {
+      border-left: 3px solid var(--accent); background: var(--accent-soft);
+      padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem;
+    }
+    .callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+    .callout-red { border-left-color: var(--red); background: var(--red-soft); }
+    .callout-green { border-left-color: var(--green); background: var(--green-soft); }
+    .callout-yellow { border-left-color: var(--yellow); background: var(--yellow-soft); }
+    .callout strong { color: #fff; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+    }
+
+    .mini-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .mini-card h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;
+    }
+    .mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+
+    .icon-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    .sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .sources ul { list-style: none; padding: 0; }
+    .sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+    .sources li::before { content: "\2192 "; color: var(--accent); }
+
+    .nav-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+      color: var(--text); background: var(--bg-card); border: 1px solid var(--border);
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+
+    /* ── Specific to this topic ── */
+    .metric-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem; text-align: center;
+    }
+    .metric-card .metric-value {
+      font-size: 2rem; font-weight: 700; font-family: var(--font-mono);
+      line-height: 1.2; margin-bottom: 0.25rem;
+    }
+    .metric-card .metric-label {
+      font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .metric-card .metric-detail {
+      font-size: 0.82rem; color: var(--text-dim); margin-top: 0.5rem;
+    }
+
+    .signal-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+      border-left: 3px solid var(--red);
+    }
+    .signal-card h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;
+    }
+    .signal-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ HEADER ════════════ -->
+  <div class="topic-badge">Modulo 5 . Topico 1</div>
+  <h1>Por que a performance degrada conforme o contexto enche</h1>
+  <p class="subtitle">
+    LLMs nao processam contexto de forma uniforme. Conforme a janela enche, a qualidade das respostas
+    cai de forma mensuravel -- um fenomeno chamado <strong>context rot</strong>. Entender a causa e
+    fundamental para evitar sessoes improdutivas no Claude Code.
+  </p>
+
+  <!-- ════════════ O FENOMENO ════════════ -->
+  <h2>O fenomeno "Context Rot"</h2>
+
+  <p>
+    O termo <strong>context rot</strong> foi formalizado pela pesquisa da Chroma Research (julho de 2025),
+    que testou sistematicamente 18 modelos de fronteira -- incluindo GPT-4.1, Claude 4, Gemini 2.5 e Qwen3 --
+    em tarefas de diferentes complexidades e comprimentos de contexto.
+  </p>
+
+  <p>
+    A conclusao central e inequivoca: <strong>todos os 18 modelos testados degradam conforme o numero
+    de tokens de entrada aumenta</strong>, mesmo em tarefas simples como recuperacao de informacao
+    ou replicacao de texto. Essa degradacao nao e uma falha pontual -- e uma propriedade emergente
+    da arquitetura Transformer.
+  </p>
+
+  <div class="callout-blue callout">
+    <strong>Definicao:</strong> Context rot e a degradacao mensuravel na qualidade do output de um LLM
+    que ocorre conforme o tamanho do contexto de entrada aumenta. Nao e o mesmo que overflow
+    (estourar o limite maximo) -- o rot acontece <em>muito antes</em> de atingir o limite da janela.
+    <br><small style="color: var(--text-dim);">-- Chroma Research, "Context Rot: How Increasing Input Tokens Impacts LLM Performance" (Jul/2025)</small>
+  </div>
+
+  <p>
+    A Anthropic corrobora esse achado no artigo sobre context engineering para agentes de IA:
+    contexto deve ser tratado como um <strong>recurso finito com retornos marginais decrescentes</strong>.
+    Assim como humanos possuem capacidade limitada de memoria de trabalho, LLMs possuem um
+    "orcamento de atencao" finito que se esgota a cada token adicional introduzido no contexto.
+  </p>
+
+  <!-- ════════════ POR QUE ACONTECE ════════════ -->
+  <h2>Por que isso acontece: a arquitetura Transformer</h2>
+
+  <p>
+    A raiz do problema esta no mecanismo de <strong>self-attention</strong>, o coracao da arquitetura
+    Transformer. Nesse mecanismo, cada token pode "prestar atencao" em <em>todos</em> os outros tokens
+    do contexto. Isso cria <strong>n&sup2; relacoes de pares</strong> para n tokens.
+  </p>
+
+  <div class="grid-2">
+    <div class="metric-card">
+      <div class="metric-value" style="color: var(--green);">10K</div>
+      <div class="metric-label">tokens no contexto</div>
+      <div class="metric-detail">100 milhoes de relacoes de atencao</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value" style="color: var(--red);">200K</div>
+      <div class="metric-label">tokens no contexto</div>
+      <div class="metric-detail">40 bilhoes de relacoes de atencao</div>
+    </div>
+  </div>
+
+  <p>
+    Conforme o numero de tokens cresce, a capacidade do modelo de capturar essas relacoes de pares
+    fica "esticada". Cada token adicionado compete por uma fatia do orcamento de atencao,
+    <strong>diluindo a atencao disponivel para os tokens realmente importantes</strong>.
+    Alem disso, os modelos aprendem seus padroes de atencao a partir de dados de treinamento onde
+    sequencias mais curtas sao tipicamente mais comuns, o que significa que possuem menos
+    experiencia com dependencias que abrangem contextos longos.
+  </p>
+
+  <div class="callout">
+    <strong>Resumo tecnico:</strong> O mecanismo de self-attention cria um gradiente de performance,
+    nao um corte abrupto. O modelo continua capaz em contextos longos, mas com
+    <strong>precisao reduzida</strong> para recuperacao de informacao e raciocinio de longo alcance
+    comparado ao desempenho em contextos curtos.
+    <br><small style="color: var(--text-dim);">-- Anthropic, "Effective Context Engineering for AI Agents" (Set/2025)</small>
+  </div>
+
+  <!-- ════════════ DIAGRAMA: ACCURACY VS TOKENS ════════════ -->
+  <h2>Grafico: degradacao de accuracy vs. tokens</h2>
+
+  <p>
+    O grafico abaixo ilustra o padrao conceitual de degradacao observado nos estudos.
+    A performance e alta quando o contexto esta leve, decai gradualmente na zona intermediaria,
+    e pode se tornar criticamente baixa quando o contexto esta proximo do limite.
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Grafico conceitual: accuracy vs tokens no contexto, com zonas verde, amarelo e vermelho</title>
+
+      <!-- Background zones -->
+      <rect x="80" y="40" width="230" height="300" rx="0" fill="rgba(110,231,183,0.06)"/>
+      <rect x="310" y="40" width="230" height="300" rx="0" fill="rgba(251,191,36,0.06)"/>
+      <rect x="540" y="40" width="210" height="300" rx="0" fill="rgba(248,113,113,0.06)"/>
+
+      <!-- Zone labels -->
+      <text x="195" y="30" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="600">ZONA VERDE</text>
+      <text x="425" y="30" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="600">ZONA AMARELA</text>
+      <text x="645" y="30" text-anchor="middle" fill="#f87171" font-size="11" font-weight="600">ZONA VERMELHA</text>
+
+      <!-- Zone sublabels -->
+      <text x="195" y="365" text-anchor="middle" fill="#6ee7b7" font-size="9">0-30% da janela</text>
+      <text x="425" y="365" text-anchor="middle" fill="#fbbf24" font-size="9">30-70% da janela</text>
+      <text x="645" y="365" text-anchor="middle" fill="#f87171" font-size="9">70-100% da janela</text>
+
+      <!-- Axes -->
+      <line x1="80" y1="340" x2="750" y2="340" stroke="#475569" stroke-width="1"/>
+      <line x1="80" y1="40" x2="80" y2="340" stroke="#475569" stroke-width="1"/>
+
+      <!-- Y-axis labels -->
+      <text x="70" y="65" text-anchor="end" fill="#9ca3af" font-size="10">100%</text>
+      <text x="70" y="140" text-anchor="end" fill="#9ca3af" font-size="10">75%</text>
+      <text x="70" y="215" text-anchor="end" fill="#9ca3af" font-size="10">50%</text>
+      <text x="70" y="290" text-anchor="end" fill="#9ca3af" font-size="10">25%</text>
+
+      <!-- Y-axis grid lines -->
+      <line x1="80" y1="60" x2="750" y2="60" stroke="#2a2d3a" stroke-width="0.5" stroke-dasharray="4,4"/>
+      <line x1="80" y1="135" x2="750" y2="135" stroke="#2a2d3a" stroke-width="0.5" stroke-dasharray="4,4"/>
+      <line x1="80" y1="210" x2="750" y2="210" stroke="#2a2d3a" stroke-width="0.5" stroke-dasharray="4,4"/>
+      <line x1="80" y1="285" x2="750" y2="285" stroke="#2a2d3a" stroke-width="0.5" stroke-dasharray="4,4"/>
+
+      <!-- X-axis label -->
+      <text x="415" y="395" text-anchor="middle" fill="#9ca3af" font-size="11">Tokens no contexto</text>
+
+      <!-- Y-axis label -->
+      <text x="20" y="200" text-anchor="middle" fill="#9ca3af" font-size="11" transform="rotate(-90 20 200)">Accuracy / Qualidade</text>
+
+      <!-- Performance curve -->
+      <path d="M85 70 C150 72, 200 78, 280 95 C340 108, 400 145, 460 185 C520 225, 580 265, 650 290 C690 302, 720 310, 745 315"
+            fill="none" stroke="#c4956a" stroke-width="2.5" stroke-linecap="round"/>
+
+      <!-- Data points on curve -->
+      <circle cx="85" cy="70" r="4" fill="#6ee7b7"/>
+      <circle cx="195" cy="82" r="4" fill="#6ee7b7"/>
+      <circle cx="310" cy="105" r="4" fill="#fbbf24"/>
+      <circle cx="425" cy="165" r="4" fill="#fbbf24"/>
+      <circle cx="540" cy="240" r="4" fill="#f87171"/>
+      <circle cx="645" cy="290" r="4" fill="#f87171"/>
+      <circle cx="745" cy="315" r="4" fill="#f87171"/>
+
+      <!-- Annotation: high performance -->
+      <rect x="110" y="80" width="150" height="36" rx="6" fill="rgba(110,231,183,0.12)" stroke="#6ee7b7" stroke-width="0.5"/>
+      <text x="185" y="95" text-anchor="middle" fill="#6ee7b7" font-size="10" font-weight="600">Contexto fresco</text>
+      <text x="185" y="109" text-anchor="middle" fill="#d4d4d8" font-size="9">Alta precisao e foco</text>
+
+      <!-- Annotation: degradation -->
+      <rect x="555" y="225" width="170" height="36" rx="6" fill="rgba(248,113,113,0.12)" stroke="#f87171" stroke-width="0.5"/>
+      <text x="640" y="240" text-anchor="middle" fill="#f87171" font-size="10" font-weight="600">Contexto saturado</text>
+      <text x="640" y="254" text-anchor="middle" fill="#d4d4d8" font-size="9">Erros, omissoes, repeticoes</text>
+    </svg>
+    <p class="diagram-caption">Representacao conceitual baseada nos achados da Chroma Research e da Anthropic. A degradacao e gradual, nao abrupta.</p>
+  </div>
+
+  <!-- ════════════ LOST IN THE MIDDLE ════════════ -->
+  <h2>"Lost in the Middle": o vies posicional</h2>
+
+  <p>
+    Alem da degradacao geral com o aumento do contexto, existe um padrao bem documentado chamado
+    <strong>"lost in the middle"</strong>: LLMs exibem um <strong>vies de atencao em forma de U</strong>,
+    onde tokens no inicio e no final do contexto recebem significativamente mais atencao do que
+    tokens no meio -- independentemente da relevancia do conteudo.
+  </p>
+
+  <p>
+    Na pratica, isso significa que instrucoes e informacoes posicionadas no meio de um contexto longo
+    tem muito mais chance de serem ignoradas ou mal interpretadas pelo modelo. Para sessoes longas
+    no Claude Code, aquela instrucao importante que voce deu 30 mensagens atras pode estar na
+    "zona morta" de atencao.
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 800 350" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Diagrama Lost in the Middle: atencao em forma de U, com alta precisao no inicio e fim e baixa no meio</title>
+
+      <!-- Axes -->
+      <line x1="80" y1="280" x2="720" y2="280" stroke="#475569" stroke-width="1"/>
+      <line x1="80" y1="40" x2="80" y2="280" stroke="#475569" stroke-width="1"/>
+
+      <!-- Y-axis labels -->
+      <text x="70" y="55" text-anchor="end" fill="#9ca3af" font-size="10">Alta</text>
+      <text x="70" y="165" text-anchor="end" fill="#9ca3af" font-size="10">Media</text>
+      <text x="70" y="275" text-anchor="end" fill="#9ca3af" font-size="10">Baixa</text>
+
+      <!-- X-axis labels -->
+      <text x="120" y="300" text-anchor="middle" fill="#6ee7b7" font-size="10" font-weight="600">Inicio</text>
+      <text x="400" y="300" text-anchor="middle" fill="#f87171" font-size="10" font-weight="600">Meio</text>
+      <text x="680" y="300" text-anchor="middle" fill="#6ee7b7" font-size="10" font-weight="600">Fim</text>
+
+      <!-- Y-axis label -->
+      <text x="20" y="165" text-anchor="middle" fill="#9ca3af" font-size="11" transform="rotate(-90 20 165)">Nivel de Atencao</text>
+
+      <!-- X-axis label -->
+      <text x="400" y="330" text-anchor="middle" fill="#9ca3af" font-size="11">Posicao no contexto</text>
+
+      <!-- Grid lines -->
+      <line x1="80" y1="50" x2="720" y2="50" stroke="#2a2d3a" stroke-width="0.5" stroke-dasharray="4,4"/>
+      <line x1="80" y1="160" x2="720" y2="160" stroke="#2a2d3a" stroke-width="0.5" stroke-dasharray="4,4"/>
+
+      <!-- Dead zone highlight -->
+      <rect x="260" y="40" width="280" height="240" rx="0" fill="rgba(248,113,113,0.05)"/>
+      <text x="400" y="78" text-anchor="middle" fill="#f87171" font-size="10" font-style="italic">zona morta de atencao</text>
+
+      <!-- U-curve -->
+      <path d="M95 65 C140 70, 190 100, 250 195 C290 245, 340 260, 400 265 C460 260, 510 245, 550 195 C610 100, 660 70, 705 65"
+            fill="none" stroke="#c4956a" stroke-width="2.5" stroke-linecap="round"/>
+
+      <!-- Gradient fill under curve -->
+      <path d="M95 65 C140 70, 190 100, 250 195 C290 245, 340 260, 400 265 C460 260, 510 245, 550 195 C610 100, 660 70, 705 65 L705 280 L95 280 Z"
+            fill="url(#uCurveGrad)" opacity="0.15"/>
+
+      <defs>
+        <linearGradient id="uCurveGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#c4956a"/>
+          <stop offset="100%" stop-color="transparent"/>
+        </linearGradient>
+      </defs>
+
+      <!-- Annotation arrows -->
+      <circle cx="95" cy="65" r="5" fill="#6ee7b7"/>
+      <text x="125" y="55" fill="#6ee7b7" font-size="10" font-weight="600">System prompt</text>
+      <text x="125" y="68" fill="#d4d4d8" font-size="9">alta atencao</text>
+
+      <circle cx="400" cy="265" r="5" fill="#f87171"/>
+      <text x="400" y="250" text-anchor="middle" fill="#f87171" font-size="10" font-weight="600">Mensagens antigas</text>
+      <text x="400" y="235" text-anchor="middle" fill="#d4d4d8" font-size="9">ate ~30% menos precisao</text>
+
+      <circle cx="705" cy="65" r="5" fill="#6ee7b7"/>
+      <text x="670" y="55" text-anchor="end" fill="#6ee7b7" font-size="10" font-weight="600">Mensagem recente</text>
+      <text x="670" y="68" text-anchor="end" fill="#d4d4d8" font-size="9">alta atencao</text>
+    </svg>
+    <p class="diagram-caption">O "vies em U": LLMs prestam mais atencao ao inicio (system prompt) e fim (mensagem recente), com queda significativa no meio.</p>
+  </div>
+
+  <!-- ════════════ IMPACTO PRATICO ════════════ -->
+  <h2>Impacto pratico no Claude Code</h2>
+
+  <p>
+    O context rot nao e um problema teorico -- ele impacta diretamente sua produtividade diaria
+    com o Claude Code. A janela de contexto do Claude Code armazena <strong>toda a conversa</strong>:
+    cada mensagem sua, cada arquivo que o Claude leu, cada output de comando. Em sessoes longas,
+    esse volume se acumula rapidamente.
+  </p>
+
+  <h3>Metricas reais de uso</h3>
+
+  <p>
+    Dados publicados pela Anthropic ao medir autonomia de agentes revelam o espectro de duracao
+    de turnos no Claude Code:
+  </p>
+
+  <div class="grid-3">
+    <div class="metric-card">
+      <div class="metric-value" style="color: var(--green);">~45s</div>
+      <div class="metric-label">Turno mediano</div>
+      <div class="metric-detail">Flutuou entre 40s e 55s nos ultimos meses</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value" style="color: var(--yellow);">~42min</div>
+      <div class="metric-label">Turno P99.9</div>
+      <div class="metric-detail">Os 0.1% mais longos -- muitas iteracoes</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value" style="color: var(--red);">2x</div>
+      <div class="metric-label">Crescimento P99.9</div>
+      <div class="metric-detail">De ~25min para ~45min entre out/2025 e jan/2026</div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>O que isso significa:</strong> A maioria dos turnos e rapida (~45s), mas sessoes complexas
+    podem gerar turnos de dezenas de minutos com muitas iteracoes. Esses turnos longos acumulam
+    enormes volumes de contexto -- resultados de ferramentas, outputs de comandos, conteudos de arquivos --
+    e e exatamente ai que o context rot se manifesta com mais forca.
+    <br><small style="color: var(--text-dim);">-- Anthropic, "Measuring AI Agent Autonomy in Practice" (2025)</small>
+  </div>
+
+  <h3>O ciclo vicioso do contexto cheio</h3>
+
+  <p>
+    Quando o contexto acumula informacao demais, o Claude Code entra em um ciclo de degradacao:
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Efeito</th>
+          <th>O que acontece</th>
+          <th>Por que</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong style="color: var(--yellow);">Lentidao</strong></td>
+          <td>Respostas demoram mais para serem geradas</td>
+          <td>Mais tokens para processar na self-attention (complexidade quadratica)</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--red);">Perda de qualidade</strong></td>
+          <td>Respostas ficam genericas, perdem nuances do projeto</td>
+          <td>Atencao diluida entre tokens relevantes e irrelevantes</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--red);">Instrucoes ignoradas</strong></td>
+          <td>O Claude "esquece" orientacoes dadas no inicio da sessao</td>
+          <td>Efeito "lost in the middle" empurra instrucoes antigas para a zona morta</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--yellow);">Custo elevado</strong></td>
+          <td>Mais tokens de entrada = mais dinheiro por request</td>
+          <td>Precificacao proporcional ao numero de tokens processados</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--red);">Auto-compactacao forcada</strong></td>
+          <td>Claude Code compacta automaticamente ao atingir o limite</td>
+          <td>Compactacao automatica pode descartar contexto que ainda era relevante</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ SINAIS DE ALERTA ════════════ -->
+  <h2>Sinais de que o contexto esta "cheio demais"</h2>
+
+  <p>
+    Reconhecer os sintomas de context rot em tempo real e crucial para saber quando agir
+    (limpar, compactar, ou iniciar uma nova sessao). Fique atento a estes sinais:
+  </p>
+
+  <div class="grid-2">
+    <div class="signal-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">1</span>
+        Respostas repetitivas
+      </h4>
+      <p>O Claude repete solucoes que ja tentou antes, ou re-le arquivos que ja leu na mesma sessao.
+         Sinal classico de que perdeu a nocao do que ja foi feito.</p>
+    </div>
+    <div class="signal-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">2</span>
+        Instrucoes ignoradas
+      </h4>
+      <p>Voce pediu para usar um padrao especifico (ex: "use Zod, nao Yup") mas o Claude insiste
+         em usar a alternativa. A instrucao caiu na "zona morta" de atencao.</p>
+    </div>
+    <div class="signal-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">3</span>
+        Erros crescentes
+      </h4>
+      <p>A taxa de erros aumenta visivelmente: edits no arquivo errado, comandos que ja falharam
+         sendo tentados novamente, logica circular de debug.</p>
+    </div>
+    <div class="signal-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">4</span>
+        Respostas genericas
+      </h4>
+      <p>O Claude perde o conhecimento especifico do seu projeto e comeca a sugerir solucoes
+         "de manual" em vez de seguir as convencoes do codebase.</p>
+    </div>
+    <div class="signal-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">5</span>
+        Aviso de compactacao
+      </h4>
+      <p>O Claude Code mostra que compactou o historico automaticamente. Isso indica que o contexto
+         ja estava proximo do limite e informacao foi descartada.</p>
+    </div>
+    <div class="signal-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">6</span>
+        Latencia perceptivel
+      </h4>
+      <p>Respostas que antes levavam segundos agora demoram visivelmente mais. O volume de tokens
+         esta impactando diretamente o tempo de processamento.</p>
+    </div>
+  </div>
+
+  <div class="callout-red callout">
+    <strong>Regra pratica:</strong> A documentacao oficial e enfatica: "uma sessao limpa com um prompt
+    melhor quase sempre supera uma sessao longa com correcoes acumuladas". Nao insista em sessoes
+    que ja mostram sinais de degradacao -- limpe o contexto e recomece.
+    <br><small style="color: var(--text-dim);">-- Anthropic, "Best Practices for Claude Code"</small>
+  </div>
+
+  <!-- ════════════ ACHADOS DA CHROMA ════════════ -->
+  <h2>Achados-chave da pesquisa</h2>
+
+  <p>
+    Os resultados combinados da Chroma Research e da Anthropic trazem insights praticos para
+    quem usa o Claude Code no dia a dia:
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">A</span>
+        Tipo do conteudo importa
+      </h4>
+      <p>Nem todo "lixo" no contexto degrada igualmente. Conteudo tematicamente similar ao que voce precisa
+         (distractors) e pior do que conteudo irrelevante, porque confunde o mecanismo de atencao.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">B</span>
+        Degradacao e nao-uniforme
+      </h4>
+      <p>O impacto de conteudo adicional varia entre modelos e entre tipos de tarefa. Nao ha um ponto
+         fixo de corte -- a degradacao e um gradiente que comeca cedo e piora progressivamente.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">C</span>
+        Modelos Claude sao conservadores
+      </h4>
+      <p>Nos testes da Chroma, modelos Claude (Opus 4, Sonnet 4) demonstraram as menores taxas de
+         alucinacao. Quando incertos, tendem a se abster em vez de inventar respostas.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">D</span>
+        Focado > completo
+      </h4>
+      <p>No benchmark LongMemEval, todos os modelos performaram significativamente melhor com input
+         focado (~300 tokens) do que com input completo (~113K tokens) para a mesma tarefa.</p>
+    </div>
+  </div>
+
+  <!-- ════════════ CONEXAO COM PROXIMOS TOPICOS ════════════ -->
+  <h2>O que fazer a respeito?</h2>
+
+  <p>
+    Agora que voce entende <em>por que</em> a performance degrada, os proximos topicos deste modulo
+    cobrem as estrategias praticas para lidar com isso no Claude Code:
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Topico</th>
+          <th>Estrategia</th>
+          <th>Quando usar</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong style="color: var(--green);">Topico 2</strong></td>
+          <td><code>/clear</code> -- resetar o contexto entre tarefas</td>
+          <td>Ao trocar de assunto, antes de nova tarefa, quando perceber sinais de degradacao</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--blue);">Topico 3</strong></td>
+          <td><code>/compact</code> -- compactar contexto preservando o essencial</td>
+          <td>Quando a tarefa e longa mas precisa de continuidade, antes de atingir o limite</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--accent);">Topico 4</strong></td>
+          <td>Leituras seletivas e uso eficiente de ferramentas</td>
+          <td>Desde o inicio -- prevencao e melhor que remediar contexto poluido</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--purple);">Topico 5</strong></td>
+          <td>Subagentes e delegacao de contexto</td>
+          <td>Para tarefas complexas que exigem exploracao profunda sem poluir o contexto principal</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout-green callout">
+    <strong>Mentalidade-chave:</strong> Trate o contexto como um recurso precioso e finito. Cada arquivo
+    lido, cada output de comando, cada mensagem da conversa consome parte do orcamento de atencao.
+    O objetivo e manter o menor conjunto possivel de tokens de alto sinal que maximize a probabilidade
+    do resultado desejado -- esse e o principio central da <strong>context engineering</strong>.
+    <br><small style="color: var(--text-dim);">-- Anthropic, "Effective Context Engineering for AI Agents" (Set/2025)</small>
+  </div>
+
+  <!-- ════════════ FONTES ════════════ -->
+  <div class="sources">
+    <h3>Fontes e Referencias</h3>
+    <ul>
+      <li><a href="https://www.trychroma.com/research/context-rot" target="_blank">Chroma Research -- Context Rot: How Increasing Input Tokens Impacts LLM Performance (Jul/2025)</a></li>
+      <li><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank">Anthropic -- Effective Context Engineering for AI Agents (Set/2025)</a></li>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Anthropic -- Best Practices for Claude Code</a></li>
+      <li><a href="https://www.anthropic.com/research/measuring-agent-autonomy" target="_blank">Anthropic -- Measuring AI Agent Autonomy in Practice (2025)</a></li>
+      <li><a href="https://docs.anthropic.com/en/docs/build-with-claude/context-windows" target="_blank">Anthropic Docs -- Context Windows</a></li>
+      <li><a href="https://www.anthropic.com/news/prompting-long-context" target="_blank">Anthropic -- Prompt Engineering for Claude's Long Context Window</a></li>
+      <li><a href="https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents" target="_blank">Anthropic -- Effective Harnesses for Long-Running Agents</a></li>
+    </ul>
+  </div>
+
+  <!-- ════════════ NAV FOOTER ════════════ -->
+  <div class="nav-footer">
+    <a href="../modulo-04/modulo-04-topico-05-prompts-vagos.html" class="nav-btn">&larr; Topico 5 . Prompts Vagos</a>
+    <a href="../index.html" class="nav-btn">&#8962; Indice</a>
+    <a href="modulo-05-topico-02-clear.html" class="nav-btn">Topico 2 . /clear &rarr;</a>
+  </div>
+
+</body>
+</html>

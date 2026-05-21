@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modulo 5 · Topico 2 — Usando /clear e /compact estrategicamente</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-code: #141620;
+      --border: #2a2d3a;
+      --text: #e4e4e7;
+      --text-dim: #9ca3af;
+      --accent: #c4956a;
+      --accent-soft: rgba(196, 149, 106, 0.12);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.12);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .topic-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-soft); padding: 6px 14px;
+      border-radius: 20px; margin-bottom: 1rem;
+    }
+
+    h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+    .subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+    h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+    p { margin-bottom: 1rem; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+    strong { color: #fff; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0;
+    }
+    .card-label {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 6px; margin-bottom: 0.75rem;
+    }
+
+    .diagram-container {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto;
+    }
+    .diagram-container svg { display: block; margin: 0 auto; }
+    .diagram-caption {
+      text-align: center; font-size: 0.85rem; color: var(--text-dim);
+      margin-top: 1rem; font-style: italic;
+    }
+
+    .code-block {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1rem; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim);
+    }
+    .code-block pre {
+      padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8;
+    }
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: var(--purple); }
+    .code-block .string { color: var(--green); }
+    .code-block .tool { color: var(--accent); }
+    .code-block .number { color: var(--yellow); }
+    .code-block .cmd { color: var(--blue); }
+
+    .callout {
+      border-left: 3px solid var(--accent); background: var(--accent-soft);
+      padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem;
+    }
+    .callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+    .callout-red { border-left-color: var(--red); background: var(--red-soft); }
+    .callout-green { border-left-color: var(--green); background: var(--green-soft); }
+    .callout-yellow { border-left-color: var(--yellow); background: var(--yellow-soft); }
+    .callout strong { color: #fff; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+    }
+
+    .mini-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .mini-card h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;
+    }
+    .mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+
+    .icon-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    .sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .sources ul { list-style: none; padding: 0; }
+    .sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+    .sources li::before { content: "\2192 "; color: var(--accent); }
+
+    .nav-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+      color: var(--text); background: var(--bg-card); border: 1px solid var(--border);
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+
+    /* ── Specific to this topic ── */
+    .token-bar {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 0.75rem;
+    }
+    .token-bar .bar-label {
+      font-size: 0.82rem; color: var(--text-dim); width: 110px; flex-shrink: 0;
+    }
+    .token-bar .bar-track {
+      flex: 1; height: 22px; background: var(--bg-code);
+      border-radius: 6px; border: 1px solid var(--border); overflow: hidden;
+      position: relative;
+    }
+    .token-bar .bar-fill {
+      height: 100%; border-radius: 5px; transition: width 0.3s;
+    }
+    .token-bar .bar-text {
+      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+      font-size: 0.72rem; font-family: var(--font-mono); color: var(--text-dim);
+    }
+    .token-bar .bar-value {
+      font-size: 0.8rem; color: #fff; width: 50px; text-align: right; flex-shrink: 0;
+      font-family: var(--font-mono);
+    }
+
+    .workflow-step {
+      display: flex; align-items: center; gap: 0; margin: 0.25rem 0;
+    }
+    .workflow-box {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 8px; padding: 0.5rem 1rem; font-size: 0.85rem;
+      color: var(--text); white-space: nowrap;
+    }
+    .workflow-arrow {
+      color: var(--accent); font-size: 1.1rem; padding: 0 0.4rem;
+      font-family: var(--font-mono);
+    }
+    .workflow-clear {
+      background: var(--red-soft); border-color: var(--red);
+      color: var(--red); font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ HEADER ════════════ -->
+  <div class="topic-badge">Modulo 5 · Topico 2</div>
+  <h1>Usando /clear e /compact estrategicamente</h1>
+  <p class="subtitle">
+    O contexto e o recurso mais valioso do Claude Code. Saber quando limpar tudo com <code>/clear</code>
+    e quando comprimir com <code>/compact</code> e a diferenca entre desperdicar tokens e trabalhar com eficiencia maxima.
+  </p>
+
+  <!-- ════════════ O PROBLEMA ════════════ -->
+  <h2>O custo de NAO limpar o contexto</h2>
+
+  <p>
+    Cada mensagem que voce envia ao Claude Code inclui <strong>todo o historico da conversa</strong> como
+    contexto. Isso significa que arquivo lido, cada output de comando e cada tentativa fracassada continua
+    sendo processada (e cobrada) em todas as mensagens seguintes. A documentacao oficial e clara:
+    a context window se enche rapido e a performance degrada conforme ela enche.
+  </p>
+
+  <div class="card">
+    <span class="card-label" style="background: var(--red-soft); color: var(--red);">Acumulo de tokens ao longo da sessao</span>
+
+    <div class="token-bar">
+      <span class="bar-label">Msg 1</span>
+      <div class="bar-track">
+        <div class="bar-fill" style="width: 8%; background: var(--green);"></div>
+        <span class="bar-text">sistema + prompt</span>
+      </div>
+      <span class="bar-value">~8%</span>
+    </div>
+    <div class="token-bar">
+      <span class="bar-label">Msg 5</span>
+      <div class="bar-track">
+        <div class="bar-fill" style="width: 25%; background: var(--blue);"></div>
+        <span class="bar-text">+ arquivos lidos + outputs</span>
+      </div>
+      <span class="bar-value">~25%</span>
+    </div>
+    <div class="token-bar">
+      <span class="bar-label">Msg 10</span>
+      <div class="bar-track">
+        <div class="bar-fill" style="width: 55%; background: var(--yellow);"></div>
+        <span class="bar-text">+ debugging + correcoes</span>
+      </div>
+      <span class="bar-value">~55%</span>
+    </div>
+    <div class="token-bar">
+      <span class="bar-label">Msg 15</span>
+      <div class="bar-track">
+        <div class="bar-fill" style="width: 85%; background: var(--accent);"></div>
+        <span class="bar-text">contexto poluido</span>
+      </div>
+      <span class="bar-value">~85%</span>
+    </div>
+    <div class="token-bar">
+      <span class="bar-label">Msg 18+</span>
+      <div class="bar-track">
+        <div class="bar-fill" style="width: 95%; background: var(--red);"></div>
+        <span class="bar-text">auto-compact disparado</span>
+      </div>
+      <span class="bar-value">~95%</span>
+    </div>
+  </div>
+
+  <div class="callout-red callout">
+    <strong>Impacto real:</strong> Quando a context window esta cheia, o Claude pode comecar a "esquecer"
+    instrucoes anteriores ou cometer mais erros. Alem disso, cada mensagem subsequente fica mais cara
+    porque tokens acumulados sao reprocessados. Uma sessao limpa com um prompt melhor quase sempre supera
+    uma sessao longa com correcoes acumuladas.
+  </div>
+
+  <!-- ════════════ /clear ════════════ -->
+  <h2>O comando /clear</h2>
+
+  <h3>O que faz</h3>
+  <p>
+    O <code>/clear</code> <strong>apaga todo o historico de conversa</strong> da sessao atual. Apos executar,
+    o Claude Code volta ao estado inicial: apenas o system prompt e o conteudo dos arquivos CLAUDE.md
+    permanecem no contexto. Nenhuma mensagem, tool call ou resultado anterior sobrevive.
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card" style="border-color: var(--green);">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">&#10003;</span>
+        O que permanece
+      </h4>
+      <p>System prompt, CLAUDE.md (projeto, usuario, empresa), configuracoes de modelo, MCP servers conectados, permissoes configuradas</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--red);">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">&#10007;</span>
+        O que desaparece
+      </h4>
+      <p>Todas as mensagens, tool calls e resultados, arquivos lidos, outputs de bash, decisoes tomadas, correcoes feitas, contexto de debugging</p>
+    </div>
+  </div>
+
+  <h3>Quando usar /clear</h3>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">1</span>
+        Troca de tarefa
+      </h4>
+      <p>Terminou o bug fix e vai comecar uma feature nova? <code>/clear</code>. O contexto do bug so atrapalha.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">2</span>
+        Contexto poluido
+      </h4>
+      <p>Se voce corrigiu o Claude mais de 2 vezes no mesmo assunto, o contexto esta cheio de tentativas falhas. Melhor recomecar.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">3</span>
+        Mudanca de modulo/feature
+      </h4>
+      <p>Saiu do backend para o frontend? De testes para documentacao? O contexto anterior nao agrega valor.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">4</span>
+        Sessao muito longa
+      </h4>
+      <p>Se o <code>/usage</code> mostra custo alto e contexto cheio, e hora de salvar o progresso e limpar.</p>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Uso basico do /clear</span>
+      <span>Terminal</span>
+    </div>
+    <pre>
+<span class="comment"># Terminou a tarefa de corrigir o bug #1234</span>
+<span class="comment"># Antes de limpar, renomeie a sessao para encontrar depois</span>
+<span class="cmd">/rename</span> fix-bug-1234
+
+<span class="comment"># Agora limpa o contexto</span>
+<span class="cmd">/clear</span>
+
+<span class="comment"># Comeca a nova tarefa com contexto 100% limpo</span>
+<span class="string">Implemente a feature de notificacoes push seguindo o padrao
+do modulo de emails existente</span></pre>
+  </div>
+
+  <!-- ════════════ /compact ════════════ -->
+  <h2>O comando /compact</h2>
+
+  <h3>O que faz</h3>
+  <p>
+    O <code>/compact</code> <strong>comprime o historico da conversa</strong> em um resumo conciso,
+    preservando as informacoes mais importantes e descartando outputs redundantes. Diferente do
+    <code>/clear</code>, voce nao perde tudo — o Claude mantem um sumario das decisoes,
+    arquivos modificados e estado atual do trabalho.
+  </p>
+
+  <p>
+    Internamente, o Claude Code passa todo o historico de mensagens para o modelo com instrucoes de
+    sumarizar e comprimir os detalhes mais criticos. O modelo preserva decisoes arquiteturais,
+    bugs nao resolvidos e detalhes de implementacao, enquanto descarta outputs redundantes
+    de ferramentas e mensagens intermediarias.
+  </p>
+
+  <h3>/compact com instrucoes de foco</h3>
+  <p>
+    O recurso mais poderoso do <code>/compact</code> e aceitar <strong>instrucoes de foco</strong> que
+    direcionam o que o modelo deve priorizar ao comprimir:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Exemplos de /compact com instrucoes</span>
+      <span>Terminal</span>
+    </div>
+    <pre>
+<span class="comment"># Foco em codigo e API</span>
+<span class="cmd">/compact</span> <span class="string">Foque nos code samples e uso da API</span>
+
+<span class="comment"># Foco em decisoes arquiteturais</span>
+<span class="cmd">/compact</span> <span class="string">Preserve as decisoes de arquitetura e os trade-offs discutidos</span>
+
+<span class="comment"># Foco nos testes</span>
+<span class="cmd">/compact</span> <span class="string">Mantenha os comandos de teste e os resultados de falha</span>
+
+<span class="comment"># Foco nos arquivos modificados</span>
+<span class="cmd">/compact</span> <span class="string">Preserve a lista completa de arquivos modificados e pendencias</span></pre>
+  </div>
+
+  <h3>Compactacao personalizada via CLAUDE.md</h3>
+  <p>
+    Voce pode definir instrucoes permanentes de compactacao no seu CLAUDE.md para que toda compactacao
+    (manual ou automatica) siga suas preferencias:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>CLAUDE.md</span>
+      <span>Configuracao de compactacao</span>
+    </div>
+    <pre>
+<span class="keyword"># Compact instructions</span>
+
+<span class="string">When you are using compact, please focus on test output and code changes.</span>
+<span class="string">Always preserve the full list of modified files and any test commands.</span>
+<span class="string">Keep architectural decisions and the rationale behind them.</span></pre>
+  </div>
+
+  <h3>Compactacao seletiva com /rewind</h3>
+  <p>
+    Para comprimir apenas parte da conversa, voce pode usar <code>Esc + Esc</code> ou <code>/rewind</code>,
+    selecionar um checkpoint e escolher <strong>"Summarize from here"</strong> (condensa dali em diante)
+    ou <strong>"Summarize up to here"</strong> (condensa tudo antes daquele ponto).
+  </p>
+
+  <h3>Quando usar /compact</h3>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">1</span>
+        Sessao longa, mesma tarefa
+      </h4>
+      <p>Voce esta no meio de uma refatoracao complexa e precisa de mais espaco, mas nao quer perder o contexto acumulado.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">2</span>
+        Muitas leituras de arquivo
+      </h4>
+      <p>Leu muitos arquivos para explorar o codebase mas agora so precisa manter as conclusoes, nao o conteudo bruto.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">3</span>
+        Debugging extenso
+      </h4>
+      <p>Apos varias rodadas de debug, quer manter apenas o diagnostico final e a solucao, descartando tentativas intermediarias.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">4</span>
+        Antes do auto-compact
+      </h4>
+      <p>Prefere controlar o que e preservado manualmente em vez de deixar o auto-compact decidir por voce.</p>
+    </div>
+  </div>
+
+  <!-- ════════════ DIAGRAMA SVG ════════════ -->
+  <h2>Workflow: ciclo de sessoes com /clear</h2>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 820 320" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Ciclo de sessoes: tarefa 1, /clear, tarefa 2, /clear, tarefa 3 — com contexto limpo entre cada uma</title>
+
+      <defs>
+        <marker id="arrowG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#6ee7b7"/>
+        </marker>
+        <marker id="arrowR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#f87171"/>
+        </marker>
+        <marker id="arrowA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#c4956a"/>
+        </marker>
+      </defs>
+
+      <!-- Background labels -->
+      <text x="410" y="24" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">WORKFLOW RECOMENDADO: tarefas isoladas com /clear</text>
+
+      <!-- ── Tarefa 1 ── -->
+      <rect x="20" y="50" width="180" height="80" rx="12" fill="rgba(110,231,183,0.08)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="110" y="78" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="600">Tarefa 1</text>
+      <text x="110" y="96" text-anchor="middle" fill="#d4d4d8" font-size="10">Fix bug #1234</text>
+      <text x="110" y="112" text-anchor="middle" fill="#9ca3af" font-size="9">contexto: bug + testes</text>
+
+      <!-- Arrow + /clear -->
+      <path d="M205 90 L250 90" stroke="#f87171" stroke-width="2" marker-end="url(#arrowR)"/>
+      <rect x="255" y="70" width="70" height="40" rx="8" fill="rgba(248,113,113,0.15)" stroke="#f87171" stroke-width="1.5"/>
+      <text x="290" y="95" text-anchor="middle" fill="#f87171" font-size="11" font-weight="700">/clear</text>
+
+      <!-- Arrow to Tarefa 2 -->
+      <path d="M330 90 L365 90" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowG)"/>
+
+      <!-- ── Tarefa 2 ── -->
+      <rect x="370" y="50" width="180" height="80" rx="12" fill="rgba(96,165,250,0.08)" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="460" y="78" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="600">Tarefa 2</text>
+      <text x="460" y="96" text-anchor="middle" fill="#d4d4d8" font-size="10">Feature notificacoes</text>
+      <text x="460" y="112" text-anchor="middle" fill="#9ca3af" font-size="9">contexto: 100% limpo</text>
+
+      <!-- Arrow + /clear -->
+      <path d="M555 90 L600 90" stroke="#f87171" stroke-width="2" marker-end="url(#arrowR)"/>
+      <rect x="605" y="70" width="70" height="40" rx="8" fill="rgba(248,113,113,0.15)" stroke="#f87171" stroke-width="1.5"/>
+      <text x="640" y="95" text-anchor="middle" fill="#f87171" font-size="11" font-weight="700">/clear</text>
+
+      <!-- Arrow to Tarefa 3 -->
+      <path d="M680 90 L715 90" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowG)"/>
+
+      <!-- ── Tarefa 3 ── -->
+      <rect x="720" y="50" width="80" height="80" rx="12" fill="rgba(167,139,250,0.08)" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="760" y="82" text-anchor="middle" fill="#a78bfa" font-size="12" font-weight="600">Tarefa 3</text>
+      <text x="760" y="100" text-anchor="middle" fill="#d4d4d8" font-size="10">Refactor</text>
+      <text x="760" y="116" text-anchor="middle" fill="#9ca3af" font-size="9">limpo</text>
+
+      <!-- ── Context area comparison ── -->
+      <text x="410" y="170" text-anchor="middle" fill="#f87171" font-size="12" font-weight="600">SEM /clear: contexto acumulado entre tarefas</text>
+
+      <!-- Single long bar showing accumulated context -->
+      <rect x="20" y="185" width="780" height="50" rx="10" fill="rgba(248,113,113,0.04)" stroke="#475569" stroke-width="0.5"/>
+
+      <!-- Segments showing accumulation -->
+      <rect x="20" y="185" width="180" height="50" rx="10" fill="rgba(110,231,183,0.06)" stroke="none"/>
+      <rect x="200" y="185" width="250" height="50" rx="0" fill="rgba(248,113,113,0.06)" stroke="none"/>
+      <rect x="450" y="185" width="350" height="50" rx="10" fill="rgba(248,113,113,0.12)" stroke="none"/>
+
+      <text x="110" y="215" text-anchor="middle" fill="#6ee7b7" font-size="10">Tarefa 1 (util)</text>
+      <text x="325" y="208" text-anchor="middle" fill="#f87171" font-size="10">Tarefa 1 (residual)</text>
+      <text x="325" y="222" text-anchor="middle" fill="#f87171" font-size="10">+ Tarefa 2</text>
+      <text x="625" y="208" text-anchor="middle" fill="#f87171" font-size="10">Tarefa 1 + 2 (residual)</text>
+      <text x="625" y="222" text-anchor="middle" fill="#f87171" font-size="10">+ Tarefa 3 = contexto poluido</text>
+
+      <!-- Cost annotation -->
+      <rect x="220" y="260" width="380" height="40" rx="8" fill="rgba(251,191,36,0.08)" stroke="#fbbf24" stroke-width="1"/>
+      <text x="410" y="278" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="600">Cada mensagem reprocessa TODO o historico acumulado</text>
+      <text x="410" y="293" text-anchor="middle" fill="#9ca3af" font-size="10">= mais tokens = mais custo = menos precisao</text>
+    </svg>
+    <p class="diagram-caption">Com /clear entre tarefas, cada uma comeca com contexto limpo. Sem /clear, o residuo de tarefas anteriores polui e encarece as seguintes.</p>
+  </div>
+
+  <!-- ════════════ AUTO-COMPACT ════════════ -->
+  <h2>Auto-compact: a rede de seguranca</h2>
+
+  <p>
+    O Claude Code possui um mecanismo automatico de compactacao que dispara quando a conversa
+    atinge aproximadamente <strong>95% da context window</strong>. Quando isso acontece, o modelo
+    automaticamente sumariza o historico para liberar espaco e continuar operando.
+  </p>
+
+  <div class="callout-yellow callout">
+    <strong>Auto-compact vs. /compact manual:</strong> O auto-compact e uma rede de seguranca — ele garante
+    que a sessao nao trave. Mas voce nao controla o que ele preserva. Usando <code>/compact</code>
+    manualmente com instrucoes de foco, voce decide o que e importante manter. Pense no auto-compact
+    como airbag e no <code>/compact</code> manual como direcao preventiva.
+  </div>
+
+  <p>
+    Alem disso, o auto-compact carrega skills invocadas dentro de um budget de tokens: quando a conversa e
+    sumarizada, o Claude Code re-anexa a invocacao mais recente de cada skill apos o resumo,
+    mantendo os primeiros 5.000 tokens de cada, ate um limite combinado de 25.000 tokens.
+  </p>
+
+  <!-- ════════════ TABELA COMPARATIVA ════════════ -->
+  <h2>Comparativo: /clear vs /compact vs nova sessao</h2>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Dimensao</th>
+          <th style="color: var(--red);">/clear</th>
+          <th style="color: var(--blue);">/compact</th>
+          <th style="color: var(--purple);">Nova sessao (claude)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>O que acontece</strong></td>
+          <td>Apaga todo o historico da sessao atual</td>
+          <td>Comprime o historico em um resumo</td>
+          <td>Inicia processo novo, sessao separada</td>
+        </tr>
+        <tr>
+          <td><strong>CLAUDE.md</strong></td>
+          <td>Mantido (recarregado)</td>
+          <td>Mantido (sempre presente)</td>
+          <td>Mantido (carregado do zero)</td>
+        </tr>
+        <tr>
+          <td><strong>Historico</strong></td>
+          <td>Perdido completamente</td>
+          <td>Resumido (perde detalhes)</td>
+          <td>Nao existe (sessao nova)</td>
+        </tr>
+        <tr>
+          <td><strong>Sessao</strong></td>
+          <td>Mesma sessao continua</td>
+          <td>Mesma sessao continua</td>
+          <td>Sessao diferente</td>
+        </tr>
+        <tr>
+          <td><strong>Pode retomar?</strong></td>
+          <td>Nao (historico sumiu)</td>
+          <td>Sim (resumo preservado)</td>
+          <td>Sim (<code>claude -c</code> ou <code>--resume</code>)</td>
+        </tr>
+        <tr>
+          <td><strong>Custo</strong></td>
+          <td>Zero tokens residuais</td>
+          <td>Resumo ocupa tokens</td>
+          <td>Zero tokens residuais</td>
+        </tr>
+        <tr>
+          <td><strong>Ideal para</strong></td>
+          <td>Trocar de tarefa na mesma sessao</td>
+          <td>Continuar tarefa longa</td>
+          <td>Trabalho completamente novo</td>
+        </tr>
+        <tr>
+          <td><strong>Risco</strong></td>
+          <td>Perder contexto util</td>
+          <td>Resumo impreciso</td>
+          <td>Nenhum (inicio limpo)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ /clear vs nova sessão ════════════ -->
+  <h2>/clear vs iniciar nova sessao</h2>
+
+  <p>
+    Ha uma diferenca sutil entre <code>/clear</code> (dentro da sessao) e iniciar uma sessao
+    completamente nova executando <code>claude</code> no terminal:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Opcoes de gerenciamento de sessao</span>
+      <span>Terminal</span>
+    </div>
+    <pre>
+<span class="comment"># Opcao 1: /clear dentro da sessao atual</span>
+<span class="comment"># - Mesma sessao, mesmo diretorio, mesmo PID</span>
+<span class="comment"># - Historico apagado mas sessao continua</span>
+<span class="cmd">/clear</span>
+
+<span class="comment"># Opcao 2: Sair e iniciar sessao nova</span>
+<span class="comment"># - Nova sessao, novo contexto, novo ID</span>
+<span class="comment"># - Pode voltar a anterior com --resume</span>
+<span class="cmd">claude</span>
+
+<span class="comment"># Opcao 3: Continuar a sessao mais recente</span>
+<span class="comment"># - Retoma de onde parou (com todo o historico)</span>
+<span class="cmd">claude -c</span>
+
+<span class="comment"># Opcao 4: Listar e escolher sessao para retomar</span>
+<span class="cmd">claude --resume</span></pre>
+  </div>
+
+  <div class="callout-blue callout">
+    <strong>Dica pratica:</strong> Use <code>/rename</code> antes de <code>/clear</code> para nomear a sessao.
+    Assim voce pode encontra-la depois com <code>claude --resume</code> se precisar revisitar
+    o trabalho anterior. Isso combina o beneficio do contexto limpo com a rastreabilidade do historico.
+  </div>
+
+  <!-- ════════════ HEURÍSTICAS ════════════ -->
+  <h2>Heuristicas: quando limpar, quando comprimir</h2>
+
+  <div class="card">
+    <span class="card-label" style="background: var(--green-soft); color: var(--green);">Regras praticas</span>
+
+    <div class="grid-2" style="margin: 1rem 0 0;">
+      <div class="mini-card" style="border-color: var(--red);">
+        <h4 style="color: var(--red);">Use /clear quando...</h4>
+        <p style="line-height: 1.9;">
+          &#x2022; Vai trocar completamente de tarefa<br>
+          &#x2022; Corrigiu o Claude mais de 2x no mesmo assunto<br>
+          &#x2022; Nao consegue resumir o que esta fazendo em uma frase<br>
+          &#x2022; O <code>/usage</code> mostra custo alto e contexto cheio<br>
+          &#x2022; Mudou de modulo, feature ou area do codebase<br>
+          &#x2022; Quer comecar uma abordagem completamente diferente
+        </p>
+      </div>
+      <div class="mini-card" style="border-color: var(--blue);">
+        <h4 style="color: var(--blue);">Use /compact quando...</h4>
+        <p style="line-height: 1.9;">
+          &#x2022; Esta no meio de uma tarefa complexa e quer continuar<br>
+          &#x2022; Leu muitos arquivos mas ainda precisa do contexto<br>
+          &#x2022; Quer liberar espaco sem perder o fio da meada<br>
+          &#x2022; Prefere controlar o que e preservado (vs. auto-compact)<br>
+          &#x2022; Esta fazendo debugging e quer manter apenas o diagnostico<br>
+          &#x2022; A tarefa tem muitas dependencias que nao quer re-explicar
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Heuristica de ouro:</strong> "Se nao consigo resumir o que estou fazendo em uma frase, e hora de
+    <code>/clear</code>." Quando o contexto esta tao poluido que voce mesmo nao sabe mais o estado da sessao,
+    o Claude tambem nao sabe. Limpe e recomece com um prompt mais claro.
+  </div>
+
+  <!-- ════════════ TRADE-OFFS ════════════ -->
+  <h2>Trade-offs: precisao vs. continuidade</h2>
+
+  <p>
+    A escolha entre <code>/clear</code> e <code>/compact</code> e sempre um trade-off entre
+    <strong>precisao</strong> (contexto limpo e focado) e <strong>continuidade</strong> (manter
+    o historico de decisoes).
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Espectro de trade-offs entre /clear e /compact</title>
+
+      <!-- Gradient bar -->
+      <defs>
+        <linearGradient id="spectrumGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#f87171"/>
+          <stop offset="50%" stop-color="#fbbf24"/>
+          <stop offset="100%" stop-color="#60a5fa"/>
+        </linearGradient>
+      </defs>
+
+      <text x="350" y="25" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Espectro: Precisao vs. Continuidade</text>
+
+      <!-- Spectrum bar -->
+      <rect x="60" y="50" width="580" height="16" rx="8" fill="url(#spectrumGrad)" opacity="0.3"/>
+      <rect x="60" y="50" width="580" height="16" rx="8" fill="none" stroke="#475569" stroke-width="0.5"/>
+
+      <!-- /clear marker -->
+      <circle cx="100" cy="58" r="10" fill="#f87171" stroke="#fff" stroke-width="1.5"/>
+      <text x="100" y="62" text-anchor="middle" fill="#fff" font-size="8" font-weight="700">C</text>
+      <text x="100" y="90" text-anchor="middle" fill="#f87171" font-size="11" font-weight="600">/clear</text>
+      <text x="100" y="106" text-anchor="middle" fill="#9ca3af" font-size="9">Maxima precisao</text>
+      <text x="100" y="120" text-anchor="middle" fill="#9ca3af" font-size="9">Zero continuidade</text>
+
+      <!-- /compact marker -->
+      <circle cx="400" cy="58" r="10" fill="#fbbf24" stroke="#fff" stroke-width="1.5"/>
+      <text x="400" y="62" text-anchor="middle" fill="#fff" font-size="8" font-weight="700">K</text>
+      <text x="400" y="90" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="600">/compact</text>
+      <text x="400" y="106" text-anchor="middle" fill="#9ca3af" font-size="9">Precisao reduzida</text>
+      <text x="400" y="120" text-anchor="middle" fill="#9ca3af" font-size="9">Boa continuidade</text>
+
+      <!-- No action marker -->
+      <circle cx="600" cy="58" r="10" fill="#60a5fa" stroke="#fff" stroke-width="1.5"/>
+      <text x="600" y="62" text-anchor="middle" fill="#fff" font-size="8" font-weight="700">N</text>
+      <text x="600" y="90" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="600">Nada fazer</text>
+      <text x="600" y="106" text-anchor="middle" fill="#9ca3af" font-size="9">Precisao degrada</text>
+      <text x="600" y="120" text-anchor="middle" fill="#9ca3af" font-size="9">Continuidade total</text>
+
+      <!-- Labels on extremes -->
+      <text x="60" y="155" fill="#f87171" font-size="10">&#8592; Mais eficiente/barato</text>
+      <text x="640" y="155" text-anchor="end" fill="#60a5fa" font-size="10">Mais contexto &#8594;</text>
+
+      <!-- Bottom note -->
+      <text x="350" y="185" text-anchor="middle" fill="#6b7280" font-size="10" font-style="italic">A arte esta em escolher o ponto certo no espectro para cada situacao</text>
+    </svg>
+  </div>
+
+  <div class="callout-green callout">
+    <strong>Economia real:</strong> Use <code>/clear</code> entre tarefas e monitore com <code>/usage</code>.
+    Tokens desperdicados com contexto stale sao cobrados em <em>cada</em> mensagem subsequente.
+    Em sessoes longas sem limpeza, o custo acumulado pode ser significativamente maior do que o
+    necessario. Configure a barra de status para mostrar uso de contexto continuamente com
+    <code>/config</code>.
+  </div>
+
+  <!-- ════════════ EXEMPLO COMPLETO ════════════ -->
+  <h2>Exemplo: um dia de trabalho com gerenciamento de contexto</h2>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Workflow de um dia tipico</span>
+      <span>Terminal</span>
+    </div>
+    <pre>
+<span class="comment"># Manha — Bug fix</span>
+$ <span class="cmd">claude</span>
+<span class="string">Corrija o bug de autenticacao que retorna 401 no endpoint /api/users</span>
+<span class="comment">  ...Claude investiga, corrige, testa...</span>
+<span class="cmd">/rename</span> fix-auth-401
+<span class="cmd">/clear</span>
+
+<span class="comment"># Manha — Feature nova</span>
+<span class="string">Implemente o endpoint de notificacoes push conforme o RFC no docs/rfc-push.md</span>
+<span class="comment">  ...sessao longa, muitos arquivos lidos...</span>
+<span class="cmd">/compact</span> <span class="string">Foque nos arquivos criados e nas decisoes de API design</span>
+<span class="comment">  ...continua implementando com contexto comprimido...</span>
+<span class="cmd">/rename</span> feat-push-notifications
+<span class="cmd">/clear</span>
+
+<span class="comment"># Tarde — Code review</span>
+<span class="string">Revise o PR #456 focando em seguranca e performance</span>
+<span class="comment">  ...review completo...</span>
+<span class="cmd">/rename</span> review-pr-456
+<span class="cmd">/clear</span>
+
+<span class="comment"># Tarde — Documentacao</span>
+<span class="string">Atualize o README com as instrucoes de setup do modulo de notificacoes</span>
+<span class="comment">  ...tarefa rapida, sem necessidade de /compact...</span></pre>
+  </div>
+
+  <!-- ════════════ DICAS FINAIS ════════════ -->
+  <h2>Dicas de economia com gerenciamento de contexto</h2>
+
+  <div class="grid-3">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">$</span>
+        Monitore com /usage
+      </h4>
+      <p>Verifique o consumo de tokens regularmente. Configure a status bar para exibir uso de contexto continuamente.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">&#9997;</span>
+        Prompts especificos
+      </h4>
+      <p>Requests vagos como "melhore o codigo" disparam varreduras amplas. Seja especifico para reduzir leituras de arquivos.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">&#8681;</span>
+        Delegue ao subagent
+      </h4>
+      <p>Operacoes verbosas (testes, logs) podem ser delegadas a subagentes, mantendo apenas o resumo no contexto principal.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Lembre-se:</strong> O custo medio por desenvolvedor e cerca de $13 por dia ativo em deploys enterprise.
+    Boa parte desse custo vem de tokens desperdicados com contexto stale. Um habito simples de
+    <code>/clear</code> entre tarefas pode reduzir significativamente esse valor.
+  </div>
+
+  <!-- ════════════ FONTES ════════════ -->
+  <div class="sources">
+    <h3>Fontes e Referencias</h3>
+    <ul>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Anthropic — Claude Code: Best Practices for Agentic Coding</a></li>
+      <li><a href="https://docs.anthropic.com/en/docs/claude-code/costs" target="_blank">Claude Code Docs — Manage Costs Effectively</a></li>
+      <li><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank">Anthropic — Effective Context Engineering for AI Agents</a></li>
+      <li><a href="https://docs.anthropic.com/en/docs/claude-code/settings" target="_blank">Claude Code Docs — Settings</a></li>
+      <li><a href="https://docs.anthropic.com/en/docs/build-with-claude/context-windows" target="_blank">Claude API Docs — Context Windows</a></li>
+      <li><a href="https://www.anthropic.com/news/context-management" target="_blank">Anthropic — Managing Context on the Claude Developer Platform</a></li>
+    </ul>
+  </div>
+
+  <!-- ════════════ NAV FOOTER ════════════ -->
+  <div class="nav-footer">
+    <a href="modulo-05-topico-01-degradacao.html" class="nav-btn">&larr; Topico 1 · Degradacao</a>
+    <a href="../index.html" class="nav-btn">&#8962; Indice</a>
+    <a href="modulo-05-topico-03-leituras-seletivas.html" class="nav-btn">Topico 3 · Leituras Seletivas &rarr;</a>
+  </div>
+
+</body>
+</html>

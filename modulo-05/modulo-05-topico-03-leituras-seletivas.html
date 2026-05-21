@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo 5 · Tópico 3 — Leituras Seletivas de Arquivo</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-code: #141620;
+      --border: #2a2d3a;
+      --text: #e4e4e7;
+      --text-dim: #9ca3af;
+      --accent: #c4956a;
+      --accent-soft: rgba(196, 149, 106, 0.12);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.12);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .topic-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-soft); padding: 6px 14px;
+      border-radius: 20px; margin-bottom: 1rem;
+    }
+
+    h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+    .subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+    h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+    p { margin-bottom: 1rem; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+    strong { color: #fff; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0;
+    }
+    .card-label {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 6px; margin-bottom: 0.75rem;
+    }
+
+    .diagram-container {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto;
+    }
+    .diagram-container svg { display: block; margin: 0 auto; }
+    .diagram-caption {
+      text-align: center; font-size: 0.85rem; color: var(--text-dim);
+      margin-top: 1rem; font-style: italic;
+    }
+
+    .code-block {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1rem; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim);
+    }
+    .code-block pre {
+      padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8;
+    }
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: var(--purple); }
+    .code-block .string { color: var(--green); }
+    .code-block .tool { color: var(--accent); }
+    .code-block .number { color: var(--yellow); }
+
+    .callout {
+      border-left: 3px solid var(--accent); background: var(--accent-soft);
+      padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem;
+    }
+    .callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+    .callout-red { border-left-color: var(--red); background: var(--red-soft); }
+    .callout-green { border-left-color: var(--green); background: var(--green-soft); }
+    .callout strong { color: #fff; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+    }
+
+    .mini-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .mini-card h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;
+    }
+    .mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+
+    .icon-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    .sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .sources ul { list-style: none; padding: 0; }
+    .sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+    .sources li::before { content: "\2192 "; color: var(--accent); }
+
+    .nav-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+      color: var(--text); background: var(--bg-card); border: 1px solid var(--border);
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+
+    /* ── Specific to this topic ── */
+    .token-compare {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.5rem 0;
+    }
+    .token-box {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; text-align: center;
+    }
+    .token-box .token-number {
+      font-family: var(--font-mono); font-size: 2.2rem; font-weight: 700;
+      margin: 0.5rem 0;
+    }
+    .token-box .token-label {
+      font-size: 0.85rem; color: var(--text-dim);
+    }
+    .token-box .token-desc {
+      font-size: 0.8rem; color: var(--text-dim); margin-top: 0.5rem;
+    }
+    .savings-badge {
+      display: inline-block; background: var(--green-soft); color: var(--green);
+      font-weight: 700; font-size: 0.9rem; padding: 6px 16px;
+      border-radius: 20px; margin-top: 1rem;
+    }
+
+    @media (max-width: 700px) {
+      .token-compare { grid-template-columns: 1fr; }
+    }
+
+    .funnel-step {
+      display: flex; align-items: center; gap: 16px; margin-bottom: 0.75rem;
+    }
+    .funnel-num {
+      width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; font-weight: 700; color: #fff;
+    }
+    .funnel-content h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff; margin-bottom: 2px;
+    }
+    .funnel-content p {
+      font-size: 0.88rem; color: var(--text-dim); margin: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ HEADER ════════════ -->
+  <div class="topic-badge">Módulo 5 · Tópico 3</div>
+  <h1>Leituras Seletivas de Arquivo em Vez de Exploração Ampla</h1>
+  <p class="subtitle">
+    A context window do Claude Code é um recurso finito e precioso. Ler arquivos inteiros quando você
+    precisa de apenas um trecho é como imprimir um livro para ler uma única frase. Domine as primitivas
+    de <strong>leitura cirúrgica</strong> para manter o contexto limpo e a performance alta.
+  </p>
+
+  <!-- ════════════ O PROBLEMA ════════════ -->
+  <h2>O problema: contexto desperdiçado</h2>
+
+  <p>
+    Cada arquivo que o Claude Code lê entra integralmente na context window. Uma única sessão de
+    debugging ou exploração de codebase pode gerar e consumir <strong>dezenas de milhares de tokens</strong>.
+    Quando o contexto enche, a performance degrada: o modelo perde o foco, esquece instruções
+    anteriores e começa a cometer erros que não cometeria com um contexto limpo.
+  </p>
+
+  <p>
+    O anti-pattern mais comum é pedir ao Claude para "ler todos os arquivos do projeto" ou deixá-lo
+    explorar livremente sem direção. Isso consome contexto com informação irrelevante e reduz a
+    qualidade das respostas subsequentes.
+  </p>
+
+  <div class="callout-red callout">
+    <strong>Anti-pattern clássico:</strong> "Leia todos os arquivos da pasta src para entender o projeto."
+    Isso pode consumir facilmente 50.000+ tokens de contexto com informação que o Claude não precisava.
+    Em vez disso, descreva o que você quer resolver e deixe o Claude buscar cirurgicamente o que precisa.
+  </div>
+
+  <!-- ════════════ MODELO HÍBRIDO ════════════ -->
+  <h2>Modelo híbrido: upfront + just-in-time</h2>
+
+  <p>
+    O Claude Code usa um modelo híbrido de carregamento de contexto. O arquivo <code>CLAUDE.md</code>
+    é carregado integralmente no início da conversa (contexto <strong>upfront</strong>) com informações
+    essenciais sobre o projeto: convenções, stack, estrutura de pastas, comandos de build e teste.
+  </p>
+
+  <p>
+    Todo o resto é obtido sob demanda (<strong>just-in-time</strong>) usando primitivas como
+    <code>Glob</code>, <code>Grep</code>, <code>Read</code> e <code>Bash</code>. O agente mantém
+    identificadores leves (caminhos de arquivo, queries, links) e usa essas referências para carregar
+    dados no contexto dinamicamente, apenas quando precisa deles para a tarefa atual.
+  </p>
+
+  <div class="callout-blue callout">
+    <strong>Princípio de design:</strong> A estrutura de pastas e arquivos do projeto funciona como uma
+    forma de context engineering. Um projeto bem organizado permite ao Claude navegar eficientemente
+    usando glob e grep, sem precisar ler tudo de uma vez.
+  </div>
+
+  <!-- ════════════ DIAGRAMA FUNIL ════════════ -->
+  <h2>O funil de busca seletiva</h2>
+
+  <p>
+    A estratégia ideal segue um funil: comece amplo com <code>Glob</code> para localizar arquivos,
+    refine com <code>Grep</code> para encontrar o trecho exato, e so entao use <code>Read</code>
+    direcionado para carregar apenas o necessário no contexto.
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Funil de busca seletiva: Glob, Grep, Read targeted, Context limpo</title>
+
+      <defs>
+        <marker id="arrowDown" viewBox="0 0 10 10" refX="5" refY="10" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L5,10 L10,0" fill="#6ee7b7"/>
+        </marker>
+        <marker id="arrowRight" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#6ee7b7"/>
+        </marker>
+        <linearGradient id="funnelGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(167,139,250,0.15)"/>
+          <stop offset="100%" stop-color="rgba(110,231,183,0.15)"/>
+        </linearGradient>
+      </defs>
+
+      <!-- Funnel shape -->
+      <path d="M160,30 L640,30 L540,350 L260,350 Z" fill="url(#funnelGrad)" stroke="var(--border)" stroke-width="1" opacity="0.4"/>
+
+      <!-- Step 1: Glob -->
+      <rect x="220" y="40" width="360" height="56" rx="10" fill="rgba(167,139,250,0.12)" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="280" y="65" fill="#a78bfa" font-size="13" font-weight="700">1. Glob</text>
+      <text x="280" y="82" fill="#d4d4d8" font-size="11">Encontra arquivos por padrão de nome</text>
+      <text x="540" y="72" text-anchor="end" fill="#a78bfa" font-size="11" font-family="monospace">**/*.tsx</text>
+
+      <!-- Arrow -->
+      <text x="400" y="115" text-anchor="middle" fill="#6ee7b7" font-size="16">&#x2193;</text>
+      <text x="480" y="115" fill="#9ca3af" font-size="10">342 arquivos → 12 candidatos</text>
+
+      <!-- Step 2: Grep -->
+      <rect x="250" y="125" width="300" height="56" rx="10" fill="rgba(96,165,250,0.12)" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="305" y="150" fill="#60a5fa" font-size="13" font-weight="700">2. Grep</text>
+      <text x="305" y="167" fill="#d4d4d8" font-size="11">Busca padrão dentro dos arquivos</text>
+      <text x="510" y="157" text-anchor="end" fill="#60a5fa" font-size="11" font-family="monospace">"handleSubmit"</text>
+
+      <!-- Arrow -->
+      <text x="400" y="200" text-anchor="middle" fill="#6ee7b7" font-size="16">&#x2193;</text>
+      <text x="480" y="200" fill="#9ca3af" font-size="10">12 arquivos → 2 matches</text>
+
+      <!-- Step 3: Read targeted -->
+      <rect x="280" y="210" width="240" height="56" rx="10" fill="rgba(196,149,106,0.12)" stroke="#c4956a" stroke-width="1.5"/>
+      <text x="325" y="235" fill="#c4956a" font-size="13" font-weight="700">3. Read</text>
+      <text x="325" y="252" fill="#d4d4d8" font-size="11">Lê apenas as linhas relevantes</text>
+      <text x="485" y="243" text-anchor="end" fill="#c4956a" font-size="11" font-family="monospace">offset+limit</text>
+
+      <!-- Arrow -->
+      <text x="400" y="285" text-anchor="middle" fill="#6ee7b7" font-size="16">&#x2193;</text>
+      <text x="480" y="285" fill="#9ca3af" font-size="10">500 linhas → 40 linhas</text>
+
+      <!-- Step 4: Context -->
+      <rect x="310" y="295" width="180" height="50" rx="10" fill="rgba(110,231,183,0.15)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="400" y="324" text-anchor="middle" fill="#6ee7b7" font-size="13" font-weight="700">Context limpo</text>
+
+      <!-- Token counts on the right -->
+      <text x="680" y="72" fill="#f87171" font-size="11" font-family="monospace">~0 tokens</text>
+      <text x="680" y="157" fill="#fbbf24" font-size="11" font-family="monospace">~150 tokens</text>
+      <text x="680" y="243" fill="#c4956a" font-size="11" font-family="monospace">~200 tokens</text>
+      <text x="680" y="324" fill="#6ee7b7" font-size="11" font-family="monospace">~350 total</text>
+      <text x="680" y="55" fill="#9ca3af" font-size="9">custo acumulado</text>
+    </svg>
+    <p class="diagram-caption">O funil de busca seletiva: cada etapa refina os resultados e minimiza tokens consumidos no contexto.</p>
+  </div>
+
+  <!-- ════════════ GREP ANTES DE READ ════════════ -->
+  <h2>Grep antes de Read: a regra de ouro</h2>
+
+  <p>
+    A estratégia mais eficiente para encontrar código relevante é <strong>sempre buscar antes de ler</strong>.
+    O <code>Grep</code> retorna apenas os nomes dos arquivos que contém o padrão (ou as linhas
+    correspondentes com contexto), consumindo muito menos tokens do que ler arquivos inteiros.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Estratégia: Grep primeiro, Read depois</span>
+      <span>Prompt para o Claude</span>
+    </div>
+    <pre>
+<span class="comment">// Prompt eficiente — direciona a busca</span>
+<span class="string">"Encontre onde a função processPayment é definida</span>
+<span class="string"> e corrija o bug de arredondamento no cálculo do total."</span>
+
+<span class="comment">// O que o Claude faz internamente:</span>
+
+<span class="comment">// Passo 1: Grep para localizar (custo: ~50 tokens)</span>
+<span class="tool">Grep</span> { pattern: <span class="string">"function processPayment|processPayment ="</span>,
+       glob: <span class="string">"**/*.ts"</span> }
+<span class="comment">  → src/services/payment.service.ts:45</span>
+<span class="comment">  → src/utils/legacy-payment.ts:120</span>
+
+<span class="comment">// Passo 2: Read direcionado (custo: ~200 tokens)</span>
+<span class="tool">Read</span> { file: <span class="string">"src/services/payment.service.ts"</span>,
+       offset: <span class="number">40</span>, limit: <span class="number">30</span> }
+<span class="comment">  → Lê apenas as linhas 40-70, onde está a função</span>
+
+<span class="comment">// Passo 3: Edit cirúrgico</span>
+<span class="tool">Edit</span> { file: <span class="string">"src/services/payment.service.ts"</span>,
+       old: <span class="string">"Math.round(total)"</span>,
+       new: <span class="string">"Math.round(total * 100) / 100"</span> }</pre>
+  </div>
+
+  <div class="callout-green callout">
+    <strong>Resultado:</strong> Em vez de ler os dois arquivos inteiros (~5000 tokens), o Claude consumiu
+    apenas ~250 tokens para encontrar e corrigir o bug. Isso é <strong>95% menos contexto</strong> desperdiçado.
+  </div>
+
+  <!-- ════════════ READ COM OFFSET/LIMIT ════════════ -->
+  <h2>Read com offset e limit: precisão cirúrgica</h2>
+
+  <p>
+    A ferramenta <code>Read</code> do Claude Code aceita parâmetros <code>offset</code> (linha inicial)
+    e <code>limit</code> (número de linhas a ler). Isso permite ler apenas o trecho necessário de
+    arquivos grandes, sem carregar milhares de linhas irrelevantes no contexto.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Exemplos de Read seletivo</span>
+      <span>Tool calls</span>
+    </div>
+    <pre>
+<span class="comment">// Ler apenas as primeiras 50 linhas (imports + config)</span>
+<span class="tool">Read</span> { file: <span class="string">"src/config/database.ts"</span>, limit: <span class="number">50</span> }
+
+<span class="comment">// Ler a função que começa na linha 120</span>
+<span class="tool">Read</span> { file: <span class="string">"src/services/auth.ts"</span>, offset: <span class="number">120</span>, limit: <span class="number">40</span> }
+
+<span class="comment">// Ler o final de um arquivo longo (últimas declarações)</span>
+<span class="tool">Read</span> { file: <span class="string">"src/types/index.ts"</span>, offset: <span class="number">450</span>, limit: <span class="number">50</span> }</pre>
+  </div>
+
+  <p>
+    Você pode instruir o Claude a usar essa estrategia diretamente no prompt:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Prompt direcionado</span>
+      <span>Instrução para o Claude</span>
+    </div>
+    <pre>
+<span class="string">"Leia apenas a função validateEmail no arquivo</span>
+<span class="string"> src/utils/validators.ts (está por volta da linha 85).</span>
+<span class="string"> Não precisa ler o arquivo inteiro."</span></pre>
+  </div>
+
+  <!-- ════════════ BASH PARA ANÁLISE ════════════ -->
+  <h2>Bash para análise: head, tail, wc, awk</h2>
+
+  <p>
+    Quando o Claude encontra arquivos grandes como logs, dumps de banco ou CSVs, ele usa
+    comandos Bash como <code>head</code>, <code>tail</code>, <code>wc</code> e <code>awk</code>
+    para extrair trechos específicos sem carregar o conteúdo completo no contexto. Isso e
+    especialmente útil para análise de dados e debugging.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Comandos Bash para leitura seletiva</span>
+      <span>Exemplos práticos</span>
+    </div>
+    <pre>
+<span class="comment"># Contar linhas antes de decidir como ler</span>
+<span class="tool">Bash</span> { command: <span class="string">"wc -l src/data/users.csv"</span> }
+<span class="comment">  → 45.832 linhas — não vale a pena ler tudo!</span>
+
+<span class="comment"># Ver apenas o cabeçalho + primeiras linhas</span>
+<span class="tool">Bash</span> { command: <span class="string">"head -20 src/data/users.csv"</span> }
+
+<span class="comment"># Ver as ultimas entradas de um log</span>
+<span class="tool">Bash</span> { command: <span class="string">"tail -50 logs/app.log"</span> }
+
+<span class="comment"># Filtrar apenas erros de um log grande</span>
+<span class="tool">Bash</span> { command: <span class="string">"grep -n 'ERROR' logs/app.log | tail -20"</span> }
+
+<span class="comment"># Extrair coluna específica de um CSV</span>
+<span class="tool">Bash</span> { command: <span class="string">"awk -F',' '{print $1, $3}' data/report.csv | head -10"</span> }
+
+<span class="comment"># Contar ocorrências de um padrão</span>
+<span class="tool">Bash</span> { command: <span class="string">"grep -c 'TODO' src/**/*.ts"</span> }</pre>
+  </div>
+
+  <div class="callout">
+    <strong>Dica da Anthropic:</strong> O Claude Code decide automaticamente como carregar arquivos
+    grandes no contexto usando bash scripts como <code>grep</code> e <code>tail</code>. Mas você pode
+    guiá-lo explicitamente no prompt para garantir que ele não tente ler o arquivo inteiro.
+  </div>
+
+  <!-- ════════════ COMPARAÇÃO DE TOKENS ════════════ -->
+  <h2>Comparação de custo: leitura ampla vs. seletiva</h2>
+
+  <p>
+    Para entender o impacto real, compare os dois cenários para a mesma tarefa: "encontrar e corrigir
+    um bug na função de autenticação".
+  </p>
+
+  <div class="token-compare">
+    <div class="token-box" style="border-color: var(--red);">
+      <span class="card-label" style="background: var(--red-soft); color: var(--red);">Leitura ampla</span>
+      <div class="token-number" style="color: var(--red);">~12.500</div>
+      <div class="token-label">tokens consumidos</div>
+      <div class="token-desc">
+        Read auth.service.ts (3.200 tokens)<br>
+        Read auth.middleware.ts (2.800 tokens)<br>
+        Read auth.types.ts (1.500 tokens)<br>
+        Read auth.test.ts (5.000 tokens)
+      </div>
+    </div>
+    <div class="token-box" style="border-color: var(--green);">
+      <span class="card-label" style="background: var(--green-soft); color: var(--green);">Leitura seletiva</span>
+      <div class="token-number" style="color: var(--green);">~480</div>
+      <div class="token-label">tokens consumidos</div>
+      <div class="token-desc">
+        Grep "authenticate" (50 tokens)<br>
+        Read auth.service.ts:82-115 (200 tokens)<br>
+        Grep "test.*auth" (30 tokens)<br>
+        Read auth.test.ts:45-75 (200 tokens)
+      </div>
+    </div>
+  </div>
+
+  <p style="text-align: center;">
+    <span class="savings-badge">96% menos tokens consumidos</span>
+  </p>
+
+  <p>
+    Essa economia se acumula ao longo de uma sessão. Com a leitura seletiva, você pode resolver
+    <strong>muitas mais tarefas</strong> dentro da mesma context window antes de precisar usar
+    <code>/clear</code>.
+  </p>
+
+  <!-- ════════════ INSTRUINDO VIA PROMPT ════════════ -->
+  <h2>Instruindo leituras seletivas via prompt</h2>
+
+  <p>
+    O Claude Code já tende a usar estratégias seletivas, mas você pode guiá-lo explicitamente
+    para garantir eficiência máxima. Quanto mais preciso o prompt, menos exploração desnecessária.
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card" style="border-color: var(--red);">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">&#10007;</span>
+        Prompts vagos (desperdiçam contexto)
+      </h4>
+      <p>"Olhe o código do projeto e me diga o que ele faz."</p>
+      <p style="margin-top: 0.5rem;">"Leia todos os arquivos de services/ para entender a arquitetura."</p>
+      <p style="margin-top: 0.5rem;">"Analise o projeto inteiro e sugira melhorias."</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--green);">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">&#10003;</span>
+        Prompts cirúrgicos (economizam contexto)
+      </h4>
+      <p>"Leia apenas a função createUser em src/services/user.ts."</p>
+      <p style="margin-top: 0.5rem;">"Busque onde UserRepository é instanciado e mostre o padrão de DI usado."</p>
+      <p style="margin-top: 0.5rem;">"Encontre os testes que cobrem o endpoint POST /api/orders."</p>
+    </div>
+  </div>
+
+  <h3>Dicas para prompts que guiam leituras cirúrgicas</h3>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Técnica</th>
+          <th>Exemplo de prompt</th>
+          <th>Por que funciona</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Referenciar arquivo com @</strong></td>
+          <td><code>@src/auth.ts tem um bug na linha 85</code></td>
+          <td>O Claude lê o arquivo antes de responder</td>
+        </tr>
+        <tr>
+          <td><strong>Nomear a função</strong></td>
+          <td><code>Corrija o bug em processPayment()</code></td>
+          <td>Grep encontra a função diretamente</td>
+        </tr>
+        <tr>
+          <td><strong>Indicar a linha</strong></td>
+          <td><code>Veja a linha 120 de database.ts</code></td>
+          <td>Read com offset vai direto ao ponto</td>
+        </tr>
+        <tr>
+          <td><strong>Limitar o escopo</strong></td>
+          <td><code>So nos arquivos de src/api/</code></td>
+          <td>Glob filtra antes de buscar</td>
+        </tr>
+        <tr>
+          <td><strong>Descrever o padrão</strong></td>
+          <td><code>Busque por TODO ou FIXME no projeto</code></td>
+          <td>Grep é mais eficiente que Read</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ SUBAGENTES ════════════ -->
+  <h2>Subagentes para exploração pesada</h2>
+
+  <p>
+    Quando a tarefa realmente exige explorar muitos arquivos (entender a arquitetura de um projeto
+    novo, mapear dependencias, auditar seguranca), o Claude Code pode delegar essa leitura ampla a
+    <strong>subagentes</strong>. Cada subagente opera em sua própria context window isolada,
+    lê os arquivos necessários, e retorna apenas um resumo condensado para o agente principal.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Delegando exploração para subagentes</span>
+      <span>Estrategia com Task</span>
+    </div>
+    <pre>
+<span class="comment">// O agente principal delega a exploração</span>
+<span class="tool">Task</span> { description: <span class="string">"Analise a pasta src/services/ e retorne:</span>
+<span class="string">  1. Lista de services e suas responsabilidades</span>
+<span class="string">  2. Padrões de DI utilizados</span>
+<span class="string">  3. Dependências externas de cada service"</span> }
+
+<span class="comment">// O subagente le TODOS os arquivos (na context dele)</span>
+<span class="comment">// → Consome ~40.000 tokens na context do subagente</span>
+<span class="comment">// → Retorna ~800 tokens de resumo para o agente principal</span>
+
+<span class="comment">// Beneficio: o agente principal mantem a context limpa</span>
+<span class="comment">// e recebe apenas o que precisa para tomar decisoes</span></pre>
+  </div>
+
+  <div class="callout-blue callout">
+    <strong>Quando usar subagentes vs. busca direta:</strong> Se a informação pode ser encontrada com
+    um ou dois <code>Grep</code>, faça direto — não crie um subagente. Subagentes são úteis para tarefas
+    que exigem ler muitos arquivos onde a maior parte da informação será descartada. O custo de
+    coordenação só vale a pena quando a exploração é genuinamente ampla.
+  </div>
+
+  <!-- ════════════ CLAUDE.md ════════════ -->
+  <h2>CLAUDE.md: o contexto upfront inteligente</h2>
+
+  <p>
+    O <code>CLAUDE.md</code> é o único arquivo carregado integralmente por padrão. Use-o
+    estrategicamente para <strong>reduzir a necessidade de leituras futuras</strong>. Inclua nele
+    informações que o Claude precisaria buscar repetidamente:
+  </p>
+
+  <div class="grid-3">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">&#128193;</span>
+        Estrutura de pastas
+      </h4>
+      <p>Mapa das principais pastas e o que cada uma contem. Evita que o Claude faca Glob exploratória.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">&#128295;</span>
+        Comandos essenciais
+      </h4>
+      <p>Build, test, lint, deploy. O Claude não precisa procurar no package.json ou Makefile.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">&#128218;</span>
+        Convenções do projeto
+      </h4>
+      <p>Naming, patterns, onde colocar testes. Reduz leituras exploratórias para entender o padrão.</p>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Exemplo de CLAUDE.md otimizado para leituras seletivas</span>
+      <span>CLAUDE.md</span>
+    </div>
+    <pre>
+<span class="comment"># Estrutura do projeto</span>
+src/
+  api/          <span class="comment"># Controllers REST (Express)</span>
+  services/     <span class="comment"># Lógica de negócios</span>
+  repositories/ <span class="comment"># Acesso a dados (Prisma)</span>
+  utils/        <span class="comment"># Funções utilitárias puras</span>
+  types/        <span class="comment"># TypeScript types e interfaces</span>
+
+<span class="comment"># Comandos</span>
+<span class="keyword">npm test</span>              <span class="comment"># Roda todos os testes</span>
+<span class="keyword">npm test -- --grep X</span>  <span class="comment"># Roda testes que matcham X</span>
+<span class="keyword">npm run build</span>         <span class="comment"># Compila TypeScript</span>
+
+<span class="comment"># Convencoes</span>
+- Testes ficam em __tests__/ ao lado do arquivo
+- Services recebem dependências via construtor (DI manual)
+- Validação usa Zod schemas em src/schemas/</pre>
+  </div>
+
+  <!-- ════════════ RESUMO DE ESTRATÉGIAS ════════════ -->
+  <h2>Resumo: estratégias de leitura por cenário</h2>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Cenario</th>
+          <th>Estrategia recomendada</th>
+          <th>Custo estimado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Encontrar onde uma função é definida</td>
+          <td><code>Grep</code> por nome da função</td>
+          <td style="color: var(--green);">~50 tokens</td>
+        </tr>
+        <tr>
+          <td>Ler uma função específica</td>
+          <td><code>Grep</code> + <code>Read</code> com offset/limit</td>
+          <td style="color: var(--green);">~250 tokens</td>
+        </tr>
+        <tr>
+          <td>Encontrar arquivos de um tipo</td>
+          <td><code>Glob</code> com padrão</td>
+          <td style="color: var(--green);">~30 tokens</td>
+        </tr>
+        <tr>
+          <td>Analisar arquivo de log grande</td>
+          <td><code>Bash</code>: tail, grep, awk</td>
+          <td style="color: var(--yellow);">~100-300 tokens</td>
+        </tr>
+        <tr>
+          <td>Entender um arquivo inteiro</td>
+          <td><code>Read</code> completo (so se necessario)</td>
+          <td style="color: var(--red);">~1000-5000 tokens</td>
+        </tr>
+        <tr>
+          <td>Mapear arquitetura do projeto</td>
+          <td><code>Task</code> (subagente) para explorar</td>
+          <td style="color: var(--green);">~500 tokens no main</td>
+        </tr>
+        <tr>
+          <td>"Leia tudo e entenda o projeto"</td>
+          <td>NUNCA. Use CLAUDE.md + buscas seletivas</td>
+          <td style="color: var(--red);">~50.000+ tokens</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout-green callout">
+    <strong>Regra prática:</strong> Se você pode descrever o que procura em uma frase, o Claude pode
+    encontrar com Grep. Se não consegue descrever, delegue a exploração para um subagente. Nunca
+    peça "leia tudo" — isso é o equivalente a <code>SELECT * FROM tabela_enorme</code> sem WHERE.
+  </div>
+
+  <!-- ════════════ FONTES ════════════ -->
+  <div class="sources">
+    <h3>Fontes e Referências</h3>
+    <ul>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Anthropic — Best Practices for Claude Code</a></li>
+      <li><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank">Anthropic — Effective Context Engineering for AI Agents</a></li>
+      <li><a href="https://docs.anthropic.com/en/docs/agents-and-tools/tool-use/bash-tool" target="_blank">Anthropic Docs — Bash Tool</a></li>
+      <li><a href="https://www.anthropic.com/engineering/building-agents-with-the-claude-agent-sdk" target="_blank">Anthropic — Building Agents with the Claude Agent SDK</a></li>
+      <li><a href="https://docs.claude.com/en/docs/claude-code/overview" target="_blank">Claude Docs — Claude Code Overview</a></li>
+    </ul>
+  </div>
+
+  <!-- ════════════ NAV FOOTER ════════════ -->
+  <div class="nav-footer">
+    <a href="modulo-05-topico-02-clear.html" class="nav-btn">&larr; Tópico 2 · /clear</a>
+    <a href="../index.html" class="nav-btn">&#8962; Índice</a>
+    <a href="modulo-05-topico-04-documentacao-viva.html" class="nav-btn">Tópico 4 · Documentação Viva &rarr;</a>
+  </div>
+
+</body>
+</html>

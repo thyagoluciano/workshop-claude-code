@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modulo 5 . Topico 5 -- Monitorando uso de contexto com status line customizada</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-code: #141620;
+      --border: #2a2d3a;
+      --text: #e4e4e7;
+      --text-dim: #9ca3af;
+      --accent: #c4956a;
+      --accent-soft: rgba(196, 149, 106, 0.12);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.12);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .topic-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-soft); padding: 6px 14px;
+      border-radius: 20px; margin-bottom: 1rem;
+    }
+
+    h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+    .subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+    h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+    p { margin-bottom: 1rem; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+    strong { color: #fff; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0;
+    }
+    .card-label {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 6px; margin-bottom: 0.75rem;
+    }
+
+    .diagram-container {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto;
+    }
+    .diagram-container svg { display: block; margin: 0 auto; }
+    .diagram-caption {
+      text-align: center; font-size: 0.85rem; color: var(--text-dim);
+      margin-top: 1rem; font-style: italic;
+    }
+
+    .code-block {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1rem; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim);
+    }
+    .code-block pre {
+      padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8;
+    }
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: var(--purple); }
+    .code-block .string { color: var(--green); }
+    .code-block .tool { color: var(--accent); }
+    .code-block .number { color: var(--yellow); }
+
+    .callout {
+      border-left: 3px solid var(--accent); background: var(--accent-soft);
+      padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem;
+    }
+    .callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+    .callout-red { border-left-color: var(--red); background: var(--red-soft); }
+    .callout-green { border-left-color: var(--green); background: var(--green-soft); }
+    .callout-yellow { border-left-color: var(--yellow); background: var(--yellow-soft); }
+    .callout strong { color: #fff; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+    }
+
+    .mini-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .mini-card h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;
+    }
+    .mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+
+    .icon-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    .sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .sources ul { list-style: none; padding: 0; }
+    .sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+    .sources li::before { content: "\2192 "; color: var(--accent); }
+
+    .nav-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+      color: var(--text); background: var(--bg-card); border: 1px solid var(--border);
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+
+    /* ── Terminal mock ── */
+    .terminal {
+      background: #0d0d0d; border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden; margin: 1.5rem 0;
+    }
+    .terminal-header {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 16px; background: #1a1a1a; border-bottom: 1px solid var(--border);
+    }
+    .terminal-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+    }
+    .terminal-title {
+      font-size: 0.8rem; color: var(--text-dim); margin-left: 8px;
+      font-family: var(--font-mono);
+    }
+    .terminal-body {
+      padding: 1rem 1.25rem; font-family: var(--font-mono);
+      font-size: 0.82rem; line-height: 1.7; color: #d4d4d8;
+    }
+    .terminal-body .prompt { color: var(--green); }
+    .terminal-body .cmd { color: #fff; font-weight: 600; }
+    .terminal-body .dim { color: #6b7280; }
+    .terminal-body .val { color: var(--yellow); }
+    .terminal-body .label { color: var(--text-dim); }
+    .terminal-body .accent { color: var(--accent); }
+    .terminal-body .blue { color: var(--blue); }
+    .terminal-body .green { color: var(--green); }
+    .terminal-body .red { color: var(--red); }
+
+    /* ── Summary card ── */
+    .summary-card {
+      background: linear-gradient(135deg, rgba(196,149,106,0.08), rgba(96,165,250,0.08));
+      border: 1.5px solid var(--accent);
+      border-radius: var(--radius); padding: 2rem; margin: 2rem 0;
+    }
+    .summary-card h3 {
+      font-size: 1.15rem; color: var(--accent); margin: 0 0 1rem;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .summary-step {
+      display: flex; align-items: flex-start; gap: 12px; margin-bottom: 0.75rem;
+    }
+    .summary-num {
+      width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700; color: #fff;
+    }
+    .summary-step p {
+      font-size: 0.9rem; color: var(--text-dim); margin: 0; line-height: 1.5;
+    }
+    .summary-step strong { color: #fff; }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ HEADER ════════════ -->
+  <div class="topic-badge">Modulo 5 . Topico 5</div>
+  <h1>Monitorando uso de contexto com status line customizada</h1>
+  <p class="subtitle">
+    Saber quanto contexto resta, quanto custou a sessao e quando agir e a diferenca entre
+    uma sessao produtiva e uma que degrada silenciosamente. O Claude Code oferece ferramentas
+    nativas e customizaveis para manter essa visibilidade.
+  </p>
+
+  <!-- ════════════ /usage ════════════ -->
+  <h2>O comando /usage</h2>
+
+  <p>
+    O <code>/usage</code> e o comando mais direto para inspecionar o consumo da sessao atual.
+    Ele mostra custo estimado, duracao total (wall clock e API), e linhas de codigo modificadas.
+    O valor em dolar e calculado localmente a partir da contagem de tokens e pode diferir
+    da cobranca real no Console.
+  </p>
+
+  <div class="terminal">
+    <div class="terminal-header">
+      <span class="terminal-dot" style="background: #ff5f57;"></span>
+      <span class="terminal-dot" style="background: #febc2e;"></span>
+      <span class="terminal-dot" style="background: #28c840;"></span>
+      <span class="terminal-title">claude</span>
+    </div>
+    <div class="terminal-body">
+      <span class="prompt">$</span> <span class="cmd">/usage</span><br><br>
+      <span class="label">Total cost:</span>            <span class="val">$0.55</span><br>
+      <span class="label">Total duration (API):</span>  <span class="val">6m 19.7s</span><br>
+      <span class="label">Total duration (wall):</span> <span class="val">6h 33m 10.2s</span><br>
+      <span class="label">Total code changes:</span>    <span class="val">0 lines added, 0 lines removed</span><br><br>
+      <span class="dim">--- Sessao longa com pouca edicao: investigacao / code review ---</span>
+    </div>
+  </div>
+
+  <div class="callout-blue callout">
+    <strong>Nota para assinantes Pro/Max:</strong> O bloco "Session" do <code>/usage</code> mostra consumo
+    de tokens da API e e voltado para usuarios de API. Assinantes de plano ja tem uso incluso na
+    assinatura, entao o custo da sessao nao e relevante para cobranca — mas ainda e util para
+    entender a eficiencia do seu uso de contexto.
+  </div>
+
+  <!-- ════════════ STATUS LINE ════════════ -->
+  <h2>Status line customizada: visibilidade continua</h2>
+
+  <p>
+    Enquanto o <code>/usage</code> e um snapshot sob demanda, a <strong>status line</strong> e uma barra
+    persistente no rodape do Claude Code que roda qualquer script shell que voce configurar.
+    Ela recebe dados JSON da sessao via stdin e exibe o que seu script imprimir — dando
+    visibilidade continua de contexto, custo, branch git ou qualquer outra metrica.
+  </p>
+
+  <p>
+    A forma mais rapida de criar uma status line e usar o proprio Claude Code:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Comando /statusline</span>
+      <span>Claude gera o script para voce</span>
+    </div>
+    <pre>
+<span class="comment">// O Claude Code gera o script em ~/.claude/ e atualiza settings.json</span>
+<span class="tool">/statusline</span> <span class="string">show model name and context percentage with a progress bar</span>
+
+<span class="comment">// Ou com mais detalhes:</span>
+<span class="tool">/statusline</span> <span class="string">show model, context %, cost, and git branch with colors</span></pre>
+  </div>
+
+  <h3>Configurando manualmente via settings.json</h3>
+
+  <p>
+    Se preferir configurar manualmente, adicione o campo <code>statusLine</code> ao seu
+    <code>~/.claude/settings.json</code> (configuracao de usuario) ou ao settings do projeto:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>~/.claude/settings.json</span>
+      <span>Configuracao da status line</span>
+    </div>
+    <pre>
+{
+  <span class="string">"statusLine"</span>: {
+    <span class="string">"type"</span>: <span class="string">"command"</span>,
+    <span class="string">"command"</span>: <span class="string">"~/.claude/statusline.sh"</span>,
+    <span class="string">"padding"</span>: <span class="number">2</span>,
+    <span class="string">"refreshInterval"</span>: <span class="number">5</span>   <span class="comment">// re-executa a cada N segundos (opcional)</span>
+  }
+}</pre>
+  </div>
+
+  <p>
+    Para configuracoes simples, voce pode usar um comando inline com <code>jq</code> direto no settings,
+    sem precisar de um arquivo separado:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>~/.claude/settings.json</span>
+      <span>Inline com jq</span>
+    </div>
+    <pre>
+{
+  <span class="string">"statusLine"</span>: {
+    <span class="string">"type"</span>: <span class="string">"command"</span>,
+    <span class="string">"command"</span>: <span class="string">"jq -r '\"[\\(.model.display_name)] \\(.context_window.used_percentage // 0)% context\"'"</span>
+  }
+}</pre>
+  </div>
+
+  <div class="callout-green callout">
+    <strong>Custo zero:</strong> A status line roda localmente e <strong>nao consome tokens da API</strong>.
+    Ela e atualizada apos cada mensagem do assistente, apos <code>/compact</code>, ao trocar modo de permissao
+    ou ao alternar vim mode. Updates sao debounced a 300ms.
+  </div>
+
+  <!-- ════════════ SCRIPT DE EXEMPLO ════════════ -->
+  <h2>Script completo: barra de contexto com cores</h2>
+
+  <p>
+    Este script combina modelo, barra de progresso com cores por threshold, custo acumulado,
+    duracao e branch git — tudo em duas linhas na status bar:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>~/.claude/statusline.sh</span>
+      <span>Bash + jq</span>
+    </div>
+    <pre>
+<span class="comment">#!/bin/bash</span>
+input=$(cat)
+
+MODEL=$(echo "$input" | jq -r '.model.display_name')
+DIR=$(echo "$input" | jq -r '.workspace.current_dir')
+COST=$(echo "$input" | jq -r '.cost.total_cost_usd // 0')
+PCT=$(echo "$input" | jq -r '.context_window.used_percentage // 0' | cut -d. -f1)
+DURATION_MS=$(echo "$input" | jq -r '.cost.total_duration_ms // 0')
+
+<span class="comment"># Cores ANSI por threshold</span>
+CYAN=<span class="string">'\033[36m'</span>; GREEN=<span class="string">'\033[32m'</span>
+YELLOW=<span class="string">'\033[33m'</span>; RED=<span class="string">'\033[31m'</span>; RESET=<span class="string">'\033[0m'</span>
+
+<span class="comment"># Cor da barra baseada no uso de contexto</span>
+<span class="keyword">if</span> [ "$PCT" -ge <span class="number">90</span> ]; <span class="keyword">then</span> BAR_COLOR="$RED"
+<span class="keyword">elif</span> [ "$PCT" -ge <span class="number">70</span> ]; <span class="keyword">then</span> BAR_COLOR="$YELLOW"
+<span class="keyword">else</span> BAR_COLOR="$GREEN"; <span class="keyword">fi</span>
+
+FILLED=$((PCT / 10)); EMPTY=$((10 - FILLED))
+printf -v FILL "%${FILLED}s"; printf -v PAD "%${EMPTY}s"
+BAR="${FILL// /█}${PAD// /░}"
+
+MINS=$((DURATION_MS / 60000)); SECS=$(((DURATION_MS % 60000) / 1000))
+
+BRANCH=""
+git rev-parse --git-dir > /dev/null 2>&1 && \
+  BRANCH=" | 🌿 $(git branch --show-current 2>/dev/null)"
+
+echo -e "${CYAN}[$MODEL]${RESET} 📁 ${DIR##*/}$BRANCH"
+COST_FMT=$(printf '$%.2f' "$COST")
+echo -e "${BAR_COLOR}${BAR}${RESET} ${PCT}% | ${YELLOW}${COST_FMT}${RESET} | ⏱️ ${MINS}m ${SECS}s"</pre>
+  </div>
+
+  <p>
+    Apos salvar, torne o script executavel com <code>chmod +x ~/.claude/statusline.sh</code> e
+    adicione o caminho ao settings.json. O resultado mostra algo como:
+  </p>
+
+  <div class="terminal">
+    <div class="terminal-header">
+      <span class="terminal-dot" style="background: #ff5f57;"></span>
+      <span class="terminal-dot" style="background: #febc2e;"></span>
+      <span class="terminal-dot" style="background: #28c840;"></span>
+      <span class="terminal-title">Status line renderizada</span>
+    </div>
+    <div class="terminal-body">
+      <span class="blue">[Opus]</span> 📁 meu-projeto | 🌿 feature/auth<br>
+      <span class="green">███░░░░░░░</span> <span class="val">30%</span> | <span class="val">$0.42</span> | ⏱️ 12m 35s<br>
+      <br>
+      <span class="dim">--- Depois de trabalho intenso: ---</span><br>
+      <span class="blue">[Opus]</span> 📁 meu-projeto | 🌿 feature/auth<br>
+      <span class="red">█████████░</span> <span class="red">92%</span> | <span class="val">$3.87</span> | ⏱️ 48m 12s
+    </div>
+  </div>
+
+  <!-- ════════════ DADOS DISPONÍVEIS ════════════ -->
+  <h2>Dados disponiveis na status line</h2>
+
+  <p>
+    O Claude Code envia um JSON completo via stdin para o seu script. Estes sao os campos mais
+    relevantes para monitoramento de contexto e custos:
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Campo JSON</th>
+          <th>O que contem</th>
+          <th>Por que monitorar</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>context_window.used_percentage</code></td>
+          <td>% do contexto utilizado (calculado sobre input tokens)</td>
+          <td>Indicador principal de quando agir (<code>/compact</code>, <code>/clear</code>)</td>
+        </tr>
+        <tr>
+          <td><code>context_window.remaining_percentage</code></td>
+          <td>% do contexto restante</td>
+          <td>Visao inversa para scripts que preferem "quanto resta"</td>
+        </tr>
+        <tr>
+          <td><code>context_window.context_window_size</code></td>
+          <td>Tamanho maximo da janela (200K ou 1M com extended context)</td>
+          <td>Saber o teto real do modelo em uso</td>
+        </tr>
+        <tr>
+          <td><code>context_window.total_input_tokens</code></td>
+          <td>Tokens de input atualmente no contexto (inclui cache)</td>
+          <td>Entender composicao do consumo</td>
+        </tr>
+        <tr>
+          <td><code>cost.total_cost_usd</code></td>
+          <td>Custo estimado da sessao em USD</td>
+          <td>Controle de gastos em tempo real</td>
+        </tr>
+        <tr>
+          <td><code>cost.total_duration_ms</code></td>
+          <td>Tempo total wall-clock da sessao</td>
+          <td>Detectar sessoes que se arrastam</td>
+        </tr>
+        <tr>
+          <td><code>model.display_name</code></td>
+          <td>Nome do modelo em uso (Opus, Sonnet, etc.)</td>
+          <td>Confirmar qual modelo esta ativo apos <code>/model</code></td>
+        </tr>
+        <tr>
+          <td><code>effort.level</code></td>
+          <td>Nivel de esforco atual (low, medium, high, max)</td>
+          <td>Verificar se <code>/effort</code> esta ajustado para a tarefa</td>
+        </tr>
+        <tr>
+          <td><code>exceeds_200k_tokens</code></td>
+          <td>Boolean: se ultrapassou 200K tokens na ultima resposta</td>
+          <td>Alerta de que o contexto esta muito grande</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ DIAGRAMA ════════════ -->
+  <h2>Dashboard conceitual de monitoramento</h2>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 800 420" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Dashboard conceitual de monitoramento do Claude Code: status line, /usage, e thresholds de acao</title>
+
+      <defs>
+        <marker id="arrowG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#6ee7b7"/>
+        </marker>
+        <marker id="arrowY" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#fbbf24"/>
+        </marker>
+        <marker id="arrowR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#f87171"/>
+        </marker>
+      </defs>
+
+      <!-- Title -->
+      <text x="400" y="28" text-anchor="middle" fill="#fff" font-size="14" font-weight="600">Ciclo de monitoramento de contexto</text>
+
+      <!-- Context bar visual -->
+      <rect x="50" y="50" width="700" height="40" rx="8" fill="#141620" stroke="#2a2d3a" stroke-width="1"/>
+      <!-- Green zone 0-70% -->
+      <rect x="52" y="52" width="486" height="36" rx="6" fill="rgba(110,231,183,0.15)"/>
+      <text x="280" y="75" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="600">0 - 70%: zona segura</text>
+      <!-- Yellow zone 70-90% -->
+      <rect x="540" y="52" width="140" height="36" rx="0" fill="rgba(251,191,36,0.15)"/>
+      <text x="610" y="75" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="600">70-90%: atencao</text>
+      <!-- Red zone 90-100% -->
+      <rect x="682" y="52" width="66" height="36" rx="6" fill="rgba(248,113,113,0.15)"/>
+      <text x="715" y="75" text-anchor="middle" fill="#f87171" font-size="9" font-weight="600">90%+</text>
+
+      <!-- Threshold markers -->
+      <line x1="540" y1="48" x2="540" y2="92" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="4,2"/>
+      <line x1="682" y1="48" x2="682" y2="92" stroke="#f87171" stroke-width="1.5" stroke-dasharray="4,2"/>
+
+      <!-- Actions per zone -->
+      <!-- Green zone actions -->
+      <rect x="50" y="120" width="220" height="110" rx="10" fill="rgba(110,231,183,0.06)" stroke="#6ee7b7" stroke-width="1"/>
+      <text x="160" y="145" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="600">Zona verde (0-70%)</text>
+      <text x="70" y="168" fill="#d4d4d8" font-size="11">Trabalhar normalmente</text>
+      <text x="70" y="186" fill="#d4d4d8" font-size="11">Checar /usage periodicamente</text>
+      <text x="70" y="204" fill="#d4d4d8" font-size="11">Status line como informativo</text>
+
+      <!-- Yellow zone actions -->
+      <rect x="290" y="120" width="220" height="110" rx="10" fill="rgba(251,191,36,0.06)" stroke="#fbbf24" stroke-width="1"/>
+      <text x="400" y="145" text-anchor="middle" fill="#fbbf24" font-size="12" font-weight="600">Zona amarela (70-90%)</text>
+      <text x="310" y="168" fill="#d4d4d8" font-size="11">Considerar /compact</text>
+      <text x="310" y="186" fill="#d4d4d8" font-size="11">Leituras mais seletivas</text>
+      <text x="310" y="204" fill="#d4d4d8" font-size="11">Pensar em /clear se nova tarefa</text>
+
+      <!-- Red zone actions -->
+      <rect x="530" y="120" width="220" height="110" rx="10" fill="rgba(248,113,113,0.06)" stroke="#f87171" stroke-width="1"/>
+      <text x="640" y="145" text-anchor="middle" fill="#f87171" font-size="12" font-weight="600">Zona vermelha (90%+)</text>
+      <text x="550" y="168" fill="#d4d4d8" font-size="11">Auto-compact iminente</text>
+      <text x="550" y="186" fill="#d4d4d8" font-size="11">Risco de degradacao</text>
+      <text x="550" y="204" fill="#d4d4d8" font-size="11">/clear + /compact urgente</text>
+
+      <!-- Arrows from bar to actions -->
+      <path d="M160 92 L160 115" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowG)"/>
+      <path d="M400 92 L400 115" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arrowY)"/>
+      <path d="M640 92 L640 115" stroke="#f87171" stroke-width="1.5" marker-end="url(#arrowR)"/>
+
+      <!-- Tools row -->
+      <text x="400" y="265" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Ferramentas de monitoramento</text>
+
+      <rect x="50" y="280" width="160" height="55" rx="10" fill="rgba(96,165,250,0.08)" stroke="#60a5fa" stroke-width="1"/>
+      <text x="130" y="303" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="600">/usage</text>
+      <text x="130" y="320" text-anchor="middle" fill="#9ca3af" font-size="10">Snapshot sob demanda</text>
+
+      <rect x="230" y="280" width="160" height="55" rx="10" fill="rgba(110,231,183,0.08)" stroke="#6ee7b7" stroke-width="1"/>
+      <text x="310" y="303" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="600">Status Line</text>
+      <text x="310" y="320" text-anchor="middle" fill="#9ca3af" font-size="10">Monitoramento continuo</text>
+
+      <rect x="410" y="280" width="160" height="55" rx="10" fill="rgba(196,149,106,0.08)" stroke="#c4956a" stroke-width="1"/>
+      <text x="490" y="303" text-anchor="middle" fill="#c4956a" font-size="12" font-weight="600">/compact</text>
+      <text x="490" y="320" text-anchor="middle" fill="#9ca3af" font-size="10">Reducao manual</text>
+
+      <rect x="590" y="280" width="160" height="55" rx="10" fill="rgba(167,139,250,0.08)" stroke="#a78bfa" stroke-width="1"/>
+      <text x="670" y="303" text-anchor="middle" fill="#a78bfa" font-size="12" font-weight="600">/clear</text>
+      <text x="670" y="320" text-anchor="middle" fill="#9ca3af" font-size="10">Reset total</text>
+
+      <!-- Auto-compact note -->
+      <rect x="150" y="360" width="500" height="45" rx="10" fill="rgba(248,113,113,0.06)" stroke="#475569" stroke-width="0.5"/>
+      <text x="400" y="380" text-anchor="middle" fill="#f87171" font-size="11" font-weight="600">Auto-compact: dispara automaticamente ao atingir ~95% do contexto</text>
+      <text x="400" y="395" text-anchor="middle" fill="#9ca3af" font-size="10">Sumariza historico preservando decisoes-chave e padroes de codigo</text>
+    </svg>
+    <p class="diagram-caption">O ciclo de monitoramento: observar o nivel de contexto, agir nos thresholds certos, e usar a ferramenta adequada.</p>
+  </div>
+
+  <!-- ════════════ AUTO-COMPACT ════════════ -->
+  <h2>Auto-compact: a rede de seguranca</h2>
+
+  <p>
+    O Claude Code possui um mecanismo automatico de compactacao que e ativado quando
+    a conversacao se aproxima do limite da context window. Quando disparado, o Claude
+    sumariza mensagens anteriores para liberar espaco, preservando codigo, decisoes
+    importantes e o estado dos arquivos.
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">A</span>
+        O que o auto-compact preserva
+      </h4>
+      <p>Padroes de codigo, estado dos arquivos, decisoes-chave tomadas durante a sessao,
+         e instrucoes do CLAUDE.md sobre o que manter.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">!</span>
+        O que pode ser perdido
+      </h4>
+      <p>Detalhes de conversas antigas, outputs longos de comandos, tentativas que falharam,
+         e nuances de discussoes exploratórias iniciais.</p>
+    </div>
+  </div>
+
+  <p>
+    Voce pode personalizar o que o auto-compact preserva adicionando instrucoes ao
+    <code>CLAUDE.md</code> do projeto:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>CLAUDE.md</span>
+      <span>Instrucoes de compactacao</span>
+    </div>
+    <pre>
+<span class="comment"># Compact instructions</span>
+
+When you are using compact, please focus on test output and code changes.
+Always preserve the full list of modified files and any test commands used.
+Keep track of which API endpoints were discussed and their expected schemas.</pre>
+  </div>
+
+  <p>
+    Voce tambem pode disparar compactacao manual com instrucoes especificas:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Compactacao manual com foco</span>
+      <span>/compact</span>
+    </div>
+    <pre>
+<span class="comment">// Compactar preservando contexto especifico</span>
+<span class="tool">/compact</span> <span class="string">Focus on the API changes and test results</span>
+
+<span class="comment">// Usar Esc + Esc ou /rewind para checkpoint mais granular</span>
+<span class="tool">/rewind</span>   <span class="comment">// selecionar ponto de checkpoint e sumarizar ate ali</span></pre>
+  </div>
+
+  <!-- ════════════ CONTROLE DE CUSTO ════════════ -->
+  <h2>Controlando custos: /effort e MAX_THINKING_TOKENS</h2>
+
+  <p>
+    Extended thinking e habilitado por padrao e melhora significativamente a performance em
+    tarefas complexas. Porem, thinking tokens sao cobrados como output tokens e o budget
+    padrao pode ser de dezenas de milhares de tokens por request. Para tarefas simples,
+    voce pode reduzir custos de varias formas:
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Metodo</th>
+          <th>Como usar</th>
+          <th>Quando usar</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code style="color: var(--blue);">/effort low|medium|high|max</code></td>
+          <td>Ajusta o nivel de raciocinio do modelo</td>
+          <td>Tarefas simples (low), complexas (high/max)</td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--green);">MAX_THINKING_TOKENS=8000</code></td>
+          <td>Variavel de ambiente que limita tokens de thinking</td>
+          <td>Controle granular de custo por sessao</td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--accent);">/config</code> (desabilitar thinking)</td>
+          <td>Desativa extended thinking completamente</td>
+          <td>Tarefas triviais onde raciocinio e desnecessario</td>
+        </tr>
+        <tr>
+          <td><code style="color: var(--purple);">/model</code> (trocar modelo)</td>
+          <td>Sonnet para tarefas rotineiras, Opus para complexas</td>
+          <td>Otimizar custo-beneficio mid-session</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout callout-yellow">
+    <strong>Dica de economia:</strong> Para modelos mais recentes (Opus 4.6+, Sonnet 4.6+), a Anthropic
+    recomenda usar o parametro <code>/effort</code> em vez de <code>MAX_THINKING_TOKENS</code> para
+    controlar a profundidade de raciocinio. O <code>budget_tokens</code> esta em processo de
+    descontinuacao nesses modelos.
+  </div>
+
+  <!-- ════════════ WORKFLOW ════════════ -->
+  <h2>Integrando monitoramento no workflow</h2>
+
+  <p>
+    Monitoramento nao e algo que voce faz uma vez e esquece — e um habito que se integra
+    ao fluxo de trabalho. Aqui esta o padrao recomendado:
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">1</span>
+        Inicio de sessao
+      </h4>
+      <p>Confirme modelo e effort level na status line. Use <code>/effort</code> para ajustar antes de comecar.
+         Considere <code>/model sonnet</code> para tarefas rotineiras.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">2</span>
+        Durante o trabalho
+      </h4>
+      <p>Olhe a barra de contexto periodicamente. Ao atingir 70%, avalie se vale
+         <code>/compact</code> com instrucoes de foco. Delegue operacoes verbose a subagentes.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">3</span>
+        Troca de tarefa
+      </h4>
+      <p>Use <code>/rename</code> para nomear a sessao antes de <code>/clear</code>. Assim voce pode
+         retomar com <code>claude --resume</code>. Contexto velho desperdicado = tokens jogados fora.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">4</span>
+        Fim de sessao
+      </h4>
+      <p>Cheque <code>/usage</code> para entender o custo total. Identifique padroes: sessoes
+         caras podem indicar prompts vagos ou excesso de exploracao.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Prompts especificos economizam tokens:</strong> Pedidos vagos como "melhore esse codebase"
+    disparam scans amplos. Pedidos especificos como "adicione validacao de input na funcao login em auth.ts"
+    permitem ao Claude trabalhar eficientemente com leituras minimas de arquivos.
+  </div>
+
+  <!-- ════════════ MAIS DICAS ════════════ -->
+  <h2>Estrategias adicionais de economia</h2>
+
+  <div class="grid-3">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">M</span>
+        Mova instrucoes para skills
+      </h4>
+      <p>O CLAUDE.md carrega no inicio. Instrucoes especificas (PR review, migrations)
+         consomem tokens mesmo quando irrelevantes. Skills carregam sob demanda.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">H</span>
+        Use hooks para filtrar
+      </h4>
+      <p>Um hook PreToolUse pode filtrar output de testes para mostrar so falhas,
+         reduzindo contexto de milhares de tokens para centenas.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">S</span>
+        Delegue a subagentes
+      </h4>
+      <p>Testes, logs e docs extensas ficam no contexto do subagente. So o resumo
+         retorna para a conversa principal.</p>
+    </div>
+  </div>
+
+  <div class="callout-blue callout">
+    <strong>Consumo em background:</strong> O Claude Code usa uma pequena quantidade de tokens para
+    funcionalidades em segundo plano, como sumarizacao de conversas para o <code>--resume</code> e
+    processamento de comandos. Isso tipicamente custa menos de $0.04 por sessao.
+  </div>
+
+  <!-- ════════════ RESUMO DO MÓDULO ════════════ -->
+  <h2>Resumo do Modulo 5: Gerenciamento de Contexto</h2>
+
+  <p>
+    Ao longo deste modulo, construimos um arsenal completo de tecnicas para gerenciar
+    a context window — o recurso mais precioso do Claude Code. Aqui esta a progressao
+    logica de tudo que cobrimos:
+  </p>
+
+  <div class="summary-card">
+    <h3>Estrategias do Modulo 5 — Da teoria a pratica</h3>
+
+    <div class="summary-step">
+      <span class="summary-num" style="background: var(--red);">1</span>
+      <p>
+        <strong>Topico 1 — Sintomas de degradacao de contexto:</strong>
+        Entender por que o Claude "esquece" coisas, repete codigo ou perde convencoes.
+        O problema nao e o modelo — e a pressao sobre a context window.
+      </p>
+    </div>
+
+    <div class="summary-step">
+      <span class="summary-num" style="background: var(--yellow);">2</span>
+      <p>
+        <strong>Topico 2 — /clear e /compact como ferramentas de higiene:</strong>
+        As duas ferramentas fundamentais: <code>/clear</code> para reset total entre tarefas
+        e <code>/compact</code> para sumarizacao seletiva preservando contexto-chave.
+      </p>
+    </div>
+
+    <div class="summary-step">
+      <span class="summary-num" style="background: var(--blue);">3</span>
+      <p>
+        <strong>Topico 3 — Leituras seletivas com Grep, Glob e Read:</strong>
+        Nao leia arquivos inteiros quando precisa de uma funcao. Use Grep para encontrar,
+        Read com offset/limit para ler so o trecho, e Glob para mapear a estrutura.
+      </p>
+    </div>
+
+    <div class="summary-step">
+      <span class="summary-num" style="background: var(--green);">4</span>
+      <p>
+        <strong>Topico 4 — Documentacao viva com CLAUDE.md:</strong>
+        Manter um CLAUDE.md enxuto (ate ~200 linhas) que funciona como "memoria externa",
+        reduzindo a necessidade de re-explorar o codebase a cada sessao.
+      </p>
+    </div>
+
+    <div class="summary-step">
+      <span class="summary-num" style="background: var(--accent);">5</span>
+      <p>
+        <strong>Topico 5 — Monitoramento com status line customizada:</strong>
+        Fechar o ciclo com visibilidade continua. A status line mostra quando agir,
+        <code>/usage</code> mostra o impacto, e <code>/effort</code> + modelo controlam o custo.
+      </p>
+    </div>
+  </div>
+
+  <div class="callout-green callout">
+    <strong>A regra de ouro:</strong> Contexto e como RAM — cada byte ocupado com informacao irrelevante
+    e um byte que nao esta disponivel para o que importa. As melhores sessoes com o Claude Code
+    sao aquelas onde voce gerencia ativamente o que entra e sai da context window, usando as
+    ferramentas certas no momento certo.
+  </div>
+
+  <!-- ════════════ FONTES ════════════ -->
+  <div class="sources">
+    <h3>Fontes e Referencias</h3>
+    <ul>
+      <li><a href="https://docs.claude.com/en/docs/claude-code/statusline" target="_blank">Claude Docs — Customize your status line</a></li>
+      <li><a href="https://docs.claude.com/en/docs/claude-code/costs" target="_blank">Claude Docs — Manage costs effectively</a></li>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Anthropic — Best Practices for Claude Code</a></li>
+      <li><a href="https://docs.claude.com/en/docs/claude-code/settings" target="_blank">Claude Docs — Claude Code settings</a></li>
+      <li><a href="https://docs.claude.com/en/docs/build-with-claude/extended-thinking" target="_blank">Claude Docs — Building with extended thinking</a></li>
+      <li><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank">Anthropic — Effective context engineering for AI agents</a></li>
+    </ul>
+  </div>
+
+  <!-- ════════════ NAV FOOTER ════════════ -->
+  <div class="nav-footer">
+    <a href="modulo-05-topico-04-documentacao-viva.html" class="nav-btn">&larr; Topico 4 . Documentacao viva</a>
+    <a href="../index.html" class="nav-btn">&#8962; Indice</a>
+    <a href="../modulo-06/modulo-06-topico-01-o-que-e-mcp.html" class="nav-btn">Topico 1 . O que e MCP &rarr;</a>
+  </div>
+
+</body>
+</html>

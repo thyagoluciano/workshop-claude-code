@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo 5 · Tópico 4 — Documentação Viva para Reduzir Tokens</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-code: #141620;
+      --border: #2a2d3a;
+      --text: #e4e4e7;
+      --text-dim: #9ca3af;
+      --accent: #c4956a;
+      --accent-soft: rgba(196, 149, 106, 0.12);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.12);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .topic-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-soft); padding: 6px 14px;
+      border-radius: 20px; margin-bottom: 1rem;
+    }
+
+    h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+    .subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+    h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+    p { margin-bottom: 1rem; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+    strong { color: #fff; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0;
+    }
+    .card-label {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 6px; margin-bottom: 0.75rem;
+    }
+
+    .diagram-container {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto;
+    }
+    .diagram-container svg { display: block; margin: 0 auto; }
+    .diagram-caption {
+      text-align: center; font-size: 0.85rem; color: var(--text-dim);
+      margin-top: 1rem; font-style: italic;
+    }
+
+    .code-block {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1rem; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim);
+    }
+    .code-block pre {
+      padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8;
+    }
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: var(--purple); }
+    .code-block .string { color: var(--green); }
+    .code-block .tool { color: var(--accent); }
+    .code-block .number { color: var(--yellow); }
+
+    .callout {
+      border-left: 3px solid var(--accent); background: var(--accent-soft);
+      padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem;
+    }
+    .callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+    .callout-red { border-left-color: var(--red); background: var(--red-soft); }
+    .callout-green { border-left-color: var(--green); background: var(--green-soft); }
+    .callout strong { color: #fff; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+    }
+
+    .mini-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .mini-card h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;
+    }
+    .mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+
+    .icon-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    .sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .sources ul { list-style: none; padding: 0; }
+    .sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+    .sources li::before { content: "\2192 "; color: var(--accent); }
+
+    .nav-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+      color: var(--text); background: var(--bg-card); border: 1px solid var(--border);
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+
+    /* ── Specific to this topic ── */
+    .flow-step {
+      display: flex; align-items: flex-start; gap: 16px; margin-bottom: 0.5rem;
+      position: relative;
+    }
+    .flow-step::before {
+      content: ''; position: absolute; left: 15px; top: 34px;
+      width: 2px; height: calc(100% - 10px); background: var(--border);
+    }
+    .flow-step:last-child::before { display: none; }
+    .flow-num {
+      width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; font-weight: 700; color: #fff;
+    }
+    .flow-content h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff; margin-bottom: 2px;
+    }
+    .flow-content p {
+      font-size: 0.88rem; color: var(--text-dim); margin: 0 0 0.75rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ HEADER ════════════ -->
+  <div class="topic-badge">Modulo 5 · Topico 4</div>
+  <h1>Documentacao Viva: Dev Docs e Living Plans</h1>
+  <p class="subtitle">
+    Use o file system como <strong>memoria externa</strong> do Claude Code. Arquivos de documentacao
+    persistem entre sessoes, reduzem tokens no contexto e sao versionaveis com git — uma estrategia
+    fundamental de context engineering.
+  </p>
+
+  <!-- ════════════ O CONCEITO ════════════ -->
+  <h2>O conceito: file system como memoria externa</h2>
+
+  <p>
+    A context window do Claude Code e um recurso <strong>finito e precioso</strong>. Cada arquivo lido,
+    cada output de comando e cada mensagem da conversa consomem tokens. A Anthropic descreve isso como
+    um "attention budget" — quanto mais tokens no contexto, mais a capacidade de atencao do modelo se
+    dilui. O artigo oficial sobre context engineering recomenda buscar o menor conjunto possivel de
+    tokens de alto sinal que maximize a probabilidade do resultado desejado.
+  </p>
+
+  <p>
+    A solucao e simples e poderosa: em vez de manter toda a informacao no contexto da conversa,
+    <strong>escreva-a em arquivos no file system</strong>. Esses arquivos funcionam como uma
+    "memoria de trabalho externa" — o Claude pode consulta-los sob demanda com <code>Read</code>,
+    sem precisar carregar tudo de uma vez. A Anthropic chama isso de <strong>structured note-taking</strong>
+    (anotacao estruturada), uma das tecnicas centrais para tarefas de longa duracao.
+  </p>
+
+  <div class="callout-blue callout">
+    <strong>Principio central:</strong> A documentacao oficial da Anthropic sobre context engineering
+    destaca que agentes eficazes usam "note-taking strategies for additional persistence" — ou seja,
+    escrevem notas em arquivos externos ao contexto para manter informacao critica disponivel entre
+    compactacoes e sessoes.
+  </div>
+
+  <!-- ════════════ DIAGRAMA WRITE-CLEAR-READ ════════════ -->
+  <h2>O padrao Write → /clear → Read</h2>
+
+  <p>
+    O workflow mais poderoso para reduzir tokens e o ciclo <strong>explorar, documentar, limpar e
+    retomar</strong>. O Claude investiga o codebase, escreve suas descobertas em um arquivo .md,
+    voce limpa o contexto com <code>/clear</code>, e entao o Claude le apenas o resumo compacto
+    para continuar o trabalho — sem carregar todo o historico da exploracao.
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 820 300" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Fluxo Write-Clear-Read: explorar, escrever doc, /clear, ler doc, implementar</title>
+
+      <defs>
+        <marker id="arrowG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#6ee7b7"/>
+        </marker>
+        <marker id="arrowA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#c4956a"/>
+        </marker>
+        <marker id="arrowR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#f87171"/>
+        </marker>
+        <marker id="arrowB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#60a5fa"/>
+        </marker>
+        <marker id="arrowP" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#a78bfa"/>
+        </marker>
+      </defs>
+
+      <!-- Step labels -->
+      <text x="410" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="600">Workflow: Explorar → Documentar → /clear → Implementar</text>
+
+      <!-- PHASE 1: Explore -->
+      <rect x="20" y="55" width="140" height="70" rx="12" fill="rgba(96,165,250,0.1)" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="90" y="82" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="600">1. Explorar</text>
+      <text x="90" y="100" text-anchor="middle" fill="#d4d4d8" font-size="10">Read, Grep, Glob</text>
+      <text x="90" y="115" text-anchor="middle" fill="#9ca3af" font-size="9">tokens acumulam</text>
+
+      <path d="M165 90 L195 90" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#arrowB)"/>
+
+      <!-- PHASE 2: Write doc -->
+      <rect x="200" y="55" width="140" height="70" rx="12" fill="rgba(110,231,183,0.1)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="270" y="82" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="600">2. Documentar</text>
+      <text x="270" y="100" text-anchor="middle" fill="#d4d4d8" font-size="10">Escreve PLAN.md</text>
+      <text x="270" y="115" text-anchor="middle" fill="#9ca3af" font-size="9">resumo estruturado</text>
+
+      <path d="M345 90 L375 90" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowG)"/>
+
+      <!-- PHASE 3: /clear -->
+      <rect x="380" y="55" width="100" height="70" rx="12" fill="rgba(248,113,113,0.1)" stroke="#f87171" stroke-width="1.5"/>
+      <text x="430" y="82" text-anchor="middle" fill="#f87171" font-size="12" font-weight="600">3. /clear</text>
+      <text x="430" y="100" text-anchor="middle" fill="#d4d4d8" font-size="10">Limpa contexto</text>
+      <text x="430" y="115" text-anchor="middle" fill="#9ca3af" font-size="9">tokens → 0</text>
+
+      <path d="M485 90 L515 90" stroke="#f87171" stroke-width="1.5" marker-end="url(#arrowR)"/>
+
+      <!-- PHASE 4: Read doc -->
+      <rect x="520" y="55" width="140" height="70" rx="12" fill="rgba(167,139,250,0.1)" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="590" y="82" text-anchor="middle" fill="#a78bfa" font-size="12" font-weight="600">4. Ler Doc</text>
+      <text x="590" y="100" text-anchor="middle" fill="#d4d4d8" font-size="10">Read PLAN.md</text>
+      <text x="590" y="115" text-anchor="middle" fill="#9ca3af" font-size="9">contexto compacto</text>
+
+      <path d="M665 90 L695 90" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrowP)"/>
+
+      <!-- PHASE 5: Implement -->
+      <rect x="700" y="55" width="105" height="70" rx="12" fill="rgba(196,149,106,0.1)" stroke="#c4956a" stroke-width="1.5"/>
+      <text x="752" y="82" text-anchor="middle" fill="#c4956a" font-size="12" font-weight="600">5. Implementar</text>
+      <text x="752" y="100" text-anchor="middle" fill="#d4d4d8" font-size="10">Edit, Bash</text>
+      <text x="752" y="115" text-anchor="middle" fill="#9ca3af" font-size="9">foco total</text>
+
+      <!-- Context bar visualization -->
+      <text x="20" y="170" fill="#9ca3af" font-size="11" font-weight="600">USO DE CONTEXTO AO LONGO DO WORKFLOW</text>
+
+      <!-- Bar: Explore phase - high -->
+      <rect x="20" y="185" width="140" height="30" rx="4" fill="rgba(96,165,250,0.06)" stroke="#2a2d3a" stroke-width="0.5"/>
+      <rect x="22" y="187" width="120" height="26" rx="3" fill="rgba(96,165,250,0.3)"/>
+      <text x="90" y="204" text-anchor="middle" fill="#60a5fa" font-size="10" font-weight="600">~70% cheio</text>
+
+      <!-- Bar: Write phase - very high -->
+      <rect x="200" y="185" width="140" height="30" rx="4" fill="rgba(110,231,183,0.06)" stroke="#2a2d3a" stroke-width="0.5"/>
+      <rect x="202" y="187" width="133" height="26" rx="3" fill="rgba(248,113,113,0.3)"/>
+      <text x="270" y="204" text-anchor="middle" fill="#f87171" font-size="10" font-weight="600">~90% cheio</text>
+
+      <!-- Bar: /clear - empty -->
+      <rect x="380" y="185" width="100" height="30" rx="4" fill="rgba(248,113,113,0.06)" stroke="#2a2d3a" stroke-width="0.5"/>
+      <rect x="382" y="187" width="5" height="26" rx="3" fill="rgba(110,231,183,0.4)"/>
+      <text x="430" y="204" text-anchor="middle" fill="#6ee7b7" font-size="10" font-weight="600">~0%</text>
+
+      <!-- Bar: Read doc - small -->
+      <rect x="520" y="185" width="140" height="30" rx="4" fill="rgba(167,139,250,0.06)" stroke="#2a2d3a" stroke-width="0.5"/>
+      <rect x="522" y="187" width="20" height="26" rx="3" fill="rgba(167,139,250,0.4)"/>
+      <text x="590" y="204" text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="600">~10%</text>
+
+      <!-- Bar: Implement - moderate -->
+      <rect x="700" y="185" width="105" height="30" rx="4" fill="rgba(196,149,106,0.06)" stroke="#2a2d3a" stroke-width="0.5"/>
+      <rect x="702" y="187" width="50" height="26" rx="3" fill="rgba(196,149,106,0.3)"/>
+      <text x="752" y="204" text-anchor="middle" fill="#c4956a" font-size="10" font-weight="600">~40%</text>
+
+      <!-- Key insight -->
+      <rect x="200" y="240" width="420" height="45" rx="10" fill="rgba(110,231,183,0.08)" stroke="#6ee7b7" stroke-width="1" stroke-dasharray="5,3"/>
+      <text x="410" y="260" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="600">O /clear reseta o contexto. O arquivo .md preserva o conhecimento.</text>
+      <text x="410" y="275" text-anchor="middle" fill="#9ca3af" font-size="10">Resultado: implementacao com contexto limpo e focado</text>
+    </svg>
+    <p class="diagram-caption">O padrao Write-Clear-Read: a exploracao consome muitos tokens, mas o resumo escrito em arquivo sobrevive ao /clear e recarrega o contexto de forma compacta.</p>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Exemplo do workflow completo</span>
+      <span>Prompt do usuario</span>
+    </div>
+    <pre>
+<span class="comment"># Fase 1 — Explorar e documentar</span>
+<span class="string">"Explore o codebase e entenda a arquitetura de autenticacao.</span>
+<span class="string"> Escreva suas descobertas em docs/ARCHITECTURE.md com:</span>
+<span class="string"> - Fluxo de autenticacao passo a passo</span>
+<span class="string"> - Arquivos principais envolvidos</span>
+<span class="string"> - Dependencias externas</span>
+<span class="string"> - Pontos de atencao para mudancas"</span>
+
+<span class="comment"># [Claude explora ~30 arquivos, gasta muitos tokens, escreve o .md]</span>
+<span class="comment"># [Usuario executa /clear para resetar o contexto]</span>
+
+<span class="comment"># Fase 2 — Implementar com contexto limpo</span>
+<span class="string">"Leia docs/ARCHITECTURE.md e implemente OAuth2 com Google</span>
+<span class="string"> seguindo a arquitetura documentada. Rode os testes ao final."</span>
+
+<span class="comment"># [Claude le apenas o .md compacto e implementa com foco]</span></pre>
+  </div>
+
+  <div class="callout-green callout">
+    <strong>Por que funciona:</strong> A exploracao inicial pode consumir 70-90% da context window lendo
+    dezenas de arquivos. Apos o <code>/clear</code>, o Claude recarrega apenas o resumo estruturado
+    (~10% do contexto), ganhando espaco para pensar e implementar com muito mais qualidade.
+  </div>
+
+  <!-- ════════════ TIPOS DE DOCUMENTACAO VIVA ════════════ -->
+  <h2>Tipos de documentacao viva</h2>
+
+  <p>
+    A documentacao oficial da Anthropic recomenda usar arquivos Markdown como checklists e scratchpads
+    de trabalho. Na pratica, diferentes tipos de arquivo servem a propositos distintos. Aqui estao
+    os mais uteis:
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card" style="border-color: var(--green);">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">P</span>
+        PLAN.md
+      </h4>
+      <p>Plano de implementacao criado <strong style="color: var(--green);">antes</strong> de comecar a codar.
+         Lista etapas, decisoes de design, riscos e criterios de sucesso. O Claude consulta durante a execucao.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--blue);">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">A</span>
+        ARCHITECTURE.md
+      </h4>
+      <p>Mapa da arquitetura do sistema: componentes principais, fluxos de dados, padroes utilizados.
+         Funciona como "contexto de alto nivel" para qualquer tarefa futura.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--yellow);">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">D</span>
+        DECISIONS.md
+      </h4>
+      <p>Registro de decisoes tecnicas (ADRs simplificados): o que foi decidido, por que, e quais
+         alternativas foram descartadas. Evita que o Claude re-avalie opcoes ja rejeitadas.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--accent);">
+      <h4>
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">T</span>
+        TODO.md
+      </h4>
+      <p>Checklist de tarefas pendentes. O Claude marca itens conforme completa, permitindo
+         retomar o trabalho apos <code>/clear</code> ou em uma nova sessao sem perder progresso.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--purple);">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">S</span>
+        SCRATCH.md
+      </h4>
+      <p>Scratchpad temporario onde o Claude anota descobertas durante exploracao: padroes encontrados,
+         bugs identificados, dependencias mapeadas. Descartavel apos a tarefa.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--red);">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">C</span>
+        CHANGELOG.md
+      </h4>
+      <p>Registro de progresso — o que ja foi feito, o que falhou e por que, metricas parciais.
+         A Anthropic menciona esse padrao como "memoria de longo prazo portavel" do agente.</p>
+    </div>
+  </div>
+
+  <!-- ════════════ LIVING PLANS ════════════ -->
+  <h2>Living Plans: planeje antes de implementar</h2>
+
+  <p>
+    A best practice mais recomendada pela Anthropic e <strong>separar pesquisa e planejamento da
+    implementacao</strong>. A documentacao oficial alerta que deixar o Claude pular direto para o codigo
+    pode resultar em codigo que resolve o problema errado. O PLAN.md e a materializacao dessa pratica:
+    o Claude cria um plano detalhado em arquivo <em>antes</em> de escrever uma unica linha de codigo.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Prompt para gerar um PLAN.md</span>
+      <span>Prompt do usuario</span>
+    </div>
+    <pre>
+<span class="string">"Antes de implementar qualquer coisa, crie um arquivo PLAN.md com:</span>
+
+<span class="string">## Objetivo</span>
+<span class="string">Migrar o sistema de pagamentos de Stripe v2 para v3</span>
+
+<span class="string">## Analise</span>
+<span class="string">- Arquivos afetados</span>
+<span class="string">- Breaking changes da API v3</span>
+<span class="string">- Testes que precisam ser atualizados</span>
+
+<span class="string">## Plano de execucao</span>
+<span class="string">- [ ] Etapa 1: ...</span>
+<span class="string">- [ ] Etapa 2: ...</span>
+
+<span class="string">## Riscos</span>
+<span class="string">- Pontos de atencao e fallbacks</span>
+
+<span class="string">Nao implemente nada ainda. Apenas o plano."</span></pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Exemplo de PLAN.md gerado pelo Claude</span>
+      <span>PLAN.md</span>
+    </div>
+    <pre>
+<span class="keyword"># Plano: Migracao Stripe v2 → v3</span>
+
+<span class="keyword">## Objetivo</span>
+Migrar todas as chamadas de pagamento para a API Stripe v3,
+mantendo retrocompatibilidade com webhooks existentes.
+
+<span class="keyword">## Arquivos afetados</span>
+- <span class="string">src/services/payment.service.ts</span> — cliente Stripe principal
+- <span class="string">src/webhooks/stripe.handler.ts</span> — handler de webhooks
+- <span class="string">src/types/payment.types.ts</span> — tipos TypeScript
+- <span class="string">tests/payment.test.ts</span> — testes unitarios
+
+<span class="keyword">## Breaking changes v3</span>
+- <span class="tool">charges.create</span> → <span class="tool">paymentIntents.create</span>
+- Campo <span class="tool">source</span> → <span class="tool">payment_method</span>
+- Webhook <span class="tool">charge.succeeded</span> → <span class="tool">payment_intent.succeeded</span>
+
+<span class="keyword">## Plano de execucao</span>
+- [ ] 1. Atualizar tipos em payment.types.ts
+- [ ] 2. Migrar payment.service.ts para PaymentIntents
+- [ ] 3. Atualizar webhook handler para novos eventos
+- [ ] 4. Ajustar testes unitarios
+- [ ] 5. Rodar suite completa de testes
+
+<span class="keyword">## Riscos</span>
+- Webhooks em transito durante deploy podem usar formato antigo
+- Necessario periodo de compatibilidade dual por ~24h</pre>
+  </div>
+
+  <div class="callout">
+    <strong>Plan Mode:</strong> O Claude Code tem um modo de planejamento nativo (ative com <code>Shift+Tab</code>
+    para alternar para "Plan"). Nesse modo, o Claude le arquivos e responde perguntas sem fazer alteracoes.
+    Use-o para a fase de exploracao e depois converta as descobertas em um PLAN.md antes de executar.
+  </div>
+
+  <!-- ════════════ SCRATCHPAD FILES ════════════ -->
+  <h2>Scratchpad files: anotacoes durante a exploracao</h2>
+
+  <p>
+    A documentacao oficial da Anthropic recomenda explicitamente que o Claude use arquivos Markdown
+    como "working scratchpad" — especialmente para tarefas grandes com multiplos passos. O scratchpad
+    e diferente do plano: e um <strong>rascunho temporal</strong> onde o Claude anota o que vai
+    descobrindo durante a investigacao do codebase.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Instruindo o Claude a usar scratchpad</span>
+      <span>Prompt do usuario</span>
+    </div>
+    <pre>
+<span class="string">"Investigue todos os erros de lint no projeto.</span>
+<span class="string"> Use um arquivo SCRATCH.md como checklist de trabalho:</span>
+<span class="string"> 1. Rode o linter e escreva todos os erros no SCRATCH.md</span>
+<span class="string"> 2. Corrija cada erro um por um</span>
+<span class="string"> 3. Marque como feito no checklist apos verificar</span>
+<span class="string"> 4. Ao final, delete o SCRATCH.md"</span></pre>
+  </div>
+
+  <p>
+    O scratchpad e especialmente util quando multiplas instancias do Claude trabalham em paralelo.
+    A Anthropic menciona que voce pode dar a cada instancia um scratchpad separado, dizendo qual
+    arquivo escrever e qual ler — essa separacao frequentemente produz melhores resultados do que
+    uma unica instancia fazendo tudo.
+  </p>
+
+  <div class="callout-blue callout">
+    <strong>Scratchpad interno vs. externo:</strong> O extended thinking ("think", "think hard",
+    "ultrathink") funciona como um scratchpad <em>interno</em> — o Claude raciocina dentro da propria
+    mente, mas esses pensamentos desaparecem apos o turno. Um arquivo .md funciona como scratchpad
+    <em>externo</em> — persiste entre turnos, entre <code>/clear</code>, e entre sessoes. Para
+    tarefas complexas, use ambos: extended thinking para raciocinar, arquivo para persistir.
+  </div>
+
+  <!-- ════════════ DEV DOCS GERADOS ════════════ -->
+  <h2>Dev docs gerados pelo Claude</h2>
+
+  <p>
+    Alem de documentacao para consumo do proprio Claude, voce pode pedir que ele gere documentacao
+    util para humanos — e que tambem serve como contexto futuro para o agente. Essa documentacao
+    "de uso dual" e especialmente valiosa porque mantem-se atualizada naturalmente.
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Tipo de doc</th>
+          <th>Prompt sugerido</th>
+          <th>Beneficio</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Mapa de arquitetura</strong></td>
+          <td><code>"Documente a arquitetura do projeto em ARCHITECTURE.md"</code></td>
+          <td>Onboarding de devs + contexto rapido para Claude</td>
+        </tr>
+        <tr>
+          <td><strong>API contracts</strong></td>
+          <td><code>"Gere documentacao dos endpoints em docs/API.md"</code></td>
+          <td>Referencia para frontend + guia para Claude modificar APIs</td>
+        </tr>
+        <tr>
+          <td><strong>Registro de decisoes</strong></td>
+          <td><code>"Documente a decisao e a razao em DECISIONS.md"</code></td>
+          <td>Previne re-discussao de opcoes ja descartadas</td>
+        </tr>
+        <tr>
+          <td><strong>Guia de contribuicao</strong></td>
+          <td><code>"Crie CONTRIBUTING.md com padroes e convencoes"</code></td>
+          <td>Humanos e Claude seguem os mesmos padroes</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ EXTENDED THINKING vs FILE ════════════ -->
+  <h2>Ultrathink vs. arquivo: quando usar cada um</h2>
+
+  <p>
+    O Claude Code tem dois mecanismos de "raciocinio expandido": o <strong>extended thinking</strong>
+    (interno, dentro do modelo) e os <strong>arquivos de documentacao</strong> (externos, no file system).
+    Eles sao complementares, nao concorrentes. A escolha depende de voce precisar que a informacao
+    <strong>persista</strong> ou nao.
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Dimensao</th>
+          <th>Extended Thinking</th>
+          <th>Arquivo .md</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Persistencia</strong></td>
+          <td>Desaparece apos o turno</td>
+          <td>Persiste entre sessoes</td>
+        </tr>
+        <tr>
+          <td><strong>Tokens consumidos</strong></td>
+          <td>Nao conta no contexto visivel</td>
+          <td>Conta quando lido com Read</td>
+        </tr>
+        <tr>
+          <td><strong>Compartilhavel</strong></td>
+          <td>Nao — invisivel para o usuario</td>
+          <td>Sim — versionavel com git</td>
+        </tr>
+        <tr>
+          <td><strong>Multi-agente</strong></td>
+          <td>Isolado ao agente atual</td>
+          <td>Multiplos agentes podem ler/escrever</td>
+        </tr>
+        <tr>
+          <td><strong>Caso de uso</strong></td>
+          <td>Raciocinar sobre um problema pontual</td>
+          <td>Documentar para reutilizacao futura</td>
+        </tr>
+        <tr>
+          <td><strong>Como ativar</strong></td>
+          <td><code>"think hard"</code>, <code>"ultrathink"</code></td>
+          <td><code>"escreva em PLAN.md"</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <strong>Regra pratica:</strong> Se a informacao e util <em>apenas para este turno</em>, use extended thinking.
+    Se sera util <em>depois do /clear</em> ou <em>em outra sessao</em>, escreva em arquivo.
+    Para tarefas complexas, use os dois: <code>"ultrathink sobre a melhor abordagem, depois escreva
+    seu plano em PLAN.md"</code>.
+  </div>
+
+  <!-- ════════════ BENEFÍCIOS ════════════ -->
+  <h2>Beneficios da documentacao viva</h2>
+
+  <div class="grid-3">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">1</span>
+        Reduz tokens
+      </h4>
+      <p>Um resumo de 200 linhas substitui 30 arquivos que gastariam milhares de tokens para ler. O contexto fica livre para pensar e agir.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">2</span>
+        Persiste entre sessoes
+      </h4>
+      <p>Diferente do contexto da conversa, arquivos no file system sobrevivem a <code>/clear</code>, a compactacao automatica, e ate ao fim da sessao.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">3</span>
+        Versionavel com git
+      </h4>
+      <p>PLAN.md e DECISIONS.md podem ser commitados. O historico de decisoes tecnicas fica rastreavel e revisavel pela equipe.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">4</span>
+        Multi-agente
+      </h4>
+      <p>Multiplas instancias do Claude podem compartilhar estado via arquivos — um escreve, outro le. A Anthropic recomenda esse padrao explicitamente.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">5</span>
+        Dual use
+      </h4>
+      <p>A documentacao serve tanto para o Claude quanto para humanos. Um ARCHITECTURE.md ajuda no onboarding de novos devs e como contexto para o agente.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">6</span>
+        Evita retrabalho
+      </h4>
+      <p>DECISIONS.md registra <em>por que</em> algo foi decidido. O Claude nao perde tempo re-avaliando alternativas que ja foram descartadas.</p>
+    </div>
+  </div>
+
+  <!-- ════════════ WORKFLOW COMPLETO ════════════ -->
+  <h2>Workflow completo: da exploracao a entrega</h2>
+
+  <p>
+    Combinando todas as tecnicas, aqui esta o workflow recomendado para tarefas complexas:
+  </p>
+
+  <div class="card">
+    <div class="flow-step">
+      <div class="flow-num" style="background: var(--blue);">1</div>
+      <div class="flow-content">
+        <h4>Explorar com Plan Mode</h4>
+        <p>Ative Plan Mode (<code>Shift+Tab</code>). Peca ao Claude para investigar o codebase
+           e entender o contexto. Ele le arquivos sem fazer alteracoes.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num" style="background: var(--green);">2</div>
+      <div class="flow-content">
+        <h4>Documentar descobertas</h4>
+        <p>Peca ao Claude para escrever suas descobertas em arquivos: <code>PLAN.md</code> para o plano,
+           <code>ARCHITECTURE.md</code> para contexto, <code>TODO.md</code> para checklist.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num" style="background: var(--red);">3</div>
+      <div class="flow-content">
+        <h4>Limpar contexto</h4>
+        <p>Execute <code>/clear</code> para resetar o contexto. Todo o conhecimento da exploracao
+           agora esta salvo em arquivos, nao na conversa.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num" style="background: var(--purple);">4</div>
+      <div class="flow-content">
+        <h4>Implementar referenciando docs</h4>
+        <p>Na nova sessao limpa, instrua: <code>"Leia PLAN.md e implemente as etapas na ordem.
+           Marque cada item como feito no TODO.md"</code>.</p>
+      </div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-num" style="background: var(--accent);">5</div>
+      <div class="flow-content">
+        <h4>Iterar e atualizar</h4>
+        <p>Se o contexto ficar pesado novamente, repita o ciclo: atualize os docs com o progresso,
+           <code>/clear</code>, e continue. Os docs evoluem com o projeto.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Instrucao para CLAUDE.md que automatiza o padrao</span>
+      <span>CLAUDE.md</span>
+    </div>
+    <pre>
+<span class="keyword">## Regras de documentacao</span>
+
+<span class="comment"># Para tarefas complexas (mais de 5 arquivos afetados):</span>
+- Sempre crie um PLAN.md antes de implementar
+- Use TODO.md como checklist — marque itens conforme completar
+- Registre decisoes tecnicas em DECISIONS.md
+- Se o contexto estiver grande, sugira /clear ao usuario
+
+<span class="comment"># Para exploracao de codebase:</span>
+- Anote descobertas em SCRATCH.md durante a investigacao
+- Ao final da exploracao, consolide em ARCHITECTURE.md
+- Pode deletar SCRATCH.md apos consolidacao
+
+<span class="comment"># Para migracao ou refactoring grande:</span>
+- Use CHANGELOG.md para registrar progresso
+- Formato: data, o que foi feito, o que falta, o que falhou</pre>
+  </div>
+
+  <div class="callout-green callout">
+    <strong>Dica avancada:</strong> Adicione essas regras no <code>CLAUDE.md</code> do seu projeto.
+    Assim, o Claude adota automaticamente o padrao de documentacao viva em toda tarefa complexa,
+    sem que voce precise instruir a cada vez.
+  </div>
+
+  <!-- ════════════ COMPACTAÇÃO AUTOMÁTICA ════════════ -->
+  <h2>Relacao com compactacao automatica</h2>
+
+  <p>
+    O Claude Code realiza <strong>compactacao automatica</strong> quando o contexto se aproxima do
+    limite — ele resume o historico, preservando decisoes e detalhes de implementacao, e descarta
+    outputs de ferramentas redundantes. A documentacao viva complementa essa funcionalidade:
+    enquanto a compactacao e uma medida reativa (acontece quando o contexto esta cheio), a
+    documentacao viva e uma medida <strong>proativa</strong> (voce escreve antes de precisar).
+  </p>
+
+  <div class="callout-red callout">
+    <strong>Atencao:</strong> A compactacao automatica pode perder detalhes sutis cuja importancia
+    so se revela depois. Informacoes criticas devem estar em arquivos, nao apenas no historico
+    da conversa. Se algo e importante o suficiente para sobreviver a uma compactacao, escreva em
+    arquivo.
+  </div>
+
+  <!-- ════════════ FONTES ════════════ -->
+  <div class="sources">
+    <h3>Fontes e Referencias</h3>
+    <ul>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Anthropic — Best Practices for Claude Code</a></li>
+      <li><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank">Anthropic — Effective Context Engineering for AI Agents</a></li>
+      <li><a href="https://docs.claude.com/en/docs/claude-code/memory" target="_blank">Claude Docs — How Claude Remembers Your Project (Memory)</a></li>
+      <li><a href="https://www.anthropic.com/news/context-management" target="_blank">Anthropic — Managing Context on the Claude Developer Platform</a></li>
+      <li><a href="https://www.anthropic.com/engineering/claude-think-tool" target="_blank">Anthropic — The "think" Tool: Enabling Claude to Stop and Think</a></li>
+      <li><a href="https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/extended-thinking-tips" target="_blank">Claude Docs — Extended Thinking Tips</a></li>
+      <li><a href="https://docs.claude.com/en/docs/agents-and-tools/tool-use/memory-tool" target="_blank">Claude Docs — Memory Tool</a></li>
+    </ul>
+  </div>
+
+  <!-- ════════════ NAV FOOTER ════════════ -->
+  <div class="nav-footer">
+    <a href="modulo-05-topico-03-leituras-seletivas.html" class="nav-btn">&larr; Topico 3 &middot; Leituras Seletivas</a>
+    <a href="../index.html" class="nav-btn">&#8962; Indice</a>
+    <a href="modulo-05-topico-05-monitoramento.html" class="nav-btn">Topico 5 &middot; Monitoramento &rarr;</a>
+  </div>
+
+</body>
+</html>
