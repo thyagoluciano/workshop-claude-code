@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modulo 4 · Topico 2 — Referenciar Padroes Existentes com @</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-code: #141620;
+      --border: #2a2d3a;
+      --text: #e4e4e7;
+      --text-dim: #9ca3af;
+      --accent: #c4956a;
+      --accent-soft: rgba(196, 149, 106, 0.12);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.12);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .topic-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-soft); padding: 6px 14px;
+      border-radius: 20px; margin-bottom: 1rem;
+    }
+
+    h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+    .subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+    h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+    p { margin-bottom: 1rem; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+    strong { color: #fff; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0;
+    }
+    .card-label {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 6px; margin-bottom: 0.75rem;
+    }
+
+    .diagram-container {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto;
+    }
+    .diagram-container svg { display: block; margin: 0 auto; }
+    .diagram-caption {
+      text-align: center; font-size: 0.85rem; color: var(--text-dim);
+      margin-top: 1rem; font-style: italic;
+    }
+
+    .code-block {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1rem; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim);
+    }
+    .code-block pre {
+      padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8;
+    }
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: var(--purple); }
+    .code-block .string { color: var(--green); }
+    .code-block .tool { color: var(--accent); }
+    .code-block .number { color: var(--yellow); }
+    .code-block .at-ref { color: var(--blue); font-weight: 600; }
+
+    .callout {
+      border-left: 3px solid var(--accent); background: var(--accent-soft);
+      padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem;
+    }
+    .callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+    .callout-red { border-left-color: var(--red); background: var(--red-soft); }
+    .callout-green { border-left-color: var(--green); background: var(--green-soft); }
+    .callout strong { color: #fff; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+    }
+
+    .mini-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .mini-card h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;
+    }
+    .mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+
+    .icon-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    .sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .sources ul { list-style: none; padding: 0; }
+    .sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+    .sources li::before { content: "\2192 "; color: var(--accent); }
+
+    .nav-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+      color: var(--text); background: var(--bg-card); border: 1px solid var(--border);
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+
+    /* ── Specific to this topic ── */
+    .vs-row {
+      display: grid; grid-template-columns: 1fr 60px 1fr; gap: 0; margin: 2rem 0;
+      align-items: stretch;
+    }
+    .vs-col {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+    }
+    .vs-col h4 {
+      font-size: 1rem; font-weight: 600; margin-bottom: 1rem;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .vs-divider {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: 700; color: var(--text-dim);
+    }
+    .vs-item {
+      display: flex; gap: 10px; margin-bottom: 0.75rem; font-size: 0.9rem;
+      color: var(--text-dim); align-items: flex-start;
+    }
+    .vs-item .dot {
+      width: 8px; height: 8px; border-radius: 50%; margin-top: 7px; flex-shrink: 0;
+    }
+    @media (max-width: 700px) {
+      .vs-row { grid-template-columns: 1fr; gap: 0.5rem; }
+      .vs-divider { padding: 0.5rem 0; }
+    }
+
+    .terminal-mock {
+      background: #0d0d0d; border: 1px solid #333; border-radius: var(--radius);
+      margin: 1.5rem 0; overflow: hidden; font-family: var(--font-mono); font-size: 0.85rem;
+    }
+    .terminal-titlebar {
+      display: flex; align-items: center; gap: 8px; padding: 8px 14px;
+      background: #1a1a1a; border-bottom: 1px solid #333;
+    }
+    .terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .terminal-dot.red { background: #ff5f56; }
+    .terminal-dot.yellow { background: #ffbd2e; }
+    .terminal-dot.green { background: #27c93f; }
+    .terminal-title { color: #666; font-size: 0.75rem; margin-left: 8px; }
+    .terminal-body { padding: 1rem 1.25rem; line-height: 1.7; }
+    .terminal-body .prompt-char { color: var(--green); }
+    .terminal-body .user-input { color: #e4e4e7; }
+    .terminal-body .at-symbol { color: var(--blue); font-weight: 700; }
+    .terminal-body .autocomplete { color: #555; font-style: italic; }
+    .terminal-body .suggestion { color: var(--accent); background: rgba(196,149,106,0.1); padding: 1px 4px; border-radius: 3px; }
+    .terminal-body .cursor { display: inline-block; width: 8px; height: 16px; background: #e4e4e7; animation: blink 1s step-end infinite; vertical-align: text-bottom; }
+    @keyframes blink { 50% { opacity: 0; } }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ HEADER ════════════ -->
+  <div class="topic-badge">Modulo 4 . Topico 2</div>
+  <h1>Referenciar Padroes Existentes com @</h1>
+  <p class="subtitle">
+    Em vez de descrever um padrao com palavras, <strong>aponte diretamente para o arquivo</strong> que ja implementa
+    esse padrao. O operador <code>@</code> no Claude Code faz com que o agente leia o conteudo real do arquivo,
+    garantindo que ele entenda exatamente como seu codigo funciona.
+  </p>
+
+  <!-- ════════════ O QUE E O @ ════════════ -->
+  <h2>O operador @ no Claude Code</h2>
+
+  <p>
+    O <code>@</code> e um mecanismo de <strong>referencia direta a arquivos</strong> disponivel tanto no terminal
+    quanto na extensao VS Code. Ao digitar <code>@</code> seguido de um caminho de arquivo, o Claude Code localiza
+    esse arquivo no seu projeto, le seu conteudo e o inclui como contexto na conversa. Isso e fundamentalmente
+    diferente de copiar e colar trechos de codigo no prompt — o agente recebe o arquivo completo e atualizado,
+    com todas as suas dependencias implicitas.
+  </p>
+
+  <p>
+    Na documentacao oficial, o <code>@</code> aparece como um dos <strong>quick commands</strong> do modo interativo:
+    ao digitar <code>@</code> no prompt, o Claude Code ativa o <strong>autocomplete de caminhos de arquivo</strong>,
+    com suporte a fuzzy matching. Voce nao precisa digitar o caminho completo — basta digitar parte do nome
+    e o Claude encontra o arquivo correto.
+  </p>
+
+  <div class="callout-blue callout">
+    <strong>Fuzzy matching:</strong> O Claude Code suporta correspondencia aproximada nos @-mentions.
+    Digitar <code>@auth</code> pode corresponder a <code>auth.js</code>, <code>AuthService.ts</code>,
+    <code>middleware/auth.guard.ts</code>, etc. Voce nao precisa lembrar o caminho exato.
+  </div>
+
+  <!-- ════════════ DIAGRAMA: COMO O @ RESOLVE ════════════ -->
+  <h2>Como o @ resolve para conteudo real</h2>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 800 340" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Fluxo de como o operador @ resolve uma referencia de arquivo para conteudo real no contexto do Claude</title>
+
+      <defs>
+        <marker id="arrowB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#60a5fa"/>
+        </marker>
+        <marker id="arrowG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#6ee7b7"/>
+        </marker>
+        <marker id="arrowA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#c4956a"/>
+        </marker>
+      </defs>
+
+      <!-- Step 1: User types -->
+      <rect x="20" y="30" width="200" height="70" rx="12" fill="rgba(167,139,250,0.1)" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="120" y="57" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="600">VOCE DIGITA</text>
+      <text x="120" y="78" text-anchor="middle" fill="#d4d4d8" font-size="12" font-family="monospace">@src/models/User.ts</text>
+
+      <!-- Arrow 1 -->
+      <path d="M225 65 L280 65" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#arrowB)"/>
+      <text x="252" y="56" text-anchor="middle" fill="#60a5fa" font-size="9">Tab</text>
+
+      <!-- Step 2: Resolve path -->
+      <rect x="285" y="30" width="200" height="70" rx="12" fill="rgba(96,165,250,0.1)" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="385" y="53" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="600">CLAUDE RESOLVE</text>
+      <text x="385" y="72" text-anchor="middle" fill="#d4d4d8" font-size="11">Localiza o arquivo no</text>
+      <text x="385" y="87" text-anchor="middle" fill="#d4d4d8" font-size="11">filesystem do projeto</text>
+
+      <!-- Arrow 2 -->
+      <path d="M490 65 L545 65" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowG)"/>
+      <text x="517" y="56" text-anchor="middle" fill="#6ee7b7" font-size="9">Read</text>
+
+      <!-- Step 3: Read content -->
+      <rect x="550" y="30" width="220" height="70" rx="12" fill="rgba(110,231,183,0.1)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="660" y="53" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="600">LE O CONTEUDO</text>
+      <text x="660" y="72" text-anchor="middle" fill="#d4d4d8" font-size="11">Arquivo inteiro e injetado</text>
+      <text x="660" y="87" text-anchor="middle" fill="#d4d4d8" font-size="11">na context window</text>
+
+      <!-- Arrow down from step 3 -->
+      <path d="M660 105 L660 145" stroke="#c4956a" stroke-width="1.5" marker-end="url(#arrowA)"/>
+
+      <!-- Step 4: Context -->
+      <rect x="410" y="150" width="340" height="80" rx="12" fill="rgba(196,149,106,0.1)" stroke="#c4956a" stroke-width="1.5"/>
+      <text x="580" y="175" text-anchor="middle" fill="#c4956a" font-size="11" font-weight="600">CONTEXTO DO PROMPT</text>
+      <text x="580" y="195" text-anchor="middle" fill="#d4d4d8" font-size="11">Sua instrucao + conteudo real do arquivo</text>
+      <text x="580" y="212" text-anchor="middle" fill="#d4d4d8" font-size="11">= Claude entende o padrao exato</text>
+
+      <!-- User instruction box -->
+      <rect x="20" y="150" width="340" height="80" rx="12" fill="rgba(251,191,36,0.1)" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="190" y="175" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="600">SUA INSTRUCAO</text>
+      <text x="190" y="195" text-anchor="middle" fill="#d4d4d8" font-size="11">"Crie um OrderController seguindo</text>
+      <text x="190" y="212" text-anchor="middle" fill="#d4d4d8" font-size="11">o padrao de @src/controllers/User..."</text>
+
+      <!-- Arrow from instruction to context -->
+      <path d="M365 190 L405 190" stroke="#c4956a" stroke-width="1.5" marker-end="url(#arrowA)"/>
+
+      <!-- Result -->
+      <rect x="170" y="265" width="460" height="55" rx="12" fill="rgba(110,231,183,0.15)" stroke="#6ee7b7" stroke-width="2"/>
+      <text x="400" y="290" text-anchor="middle" fill="#6ee7b7" font-size="13" font-weight="600">Claude gera codigo que replica fielmente o padrao</text>
+      <text x="400" y="307" text-anchor="middle" fill="#d4d4d8" font-size="11">Mesma estrutura, naming, error handling, imports, tipos</text>
+
+      <!-- Arrows to result -->
+      <path d="M500 235 L420 260" stroke="#6ee7b7" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowG)"/>
+      <path d="M260 235 L370 260" stroke="#6ee7b7" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowG)"/>
+    </svg>
+    <p class="diagram-caption">O @ transforma um caminho de arquivo em conteudo real injetado no contexto, permitindo ao Claude replicar padroes com fidelidade.</p>
+  </div>
+
+  <!-- ════════════ TERMINAL VS VS CODE ════════════ -->
+  <h2>@ no Terminal vs. na Extensao VS Code</h2>
+
+  <p>
+    O operador <code>@</code> funciona em ambos os ambientes, mas com capacidades ligeiramente diferentes.
+    No terminal, o <code>@</code> ativa autocomplete de caminhos de arquivo com Tab.
+    Na extensao VS Code, voce ganha recursos adicionais como selecao de ranges de linha e integracao
+    com o editor visual.
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Funcionalidade</th>
+          <th>Terminal (CLI)</th>
+          <th>Extensao VS Code</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>@-mention de arquivo</strong></td>
+          <td>Sim — digita <code>@</code> e o caminho</td>
+          <td>Sim — com fuzzy matching visual</td>
+        </tr>
+        <tr>
+          <td><strong>Autocomplete com Tab</strong></td>
+          <td>Sim — Tab completa o caminho</td>
+          <td>Nao (usa fuzzy match no lugar)</td>
+        </tr>
+        <tr>
+          <td><strong>Range de linhas</strong></td>
+          <td>Manual: <code>@file.ts#5-10</code></td>
+          <td>Automatico: selecione no editor + <code>Option+K</code> / <code>Alt+K</code></td>
+        </tr>
+        <tr>
+          <td><strong>Referencia a pastas</strong></td>
+          <td>Sim — <code>@src/components/</code></td>
+          <td>Sim — com trailing slash</td>
+        </tr>
+        <tr>
+          <td><strong>Selecao do editor</strong></td>
+          <td>N/A</td>
+          <td>Claude ve automaticamente o texto selecionado no editor</td>
+        </tr>
+        <tr>
+          <td><strong>Referencia a terminal</strong></td>
+          <td>N/A</td>
+          <td><code>@terminal:nome</code> — inclui output do terminal</td>
+        </tr>
+        <tr>
+          <td><strong>Drag & drop</strong></td>
+          <td>N/A</td>
+          <td>Segure <code>Shift</code> e arraste arquivos para o prompt</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <strong>Atalho essencial no VS Code:</strong> Selecione um trecho de codigo no editor e pressione
+    <code>Option+K</code> (Mac) ou <code>Alt+K</code> (Windows/Linux). Isso insere automaticamente uma
+    referencia como <code>@app.ts#5-10</code> no prompt, apontando exatamente para as linhas selecionadas.
+  </div>
+
+  <!-- ════════════ TERMINAL MOCK: AUTOCOMPLETE ════════════ -->
+  <h2>Tab autocomplete no terminal</h2>
+
+  <p>
+    No modo interativo do CLI, ao digitar <code>@</code> seguido de caracteres, o Claude Code oferece
+    autocomplete de caminhos de arquivo via Tab. Isso funciona com fuzzy matching — voce nao precisa
+    digitar o caminho completo.
+  </p>
+
+  <div class="terminal-mock">
+    <div class="terminal-titlebar">
+      <span class="terminal-dot red"></span>
+      <span class="terminal-dot yellow"></span>
+      <span class="terminal-dot green"></span>
+      <span class="terminal-title">claude — ~/meu-projeto</span>
+    </div>
+    <div class="terminal-body">
+      <div style="margin-bottom: 0.5rem;">
+        <span class="prompt-char">$</span> <span class="user-input">claude</span>
+      </div>
+      <div style="margin-bottom: 0.75rem; color: #555;">
+        Claude Code v2.1 &middot; Logged in &middot; Plan mode
+      </div>
+      <div style="margin-bottom: 0.3rem;">
+        <span class="prompt-char">&gt;</span> <span class="user-input">Crie um OrderController seguindo o padrao de </span><span class="at-symbol">@src/con</span><span class="cursor"></span>
+      </div>
+      <div style="margin-bottom: 0.3rem; padding-left: 1.5rem;">
+        <span class="suggestion">src/controllers/UserController.ts</span>
+      </div>
+      <div style="padding-left: 1.5rem;">
+        <span class="autocomplete">src/controllers/ProductController.ts</span>
+      </div>
+      <div style="padding-left: 1.5rem; margin-bottom: 0.5rem;">
+        <span class="autocomplete">src/controllers/AuthController.ts</span>
+      </div>
+      <div style="color: #555; font-size: 0.8rem; padding-left: 1.5rem;">
+        Tab para aceitar &middot; Continue digitando para filtrar
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ DESCREVER VS REFERENCIAR ════════════ -->
+  <h2>Descrever um padrao vs. Referenciar um padrao</h2>
+
+  <p>
+    Uma das mudancas mais impactantes na forma de usar o Claude Code e trocar a <strong>descricao textual</strong>
+    por <strong>referencia direta</strong>. Quando voce descreve um padrao com palavras, o Claude precisa
+    interpretar sua descricao e pode errar detalhes. Quando voce aponta para o arquivo real, ele le
+    exatamente como o padrao esta implementado.
+  </p>
+
+  <div class="vs-row">
+    <div class="vs-col">
+      <h4 style="color: var(--red);">
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">X</span>
+        Descrever o padrao
+      </h4>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--red);"></span>
+        <span>Claude interpreta sua descricao — pode haver ambiguidade</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--red);"></span>
+        <span>Voce precisa lembrar e explicar cada detalhe do padrao</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--red);"></span>
+        <span>Detalhes como imports, tipos e error handling ficam de fora</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--red);"></span>
+        <span>Prompts longos e frageis — facil esquecer algo</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--red);"></span>
+        <span>Resultado generico, nao alinhado com o projeto</span>
+      </div>
+    </div>
+
+    <div class="vs-divider">vs</div>
+
+    <div class="vs-col" style="border-color: var(--green); border-width: 1.5px;">
+      <h4 style="color: var(--green);">
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">@</span>
+        Referenciar o padrao
+      </h4>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span><strong style="color: var(--green);">Claude le o arquivo real</strong> — zero ambiguidade</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span>Voce so aponta para o exemplo — o Claude extrai o padrao</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span>Todos os detalhes sao capturados: imports, tipos, estilo</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span>Prompts curtos e precisos — menos chance de erro</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span>Resultado consistente com as convencoes existentes</span>
+      </div>
+    </div>
+  </div>
+
+  <h3>Comparacao pratica</h3>
+
+  <div class="grid-2">
+    <div class="code-block">
+      <div class="code-header">
+        <span>Prompt descritivo (fragil)</span>
+        <span>~120 palavras</span>
+      </div>
+      <pre>
+<span class="comment">Crie um OrderController com as
+seguintes caracteristicas:
+- Use o padrao de classes do Express
+- Injete o service via construtor
+- Use try/catch em todos os metodos
+- Retorne o formato { data, error }
+- Use os tipos do Zod para validacao
+- Adicione middleware de autenticacao
+- Siga o padrao de error handling com
+  AppError customizado
+- Use async/await em tudo
+- Exporte como default</span></pre>
+    </div>
+
+    <div class="code-block" style="border-color: var(--green);">
+      <div class="code-header" style="color: var(--green);">
+        <span>Prompt com @-mention (preciso)</span>
+        <span>~15 palavras</span>
+      </div>
+      <pre>
+Crie um OrderController seguindo
+o padrao de
+<span class="at-ref">@src/controllers/UserController.ts</span></pre>
+    </div>
+  </div>
+
+  <div class="callout-green callout">
+    <strong>15 palavras vs 120 palavras:</strong> O prompt com <code>@</code> e mais curto, mais preciso e
+    produz resultado mais consistente. O Claude le o UserController real, extrai <em>todos</em> os padroes
+    (imports, tipos, error handling, formatacao de resposta) e os replica no novo arquivo.
+  </div>
+
+  <!-- ════════════ CASOS DE USO ════════════ -->
+  <h2>Casos de uso com @-mentions</h2>
+
+  <div class="grid-3">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">1</span>
+        Novo componente
+      </h4>
+      <p>Criar componente React seguindo a estrutura de um componente existente que ja usa seus patterns de styling, hooks e types.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">2</span>
+        Testes consistentes
+      </h4>
+      <p>Gerar testes para um modulo novo usando o mesmo padrao (setup, mocks, assertions) de um arquivo de testes existente.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">3</span>
+        Replicar estrutura
+      </h4>
+      <p>Criar um novo modulo (service, repository, routes) replicando a mesma arquitetura de um modulo ja implementado.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">4</span>
+        Refatorar seguindo exemplo
+      </h4>
+      <p>Refatorar um arquivo legado para seguir o padrao de um arquivo ja modernizado no mesmo projeto.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">5</span>
+        Migrar tecnologia
+      </h4>
+      <p>Converter um componente class-based para hooks seguindo um exemplo de componente que ja foi migrado.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">6</span>
+        Documentar padrao
+      </h4>
+      <p>Gerar JSDoc ou comentarios seguindo o estilo de documentacao de um arquivo referenciado.</p>
+    </div>
+  </div>
+
+  <!-- ════════════ EXEMPLOS DE PROMPTS ════════════ -->
+  <h2>Exemplos praticos de prompts com @</h2>
+
+  <h3>Criar novo arquivo seguindo padrao</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Prompt no Claude Code</span>
+      <span>Referenciar padrao</span>
+    </div>
+    <pre>
+Crie <span class="at-ref">@src/services/OrderService.ts</span> seguindo exatamente
+o padrao de <span class="at-ref">@src/services/UserService.ts</span>
+
+O service deve gerenciar pedidos com os metodos:
+- create, findById, findAll, update, cancel</pre>
+  </div>
+
+  <h3>Refatorar usando padrao de outro arquivo</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Prompt no Claude Code</span>
+      <span>Refatoracao</span>
+    </div>
+    <pre>
+<span class="at-ref">@src/routes/legacy-auth.js</span> esta usando callbacks.
+Refatore para usar async/await seguindo o padrao de
+<span class="at-ref">@src/routes/users.ts</span></pre>
+  </div>
+
+  <h3>Escrever testes no padrao do projeto</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Prompt no Claude Code</span>
+      <span>Testes</span>
+    </div>
+    <pre>
+Escreva testes para <span class="at-ref">@src/services/PaymentService.ts</span>
+seguindo o padrao de testes de <span class="at-ref">@tests/services/UserService.test.ts</span>
+
+Cubra os cenarios de sucesso, falha de validacao e erro de gateway.</pre>
+  </div>
+
+  <h3>Combinar multiplas referencias</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Prompt no Claude Code</span>
+      <span>Multiplas @-mentions</span>
+    </div>
+    <pre>
+Crie um modulo de notificacoes com:
+- Service: siga o padrao de <span class="at-ref">@src/services/EmailService.ts</span>
+- Controller: siga o padrao de <span class="at-ref">@src/controllers/UserController.ts</span>
+- Testes: siga o padrao de <span class="at-ref">@tests/services/EmailService.test.ts</span>
+- Schema Zod: siga o padrao de <span class="at-ref">@src/schemas/email.schema.ts</span></pre>
+  </div>
+
+  <h3>Referenciar pasta inteira</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Prompt no Claude Code</span>
+      <span>Referencia a pasta</span>
+    </div>
+    <pre>
+Olhe a estrutura de <span class="at-ref">@src/modules/users/</span> e crie um modulo
+identico para <code>products</code>, incluindo service, controller,
+routes, schemas e testes.</pre>
+  </div>
+
+  <h3>Range de linhas especifico</h3>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Prompt no Claude Code</span>
+      <span>Range de linhas</span>
+    </div>
+    <pre>
+Veja o padrao de error handling em <span class="at-ref">@src/middleware/errorHandler.ts#15-45</span>
+e aplique esse mesmo padrao em <span class="at-ref">@src/controllers/PaymentController.ts</span></pre>
+  </div>
+
+  <!-- ════════════ COMBINANDO COM INSTRUCOES ════════════ -->
+  <h2>Combinando @ com instrucoes claras</h2>
+
+  <p>
+    O poder real do <code>@</code> aparece quando voce combina referencias a arquivos com instrucoes
+    claras e especificas. O padrao mais eficaz e: <strong>referencia + objetivo + restricoes</strong>.
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Padrao de prompt</th>
+          <th>Exemplo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Criar seguindo padrao</strong></td>
+          <td><code>Crie X seguindo o padrao de @arquivo</code></td>
+        </tr>
+        <tr>
+          <td><strong>Refatorar com referencia</strong></td>
+          <td><code>@arquivo-legado — refatore usando o padrao de @arquivo-moderno</code></td>
+        </tr>
+        <tr>
+          <td><strong>Comparar e alinhar</strong></td>
+          <td><code>Compare @arquivo-A e @arquivo-B e alinhe A com o padrao de B</code></td>
+        </tr>
+        <tr>
+          <td><strong>Extender padrao existente</strong></td>
+          <td><code>Adicione metodo X em @arquivo seguindo o padrao dos metodos existentes</code></td>
+        </tr>
+        <tr>
+          <td><strong>Aplicar padrao a multiplos</strong></td>
+          <td><code>Aplique o padrao de error handling de @middleware em @controller-A e @controller-B</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout">
+    <strong>Dica de produtividade:</strong> Quando voce tem um modulo bem implementado que serve de "gold standard",
+    referencie-o em todos os prompts de criacao de modulos similares. Isso garante consistencia automatica
+    em todo o codebase, sem precisar documentar cada convencao manualmente.
+  </div>
+
+  <!-- ════════════ POR QUE REFERENCIAR E MELHOR ════════════ -->
+  <h2>Por que referenciar e melhor que descrever</h2>
+
+  <p>
+    A documentacao oficial de best practices da Anthropic recomenda fornecer instrucoes especificas que
+    apontem para exemplos existentes. A razao e simples: o Claude Code tem acesso ao filesystem e pode
+    ler seus arquivos diretamente. Aproveitar essa capacidade e fundamental para obter resultados
+    consistentes com o padrao do seu projeto.
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">1</span>
+        Fidelidade total ao padrao
+      </h4>
+      <p>O Claude le o arquivo real com todos os detalhes — nao depende de descricao incompleta.
+         Imports, tipos, naming conventions, espacamento, tudo e capturado.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">2</span>
+        Prompts menores e melhores
+      </h4>
+      <p>Em vez de 100+ palavras descrevendo um padrao, voce usa 15 palavras com um @-mention.
+         Menos texto no prompt = mais espaco na context window para o conteudo real.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">3</span>
+        Sempre atualizado
+      </h4>
+      <p>Se o arquivo de referencia mudar, o proximo prompt com @ le a versao mais recente.
+         Descricoes textuais ficam desatualizadas e causam drift.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">4</span>
+        Consistencia no time
+      </h4>
+      <p>Todos os devs do time podem usar o mesmo @-mention para referenciar o mesmo padrao.
+         Nao depende de cada pessoa descrever o padrao de forma diferente.</p>
+    </div>
+  </div>
+
+  <div class="callout-red callout">
+    <strong>Armadilha comum:</strong> Copiar e colar trechos de codigo no prompt em vez de usar <code>@</code>.
+    Quando voce cola codigo, ele pode estar desatualizado, incompleto ou fora de contexto. O <code>@</code>
+    sempre le a versao atual do arquivo, com todo o contexto ao redor.
+  </div>
+
+  <!-- ════════════ @ E CLAUDE.MD ════════════ -->
+  <h2>Combinando @ com CLAUDE.md</h2>
+
+  <p>
+    O <code>@</code> funciona perfeitamente em conjunto com o <strong>CLAUDE.md</strong> do seu projeto.
+    Enquanto o CLAUDE.md documenta regras gerais e convencoes (como "use Zod para validacao"
+    ou "siga o padrao Repository"), o <code>@</code> aponta para a implementacao concreta dessas regras.
+    Os dois mecanismos se complementam:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>CLAUDE.md do projeto</span>
+      <span>Regras gerais</span>
+    </div>
+    <pre>
+<span class="comment"># Convencoes do projeto</span>
+<span class="comment">- Controllers seguem o padrao em src/controllers/UserController.ts</span>
+<span class="comment">- Services usam injecao de dependencia via construtor</span>
+<span class="comment">- Testes seguem o padrao de tests/services/UserService.test.ts</span>
+<span class="comment">- Schemas Zod ficam em src/schemas/ (ver email.schema.ts como exemplo)</span></pre>
+  </div>
+
+  <p>
+    Com essas regras no CLAUDE.md, o Claude Code ja sabe quais arquivos referenciar. Mas voce pode
+    reforcar ou sobrepor essa orientacao no prompt com <code>@</code> quando quiser apontar para um
+    arquivo especifico diferente.
+  </p>
+
+  <div class="callout-blue callout">
+    <strong>Dica:</strong> Use o comando <code>/init</code> para gerar um CLAUDE.md inicial e depois
+    adicione referencias a arquivos-padrao manualmente. Isso cria um "guia de estilo vivo" que o
+    Claude Code consulta automaticamente em toda conversa.
+  </div>
+
+  <!-- ════════════ FONTES ════════════ -->
+  <div class="sources">
+    <h3>Fontes e Referencias</h3>
+    <ul>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Anthropic — Best Practices for Claude Code</a></li>
+      <li><a href="https://docs.claude.com/en/docs/claude-code/interactive-mode" target="_blank">Claude Docs — Interactive Mode (Quick Commands: @ file path mention)</a></li>
+      <li><a href="https://docs.claude.com/en/docs/claude-code/ide-integrations" target="_blank">Claude Docs — Use Claude Code in VS Code (@-mentions, Option+K)</a></li>
+      <li><a href="https://docs.claude.com/en/docs/claude-code/cli-reference" target="_blank">Claude Docs — CLI Reference</a></li>
+      <li><a href="https://docs.claude.com/en/docs/claude-code/overview" target="_blank">Claude Docs — Claude Code Overview</a></li>
+      <li><a href="https://www.anthropic.com/product/claude-code" target="_blank">Anthropic — Claude Code Product Page</a></li>
+    </ul>
+  </div>
+
+  <!-- ════════════ NAV FOOTER ════════════ -->
+  <div class="nav-footer">
+    <a href="modulo-04-topico-01-escopo.html" class="nav-btn">&larr; Topico 1 . Escopo</a>
+    <a href="../index.html" class="nav-btn">&#8962; Indice</a>
+    <a href="modulo-04-topico-03-pipe-urls-imagens.html" class="nav-btn">Topico 3 . Pipe, URLs e Imagens &rarr;</a>
+  </div>
+
+</body>
+</html>

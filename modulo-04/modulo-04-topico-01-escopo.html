@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo 4 · Tópico 1 — Escopo da Tarefa: Arquivo, Cenário, Preferências de Teste</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-code: #141620;
+      --border: #2a2d3a;
+      --text: #e4e4e7;
+      --text-dim: #9ca3af;
+      --accent: #c4956a;
+      --accent-soft: rgba(196, 149, 106, 0.12);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.12);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .topic-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-soft); padding: 6px 14px;
+      border-radius: 20px; margin-bottom: 1rem;
+    }
+
+    h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+    .subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+    h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+    p { margin-bottom: 1rem; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+    strong { color: #fff; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0;
+    }
+    .card-label {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 6px; margin-bottom: 0.75rem;
+    }
+
+    .diagram-container {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto;
+    }
+    .diagram-container svg { display: block; margin: 0 auto; }
+    .diagram-caption {
+      text-align: center; font-size: 0.85rem; color: var(--text-dim);
+      margin-top: 1rem; font-style: italic;
+    }
+
+    .code-block {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1rem; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim);
+    }
+    .code-block pre {
+      padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8;
+    }
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: var(--purple); }
+    .code-block .string { color: var(--green); }
+    .code-block .tool { color: var(--accent); }
+    .code-block .number { color: var(--yellow); }
+    .code-block .bad { color: var(--red); }
+    .code-block .good { color: var(--green); }
+
+    .callout {
+      border-left: 3px solid var(--accent); background: var(--accent-soft);
+      padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem;
+    }
+    .callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+    .callout-red { border-left-color: var(--red); background: var(--red-soft); }
+    .callout-green { border-left-color: var(--green); background: var(--green-soft); }
+    .callout-yellow { border-left-color: var(--yellow); background: var(--yellow-soft); }
+    .callout strong { color: #fff; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+    }
+
+    .mini-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .mini-card h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;
+    }
+    .mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+
+    .icon-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    .sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .sources ul { list-style: none; padding: 0; }
+    .sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+    .sources li::before { content: "\2192 "; color: var(--accent); }
+
+    .nav-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+      color: var(--text); background: var(--bg-card); border: 1px solid var(--border);
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+
+    /* ── Specific to this topic ── */
+    .vs-row {
+      display: grid; grid-template-columns: 1fr 60px 1fr; gap: 0; margin: 2rem 0;
+      align-items: stretch;
+    }
+    .vs-col {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+    }
+    .vs-col h4 {
+      font-size: 1rem; font-weight: 600; margin-bottom: 1rem;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .vs-divider {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: 700; color: var(--text-dim);
+    }
+    .vs-item {
+      display: flex; gap: 10px; margin-bottom: 0.75rem; font-size: 0.9rem;
+      color: var(--text-dim); align-items: flex-start;
+    }
+    .vs-item .dot {
+      width: 8px; height: 8px; border-radius: 50%; margin-top: 7px; flex-shrink: 0;
+    }
+    @media (max-width: 700px) {
+      .vs-row { grid-template-columns: 1fr; gap: 0.5rem; }
+      .vs-divider { padding: 0.5rem 0; }
+    }
+
+    .template-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem;
+    }
+    .template-card h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff;
+      margin-bottom: 0.75rem; display: flex; align-items: center; gap: 8px;
+    }
+    .template-card pre {
+      font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.6;
+      color: #d4d4d8; background: var(--bg-code); padding: 1rem;
+      border-radius: 8px; overflow-x: auto; margin: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ HEADER ════════════ -->
+  <div class="topic-badge">Módulo 4 · Tópico 1</div>
+  <h1>Escopo da Tarefa: Arquivo, Cenário, Preferências de Teste</h1>
+  <p class="subtitle">
+    A qualidade do output do Claude Code é diretamente proporcional à precisão do seu prompt.
+    Definir <strong>onde</strong> atuar, <strong>o quê</strong> fazer e <strong>como</strong> validar
+    transforma interações vagas em entregas precisas e confiáveis.
+  </p>
+
+  <!-- ════════════ POR QUE ESCOPO IMPORTA ════════════ -->
+  <h2>Por que definir escopo claro importa?</h2>
+
+  <p>
+    A documentação oficial da Anthropic sobre best practices do Claude Code enfatiza que
+    quanto mais precisas as instruções, menos correções serão necessárias. O Claude pode
+    inferir intenção, mas não pode ler sua mente. Referenciar arquivos específicos,
+    mencionar restrições e apontar para padrões existentes faz toda a diferença.
+  </p>
+
+  <div class="grid-3">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">!</span>
+        Reduz Ambiguidade
+      </h4>
+      <p>Sem escopo, o agente precisa adivinhar onde atuar, qual framework usar e que padrão seguir. Cada suposição é um ponto de falha potencial.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">$</span>
+        Economiza Tokens
+      </h4>
+      <p>Um prompt vago faz o Claude ler centenas de arquivos buscando contexto. Escopar a investigação evita consumir a context window com informação irrelevante.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">^</span>
+        Melhora Qualidade
+      </h4>
+      <p>Quando o agente sabe exatamente o alvo, ele gera código que respeita as convenções do projeto, trata edge cases e passa nos testes de primeira.</p>
+    </div>
+  </div>
+
+  <div class="callout-red callout">
+    <strong>Armadilha clássica:</strong> Pedir ao Claude para "investigar" algo sem escopar a busca. Ele pode
+    ler centenas de arquivos, enchendo a context window. Sempre escopar a investigação ou usar subagentes
+    para que a exploração não consuma seu contexto principal.
+  </div>
+
+  <!-- ════════════ AS 3 DIMENSOES ════════════ -->
+  <h2>As 3 dimensões do escopo</h2>
+
+  <p>
+    Todo prompt bem escopado responde a três perguntas fundamentais. Pense nelas como coordenadas
+    que localizam a tarefa com precisão no espaço do seu codebase:
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>As 3 dimensões do escopo: ONDE (arquivo/diretório), O QUE (cenário/funcionalidade), COMO (preferências de implementação/teste)</title>
+
+      <defs>
+        <marker id="arrowB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#60a5fa"/>
+        </marker>
+        <marker id="arrowG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#6ee7b7"/>
+        </marker>
+        <marker id="arrowA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#c4956a"/>
+        </marker>
+      </defs>
+
+      <!-- Central prompt circle -->
+      <circle cx="400" cy="190" r="60" fill="rgba(167,139,250,0.1)" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="400" y="185" text-anchor="middle" fill="#a78bfa" font-size="13" font-weight="700">PROMPT</text>
+      <text x="400" y="203" text-anchor="middle" fill="#d4d4d8" font-size="11">bem escopado</text>
+
+      <!-- ONDE (top-left) -->
+      <rect x="40" y="30" width="220" height="120" rx="14" fill="rgba(96,165,250,0.08)" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="150" y="60" text-anchor="middle" fill="#60a5fa" font-size="15" font-weight="700">ONDE</text>
+      <text x="150" y="80" text-anchor="middle" fill="#d4d4d8" font-size="11">Arquivo / Diretório / Módulo</text>
+      <line x1="60" y1="95" x2="240" y2="95" stroke="rgba(96,165,250,0.3)" stroke-width="0.5"/>
+      <text x="150" y="115" text-anchor="middle" fill="#9ca3af" font-size="10">src/components/LoginForm.tsx</text>
+      <text x="150" y="132" text-anchor="middle" fill="#9ca3af" font-size="10">src/schemas/auth.schema.ts</text>
+
+      <!-- Arrow ONDE -> center -->
+      <path d="M260 120 L345 170" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#arrowB)"/>
+
+      <!-- O QUE (top-right) -->
+      <rect x="540" y="30" width="220" height="120" rx="14" fill="rgba(110,231,183,0.08)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="650" y="60" text-anchor="middle" fill="#6ee7b7" font-size="15" font-weight="700">O QUE</text>
+      <text x="650" y="80" text-anchor="middle" fill="#d4d4d8" font-size="11">Cenário / Funcionalidade</text>
+      <line x1="560" y1="95" x2="740" y2="95" stroke="rgba(110,231,183,0.3)" stroke-width="0.5"/>
+      <text x="650" y="115" text-anchor="middle" fill="#9ca3af" font-size="10">Validação de email no signup</text>
+      <text x="650" y="132" text-anchor="middle" fill="#9ca3af" font-size="10">Tratamento de erro 429</text>
+
+      <!-- Arrow O QUE -> center -->
+      <path d="M540 120 L455 170" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowG)"/>
+
+      <!-- COMO (bottom-center) -->
+      <rect x="250" y="280" width="300" height="90" rx="14" fill="rgba(196,149,106,0.08)" stroke="#c4956a" stroke-width="1.5"/>
+      <text x="400" y="308" text-anchor="middle" fill="#c4956a" font-size="15" font-weight="700">COMO</text>
+      <text x="400" y="328" text-anchor="middle" fill="#d4d4d8" font-size="11">Preferências de Implementação e Teste</text>
+      <line x1="270" y1="342" x2="530" y2="342" stroke="rgba(196,149,106,0.3)" stroke-width="0.5"/>
+      <text x="400" y="360" text-anchor="middle" fill="#9ca3af" font-size="10">Use Jest + RTL, garanta cobertura de edge cases, siga o padrão do projeto</text>
+
+      <!-- Arrow COMO -> center -->
+      <path d="M400 280 L400 255" stroke="#c4956a" stroke-width="1.5" marker-end="url(#arrowA)"/>
+    </svg>
+    <p class="diagram-caption">As três dimensões convergem para formar um prompt preciso: ONDE atuar, O QUE fazer, COMO validar.</p>
+  </div>
+
+  <!-- ════════════ DIMENSAO 1: ONDE ════════════ -->
+  <h2>Dimensão 1: ONDE (arquivo / diretório)</h2>
+
+  <p>
+    Apontar para arquivos específicos é a forma mais eficaz de reduzir ambiguidade. Em vez de deixar
+    o agente buscar no codebase inteiro, você pode referenciar diretamente os arquivos relevantes.
+    Isso economiza tokens e evita que o Claude leia arquivos desnecessários.
+  </p>
+
+  <h3>Apontar para arquivos vs. deixar o agente buscar</h3>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Abordagem</th>
+          <th>Vantagens</th>
+          <th>Desvantagens</th>
+          <th>Quando usar</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong style="color: var(--blue);">Apontar arquivo</strong></td>
+          <td>Rápido, economiza tokens, sem ambiguidade</td>
+          <td>Pode perder dependências relacionadas</td>
+          <td>Você conhece bem o codebase</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--green);">Deixar buscar</strong></td>
+          <td>Descobre dependências, ve o contexto completo</td>
+          <td>Consome tokens, pode ler arquivos irrelevantes</td>
+          <td>Codebase novo, refactoring amplo</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--accent);">Híbrido</strong></td>
+          <td>Equilíbrio entre precisão e contexto</td>
+          <td>Requer conhecimento parcial do projeto</td>
+          <td>Maioria dos cenários do dia a dia</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Exemplos de escopo de localização</span>
+      <span>Prompt do usuário</span>
+    </div>
+    <pre>
+<span class="comment">// Específico: aponta para o arquivo exato</span>
+<span class="good">Em src/components/LoginForm.tsx, adicione validação
+de email no campo de input usando o schema Zod
+que já existe em src/schemas/auth.schema.ts</span>
+
+<span class="comment">// Semi-específico: aponta para o diretório</span>
+<span class="good">Nos componentes de src/features/auth/, corrija o
+bug que causa redirect infinito após login com SSO</span>
+
+<span class="comment">// Por padrão: quando você não sabe o arquivo exato</span>
+<span class="good">Encontre o componente de signup (deve estar em
+src/features/auth/ ou src/components/) e adicione
+validação de telefone com máscara brasileira</span></pre>
+  </div>
+
+  <div class="callout-blue callout">
+    <strong>Dica:</strong> Quando componentes tem nomes ou funções similares, seja extremamente específico
+    nas suas requisições. Um prompt detalhado evita que o Claude faça alterações inesperadas
+    na parte errada do codebase.
+  </div>
+
+  <!-- ════════════ DIMENSAO 2: O QUE ════════════ -->
+  <h2>Dimensão 2: O QUE (cenário / funcionalidade)</h2>
+
+  <p>
+    Descreva o cenário ou funcionalidade com clareza suficiente para que um colega com contexto mínimo
+    sobre a tarefa consiga segui-lo. A documentação da Anthropic sugere este teste:
+    mostre seu prompt a um colega e pergunte se ele conseguiria executar a tarefa.
+    Se ele ficaria confuso, o Claude também ficara.
+  </p>
+
+  <div class="vs-row">
+    <div class="vs-col" style="border-color: var(--red);">
+      <h4 style="color: var(--red);">
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">X</span>
+        Prompt vago
+      </h4>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--red);"></span>
+        <span>"Arrume o login"</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--red);"></span>
+        <span>"Melhore a performance"</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--red);"></span>
+        <span>"Adicione testes"</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--red);"></span>
+        <span>"Refatore esse código"</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--red);"></span>
+        <span>"Tem um bug no checkout"</span>
+      </div>
+    </div>
+
+    <div class="vs-divider">vs</div>
+
+    <div class="vs-col" style="border-color: var(--green); border-width: 1.5px;">
+      <h4 style="color: var(--green);">
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">OK</span>
+        Prompt específico
+      </h4>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span>"O login retorna 401 quando o email tem letras maiúsculas. Normalize o email antes de enviar ao backend."</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span>"A lista de produtos re-renderiza a cada keystroke no filtro. Adicione debounce de 300ms no onChange."</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span>"Adicione testes unitários para o useAuth hook, cobrindo login com sucesso, credenciais inválidas e token expirado."</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span>"Extraia a lógica de cálculo de preço do OrderService para uma classe PriceCalculator, mantendo a mesma interface pública."</span>
+      </div>
+      <div class="vs-item">
+        <span class="dot" style="background: var(--green);"></span>
+        <span>"No checkout, o cupom de desconto aplica o percentual sobre o frete em vez de sobre o subtotal. Corrija em src/services/discount.ts."</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ DIMENSAO 3: COMO ════════════ -->
+  <h2>Dimensão 3: COMO (preferências de implementação e teste)</h2>
+
+  <p>
+    Especificar preferências de implementação e teste elimina a necessidade do agente adivinhar
+    seu stack e suas convenções. Isso é especialmente importante para testes, onde frameworks,
+    padrões de nomeação e níveis de cobertura variam entre projetos.
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card" style="border-color: var(--accent);">
+      <h4>
+        <span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">T</span>
+        Preferências de Teste
+      </h4>
+      <p>
+        <code>"Use Jest com React Testing Library"</code><br>
+        <code>"Teste com Vitest e @testing-library/vue"</code><br>
+        <code>"Use pytest com fixtures, não mocks"</code><br>
+        <code>"Garanta cobertura de edge cases"</code><br>
+        <code>"Inclua testes de erro e boundary"</code>
+      </p>
+    </div>
+    <div class="mini-card" style="border-color: var(--blue);">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">I</span>
+        Preferências de Implementação
+      </h4>
+      <p>
+        <code>"Siga o padrão de error handling do projeto"</code><br>
+        <code>"Use o pattern Repository que já existe"</code><br>
+        <code>"Mantenha compatibilidade com a API v2"</code><br>
+        <code>"Prefira composição sobre herança"</code><br>
+        <code>"Use tipos explicitados, não any"</code>
+      </p>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Prompt com preferências explícitas</span>
+      <span>Exemplo completo</span>
+    </div>
+    <pre>
+<span class="good">Em src/hooks/useCart.ts, adicione lógica para aplicar
+cupom de desconto percentual.</span>
+
+<span class="comment">Preferências de implementação:</span>
+<span class="string">- Siga o mesmo pattern do useDiscount hook existente</span>
+<span class="string">- Valide que o cupom não está expirado antes de aplicar</span>
+<span class="string">- Retorne um erro tipado (DiscountError) se o cupom for inválido</span>
+
+<span class="comment">Preferências de teste:</span>
+<span class="string">- Use Jest com React Testing Library</span>
+<span class="string">- Cubra: cupom válido, cupom expirado, cupom já usado, valor negativo</span>
+<span class="string">- Siga o padrão de nomeação "should [verbo] when [condição]"</span>
+
+<span class="comment">Verificação:</span>
+<span class="string">- Rode npm test -- --grep useCart e garanta que todos passam</span>
+<span class="string">- Rode npm run typecheck para confirmar que não há erros de tipo</span></pre>
+  </div>
+
+  <div class="callout-green callout">
+    <strong>Best practice:</strong> Sempre fornecer meios de verificação: testes, scripts ou builds.
+    A documentação da Anthropic destaca que sem verificação, o Claude pode produzir uma implementação
+    que parece plausível mas não lida com edge cases. Critérios de verificação alimentam
+    o loop de auto-correção do agente.
+  </div>
+
+  <!-- ════════════ ANATOMIA DO PROMPT IDEAL ════════════ -->
+  <h2>Anatomia de um prompt ideal</h2>
+
+  <p>
+    Um prompt bem estruturado para o Claude Code segue quatro blocos que cobrem todas as dimensões
+    do escopo. Pense nele como uma especificação compacta que você daria a um dev junior:
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Anatomia de um prompt ideal: Contexto + Tarefa + Escopo + Verificação</title>
+
+      <!-- Block 1: Contexto -->
+      <rect x="20" y="40" width="175" height="200" rx="12" fill="rgba(167,139,250,0.08)" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="107" y="70" text-anchor="middle" fill="#a78bfa" font-size="14" font-weight="700">CONTEXTO</text>
+      <line x1="40" y1="82" x2="175" y2="82" stroke="rgba(167,139,250,0.3)" stroke-width="0.5"/>
+      <text x="107" y="105" text-anchor="middle" fill="#d4d4d8" font-size="10">Por que esta tarefa</text>
+      <text x="107" y="122" text-anchor="middle" fill="#d4d4d8" font-size="10">existe? Qual problema</text>
+      <text x="107" y="139" text-anchor="middle" fill="#d4d4d8" font-size="10">estamos resolvendo?</text>
+      <text x="107" y="170" text-anchor="middle" fill="#9ca3af" font-size="9" font-style="italic">"Usuários reportam que</text>
+      <text x="107" y="185" text-anchor="middle" fill="#9ca3af" font-size="9" font-style="italic">o email com acentos</text>
+      <text x="107" y="200" text-anchor="middle" fill="#9ca3af" font-size="9" font-style="italic">não passa no signup"</text>
+
+      <!-- Arrow 1->2 -->
+      <text x="207" y="145" text-anchor="middle" fill="#475569" font-size="20">+</text>
+
+      <!-- Block 2: Tarefa -->
+      <rect x="220" y="40" width="175" height="200" rx="12" fill="rgba(96,165,250,0.08)" stroke="#60a5fa" stroke-width="1.5"/>
+      <text x="307" y="70" text-anchor="middle" fill="#60a5fa" font-size="14" font-weight="700">TAREFA</text>
+      <line x1="240" y1="82" x2="375" y2="82" stroke="rgba(96,165,250,0.3)" stroke-width="0.5"/>
+      <text x="307" y="105" text-anchor="middle" fill="#d4d4d8" font-size="10">O que precisa ser feito?</text>
+      <text x="307" y="122" text-anchor="middle" fill="#d4d4d8" font-size="10">Qual o resultado</text>
+      <text x="307" y="139" text-anchor="middle" fill="#d4d4d8" font-size="10">esperado?</text>
+      <text x="307" y="170" text-anchor="middle" fill="#9ca3af" font-size="9" font-style="italic">"Normalize o email com</text>
+      <text x="307" y="185" text-anchor="middle" fill="#9ca3af" font-size="9" font-style="italic">.normalize('NFC') antes</text>
+      <text x="307" y="200" text-anchor="middle" fill="#9ca3af" font-size="9" font-style="italic">da validação no schema"</text>
+
+      <!-- Arrow 2->3 -->
+      <text x="407" y="145" text-anchor="middle" fill="#475569" font-size="20">+</text>
+
+      <!-- Block 3: Escopo -->
+      <rect x="420" y="40" width="175" height="200" rx="12" fill="rgba(110,231,183,0.08)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="507" y="70" text-anchor="middle" fill="#6ee7b7" font-size="14" font-weight="700">ESCOPO</text>
+      <line x1="440" y1="82" x2="575" y2="82" stroke="rgba(110,231,183,0.3)" stroke-width="0.5"/>
+      <text x="507" y="105" text-anchor="middle" fill="#d4d4d8" font-size="10">Onde? Quais arquivos?</text>
+      <text x="507" y="122" text-anchor="middle" fill="#d4d4d8" font-size="10">Quais restrições</text>
+      <text x="507" y="139" text-anchor="middle" fill="#d4d4d8" font-size="10">e preferências?</text>
+      <text x="507" y="170" text-anchor="middle" fill="#9ca3af" font-size="9" font-style="italic">"Em src/schemas/signup.ts</text>
+      <text x="507" y="185" text-anchor="middle" fill="#9ca3af" font-size="9" font-style="italic">Siga o padrão Zod do</text>
+      <text x="507" y="200" text-anchor="middle" fill="#9ca3af" font-size="9" font-style="italic">projeto, use .transform()"</text>
+
+      <!-- Arrow 3->4 -->
+      <text x="607" y="145" text-anchor="middle" fill="#475569" font-size="20">+</text>
+
+      <!-- Block 4: Verificação -->
+      <rect x="620" y="40" width="165" height="200" rx="12" fill="rgba(196,149,106,0.08)" stroke="#c4956a" stroke-width="1.5"/>
+      <text x="702" y="70" text-anchor="middle" fill="#c4956a" font-size="14" font-weight="700">VERIFICACAO</text>
+      <line x1="640" y1="82" x2="765" y2="82" stroke="rgba(196,149,106,0.3)" stroke-width="0.5"/>
+      <text x="702" y="105" text-anchor="middle" fill="#d4d4d8" font-size="10">Como saber se está</text>
+      <text x="702" y="122" text-anchor="middle" fill="#d4d4d8" font-size="10">pronto? Que comando</text>
+      <text x="702" y="139" text-anchor="middle" fill="#d4d4d8" font-size="10">roda para confirmar?</text>
+      <text x="702" y="170" text-anchor="middle" fill="#9ca3af" font-size="9" font-style="italic">"Rode npm test -- signup</text>
+      <text x="702" y="185" text-anchor="middle" fill="#9ca3af" font-size="9" font-style="italic">e npm run typecheck.</text>
+      <text x="702" y="200" text-anchor="middle" fill="#9ca3af" font-size="9" font-style="italic">Ambos devem passar."</text>
+
+      <!-- Bottom summary bar -->
+      <rect x="20" y="260" width="765" height="30" rx="8" fill="rgba(167,139,250,0.06)" stroke="#475569" stroke-width="0.5"/>
+      <text x="400" y="280" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="600">CONTEXTO + TAREFA + ESCOPO + VERIFICACAO = prompt de alta qualidade</text>
+    </svg>
+    <p class="diagram-caption">Cada bloco responde uma pergunta essencial. Juntos, eliminam ambiguidade e alimentam o loop agêntico.</p>
+  </div>
+
+  <!-- ════════════ ESCOPO PROGRESSIVO ════════════ -->
+  <h2>Escopo progressivo: comece específico, expanda conforme necessário</h2>
+
+  <p>
+    Nem sempre você sabe o escopo completo de antemão. A estratégia recomendada e começar com um escopo
+    estreito e expandir iterativamente. Isso é mais eficiente do que começar amplo e refinar, porque
+    evita o problema de context window cheia com informação irrelevante.
+  </p>
+
+  <div class="card">
+    <div class="card-label" style="background: var(--green-soft); color: var(--green);">Estratégia em 3 passos</div>
+
+    <h3 style="margin-top: 0.5rem;">Passo 1: Comece cirúrgico</h3>
+    <div class="code-block" style="margin-bottom: 1.5rem;">
+      <div class="code-header"><span>Primeiro prompt</span><span>Escopo estreito</span></div>
+      <pre><span class="good">Em src/services/auth.ts, a função validateToken()
+não trata o caso de token expirado. Adicione o
+tratamento retornando { valid: false, reason: 'expired' }.</span></pre>
+    </div>
+
+    <h3>Passo 2: Avalie o resultado e expanda</h3>
+    <div class="code-block" style="margin-bottom: 1.5rem;">
+      <div class="code-header"><span>Follow-up</span><span>Escopo expandido</span></div>
+      <pre><span class="good">Agora verifique se os consumers de validateToken()
+em src/middleware/authMiddleware.ts e
+src/hooks/useAuth.ts tratam o novo campo reason
+corretamente. Ajuste se necessário.</span></pre>
+    </div>
+
+    <h3>Passo 3: Valide e feche</h3>
+    <div class="code-block">
+      <div class="code-header"><span>Fechamento</span><span>Verificação</span></div>
+      <pre><span class="good">Rode npm test -- --grep "auth|token" e garanta
+que todos os testes passam. Se algum falhar por
+causa da mudança, corrija o teste ou a implementação.</span></pre>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Sobre /clear:</strong> Use <code>/clear</code> entre tarefas não relacionadas para resetar o contexto.
+    A "sessão pia de cozinha" — onde você acumula tarefas desconectadas na mesma conversa — é um dos erros
+    mais comuns e enche a context window com informação irrelevante para a tarefa atual.
+  </div>
+
+  <!-- ════════════ TEMPLATES ════════════ -->
+  <h2>Templates de prompt para cenários comuns</h2>
+
+  <p>
+    Estes templates aplicam as três dimensões do escopo (ONDE, O QUE, COMO) para os cenários
+    mais frequentes no dia a dia de um desenvolvedor:
+  </p>
+
+  <div class="template-card">
+    <h4>
+      <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">B</span>
+      Bug Fix
+    </h4>
+    <pre><span style="color: #9ca3af;">## Contexto</span>
+<span style="color: #d4d4d8;">[Descreva o bug: o que acontece vs. o que deveria acontecer]</span>
+
+<span style="color: #9ca3af;">## Localização</span>
+<span style="color: #d4d4d8;">O bug está em <span style="color: #60a5fa;">[arquivo/diretório]</span>. Veja a função <span style="color: #60a5fa;">[nome]</span>.</span>
+
+<span style="color: #9ca3af;">## Correção esperada</span>
+<span style="color: #d4d4d8;">[Descreva o comportamento correto esperado]</span>
+
+<span style="color: #9ca3af;">## Verificação</span>
+<span style="color: #d4d4d8;">Rode <span style="color: #6ee7b7;">[comando de teste]</span> e confirme que o cenário <span style="color: #6ee7b7;">[X]</span> funciona.</span></pre>
+  </div>
+
+  <div class="template-card">
+    <h4>
+      <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">F</span>
+      Nova Feature
+    </h4>
+    <pre><span style="color: #9ca3af;">## Contexto</span>
+<span style="color: #d4d4d8;">[Por que essa feature existe? Que problema do usuário resolve?]</span>
+
+<span style="color: #9ca3af;">## Escopo</span>
+<span style="color: #d4d4d8;">Implemente em <span style="color: #60a5fa;">[arquivo/módulo]</span>.
+Siga o padrão de <span style="color: #60a5fa;">[referência/componente similar]</span>.</span>
+
+<span style="color: #9ca3af;">## Requisitos</span>
+<span style="color: #d4d4d8;">- [Requisito funcional 1]
+- [Requisito funcional 2]
+- [Restrição ou constraint]</span>
+
+<span style="color: #9ca3af;">## Testes</span>
+<span style="color: #d4d4d8;">Use <span style="color: #6ee7b7;">[framework de teste]</span>. Cubra: <span style="color: #6ee7b7;">[cenários]</span>.
+Rode <span style="color: #6ee7b7;">[comando]</span> para validar.</span></pre>
+  </div>
+
+  <div class="template-card">
+    <h4>
+      <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">R</span>
+      Refactoring
+    </h4>
+    <pre><span style="color: #9ca3af;">## Objetivo</span>
+<span style="color: #d4d4d8;">[O que melhorar: legibilidade, performance, separação de concerns?]</span>
+
+<span style="color: #9ca3af;">## Escopo</span>
+<span style="color: #d4d4d8;">Refatore <span style="color: #60a5fa;">[função/classe/módulo]</span> em <span style="color: #60a5fa;">[arquivo]</span>.
+[Extraia para / Consolide / Renomeie para]</span>
+
+<span style="color: #9ca3af;">## Restrições</span>
+<span style="color: #d4d4d8;">- Mantenha a mesma interface pública (não quebre consumers)
+- [Outras restrições]</span>
+
+<span style="color: #9ca3af;">## Verificação</span>
+<span style="color: #d4d4d8;">Rode <span style="color: #6ee7b7;">[suite de testes]</span> — todos devem passar sem mudanças.
+Rode <span style="color: #6ee7b7;">[typecheck/build]</span> para garantir integridade.</span></pre>
+  </div>
+
+  <div class="template-card">
+    <h4>
+      <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">T</span>
+      Adicionar Testes
+    </h4>
+    <pre><span style="color: #9ca3af;">## Alvo</span>
+<span style="color: #d4d4d8;">Adicione testes para <span style="color: #60a5fa;">[função/componente/hook]</span> em <span style="color: #60a5fa;">[arquivo]</span>.</span>
+
+<span style="color: #9ca3af;">## Framework e padrões</span>
+<span style="color: #d4d4d8;">Use <span style="color: #6ee7b7;">[Jest/Vitest/pytest]</span> com <span style="color: #6ee7b7;">[RTL/Enzyme/etc]</span>.
+Siga o padrão de nomeação: <span style="color: #6ee7b7;">"should [verbo] when [condição]"</span>.</span>
+
+<span style="color: #9ca3af;">## Cenários obrigatórios</span>
+<span style="color: #d4d4d8;">- Caminho feliz (happy path)
+- [Edge case 1: input inválido, vazio, null]
+- [Edge case 2: erro de rede, timeout]
+- [Boundary: limites numéricos, strings longas]</span>
+
+<span style="color: #9ca3af;">## Verificação</span>
+<span style="color: #d4d4d8;">Rode <span style="color: #6ee7b7;">[comando]</span> e confirme 100% pass. Verifique cobertura com <span style="color: #6ee7b7;">[--coverage]</span>.</span></pre>
+  </div>
+
+  <!-- ════════════ PROMPT COMPLETO EXEMPLO ════════════ -->
+  <h2>Exemplo: prompt completo aplicando todas as dimensões</h2>
+
+  <p>
+    Veja como um prompt real aplica os quatro blocos (contexto, tarefa, escopo, verificação) de forma
+    prática. Compare com a versão vaga ao lado:
+  </p>
+
+  <div class="vs-row">
+    <div class="vs-col" style="border-color: var(--red);">
+      <h4 style="color: var(--red);">
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">X</span>
+        Versão vaga
+      </h4>
+      <div class="code-block" style="margin: 0;">
+        <pre style="font-size: 0.82rem;"><span class="bad">Adiciona testes pro carrinho
+de compras.</span></pre>
+      </div>
+      <p style="font-size: 0.85rem; color: var(--text-dim); margin-top: 0.75rem;">
+        O Claude não sabe: qual arquivo? Qual framework de teste? Que cenários cobrir?
+        Ele vai precisar explorar o codebase inteiro e adivinhar suas preferências.
+      </p>
+    </div>
+
+    <div class="vs-divider">vs</div>
+
+    <div class="vs-col" style="border-color: var(--green); border-width: 1.5px;">
+      <h4 style="color: var(--green);">
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">OK</span>
+        Versão escopada
+      </h4>
+      <div class="code-block" style="margin: 0;">
+        <pre style="font-size: 0.82rem;"><span class="good">Adicione testes unitários para o hook
+useCart em src/hooks/useCart.ts.
+
+Use Jest com React Testing Library.
+Siga o padrão do teste existente em
+src/hooks/__tests__/useAuth.test.ts.
+
+Cubra: adicionar item, remover item,
+atualizar quantidade, carrinho vazio,
+item duplicado, e quantidade zero.
+
+Rode npm test -- useCart e garanta que
+todos passam.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ RESUMO DAS REGRAS ════════════ -->
+  <h2>Checklist: escopo bem definido</h2>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Dimensao</th>
+          <th>Pergunta-chave</th>
+          <th>Exemplo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong style="color: var(--blue);">ONDE</strong></td>
+          <td>Qual arquivo, diretório ou módulo?</td>
+          <td><code>src/hooks/useCart.ts</code></td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--green);">O QUE</strong></td>
+          <td>Qual funcionalidade ou cenário específico?</td>
+          <td>Adicionar lógica de cupom de desconto</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--accent);">COMO</strong></td>
+          <td>Qual framework, padrão, restrição?</td>
+          <td>Siga o pattern Zod existente, use Jest</td>
+        </tr>
+        <tr>
+          <td><strong style="color: var(--purple);">VERIFICACAO</strong></td>
+          <td>Que comando confirma que esta pronto?</td>
+          <td><code>npm test && npm run typecheck</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout-yellow callout">
+    <strong>Regra de ouro da Anthropic:</strong> Mostre seu prompt a um colega com contexto mínimo sobre a tarefa
+    e pergunte se ele conseguiria segui-lo. Se ele ficaria confuso, o Claude também ficara.
+    A precisão do prompt é diretamente proporcional a qualidade do output.
+  </div>
+
+  <!-- ════════════ FONTES ════════════ -->
+  <div class="sources">
+    <h3>Fontes e Referências</h3>
+    <ul>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Anthropic — Best Practices for Claude Code</a></li>
+      <li><a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices" target="_blank">Anthropic — Prompting Best Practices (Claude 4)</a></li>
+      <li><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank">Anthropic — Effective Context Engineering for AI Agents</a></li>
+      <li><a href="https://www.anthropic.com/research/building-effective-agents" target="_blank">Anthropic — Building Effective Agents</a></li>
+      <li><a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview" target="_blank">Anthropic — Prompt Engineering Overview</a></li>
+    </ul>
+  </div>
+
+  <!-- ════════════ NAV FOOTER ════════════ -->
+  <div class="nav-footer">
+    <a href="../modulo-03/modulo-03-topico-05-commits-prs.html" class="nav-btn">&larr; Tópico 5 · Commits e PRs</a>
+    <a href="../index.html" class="nav-btn">&#8962; Índice</a>
+    <a href="modulo-04-topico-02-referenciar-padroes.html" class="nav-btn">Tópico 2 · Referenciar Padrões &rarr;</a>
+  </div>
+
+</body>
+</html>

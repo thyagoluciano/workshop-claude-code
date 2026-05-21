@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo 4 · Tópico 3 — Passar URLs, imagens, logs via pipe</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-code: #141620;
+      --border: #2a2d3a;
+      --text: #e4e4e7;
+      --text-dim: #9ca3af;
+      --accent: #c4956a;
+      --accent-soft: rgba(196, 149, 106, 0.12);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.12);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .topic-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-soft); padding: 6px 14px;
+      border-radius: 20px; margin-bottom: 1rem;
+    }
+
+    h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+    .subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+    h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+    p { margin-bottom: 1rem; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+    strong { color: #fff; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0;
+    }
+    .card-label {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 6px; margin-bottom: 0.75rem;
+    }
+
+    .diagram-container {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto;
+    }
+    .diagram-container svg { display: block; margin: 0 auto; }
+    .diagram-caption {
+      text-align: center; font-size: 0.85rem; color: var(--text-dim);
+      margin-top: 1rem; font-style: italic;
+    }
+
+    .code-block {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1rem; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim);
+    }
+    .code-block pre {
+      padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8;
+    }
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: var(--purple); }
+    .code-block .string { color: var(--green); }
+    .code-block .tool { color: var(--accent); }
+    .code-block .number { color: var(--yellow); }
+
+    .callout {
+      border-left: 3px solid var(--accent); background: var(--accent-soft);
+      padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem;
+    }
+    .callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+    .callout-red { border-left-color: var(--red); background: var(--red-soft); }
+    .callout-green { border-left-color: var(--green); background: var(--green-soft); }
+    .callout strong { color: #fff; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+    }
+
+    .mini-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .mini-card h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;
+    }
+    .mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+
+    .icon-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    .sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .sources ul { list-style: none; padding: 0; }
+    .sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+    .sources li::before { content: "\2192 "; color: var(--accent); }
+
+    .nav-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+      color: var(--text); background: var(--bg-card); border: 1px solid var(--border);
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+
+    /* ── Terminal mock ── */
+    .terminal {
+      background: #0c0e14; border: 1px solid var(--border);
+      border-radius: var(--radius); overflow: hidden; margin: 1.5rem 0;
+    }
+    .terminal-bar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 16px; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border);
+    }
+    .terminal-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+    }
+    .terminal-title {
+      font-size: 0.8rem; color: var(--text-dim); margin-left: 8px;
+      font-family: var(--font-mono);
+    }
+    .terminal-body {
+      padding: 1rem 1.25rem; font-family: var(--font-mono);
+      font-size: 0.84rem; line-height: 1.7; color: #d4d4d8;
+    }
+    .terminal-body .prompt { color: var(--green); }
+    .terminal-body .cmd { color: #e4e4e7; }
+    .terminal-body .output { color: var(--text-dim); }
+    .terminal-body .highlight { color: var(--yellow); }
+    .terminal-body .pipe-char { color: var(--accent); font-weight: 700; }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ HEADER ════════════ -->
+  <div class="topic-badge">Modulo 4 . Topico 3</div>
+  <h1>Passar URLs, imagens, logs via pipe</h1>
+  <p class="subtitle">
+    O pipe (<code>|</code>) transforma o Claude Code em mais uma peca do seu pipeline Unix.
+    Alimente-o com logs, diffs, outputs de testes, paginas web ou imagens &mdash; e receba
+    analises contextualizadas sem sair do terminal.
+  </p>
+
+  <!-- ════════════ O PODER DO PIPE ════════════ -->
+  <h2>O poder do pipe: contexto externo direto no prompt</h2>
+
+  <p>
+    O modo nao-interativo (<code>-p</code>) do Claude Code le <strong>stdin</strong> automaticamente.
+    Isso significa que qualquer comando que produza texto pode alimentar o Claude diretamente,
+    usando o operador <code>|</code> do shell &mdash; exatamente como voce faria com <code>grep</code>,
+    <code>awk</code> ou <code>jq</code>. O Claude se torna mais uma ferramenta composivel no seu toolkit Unix.
+  </p>
+
+  <p>
+    A vantagem sobre colar conteudo manualmente no chat e tripla: <strong>automacao</strong> (scripts e CI podem
+    usar), <strong>volume</strong> (ate 10 MB de stdin) e <strong>composicao</strong> (voce encadeia com
+    outros comandos antes e depois do Claude).
+  </p>
+
+  <!-- ════════════ DIAGRAMA SVG ════════════ -->
+  <div class="diagram-container">
+    <svg viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Fluxo do pipe: fonte de dados passa por stdin para o Claude Code e produz output</title>
+
+      <defs>
+        <marker id="arrowG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#6ee7b7"/>
+        </marker>
+        <marker id="arrowA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#c4956a"/>
+        </marker>
+        <marker id="arrowB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#60a5fa"/>
+        </marker>
+      </defs>
+
+      <!-- Title -->
+      <text x="400" y="25" text-anchor="middle" fill="#fff" font-size="14" font-weight="600">Fluxo do Pipe: fonte &rarr; stdin &rarr; Claude Code &rarr; output</text>
+
+      <!-- Source boxes (left) -->
+      <rect x="20" y="55" width="140" height="40" rx="8" fill="rgba(110,231,183,0.1)" stroke="#6ee7b7" stroke-width="1"/>
+      <text x="90" y="80" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="600">cat error.log</text>
+
+      <rect x="20" y="105" width="140" height="40" rx="8" fill="rgba(96,165,250,0.1)" stroke="#60a5fa" stroke-width="1"/>
+      <text x="90" y="130" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="600">git diff</text>
+
+      <rect x="20" y="155" width="140" height="40" rx="8" fill="rgba(167,139,250,0.1)" stroke="#a78bfa" stroke-width="1"/>
+      <text x="90" y="180" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="600">npm test 2&gt;&amp;1</text>
+
+      <rect x="20" y="205" width="140" height="40" rx="8" fill="rgba(251,191,36,0.1)" stroke="#fbbf24" stroke-width="1"/>
+      <text x="90" y="230" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="600">curl URL</text>
+
+      <rect x="20" y="255" width="140" height="40" rx="8" fill="rgba(248,113,113,0.1)" stroke="#f87171" stroke-width="1"/>
+      <text x="90" y="280" text-anchor="middle" fill="#f87171" font-size="11" font-weight="600">docker logs</text>
+
+      <!-- Pipe symbol -->
+      <text x="210" y="175" text-anchor="middle" fill="var(--accent)" font-size="32" font-weight="700">|</text>
+
+      <!-- Arrows from sources to pipe -->
+      <path d="M165 75 L195 160" stroke="#6ee7b7" stroke-width="1" opacity="0.5"/>
+      <path d="M165 125 L195 162" stroke="#60a5fa" stroke-width="1" opacity="0.5"/>
+      <path d="M165 175 L195 170" stroke="#a78bfa" stroke-width="1" opacity="0.5"/>
+      <path d="M165 225 L195 178" stroke="#fbbf24" stroke-width="1" opacity="0.5"/>
+      <path d="M165 275 L195 185" stroke="#f87171" stroke-width="1" opacity="0.5"/>
+
+      <!-- stdin arrow -->
+      <path d="M225 170 L290 170" stroke="var(--accent)" stroke-width="2" marker-end="url(#arrowA)"/>
+      <text x="258" y="160" text-anchor="middle" fill="var(--text-dim)" font-size="10">stdin</text>
+
+      <!-- Claude Code box (center) -->
+      <rect x="295" y="120" width="200" height="100" rx="14" fill="rgba(196,149,106,0.12)" stroke="#c4956a" stroke-width="2"/>
+      <text x="395" y="155" text-anchor="middle" fill="#c4956a" font-size="14" font-weight="700">Claude Code</text>
+      <text x="395" y="175" text-anchor="middle" fill="#d4d4d8" font-size="11">claude -p "query"</text>
+      <text x="395" y="195" text-anchor="middle" fill="var(--text-dim)" font-size="10">analisa, interpreta, responde</text>
+
+      <!-- stdout arrow -->
+      <path d="M500 170 L565 170" stroke="var(--accent)" stroke-width="2" marker-end="url(#arrowA)"/>
+      <text x="533" y="160" text-anchor="middle" fill="var(--text-dim)" font-size="10">stdout</text>
+
+      <!-- Output boxes (right) -->
+      <rect x="570" y="80" width="200" height="45" rx="8" fill="rgba(110,231,183,0.1)" stroke="#6ee7b7" stroke-width="1"/>
+      <text x="670" y="100" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="600">Terminal (texto)</text>
+      <text x="670" y="115" text-anchor="middle" fill="var(--text-dim)" font-size="10">resposta direta</text>
+
+      <rect x="570" y="140" width="200" height="45" rx="8" fill="rgba(96,165,250,0.1)" stroke="#60a5fa" stroke-width="1"/>
+      <text x="670" y="160" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="600">&gt; arquivo.txt</text>
+      <text x="670" y="175" text-anchor="middle" fill="var(--text-dim)" font-size="10">redirecionar para arquivo</text>
+
+      <rect x="570" y="200" width="200" height="45" rx="8" fill="rgba(251,191,36,0.1)" stroke="#fbbf24" stroke-width="1"/>
+      <text x="670" y="220" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="600">--output-format json</text>
+      <text x="670" y="235" text-anchor="middle" fill="var(--text-dim)" font-size="10">JSON estruturado + jq</text>
+
+      <!-- Arrows from Claude to outputs -->
+      <path d="M565 155 L565 102 L565 102" stroke="var(--accent)" stroke-width="1" opacity="0.4"/>
+      <path d="M565 170 L565 162" stroke="var(--accent)" stroke-width="1" opacity="0.4"/>
+      <path d="M565 185 L565 222" stroke="var(--accent)" stroke-width="1" opacity="0.4"/>
+    </svg>
+    <p class="diagram-caption">Qualquer comando que produza texto pode alimentar o Claude via pipe. O output pode ir para o terminal, um arquivo ou ser parseado como JSON.</p>
+  </div>
+
+  <!-- ════════════ SINTAXE BÁSICA ════════════ -->
+  <h2>Sintaxe basica</h2>
+
+  <p>
+    O padrao fundamental e simples: <code>comando | claude -p "sua pergunta"</code>.
+    A flag <code>-p</code> (ou <code>--print</code>) ativa o modo nao-interativo: o Claude
+    processa o input, imprime a resposta e encerra. Sem sessao, sem interface interativa.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Padrao basico do pipe</span>
+      <span>bash</span>
+    </div>
+    <pre>
+<span class="comment"># Padrao geral</span>
+<span class="cmd">comando</span> <span class="pipe-char">|</span> <span class="tool">claude -p</span> <span class="string">"sua pergunta sobre o conteudo"</span>
+
+<span class="comment"># Com redirecionamento de saida</span>
+<span class="cmd">comando</span> <span class="pipe-char">|</span> <span class="tool">claude -p</span> <span class="string">"sua pergunta"</span> <span class="keyword">&gt;</span> resultado.txt
+
+<span class="comment"># Com output JSON estruturado</span>
+<span class="cmd">comando</span> <span class="pipe-char">|</span> <span class="tool">claude -p</span> <span class="string">"sua pergunta"</span> <span class="keyword">--output-format json</span>
+
+<span class="comment"># Com --bare para scripts e CI (pula discovery de plugins, hooks, MCP)</span>
+<span class="cmd">comando</span> <span class="pipe-char">|</span> <span class="tool">claude --bare -p</span> <span class="string">"sua pergunta"</span> <span class="keyword">--allowedTools</span> <span class="string">"Read"</span></pre>
+  </div>
+
+  <div class="callout-blue callout">
+    <strong>--bare para scripts:</strong> Em CI e automacoes, use <code>--bare</code> junto com <code>-p</code>.
+    Isso pula o auto-discovery de hooks, skills, plugins, MCP servers e CLAUDE.md, garantindo
+    que o resultado seja o mesmo em qualquer maquina. E o modo recomendado pela Anthropic para chamadas programaticas.
+  </div>
+
+  <!-- ════════════ CASOS DE USO: LOGS ════════════ -->
+  <h2>Caso de uso: analise de logs</h2>
+
+  <p>
+    Um dos usos mais poderosos do pipe e alimentar logs de erro diretamente ao Claude.
+    Em vez de ler manualmente centenas de linhas de stack trace, deixe o modelo identificar
+    a causa raiz e sugerir correcoes.
+  </p>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="terminal-dot" style="background: #f87171;"></div>
+      <div class="terminal-dot" style="background: #fbbf24;"></div>
+      <div class="terminal-dot" style="background: #6ee7b7;"></div>
+      <span class="terminal-title">~/projeto</span>
+    </div>
+    <div class="terminal-body">
+      <span class="prompt">$</span> <span class="cmd">cat error.log</span> <span class="pipe-char">|</span> <span class="cmd">claude -p</span> <span class="string">"O que causou esse erro? Sugira uma correção."</span><br><br>
+      <span class="output">Analisando o log, o erro ocorre na linha 142 de auth.service.ts...</span><br>
+      <span class="output">A causa raiz e um token JWT expirado que nao esta sendo renovado...</span><br>
+      <span class="output">Sugestao: adicione um middleware de refresh token antes da validacao...</span><br><br>
+      <span class="prompt">$</span> <span class="cmd">tail -100 /var/log/nginx/error.log</span> <span class="pipe-char">|</span> <span class="cmd">claude -p</span> <span class="string">"Resuma os erros mais frequentes"</span><br><br>
+      <span class="prompt">$</span> <span class="cmd">cat build-error.txt</span> <span class="pipe-char">|</span> <span class="cmd">claude -p</span> <span class="string">"Explique a causa raiz deste erro de build"</span> <span class="highlight">&gt; diagnostico.txt</span>
+    </div>
+  </div>
+
+  <!-- ════════════ CASOS DE USO: DIFFS ════════════ -->
+  <h2>Caso de uso: revisao de diffs</h2>
+
+  <p>
+    Pipe o diff das suas mudancas para o Claude revisar antes de abrir um PR.
+    Ele pode encontrar bugs, sugerir melhorias e ate servir como linter personalizado.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Revisao de codigo com diffs</span>
+      <span>bash</span>
+    </div>
+    <pre>
+<span class="comment"># Revisar mudancas staged</span>
+<span class="cmd">git diff --staged</span> <span class="pipe-char">|</span> <span class="tool">claude -p</span> <span class="string">"Revise essas mudancas. Aponte bugs, melhorias e problemas de seguranca."</span>
+
+<span class="comment"># Comparar com a branch main</span>
+<span class="cmd">git diff main</span> <span class="pipe-char">|</span> <span class="tool">claude -p</span> <span class="string">"Resuma o que mudou e se ha breaking changes."</span>
+
+<span class="comment"># Usar como linter de typos em package.json</span>
+<span class="cmd">git diff main</span> <span class="pipe-char">|</span> <span class="tool">claude -p</span> <span class="string">"Voce e um linter de typos. Para cada typo neste diff, reporte arquivo:linha em uma linha e o problema na seguinte. Nada mais."</span>
+
+<span class="comment"># Diff de um PR especifico via GitHub CLI</span>
+<span class="cmd">gh pr diff 42</span> <span class="pipe-char">|</span> <span class="tool">claude -p</span> <span class="string">"Revise este PR focando em seguranca."</span></pre>
+  </div>
+
+  <div class="callout">
+    <strong>Dica de CI:</strong> A documentacao oficial mostra como adicionar revisao por Claude como script
+    do <code>package.json</code>:
+    <code>"lint:claude": "git diff main | claude -p \"voce e um linter de typos...\""</code>.
+    O diff e passado via pipe, entao o Claude nao precisa de permissao Bash para le-lo.
+  </div>
+
+  <!-- ════════════ CASOS DE USO: TESTES ════════════ -->
+  <h2>Caso de uso: output de testes</h2>
+
+  <p>
+    Quando seus testes falham, o output pode ser extenso e confuso. Pipe o resultado
+    diretamente para o Claude explicar quais testes falharam e por que.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Diagnostico de falhas de teste</span>
+      <span>bash</span>
+    </div>
+    <pre>
+<span class="comment"># Capturar stdout + stderr de testes</span>
+<span class="cmd">npm test 2&gt;&amp;1</span> <span class="pipe-char">|</span> <span class="tool">claude -p</span> <span class="string">"Explique quais testes falharam e sugira correcoes."</span>
+
+<span class="comment"># Testes Python com pytest</span>
+<span class="cmd">pytest --tb=short 2&gt;&amp;1</span> <span class="pipe-char">|</span> <span class="tool">claude -p</span> <span class="string">"Analise as falhas e priorize por severidade."</span>
+
+<span class="comment"># Go tests</span>
+<span class="cmd">go test ./... 2&gt;&amp;1</span> <span class="pipe-char">|</span> <span class="tool">claude -p</span> <span class="string">"Quais pacotes falharam e qual a causa provavel?"</span>
+
+<span class="comment"># Capturar tipo check do TypeScript</span>
+<span class="cmd">npx tsc --noEmit 2&gt;&amp;1</span> <span class="pipe-char">|</span> <span class="tool">claude -p</span> <span class="string">"Explique esses erros de tipo e como corrigi-los."</span></pre>
+  </div>
+
+  <!-- ════════════ CASOS DE USO: URLs ════════════ -->
+  <h2>Caso de uso: URLs e conteudo web</h2>
+
+  <p>
+    Voce pode buscar conteudo de URLs com <code>curl</code> e passar via pipe para
+    o Claude analisar. Isso e util para resumir documentacao, analisar respostas de API
+    ou processar paginas web.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Trabalhando com URLs</span>
+      <span>bash</span>
+    </div>
+    <pre>
+<span class="comment"># Buscar e resumir uma pagina web</span>
+<span class="cmd">curl -s https://example.com/docs/api</span> <span class="pipe-char">|</span> <span class="tool">claude -p</span> <span class="string">"Resuma os endpoints principais desta API."</span>
+
+<span class="comment"># Analisar resposta de uma API JSON</span>
+<span class="cmd">curl -s https://api.exemplo.com/health</span> <span class="pipe-char">|</span> <span class="tool">claude -p</span> <span class="string">"Este health check indica algum problema?"</span>
+
+<span class="comment"># Passar URL diretamente no prompt interativo (sem pipe)</span>
+<span class="tool">claude</span>
+<span class="comment"># &gt; Analise a documentacao em https://docs.exemplo.com/auth</span>
+
+<span class="comment"># Referenciar com @ no modo interativo</span>
+<span class="comment"># &gt; Explique a logica em @src/utils/auth.js</span></pre>
+  </div>
+
+  <div class="callout-blue callout">
+    <strong>Referencia com @:</strong> No modo interativo, voce pode usar <code>@</code> para referenciar
+    arquivos locais (<code>@src/auth.js</code>), diretorios (<code>@src/components</code>) e ate
+    recursos MCP (<code>@github:repos/owner/repo/issues</code>). O conteudo e incluido automaticamente
+    no contexto da conversa.
+  </div>
+
+  <!-- ════════════ IMAGENS E SCREENSHOTS ════════════ -->
+  <h2>Imagens e screenshots: Claude Code e multimodal</h2>
+
+  <p>
+    O Claude Code aceita imagens diretamente &mdash; ele e multimodal. Voce pode arrastar imagens
+    para a janela, colar do clipboard ou fornecer o caminho do arquivo. Isso e especialmente
+    util para analisar screenshots de erros, mockups de UI e diagramas de arquitetura.
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">1</span>
+        Arrastar e soltar
+      </h4>
+      <p>Arraste uma imagem diretamente para a janela do Claude Code no terminal.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">2</span>
+        Colar do clipboard
+      </h4>
+      <p>No macOS: <code>Cmd+Ctrl+Shift+4</code> para capturar, depois <code>Ctrl+V</code> para colar no Claude.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">3</span>
+        Caminho do arquivo
+      </h4>
+      <p>Forneca o path: <code>Analise esta imagem: /path/to/screenshot.png</code></p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">4</span>
+        Verificacao visual
+      </h4>
+      <p>Cole screenshots para o Claude comparar output visual com o esperado &mdash; ideal para frontend.</p>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Exemplos com imagens</span>
+      <span>claude (interativo)</span>
+    </div>
+    <pre>
+<span class="comment"># No modo interativo, apos colar uma imagem:</span>
+<span class="string">"O que esta errado neste screenshot de erro?"</span>
+
+<span class="comment"># Gerar CSS a partir de um mockup:</span>
+<span class="string">"Gere o CSS para replicar este design mockup"</span>
+
+<span class="comment"># Analisar diagrama de arquitetura:</span>
+<span class="string">"Analise este diagrama. Quais gargalos voce identifica?"</span>
+
+<span class="comment"># Fornecer path da imagem:</span>
+<span class="string">"Compare este screenshot @screenshot-antes.png com @screenshot-depois.png"</span></pre>
+  </div>
+
+  <div class="callout-green callout">
+    <strong>Dica de frontend:</strong> A documentacao oficial destaca que o Claude performa
+    dramaticamente melhor quando pode verificar seu proprio trabalho visualmente. Para desenvolvimento
+    de UI, cole screenshots do resultado para o Claude comparar com o esperado e iterar.
+  </div>
+
+  <!-- ════════════ TABELA DE CENÁRIOS ════════════ -->
+  <h2>Referencia rapida: tipo de conteudo, comando e cenario</h2>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Tipo de conteudo</th>
+          <th>Comando</th>
+          <th>Cenario</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Logs de erro</strong></td>
+          <td><code>cat error.log | claude -p "..."</code></td>
+          <td>Diagnostico de erros em producao</td>
+        </tr>
+        <tr>
+          <td><strong>Diffs do Git</strong></td>
+          <td><code>git diff | claude -p "..."</code></td>
+          <td>Code review antes do PR</td>
+        </tr>
+        <tr>
+          <td><strong>Output de testes</strong></td>
+          <td><code>npm test 2&gt;&amp;1 | claude -p "..."</code></td>
+          <td>Diagnostico de falhas</td>
+        </tr>
+        <tr>
+          <td><strong>Paginas web</strong></td>
+          <td><code>curl -s URL | claude -p "..."</code></td>
+          <td>Resumir docs, analisar APIs</td>
+        </tr>
+        <tr>
+          <td><strong>Logs de container</strong></td>
+          <td><code>docker logs app | claude -p "..."</code></td>
+          <td>Debug de containers</td>
+        </tr>
+        <tr>
+          <td><strong>Historico git</strong></td>
+          <td><code>git log --oneline -20 | claude -p "..."</code></td>
+          <td>Resumo de commits recentes</td>
+        </tr>
+        <tr>
+          <td><strong>Configuracoes</strong></td>
+          <td><code>cat nginx.conf | claude -p "..."</code></td>
+          <td>Auditoria de seguranca</td>
+        </tr>
+        <tr>
+          <td><strong>CSVs / dados</strong></td>
+          <td><code>cat dados.csv | claude -p "..."</code></td>
+          <td>Analise e limpeza de dados</td>
+        </tr>
+        <tr>
+          <td><strong>Imagens</strong></td>
+          <td>Arrastar, colar ou <code>@path</code></td>
+          <td>Analise visual, debug de UI</td>
+        </tr>
+        <tr>
+          <td><strong>Type errors</strong></td>
+          <td><code>npx tsc --noEmit 2&gt;&amp;1 | claude -p "..."</code></td>
+          <td>Resolver erros de tipo</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ COMBINANDO MÚLTIPLAS FONTES ════════════ -->
+  <h2>Combinando multiplas fontes</h2>
+
+  <p>
+    Voce pode combinar multiplas fontes de dados usando tecnicas do shell como
+    <strong>process substitution</strong>, <strong>here strings</strong> e
+    <strong>concatenacao</strong> para dar mais contexto ao Claude.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Tecnicas avancadas de composicao</span>
+      <span>bash</span>
+    </div>
+    <pre>
+<span class="comment"># Concatenar multiplos arquivos</span>
+<span class="cmd">cat src/auth.ts src/auth.test.ts</span> <span class="pipe-char">|</span> <span class="tool">claude -p</span> <span class="string">"Os testes cobrem todos os cenarios do codigo?"</span>
+
+<span class="comment"># Pipar log + pedir para Claude buscar mais contexto com suas ferramentas</span>
+<span class="cmd">cat deploy.log</span> <span class="pipe-char">|</span> <span class="tool">claude -p</span> <span class="string">"Analise este log de deploy. Use suas ferramentas para ler arquivos relevantes do projeto e diagnosticar a causa raiz."</span>
+
+<span class="comment"># Encadear com jq para filtrar antes de passar ao Claude</span>
+<span class="cmd">curl -s https://api.exemplo.com/users</span> <span class="pipe-char">|</span> <span class="cmd">jq '.[] | select(.active == false)'</span> <span class="pipe-char">|</span> <span class="tool">claude -p</span> <span class="string">"Por que esses usuarios estao inativos?"</span>
+
+<span class="comment"># Process substitution para comparar dois outputs</span>
+<span class="cmd">diff &lt;(git show main:src/config.ts) &lt;(cat src/config.ts)</span> <span class="pipe-char">|</span> <span class="tool">claude -p</span> <span class="string">"O que mudou na configuracao?"</span>
+
+<span class="comment"># Continuacao de conversa com pipe (manter contexto)</span>
+<span class="tool">claude -p</span> <span class="string">"Revise este codebase"</span>
+<span class="cmd">cat new-errors.log</span> <span class="pipe-char">|</span> <span class="tool">claude -p</span> <span class="string">"Novos erros apareceram. Analise."</span> <span class="keyword">--continue</span></pre>
+  </div>
+
+  <!-- ════════════ ONE-LINERS PODEROSOS ════════════ -->
+  <h2>One-liners poderosos</h2>
+
+  <p>
+    Aqui estao exemplos de one-liners que combinam pipe com o Claude para tarefas
+    do dia a dia de um desenvolvedor.
+  </p>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="terminal-dot" style="background: #f87171;"></div>
+      <div class="terminal-dot" style="background: #fbbf24;"></div>
+      <div class="terminal-dot" style="background: #6ee7b7;"></div>
+      <span class="terminal-title">one-liners</span>
+    </div>
+    <div class="terminal-body">
+      <span class="comment"># Gerar commit message automaticamente</span><br>
+      <span class="prompt">$</span> <span class="cmd">git diff --staged</span> <span class="pipe-char">|</span> <span class="cmd">claude -p</span> <span class="string">"Gere uma commit message concisa seguindo Conventional Commits"</span><br><br>
+
+      <span class="comment"># Resumir commits recentes para standup</span><br>
+      <span class="prompt">$</span> <span class="cmd">git log --oneline -20</span> <span class="pipe-char">|</span> <span class="cmd">claude -p</span> <span class="string">"Resuma esses commits para um relatorio de standup"</span><br><br>
+
+      <span class="comment"># Auditar Dockerfile</span><br>
+      <span class="prompt">$</span> <span class="cmd">cat Dockerfile</span> <span class="pipe-char">|</span> <span class="cmd">claude -p</span> <span class="string">"Revise este Dockerfile para seguranca e boas praticas"</span><br><br>
+
+      <span class="comment"># Explicar um script complexo</span><br>
+      <span class="prompt">$</span> <span class="cmd">cat deploy.sh</span> <span class="pipe-char">|</span> <span class="cmd">claude -p</span> <span class="string">"Explique este script passo a passo"</span><br><br>
+
+      <span class="comment"># Gerar documentacao de API a partir do schema</span><br>
+      <span class="prompt">$</span> <span class="cmd">cat openapi.yaml</span> <span class="pipe-char">|</span> <span class="cmd">claude -p</span> <span class="string">"Gere docs em Markdown para cada endpoint"</span> <span class="highlight">&gt; api-docs.md</span><br><br>
+
+      <span class="comment"># Extrair funcoes e salvar como JSON estruturado</span><br>
+      <span class="prompt">$</span> <span class="cmd">cat src/utils.ts</span> <span class="pipe-char">|</span> <span class="cmd">claude -p</span> <span class="string">"Extraia os nomes das funcoes"</span> <span class="highlight">--output-format json</span> <span class="pipe-char">|</span> <span class="cmd">jq -r '.result'</span>
+    </div>
+  </div>
+
+  <!-- ════════════ LIMITAÇÕES ════════════ -->
+  <h2>Limitacoes e cuidados</h2>
+
+  <p>
+    O pipe e poderoso, mas tem limites que voce precisa conhecer para evitar surpresas.
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card" style="border-color: var(--red);">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">!</span>
+        Limite de 10 MB no stdin
+      </h4>
+      <p>A partir da versao v2.1.128, o stdin via pipe e limitado a 10 MB. Se exceder, o Claude
+         encerra com erro e status nao-zero. Para inputs maiores, salve em arquivo e
+         referencie o path no prompt.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--yellow);">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">!</span>
+        Encoding e binarios
+      </h4>
+      <p>O pipe funciona com texto (UTF-8). Arquivos binarios, imagens via pipe ou
+         conteudo com encoding exotico podem nao funcionar. Para imagens, use o modo
+         interativo (arrastar, colar, ou fornecer path).</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--purple);">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">!</span>
+        Sem sessao persistente
+      </h4>
+      <p>O <code>-p</code> roda sem sessao por padrao. Use <code>--continue</code> para
+         encadear com a conversa anterior, ou capture o <code>session_id</code> via
+         <code>--output-format json</code> para retomar depois com <code>--resume</code>.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--blue);">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">!</span>
+        Context window
+      </h4>
+      <p>Mesmo dentro do limite de 10 MB, o conteudo do stdin consome tokens da context window.
+         Filtre o input antes de passar ao Claude (use <code>grep</code>, <code>tail</code>,
+         <code>jq</code>) para manter o foco.</p>
+    </div>
+  </div>
+
+  <div class="callout-red callout">
+    <strong>Alternativa para arquivos grandes:</strong> Se o input exceder 10 MB, salve-o em disco
+    e referencie no prompt: <code>claude -p "Analise o arquivo em /tmp/big-log.txt"</code>.
+    O Claude usara a ferramenta <code>Read</code> para ler o arquivo sob demanda, consumindo
+    menos contexto do que pipar tudo via stdin.
+  </div>
+
+  <!-- ════════════ COMPARAÇÃO: PIPE vs INTERATIVO ════════════ -->
+  <h2>Quando usar pipe vs. modo interativo</h2>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Cenario</th>
+          <th>Pipe (<code>-p</code>)</th>
+          <th>Interativo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>CI/CD e automacao</strong></td>
+          <td style="color: var(--green);">Ideal &mdash; sem interacao humana</td>
+          <td style="color: var(--text-dim);">Nao aplicavel</td>
+        </tr>
+        <tr>
+          <td><strong>Pre-commit hooks</strong></td>
+          <td style="color: var(--green);">Ideal &mdash; rapido e automatico</td>
+          <td style="color: var(--text-dim);">Muito lento</td>
+        </tr>
+        <tr>
+          <td><strong>Analise rapida de log</strong></td>
+          <td style="color: var(--green);">Uma linha, resultado direto</td>
+          <td style="color: var(--text-dim);">Precisa colar conteudo</td>
+        </tr>
+        <tr>
+          <td><strong>Tarefa complexa multi-step</strong></td>
+          <td style="color: var(--text-dim);">Limitado a 1 turno</td>
+          <td style="color: var(--green);">Ideal &mdash; loop agentico</td>
+        </tr>
+        <tr>
+          <td><strong>Imagens e screenshots</strong></td>
+          <td style="color: var(--text-dim);">Nao suportado via pipe</td>
+          <td style="color: var(--green);">Arrastar, colar ou @path</td>
+        </tr>
+        <tr>
+          <td><strong>Exploracao de codebase</strong></td>
+          <td style="color: var(--text-dim);">Sem ferramentas de busca</td>
+          <td style="color: var(--green);">Grep, Glob, Read disponiveis</td>
+        </tr>
+        <tr>
+          <td><strong>Scripts em batch</strong></td>
+          <td style="color: var(--green);">Composivel com shell</td>
+          <td style="color: var(--text-dim);">Manual</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ FONTES ════════════ -->
+  <div class="sources">
+    <h3>Fontes e Referencias</h3>
+    <ul>
+      <li><a href="https://docs.claude.com/en/docs/claude-code/cli-reference" target="_blank">Claude Code Docs &mdash; CLI Reference</a></li>
+      <li><a href="https://docs.claude.com/en/docs/claude-code/headless" target="_blank">Claude Code Docs &mdash; Run Claude Code Programmatically (Headless Mode)</a></li>
+      <li><a href="https://docs.claude.com/en/docs/claude-code/common-workflows" target="_blank">Claude Code Docs &mdash; Common Workflows</a></li>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Anthropic &mdash; Best Practices for Claude Code</a></li>
+      <li><a href="https://docs.anthropic.com/en/docs/build-with-claude/vision" target="_blank">Anthropic Docs &mdash; Vision (Multimodal)</a></li>
+      <li><a href="https://docs.claude.com/en/docs/claude-code/overview" target="_blank">Claude Code Docs &mdash; Overview</a></li>
+    </ul>
+  </div>
+
+  <!-- ════════════ NAV FOOTER ════════════ -->
+  <div class="nav-footer">
+    <a href="modulo-04-topico-02-referenciar-padroes.html" class="nav-btn">&larr; Topico 2 &middot; Referenciar Padroes</a>
+    <a href="../index.html" class="nav-btn">&#8962; Indice</a>
+    <a href="modulo-04-topico-04-sintoma-localizacao.html" class="nav-btn">Topico 4 &middot; Sintoma e Localizacao &rarr;</a>
+  </div>
+
+</body>
+</html>

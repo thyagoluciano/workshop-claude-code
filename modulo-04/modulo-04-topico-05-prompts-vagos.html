@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo 4 · Tópico 5 — Quando Prompts Vagos São Úteis</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-code: #141620;
+      --border: #2a2d3a;
+      --text: #e4e4e7;
+      --text-dim: #9ca3af;
+      --accent: #c4956a;
+      --accent-soft: rgba(196, 149, 106, 0.12);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.12);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .topic-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-soft); padding: 6px 14px;
+      border-radius: 20px; margin-bottom: 1rem;
+    }
+
+    h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+    .subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+    h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+    p { margin-bottom: 1rem; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+    strong { color: #fff; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0;
+    }
+    .card-label {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 6px; margin-bottom: 0.75rem;
+    }
+
+    .diagram-container {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto;
+    }
+    .diagram-container svg { display: block; margin: 0 auto; }
+    .diagram-caption {
+      text-align: center; font-size: 0.85rem; color: var(--text-dim);
+      margin-top: 1rem; font-style: italic;
+    }
+
+    .code-block {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1rem; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim);
+    }
+    .code-block pre {
+      padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8;
+    }
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: var(--purple); }
+    .code-block .string { color: var(--green); }
+    .code-block .tool { color: var(--accent); }
+    .code-block .number { color: var(--yellow); }
+
+    .callout {
+      border-left: 3px solid var(--accent); background: var(--accent-soft);
+      padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem;
+    }
+    .callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+    .callout-red { border-left-color: var(--red); background: var(--red-soft); }
+    .callout-green { border-left-color: var(--green); background: var(--green-soft); }
+    .callout strong { color: #fff; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+    }
+
+    .mini-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .mini-card h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;
+    }
+    .mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+
+    .icon-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    .sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .sources ul { list-style: none; padding: 0; }
+    .sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+    .sources li::before { content: "\2192 "; color: var(--accent); }
+
+    .nav-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+      color: var(--text); background: var(--bg-card); border: 1px solid var(--border);
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+
+    /* ── Specific to this topic ── */
+    .spectrum-label {
+      font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+
+    .decision-node {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem; margin: 1rem 0;
+      display: flex; align-items: flex-start; gap: 14px;
+    }
+    .decision-node .node-icon {
+      width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 700;
+    }
+    .decision-node h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff; margin-bottom: 4px;
+    }
+    .decision-node p {
+      font-size: 0.88rem; color: var(--text-dim); margin: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ HEADER ════════════ -->
+  <div class="topic-badge">Módulo 4 · Tópico 5</div>
+  <h1>Quando Prompts Vagos São Úteis</h1>
+  <p class="subtitle">
+    Contra-intuitivo: nem sempre mais contexto é melhor. Para tarefas de <strong>exploração aberta</strong>,
+    prompts vagos permitem que o Claude Code navegue livremente pelo codebase e descubra coisas que você
+    não saberia perguntar.
+  </p>
+
+  <!-- ════════════ O PARADOXO ════════════ -->
+  <h2>O paradoxo: menos direção, mais descoberta</h2>
+
+  <p>
+    Ao longo deste workshop, enfatizamos a importância de ser específico nos prompts: descrever o sintoma,
+    localizar o problema, fornecer contexto. Mas existe um cenário onde essa regra se inverte.
+    A documentação oficial de best practices da Anthropic reconhece explicitamente que
+    prompts vagos podem ser úteis quando você está explorando e pode corrigir o rumo ao longo do caminho.
+  </p>
+
+  <p>
+    Um prompt como <code>"o que você melhoraria neste arquivo?"</code> pode revelar problemas que você
+    <strong>nem pensaria em perguntar</strong>. Quando você não sabe o que não sabe, restringir demais
+    o prompt é restringir também as descobertas.
+  </p>
+
+  <div class="callout-blue callout">
+    <strong>Insight da Anthropic:</strong> Prompts vagos são úteis quando você está explorando e pode
+    corrigir o rumo. Um prompt aberto pode surfar coisas que você não teria pensado em perguntar.
+    A chave é saber <em>quando</em> usar cada abordagem.
+    <br><small style="color: var(--text-dim);">— Anthropic, "Best Practices for Claude Code"</small>
+  </div>
+
+  <!-- ════════════ ESPECTRO SVG ════════════ -->
+  <h2>O espectro de especificidade</h2>
+
+  <p>
+    Prompts não são binários (vagos ou específicos) — eles existem em um <strong>espectro</strong>.
+    O segredo é calibrar o nível de especificidade de acordo com o tipo de tarefa.
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Espectro de especificidade: de prompts vagos (exploração) a prompts específicos (execução)</title>
+
+      <defs>
+        <linearGradient id="spectrumGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#a78bfa"/>
+          <stop offset="50%" stop-color="#fbbf24"/>
+          <stop offset="100%" stop-color="#6ee7b7"/>
+        </linearGradient>
+        <marker id="arrowR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#6ee7b7"/>
+        </marker>
+        <marker id="arrowL" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M10,0 L0,5 L10,10" fill="#a78bfa"/>
+        </marker>
+      </defs>
+
+      <!-- Título -->
+      <text x="400" y="28" text-anchor="middle" fill="#fff" font-size="14" font-weight="600">ESPECTRO DE ESPECIFICIDADE DOS PROMPTS</text>
+
+      <!-- Barra do espectro -->
+      <rect x="60" y="50" width="680" height="16" rx="8" fill="url(#spectrumGrad)" opacity="0.8"/>
+
+      <!-- Setas e labels -->
+      <text x="60" y="88" fill="#a78bfa" font-size="11" font-weight="600">VAGO / EXPLORATÓRIO</text>
+      <text x="740" y="88" text-anchor="end" fill="#6ee7b7" font-size="11" font-weight="600">ESPECÍFICO / EXECUTIVO</text>
+
+      <!-- Marcadores no espectro -->
+      <!-- Nível 1: Totalmente vago -->
+      <line x1="120" y1="50" x2="120" y2="108" stroke="#a78bfa" stroke-width="1.5"/>
+      <circle cx="120" cy="58" r="5" fill="#a78bfa"/>
+      <rect x="30" y="112" width="180" height="68" rx="8" fill="rgba(167,139,250,0.1)" stroke="#a78bfa" stroke-width="1"/>
+      <text x="120" y="131" text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="600">EXPLORAÇÃO LIVRE</text>
+      <text x="120" y="148" text-anchor="middle" fill="#d4d4d8" font-size="10">"Explique este projeto"</text>
+      <text x="120" y="164" text-anchor="middle" fill="#d4d4d8" font-size="10">"O que pode melhorar?"</text>
+
+      <!-- Nível 2: Vago com foco -->
+      <line x1="310" y1="50" x2="310" y2="108" stroke="#c4956a" stroke-width="1.5"/>
+      <circle cx="310" cy="58" r="5" fill="#c4956a"/>
+      <rect x="220" y="112" width="180" height="68" rx="8" fill="rgba(196,149,106,0.1)" stroke="#c4956a" stroke-width="1"/>
+      <text x="310" y="131" text-anchor="middle" fill="#c4956a" font-size="10" font-weight="600">EXPLORAÇÃO DIRIGIDA</text>
+      <text x="310" y="148" text-anchor="middle" fill="#d4d4d8" font-size="10">"Explore focando em</text>
+      <text x="310" y="164" text-anchor="middle" fill="#d4d4d8" font-size="10">segurança"</text>
+
+      <!-- Nível 3: Semi-específico -->
+      <line x1="500" y1="50" x2="500" y2="108" stroke="#fbbf24" stroke-width="1.5"/>
+      <circle cx="500" cy="58" r="5" fill="#fbbf24"/>
+      <rect x="410" y="112" width="180" height="68" rx="8" fill="rgba(251,191,36,0.1)" stroke="#fbbf24" stroke-width="1"/>
+      <text x="500" y="131" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="600">TAREFA COM CONTEXTO</text>
+      <text x="500" y="148" text-anchor="middle" fill="#d4d4d8" font-size="10">"Encontre bugs no módulo</text>
+      <text x="500" y="164" text-anchor="middle" fill="#d4d4d8" font-size="10">de autenticação"</text>
+
+      <!-- Nível 4: Totalmente específico -->
+      <line x1="690" y1="50" x2="690" y2="108" stroke="#6ee7b7" stroke-width="1.5"/>
+      <circle cx="690" cy="58" r="5" fill="#6ee7b7"/>
+      <rect x="600" y="112" width="180" height="68" rx="8" fill="rgba(110,231,183,0.1)" stroke="#6ee7b7" stroke-width="1"/>
+      <text x="690" y="131" text-anchor="middle" fill="#6ee7b7" font-size="10" font-weight="600">EXECUÇÃO PRECISA</text>
+      <text x="690" y="148" text-anchor="middle" fill="#d4d4d8" font-size="10">"Adicione .email() no</text>
+      <text x="690" y="164" text-anchor="middle" fill="#d4d4d8" font-size="10">schema Zod de signup"</text>
+
+      <!-- Linha separadora -->
+      <line x1="60" y1="210" x2="740" y2="210" stroke="#2a2d3a" stroke-width="0.5" stroke-dasharray="6,4"/>
+
+      <!-- Legenda inferior: quando usar cada um -->
+      <text x="400" y="238" text-anchor="middle" fill="#fff" font-size="12" font-weight="600">QUANDO USAR CADA NÍVEL</text>
+
+      <rect x="30" y="252" width="170" height="56" rx="8" fill="rgba(167,139,250,0.06)" stroke="#475569" stroke-width="0.5"/>
+      <text x="115" y="272" text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="600">Codebase novo</text>
+      <text x="115" y="288" text-anchor="middle" fill="#9ca3af" font-size="9">Onboarding, visão geral</text>
+      <text x="115" y="300" text-anchor="middle" fill="#9ca3af" font-size="9">descoberta de padrões</text>
+
+      <rect x="215" y="252" width="170" height="56" rx="8" fill="rgba(196,149,106,0.06)" stroke="#475569" stroke-width="0.5"/>
+      <text x="300" y="272" text-anchor="middle" fill="#c4956a" font-size="10" font-weight="600">Auditoria / Review</text>
+      <text x="300" y="288" text-anchor="middle" fill="#9ca3af" font-size="9">Segurança, performance</text>
+      <text x="300" y="300" text-anchor="middle" fill="#9ca3af" font-size="9">qualidade de código</text>
+
+      <rect x="400" y="252" width="170" height="56" rx="8" fill="rgba(251,191,36,0.06)" stroke="#475569" stroke-width="0.5"/>
+      <text x="485" y="272" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="600">Investigação de bug</text>
+      <text x="485" y="288" text-anchor="middle" fill="#9ca3af" font-size="9">Sabe o módulo, não a</text>
+      <text x="485" y="300" text-anchor="middle" fill="#9ca3af" font-size="9">causa raiz</text>
+
+      <rect x="585" y="252" width="170" height="56" rx="8" fill="rgba(110,231,183,0.06)" stroke="#475569" stroke-width="0.5"/>
+      <text x="670" y="272" text-anchor="middle" fill="#6ee7b7" font-size="10" font-weight="600">Implementação</text>
+      <text x="670" y="288" text-anchor="middle" fill="#9ca3af" font-size="9">Sabe exatamente o que</text>
+      <text x="670" y="300" text-anchor="middle" fill="#9ca3af" font-size="9">precisa ser feito</text>
+
+      <!-- Seta bidirecional -->
+      <path d="M80 340 L720 340" stroke="#475569" stroke-width="1" marker-end="url(#arrowR)" marker-start="url(#arrowL)"/>
+      <text x="400" y="365" text-anchor="middle" fill="#9ca3af" font-size="10" font-style="italic">Mais autonomia para o Claude ←→ Mais controle para o dev</text>
+    </svg>
+    <p class="diagram-caption">O nível de especificidade deve refletir o quanto você já sabe sobre o problema. Menos conhecimento = prompt mais aberto.</p>
+  </div>
+
+  <!-- ════════════ QUANDO FUNCIONAM ════════════ -->
+  <h2>Quando prompts vagos funcionam</h2>
+
+  <p>
+    Prompts vagos não são preguiça — são uma <strong>estratégia deliberada</strong> para cenários onde
+    restringir o escopo significaria perder insights importantes. A Anthropic recomenda que para tarefas
+    exploratórias, você pode pular o planejamento e deixar o Claude descobrir o caminho.
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card" style="border-color: var(--purple);">
+      <h4>
+        <span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">1</span>
+        Codebase desconhecido
+      </h4>
+      <p>Você acabou de entrar em um projeto. Não sabe a estrutura, os padrões, nem onde as coisas vivem.
+         Um prompt vago como "explique a arquitetura deste projeto" deixa o Claude explorar e mapear tudo.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--blue);">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">2</span>
+        Investigacao sem pista
+      </h4>
+      <p>O bug existe mas você não tem ideia de onde. "Encontre possíveis bugs neste projeto" permite
+         que o Claude vasculhe livremente em vez de se limitar a um módulo que talvez não seja o problema.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--green);">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">3</span>
+        Brainstorming de arquitetura
+      </h4>
+      <p>Você quer ideias novas, não implementação. "Como você redesenharia este sistema?" abre espaço para
+         sugestoes que você não consideraria se pedisse algo pontual.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--yellow);">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">4</span>
+        Auditoria de qualidade
+      </h4>
+      <p>"O que pode ser melhorado neste código?" — sem restringir a segurança, performance ou estilo.
+         Deixa o Claude priorizar o que ele considera mais crítico.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Regra prática:</strong> Se você consegue descrever o problema em uma frase específica, seja específico.
+    Se você está tentando <em>descobrir qual é o problema</em>, seja vago.
+  </div>
+
+  <!-- ════════════ EXEMPLOS DE PROMPTS VAGOS ════════════ -->
+  <h2>Exemplos de prompts vagos eficazes</h2>
+
+  <p>
+    Prompts vagos não significam prompts de uma palavra. Os melhores prompts vagos são <strong>abertos
+    no escopo</strong> mas <strong>claros na intenção</strong>. Veja a diferenca:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Prompts vagos eficazes para exploração</span>
+      <span>Claude Code</span>
+    </div>
+    <pre>
+<span class="comment"># Entender um projeto novo</span>
+<span class="string">"Explique a arquitetura deste projeto. Quais são os módulos
+principais e como eles se conectam?"</span>
+
+<span class="comment"># Descobrir problemas que você não sabe que existem</span>
+<span class="string">"O que você melhoraria neste arquivo?"</span>
+
+<span class="comment"># Mapear dependências</span>
+<span class="string">"Trace as dependências do módulo de pagamento.
+Quem depende dele e de quem ele depende?"</span>
+
+<span class="comment"># Auditoria aberta</span>
+<span class="string">"Encontre possíveis problemas de segurança neste projeto."</span>
+
+<span class="comment"># Entender decisoes de design</span>
+<span class="string">"Por que este projeto usa esse padrão? Quais seriam
+as alternativas?"</span></pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Prompts vagos INEFICAZES (vagos demais)</span>
+      <span>Evite estes</span>
+    </div>
+    <pre>
+<span class="comment"># Vago demais — sem direção nenhuma</span>
+<span class="string">"Olhe o código"</span>
+<span class="comment">  → Claude não sabe o que procurar. Resposta genérica.</span>
+
+<span class="comment"># Ambiguo — múltiplas interpretações</span>
+<span class="string">"Melhore isso"</span>
+<span class="comment">  → Melhorar o que? Performance? Legibilidade? Seguranca?</span>
+
+<span class="comment"># Amplo demais sem ponto de partida</span>
+<span class="string">"Analise tudo"</span>
+<span class="comment">  → Claude le centenas de arquivos, enche o contexto,
+     e a qualidade da resposta cai.</span></pre>
+  </div>
+
+  <div class="callout-red callout">
+    <strong>Atenção ao contexto:</strong> Quando você pede ao Claude para "investigar" algo sem delimitar o escopo,
+    ele pode ler centenas de arquivos e encher a context window. A documentacao da Anthropic recomenda
+    <strong>delimitar investigações</strong> ou <strong>usar subagentes</strong> para que a exploração
+    não consuma o contexto principal.
+  </div>
+
+  <!-- ════════════ VAGO + RESTRIÇÃO ════════════ -->
+  <h2>Combinando vago com restrição</h2>
+
+  <p>
+    A técnica mais poderosa é o <strong>prompt semi-aberto</strong>: vago no escopo, mas com uma restrição
+    que direciona a exploração. Isso da liberdade ao Claude enquanto evita respostas completamente genéricas.
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Padrão</th>
+          <th>Exemplo</th>
+          <th>Por que funciona</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Explore + foco</strong></td>
+          <td><code>"Explore o projeto mas foque em segurança"</code></td>
+          <td>Livre para navegar, mas com lente definida</td>
+        </tr>
+        <tr>
+          <td><strong>Aberto + arquivo</strong></td>
+          <td><code>"O que pode melhorar em src/auth/"</code></td>
+          <td>Aberto no tipo de melhoria, fechado no escopo</td>
+        </tr>
+        <tr>
+          <td><strong>Investigar + sintoma</strong></td>
+          <td><code>"Investigue por que a API está lenta"</code></td>
+          <td>Não diz onde procurar, mas define o que procurar</td>
+        </tr>
+        <tr>
+          <td><strong>Revisar + criterio</strong></td>
+          <td><code>"Revise este PR pensando em manutenibilidade"</code></td>
+          <td>Liberdade para apontar qualquer issue, com prioridade clara</td>
+        </tr>
+        <tr>
+          <td><strong>Mapear + aspecto</strong></td>
+          <td><code>"Mapeie o fluxo de dados do login ate o dashboard"</code></td>
+          <td>Aberto na profundidade, fechado no caminho</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Exemplos de prompts semi-abertos na prática</span>
+      <span>Claude Code</span>
+    </div>
+    <pre>
+<span class="comment"># Exploracao com lente de segurança</span>
+<span class="string">"Analise este projeto procurando vulnerabilidades.
+Não precisa cobrir tudo — foque nos pontos mais críticos
+que você encontrar."</span>
+
+<span class="comment"># Exploracao com restrição de escopo</span>
+<span class="string">"Entenda como o sistema de cache funciona neste projeto.
+Quais estratégias são usadas e onde ha riscos de inconsistência?"</span>
+
+<span class="comment"># Brainstorming com guardrails</span>
+<span class="string">"Sugira melhorias de performance, mas que não exijam
+mudanca de infraestrutura. Foque no código da aplicacao."</span></pre>
+  </div>
+
+  <!-- ════════════ WORKFLOW: VAGO → ESPECÍFICO ════════════ -->
+  <h2>Prompts vagos como primeiro passo</h2>
+
+  <p>
+    A melhor estrategia não é escolher entre vago e específico — e usar os dois <strong>em sequência</strong>.
+    Comece vago para explorar e entender, depois refine com especificidade para executar.
+    A Anthropic descreve isso como a progressão natural de trabalhar com o Claude Code:
+    desenvolver intuição e iterar.
+  </p>
+
+  <div class="diagram-container">
+    <svg viewBox="0 0 800 220" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Workflow: explorar com prompt vago, entender, depois ser específico</title>
+
+      <defs>
+        <marker id="arrowFlow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#c4956a"/>
+        </marker>
+      </defs>
+
+      <!-- Step 1: Explorar -->
+      <rect x="30" y="40" width="200" height="100" rx="12" fill="rgba(167,139,250,0.1)" stroke="#a78bfa" stroke-width="1.5"/>
+      <text x="130" y="68" text-anchor="middle" fill="#a78bfa" font-size="12" font-weight="600">1. EXPLORAR</text>
+      <text x="130" y="88" text-anchor="middle" fill="#d4d4d8" font-size="10">Prompt vago:</text>
+      <text x="130" y="105" text-anchor="middle" fill="#9ca3af" font-size="10">"Explique a arquitetura"</text>
+      <text x="130" y="122" text-anchor="middle" fill="#9ca3af" font-size="10">"O que pode melhorar?"</text>
+
+      <!-- Arrow 1→2 -->
+      <path d="M235 90 L285 90" stroke="#c4956a" stroke-width="1.5" marker-end="url(#arrowFlow)"/>
+
+      <!-- Step 2: Entender -->
+      <rect x="290" y="40" width="200" height="100" rx="12" fill="rgba(251,191,36,0.1)" stroke="#fbbf24" stroke-width="1.5"/>
+      <text x="390" y="68" text-anchor="middle" fill="#fbbf24" font-size="12" font-weight="600">2. ENTENDER</text>
+      <text x="390" y="88" text-anchor="middle" fill="#d4d4d8" font-size="10">Absorver o que o Claude</text>
+      <text x="390" y="105" text-anchor="middle" fill="#d4d4d8" font-size="10">descobriu. Identificar</text>
+      <text x="390" y="122" text-anchor="middle" fill="#d4d4d8" font-size="10">os pontos de acao.</text>
+
+      <!-- Arrow 2→3 -->
+      <path d="M495 90 L545 90" stroke="#c4956a" stroke-width="1.5" marker-end="url(#arrowFlow)"/>
+
+      <!-- Step 3: Executar -->
+      <rect x="550" y="40" width="220" height="100" rx="12" fill="rgba(110,231,183,0.1)" stroke="#6ee7b7" stroke-width="1.5"/>
+      <text x="660" y="68" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="600">3. EXECUTAR</text>
+      <text x="660" y="88" text-anchor="middle" fill="#d4d4d8" font-size="10">Prompt específico:</text>
+      <text x="660" y="105" text-anchor="middle" fill="#9ca3af" font-size="10">"Adicione rate limiting no</text>
+      <text x="660" y="122" text-anchor="middle" fill="#9ca3af" font-size="10">endpoint POST /api/users"</text>
+
+      <!-- Nota inferior -->
+      <text x="400" y="175" text-anchor="middle" fill="#9ca3af" font-size="11" font-style="italic">
+        Sessao limpa entre explorar e executar: use /clear para não poluir o contexto
+      </text>
+
+      <!-- Dica /clear -->
+      <rect x="310" y="187" width="180" height="24" rx="6" fill="rgba(196,149,106,0.1)" stroke="#c4956a" stroke-width="0.5"/>
+      <text x="400" y="204" text-anchor="middle" fill="#c4956a" font-size="10" font-weight="600">/clear entre cada fase</text>
+    </svg>
+    <p class="diagram-caption">O fluxo ideal: use prompts vagos para descobrir, depois prompts específicos para implementar — com /clear entre as fases.</p>
+  </div>
+
+  <div class="callout-green callout">
+    <strong>Dica da Anthropic:</strong> Se você corrigiu o Claude mais de duas vezes no mesmo problema em uma sessão,
+    o contexto está poluido com tentativas falhas. Use <code>/clear</code> e comece uma nova sessão com um
+    prompt melhor que incorpore o que você aprendeu. Uma sessão limpa quase sempre supera uma sessão longa
+    com correções acumuladas.
+  </div>
+
+  <!-- ════════════ DECISION TREE ════════════ -->
+  <h2>Decision tree: quando ser vago vs. quando ser específico</h2>
+
+  <p>
+    Use está árvore de decisão para calibrar a especificidade do seu prompt:
+  </p>
+
+  <div class="decision-node">
+    <div class="node-icon" style="background: var(--purple-soft); color: var(--purple);">?</div>
+    <div>
+      <h4>Você sabe qual arquivo ou módulo tem o problema?</h4>
+      <p><strong style="color: var(--red);">Não</strong> → Use um prompt vago para exploração:
+         <code>"Investigue o que pode estar causando lentidão no sistema"</code></p>
+      <p style="margin-top: 0.5rem;"><strong style="color: var(--green);">Sim</strong> → Próximo passo abaixo</p>
+    </div>
+  </div>
+
+  <div class="decision-node">
+    <div class="node-icon" style="background: var(--blue-soft); color: var(--blue);">?</div>
+    <div>
+      <h4>Você sabe qual é a causa raiz?</h4>
+      <p><strong style="color: var(--red);">Não</strong> → Use um prompt semi-aberto com restrição:
+         <code>"Analise src/api/ procurando problemas de performance"</code></p>
+      <p style="margin-top: 0.5rem;"><strong style="color: var(--green);">Sim</strong> → Próximo passo abaixo</p>
+    </div>
+  </div>
+
+  <div class="decision-node">
+    <div class="node-icon" style="background: var(--yellow-soft); color: var(--yellow);">?</div>
+    <div>
+      <h4>Você sabe exatamente o que precisa ser feito?</h4>
+      <p><strong style="color: var(--red);">Não</strong> → Use um prompt com contexto mas aberto na solução:
+         <code>"A query N+1 está no UserRepository. Sugira formas de resolver"</code></p>
+      <p style="margin-top: 0.5rem;"><strong style="color: var(--green);">Sim</strong> → Use um prompt específico e direto</p>
+    </div>
+  </div>
+
+  <div class="decision-node">
+    <div class="node-icon" style="background: var(--green-soft); color: var(--green);">!</div>
+    <div>
+      <h4>Prompt específico — você tem todas as informações</h4>
+      <p>
+        <code>"Refatore UserRepository.findAll() para usar JOIN em vez de queries separadas.
+        Mantenha a interface publica igual. Rode os testes depois."</code>
+      </p>
+    </div>
+  </div>
+
+  <!-- ════════════ GRID: CENÁRIO × TIPO ════════════ -->
+  <h2>Guia rápido: cenário vs. tipo de prompt</h2>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Cenário</th>
+          <th>Tipo de prompt</th>
+          <th>Exemplo</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Onboarding em projeto novo</td>
+          <td><span style="color: var(--purple);">Vago</span></td>
+          <td>"Explique a arquitetura e os padrões deste projeto"</td>
+        </tr>
+        <tr>
+          <td>Bug sem pista da causa</td>
+          <td><span style="color: var(--purple);">Vago</span></td>
+          <td>"Usuarios reportam lentidão. Investigue possíveis causas"</td>
+        </tr>
+        <tr>
+          <td>Code review geral</td>
+          <td><span style="color: var(--accent);">Semi-aberto</span></td>
+          <td>"Revise este PR focando em manutenibilidade"</td>
+        </tr>
+        <tr>
+          <td>Auditoria de segurança</td>
+          <td><span style="color: var(--accent);">Semi-aberto</span></td>
+          <td>"Procure vulnerabilidades no módulo de autenticacao"</td>
+        </tr>
+        <tr>
+          <td>Bug com stacktrace</td>
+          <td><span style="color: var(--yellow);">Contextualizado</span></td>
+          <td>"TypeError no AuthService.validate() quando token expira"</td>
+        </tr>
+        <tr>
+          <td>Feature bem definida</td>
+          <td><span style="color: var(--green);">Especifico</span></td>
+          <td>"Adicione campo 'phone' ao UserSchema com validacao E.164"</td>
+        </tr>
+        <tr>
+          <td>Refatoracao pontual</td>
+          <td><span style="color: var(--green);">Especifico</span></td>
+          <td>"Extraia a lógica de retry do HttpClient para uma classe RetryPolicy"</td>
+        </tr>
+        <tr>
+          <td>Entender dependências</td>
+          <td><span style="color: var(--purple);">Vago</span></td>
+          <td>"Mapeie as dependências entre os módulos deste monorepo"</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ O RISCO ════════════ -->
+  <h2>O risco: quando prompts vagos saem errado</h2>
+
+  <p>
+    Prompts vagos não são uma carta branca. Usados nos cenários errados, eles levam a problemas concretos:
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card" style="border-color: var(--red);">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">!</span>
+        Context window esgotada
+      </h4>
+      <p>Sem escopo, o Claude le dezenas de arquivos tentando entender "tudo". O contexto enche com
+         informação irrelevante e a qualidade das respostas seguintes despenca.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--red);">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">!</span>
+        Respostas genéricas
+      </h4>
+      <p>Sem direção, o Claude pode cair em conselhos genéricos ("use TypeScript strict mode",
+         "adicione testes") que não trazem valor para o seu caso específico.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--red);">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">!</span>
+        Escopo infinito
+      </h4>
+      <p>Um prompt como "melhore este projeto" pode levar o Claude a tentar refatorar tudo,
+         gerando mudanças massivas e difíceis de revisar.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--red);">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">!</span>
+        Perda de foco na sessão
+      </h4>
+      <p>Se a exploração vaga não for seguida de um <code>/clear</code>, todo o contexto acumulado
+         atrapalha os prompts específicos que vem depois.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Mitigação:</strong> Use <strong>subagentes</strong> (Task tool) para exploração vaga. O subagente
+    le centenas de arquivos e reporta de volta um resumo, sem consumir o contexto da sua conversa principal.
+    Isso e exatamente o que a Anthropic recomenda para investigações de escopo aberto.
+  </div>
+
+  <!-- ════════════ RESUMO ════════════ -->
+  <h2>Resumo: o espectro da especificidade</h2>
+
+  <div class="card" style="border-color: var(--accent);">
+    <div class="grid-2" style="margin: 0;">
+      <div>
+        <h4 style="color: var(--purple); margin-bottom: 0.75rem;">Prompts vagos são para...</h4>
+        <ul style="list-style: none; padding: 0; font-size: 0.9rem; color: var(--text-dim);">
+          <li style="margin-bottom: 0.4rem;">&#8226; Explorar codebases desconhecidos</li>
+          <li style="margin-bottom: 0.4rem;">&#8226; Investigar sem pistas</li>
+          <li style="margin-bottom: 0.4rem;">&#8226; Brainstorming e ideação</li>
+          <li style="margin-bottom: 0.4rem;">&#8226; Auditorias abertas de qualidade</li>
+          <li style="margin-bottom: 0.4rem;">&#8226; Mapear dependências e arquitetura</li>
+          <li>&#8226; O <em>primeiro passo</em> antes de ser específico</li>
+        </ul>
+      </div>
+      <div>
+        <h4 style="color: var(--green); margin-bottom: 0.75rem;">Prompts específicos são para...</h4>
+        <ul style="list-style: none; padding: 0; font-size: 0.9rem; color: var(--text-dim);">
+          <li style="margin-bottom: 0.4rem;">&#8226; Implementação de features</li>
+          <li style="margin-bottom: 0.4rem;">&#8226; Correcao de bugs com causa conhecida</li>
+          <li style="margin-bottom: 0.4rem;">&#8226; Refatorações pontuais</li>
+          <li style="margin-bottom: 0.4rem;">&#8226; Tarefas com criterio de sucesso claro</li>
+          <li style="margin-bottom: 0.4rem;">&#8226; Modificações em arquivos específicos</li>
+          <li>&#8226; Tudo onde você sabe <em>exatamente</em> o que quer</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout-green callout">
+    <strong>Takeaway:</strong> A especificidade do prompt deve refletir o quanto você já sabe sobre o problema.
+    Pouco conhecimento → prompt aberto para descobrir. Muito conhecimento → prompt preciso para executar.
+    E entre as fases: <code>/clear</code>.
+  </div>
+
+  <!-- ════════════ FONTES ════════════ -->
+  <div class="sources">
+    <h3>Fontes e Referências</h3>
+    <ul>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Anthropic — Best Practices for Claude Code</a></li>
+      <li><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank">Anthropic — Effective Context Engineering for AI Agents</a></li>
+      <li><a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices" target="_blank">Anthropic — Prompting Best Practices (Claude 4)</a></li>
+      <li><a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview" target="_blank">Anthropic — Prompt Engineering Overview</a></li>
+      <li><a href="https://www.anthropic.com/news/how-anthropic-teams-use-claude-code" target="_blank">Anthropic — How Anthropic Teams Use Claude Code</a></li>
+    </ul>
+  </div>
+
+  <!-- ════════════ NAV FOOTER ════════════ -->
+  <div class="nav-footer">
+    <a href="modulo-04-topico-04-sintoma-localizacao.html" class="nav-btn">&larr; Tópico 4 · Sintoma e Localização</a>
+    <a href="../index.html" class="nav-btn">&#8962; Índice</a>
+    <a href="../modulo-05/modulo-05-topico-01-degradacao.html" class="nav-btn">Módulo 5 · Tópico 1 &rarr;</a>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Módulo 4 · Tópico 4 — Sintoma + Localização + Definição de Resolvido</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --bg-card: #1a1d27;
+      --bg-code: #141620;
+      --border: #2a2d3a;
+      --text: #e4e4e7;
+      --text-dim: #9ca3af;
+      --accent: #c4956a;
+      --accent-soft: rgba(196, 149, 106, 0.12);
+      --blue: #60a5fa;
+      --blue-soft: rgba(96, 165, 250, 0.12);
+      --green: #6ee7b7;
+      --green-soft: rgba(110, 231, 183, 0.12);
+      --purple: #a78bfa;
+      --purple-soft: rgba(167, 139, 250, 0.12);
+      --red: #f87171;
+      --red-soft: rgba(248, 113, 113, 0.12);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.12);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      --radius: 12px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      padding: 2rem;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .topic-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-soft); padding: 6px 14px;
+      border-radius: 20px; margin-bottom: 1rem;
+    }
+
+    h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+    .subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+    h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+    h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+    p { margin-bottom: 1rem; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+    strong { color: #fff; }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0;
+    }
+    .card-label {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 6px; margin-bottom: 0.75rem;
+    }
+
+    .diagram-container {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto;
+    }
+    .diagram-container svg { display: block; margin: 0 auto; }
+    .diagram-caption {
+      text-align: center; font-size: 0.85rem; color: var(--text-dim);
+      margin-top: 1rem; font-style: italic;
+    }
+
+    .code-block {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.5rem 1rem; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim);
+    }
+    .code-block pre {
+      padding: 1rem 1.25rem; overflow-x: auto;
+      font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8;
+    }
+    .code-block .comment { color: #6b7280; }
+    .code-block .keyword { color: var(--purple); }
+    .code-block .string { color: var(--green); }
+    .code-block .tool { color: var(--accent); }
+    .code-block .number { color: var(--yellow); }
+
+    .callout {
+      border-left: 3px solid var(--accent); background: var(--accent-soft);
+      padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem;
+    }
+    .callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+    .callout-red { border-left-color: var(--red); background: var(--red-soft); }
+    .callout-green { border-left-color: var(--green); background: var(--green-soft); }
+    .callout strong { color: #fff; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+    @media (max-width: 640px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      body { padding: 1rem; }
+      h1 { font-size: 1.5rem; }
+    }
+
+    .mini-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+    }
+    .mini-card h4 {
+      font-size: 0.95rem; font-weight: 600; color: #fff;
+      margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;
+    }
+    .mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+
+    .icon-circle {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+    th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+    th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    td { color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+
+    .sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+    .sources ul { list-style: none; padding: 0; }
+    .sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+    .sources li::before { content: "\2192 "; color: var(--accent); }
+
+    .nav-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border);
+    }
+    .nav-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500;
+      color: var(--text); background: var(--bg-card); border: 1px solid var(--border);
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+
+    /* ── Specific to this topic ── */
+    .vs-row {
+      display: grid; grid-template-columns: 1fr 60px 1fr; gap: 0; margin: 2rem 0;
+      align-items: stretch;
+    }
+    .vs-col {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.5rem;
+    }
+    .vs-col h4 {
+      font-size: 1rem; font-weight: 600; margin-bottom: 1rem;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .vs-divider {
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: 700; color: var(--text-dim);
+    }
+    @media (max-width: 700px) {
+      .vs-row { grid-template-columns: 1fr; gap: 0.5rem; }
+      .vs-divider { padding: 0.5rem 0; }
+    }
+
+    .sld-letter {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; border-radius: 50%; font-size: 1.1rem;
+      font-weight: 800; flex-shrink: 0; margin-right: 10px;
+    }
+
+    .template-box {
+      background: var(--bg-code); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem; margin: 1rem 0;
+      font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.7;
+      color: #d4d4d8;
+    }
+    .template-box .label {
+      color: var(--accent); font-weight: 600;
+    }
+    .template-box .placeholder {
+      color: var(--text-dim); font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ════════════ HEADER ════════════ -->
+  <div class="topic-badge">Modulo 4 . Topico 4</div>
+  <h1>Sintoma + Localizacao + Definicao de Resolvido</h1>
+  <p class="subtitle">
+    O framework <strong>SLD</strong> e a tecnica mais eficaz para transformar prompts vagos em instrucoes
+    que o Claude Code consegue resolver de primeira. Descreva <em>o que</em> esta errado, <em>onde</em>
+    acontece e <em>quando</em> considerar feito.
+  </p>
+
+  <!-- ════════════ POR QUE SLD ════════════ -->
+  <h2>Por que seus prompts precisam de estrutura</h2>
+
+  <p>
+    A documentacao oficial da Anthropic sobre best practices do Claude Code destaca que
+    <strong>especificidade gera alinhamento</strong> -- quanto mais preciso voce explica o que quer,
+    melhor o resultado. A regra de ouro: se um colega com contexto minimo ficaria confuso
+    lendo seu prompt, o Claude tambem ficara.
+  </p>
+
+  <p>
+    O problema e que a maioria dos desenvolvedores descreve tarefas de forma incompleta.
+    Dizem o que querem (<em>"corrige esse bug"</em>) mas omitem informacoes criticas que
+    o agente precisa para tomar boas decisoes: qual e o comportamento atual? Onde exatamente
+    acontece? Como saber se a correcao funcionou?
+  </p>
+
+  <p>
+    O framework <strong>SLD</strong> resolve isso com tres componentes obrigatorios:
+  </p>
+
+  <!-- ════════════ DIAGRAMA SVG ════════════ -->
+  <div class="diagram-container">
+    <svg viewBox="0 0 800 340" xmlns="http://www.w3.org/2000/svg" role="img">
+      <title>Framework SLD: tres circulos conectados -- Sintoma, Localizacao, Definicao de Resolvido</title>
+
+      <defs>
+        <marker id="arrowRight" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+          <path d="M0,0 L10,5 L0,10" fill="#6ee7b7"/>
+        </marker>
+      </defs>
+
+      <!-- Titulo -->
+      <text x="400" y="28" text-anchor="middle" fill="#fff" font-size="15" font-weight="700" letter-spacing="0.05em">FRAMEWORK SLD</text>
+      <text x="400" y="48" text-anchor="middle" fill="#9ca3af" font-size="11">Tres dimensoes que todo prompt eficaz deve cobrir</text>
+
+      <!-- Circulo S -->
+      <circle cx="150" cy="160" r="85" fill="rgba(248,113,113,0.08)" stroke="#f87171" stroke-width="2"/>
+      <text x="150" y="130" text-anchor="middle" fill="#f87171" font-size="32" font-weight="800">S</text>
+      <text x="150" y="155" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Sintoma</text>
+      <text x="150" y="175" text-anchor="middle" fill="#9ca3af" font-size="10.5">O QUE esta errado?</text>
+      <text x="150" y="192" text-anchor="middle" fill="#9ca3af" font-size="10">Comportamento observado</text>
+      <text x="150" y="207" text-anchor="middle" fill="#9ca3af" font-size="10">vs. comportamento esperado</text>
+
+      <!-- Seta S -> L -->
+      <path d="M240 145 L300 145" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowRight)"/>
+      <path d="M240 175 L300 175" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowRight)" stroke-dasharray="4,3"/>
+
+      <!-- Circulo L -->
+      <circle cx="400" cy="160" r="85" fill="rgba(96,165,250,0.08)" stroke="#60a5fa" stroke-width="2"/>
+      <text x="400" y="130" text-anchor="middle" fill="#60a5fa" font-size="32" font-weight="800">L</text>
+      <text x="400" y="155" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Localizacao</text>
+      <text x="400" y="175" text-anchor="middle" fill="#9ca3af" font-size="10.5">ONDE acontece?</text>
+      <text x="400" y="192" text-anchor="middle" fill="#9ca3af" font-size="10">Arquivo, funcao, endpoint,</text>
+      <text x="400" y="207" text-anchor="middle" fill="#9ca3af" font-size="10">fluxo do usuario</text>
+
+      <!-- Seta L -> D -->
+      <path d="M490 145 L550 145" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowRight)"/>
+      <path d="M490 175 L550 175" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrowRight)" stroke-dasharray="4,3"/>
+
+      <!-- Circulo D -->
+      <circle cx="650" cy="160" r="85" fill="rgba(110,231,183,0.08)" stroke="#6ee7b7" stroke-width="2"/>
+      <text x="650" y="130" text-anchor="middle" fill="#6ee7b7" font-size="32" font-weight="800">D</text>
+      <text x="650" y="155" text-anchor="middle" fill="#fff" font-size="13" font-weight="600">Def. de Resolvido</text>
+      <text x="650" y="175" text-anchor="middle" fill="#9ca3af" font-size="10.5">QUANDO esta feito?</text>
+      <text x="650" y="192" text-anchor="middle" fill="#9ca3af" font-size="10">Teste passa, build compila,</text>
+      <text x="650" y="207" text-anchor="middle" fill="#9ca3af" font-size="10">output esperado</text>
+
+      <!-- Linha inferior conectando os tres -->
+      <path d="M150 250 L150 280 L650 280 L650 250" fill="none" stroke="#475569" stroke-width="1" stroke-dasharray="5,4"/>
+      <text x="400" y="305" text-anchor="middle" fill="#6ee7b7" font-size="11.5" font-weight="600">Juntos = prompt completo que o agente consegue resolver sem adivinhar</text>
+      <text x="400" y="325" text-anchor="middle" fill="#9ca3af" font-size="10">Cada componente reduz a ambiguidade e guia o loop agentico na direcao certa</text>
+    </svg>
+    <p class="diagram-caption">O framework SLD: cada componente elimina um tipo de ambiguidade do seu prompt.</p>
+  </div>
+
+  <!-- ════════════ DETALHAMENTO DO S ════════════ -->
+  <h2>S -- Sintoma: descreva O QUE esta errado</h2>
+
+  <p>
+    O sintoma e a descricao do <strong>comportamento observado</strong> comparado ao
+    <strong>comportamento esperado</strong>. Nao e a sua teoria sobre a causa -- e o que
+    voce ve acontecendo. A documentacao da Anthropic recomenda descrever o problema sem
+    prescrever a solucao, porque o agente pode encontrar uma causa raiz diferente da que
+    voce imagina.
+  </p>
+
+  <div class="grid-3">
+    <div class="mini-card" style="border-color: var(--red);">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">!</span>
+        Comportamento atual
+      </h4>
+      <p>O que esta acontecendo agora? Qual o erro, output incorreto ou comportamento inesperado?</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--green);">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">+</span>
+        Comportamento esperado
+      </h4>
+      <p>O que deveria acontecer? Qual e o resultado correto, a resposta esperada ou o estado desejado?</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--yellow);">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">~</span>
+        Delta (a diferenca)
+      </h4>
+      <p>Qual e o gap entre os dois? Dados incorretos? Erro silencioso? Performance degradada? Crash?</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Dica:</strong> Se voce consegue colar a mensagem de erro exata, faca isso.
+    A Anthropic recomenda usar <code>cat error.log | claude</code> para enviar logs diretamente.
+    Dados concretos sao sempre melhores que descricoes vagas do erro.
+  </p>
+  </div>
+
+  <!-- ════════════ DETALHAMENTO DO L ════════════ -->
+  <h2>L -- Localizacao: descreva ONDE acontece</h2>
+
+  <p>
+    A localizacao ajuda o agente a <strong>comecar a busca no lugar certo</strong>. Sem ela,
+    o Claude precisa varrer o projeto inteiro com Grep e Glob antes de entender onde atuar.
+    Com ela, o agente vai direto ao ponto, economizando tokens e tempo.
+  </p>
+
+  <p>
+    A documentacao da Anthropic sugere referenciar arquivos com <code>@</code> ao inves
+    de descrever onde o codigo mora. Quanto mais especifico, melhor: nome do arquivo,
+    funcao, classe, endpoint, ou fluxo do usuario.
+  </p>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Nivel de especificidade</th>
+          <th>Exemplo</th>
+          <th>Eficacia</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="color: var(--red);">Vago</td>
+          <td><code>"no backend"</code></td>
+          <td>O agente precisa buscar em todo o projeto</td>
+        </tr>
+        <tr>
+          <td style="color: var(--yellow);">Razoavel</td>
+          <td><code>"no controller de usuarios"</code></td>
+          <td>Reduz o escopo, mas ainda precisa buscar o arquivo</td>
+        </tr>
+        <tr>
+          <td style="color: var(--green);">Especifico</td>
+          <td><code>"em src/controllers/UserController.ts, funcao createUser()"</code></td>
+          <td>Agente vai direto ao ponto, sem buscas extras</td>
+        </tr>
+        <tr>
+          <td style="color: var(--green);">Otimo</td>
+          <td><code>"@src/controllers/UserController.ts na linha ~142, dentro do try/catch do createUser()"</code></td>
+          <td>Maximo de precisao, minimo de tokens gastos</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ════════════ DETALHAMENTO DO D ════════════ -->
+  <h2>D -- Definicao de Resolvido: descreva QUANDO esta feito</h2>
+
+  <p>
+    Este e o componente mais negligenciado -- e o mais poderoso. A documentacao da Anthropic
+    enfatiza que o Claude <strong>performa dramaticamente melhor quando consegue verificar
+    seu proprio trabalho</strong>. Sem criterios claros de sucesso, ele pode produzir algo
+    que parece correto mas nao funciona. A definicao de resolvido alimenta diretamente o
+    <strong>loop de auto-correcao</strong> do agente.
+  </p>
+
+  <div class="grid-2">
+    <div class="mini-card" style="border-color: var(--green);">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">A</span>
+        Criterios automatizaveis
+      </h4>
+      <p>Testes passam, build compila, linter nao reclama, endpoint retorna 200, migration roda sem erro. O agente pode verificar sozinho rodando comandos.</p>
+    </div>
+    <div class="mini-card" style="border-color: var(--blue);">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">V</span>
+        Criterios visuais/manuais
+      </h4>
+      <p>Screenshot do componente renderizado, output formatado de um certo jeito, comportamento especifico na UI. O agente nao verifica sozinho mas sabe o alvo.</p>
+    </div>
+  </div>
+
+  <div class="callout-green callout">
+    <strong>Regra de ouro:</strong> Sempre que possivel, de ao Claude um comando que ele possa rodar
+    para verificar se a tarefa esta completa. Exemplos: <code>npm test -- --grep "user validation"</code>,
+    <code>cargo build 2>&amp;1 | head -20</code>, <code>python -m pytest tests/test_auth.py -v</code>.
+    Isso transforma a definicao de resolvido em algo executavel.
+  </div>
+
+  <!-- ════════════ POR QUE FUNCIONA ════════════ -->
+  <h2>Por que o SLD funciona: a mecanica por tras</h2>
+
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">1</span>
+        Reduz ciclos de tentativa e erro
+      </h4>
+      <p>Sem SLD, o agente adivinha o que voce quer, implementa, voce corrige, ele tenta de novo -- e o contexto fica poluido com tentativas falhas. Com SLD, acerta de primeira (ou quase).</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">2</span>
+        Guia o loop agentico
+      </h4>
+      <p>O Sintoma diz o que investigar, a Localizacao diz onde comecar, e a Definicao de Resolvido diz quando parar. Cada componente alimenta uma fase diferente do loop.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">3</span>
+        Economiza tokens e dinheiro
+      </h4>
+      <p>Menos buscas com Grep/Glob, menos tentativas falhas, menos correcoes. O agente gasta tokens resolvendo o problema ao inves de descobrindo qual e o problema.</p>
+    </div>
+    <div class="mini-card">
+      <h4>
+        <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">4</span>
+        Habilita auto-verificacao
+      </h4>
+      <p>A definicao de resolvido e o que permite ao Claude rodar testes, conferir o build e se auto-corrigir sem depender de voce. Sem ela, o agente nao sabe se terminou.</p>
+    </div>
+  </div>
+
+  <!-- ════════════ ANTES / DEPOIS ════════════ -->
+  <h2>Antes e depois: prompt vago vs. prompt com SLD</h2>
+
+  <h3>Cenario 1: Bug fix</h3>
+
+  <div class="vs-row">
+    <div class="vs-col" style="border-color: var(--red);">
+      <h4 style="color: var(--red);">
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">X</span>
+        Prompt vago
+      </h4>
+      <div class="code-block" style="margin: 0;">
+        <pre><span class="string">"O login nao funciona. Corrige."</span></pre>
+      </div>
+    </div>
+    <div class="vs-divider">vs</div>
+    <div class="vs-col" style="border-color: var(--green);">
+      <h4 style="color: var(--green);">
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">+</span>
+        Prompt com SLD
+      </h4>
+      <div class="code-block" style="margin: 0;">
+        <pre><span class="comment"># Sintoma</span>
+<span class="string">Ao fazer login com email valido,
+a API retorna 401 ao inves de 200.
+O token JWT nao esta sendo gerado.</span>
+
+<span class="comment"># Localizacao</span>
+<span class="string">src/auth/login.service.ts, funcao
+authenticate(). O bcrypt.compare()
+parece retornar false sempre.</span>
+
+<span class="comment"># Definicao de resolvido</span>
+<span class="string">npm test -- --grep "auth" passa
+e POST /api/login retorna 200
+com um JWT valido no body.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <h3>Cenario 2: Feature request</h3>
+
+  <div class="vs-row">
+    <div class="vs-col" style="border-color: var(--red);">
+      <h4 style="color: var(--red);">
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">X</span>
+        Prompt vago
+      </h4>
+      <div class="code-block" style="margin: 0;">
+        <pre><span class="string">"Adiciona paginacao na listagem
+de produtos."</span></pre>
+      </div>
+    </div>
+    <div class="vs-divider">vs</div>
+    <div class="vs-col" style="border-color: var(--green);">
+      <h4 style="color: var(--green);">
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">+</span>
+        Prompt com SLD
+      </h4>
+      <div class="code-block" style="margin: 0;">
+        <pre><span class="comment"># Sintoma (estado atual)</span>
+<span class="string">GET /api/products retorna todos os
+5000 produtos de uma vez. O response
+time e ~4s e a UI trava no mobile.</span>
+
+<span class="comment"># Localizacao</span>
+<span class="string">src/products/products.controller.ts
+e src/products/products.repository.ts.
+Frontend: src/pages/ProductList.tsx</span>
+
+<span class="comment"># Definicao de resolvido</span>
+<span class="string">GET /api/products?page=1&limit=20
+retorna 20 itens + metadata
+(total, totalPages, currentPage).
+Testes existentes continuam passando
+e novos testes cobrem paginacao.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <h3>Cenario 3: Performance</h3>
+
+  <div class="vs-row">
+    <div class="vs-col" style="border-color: var(--red);">
+      <h4 style="color: var(--red);">
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">X</span>
+        Prompt vago
+      </h4>
+      <div class="code-block" style="margin: 0;">
+        <pre><span class="string">"A pagina de dashboard esta lenta.
+Otimiza."</span></pre>
+      </div>
+    </div>
+    <div class="vs-divider">vs</div>
+    <div class="vs-col" style="border-color: var(--green);">
+      <h4 style="color: var(--green);">
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">+</span>
+        Prompt com SLD
+      </h4>
+      <div class="code-block" style="margin: 0;">
+        <pre><span class="comment"># Sintoma</span>
+<span class="string">O DashboardPage leva ~6s para render
+inicial. O React DevTools mostra 47
+re-renders do componente MetricsGrid
+a cada mudanca de filtro.</span>
+
+<span class="comment"># Localizacao</span>
+<span class="string">src/pages/DashboardPage.tsx e
+src/components/MetricsGrid.tsx.
+O useEffect na linha ~38 parece
+disparar em loop.</span>
+
+<span class="comment"># Definicao de resolvido</span>
+<span class="string">Render inicial abaixo de 2s.
+Re-renders do MetricsGrid reduzidos
+a no maximo 2 por mudanca de filtro.
+npm run build sem warnings.</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <h3>Cenario 4: Refactoring</h3>
+
+  <div class="vs-row">
+    <div class="vs-col" style="border-color: var(--red);">
+      <h4 style="color: var(--red);">
+        <span class="icon-circle" style="background: var(--red-soft); color: var(--red);">X</span>
+        Prompt vago
+      </h4>
+      <div class="code-block" style="margin: 0;">
+        <pre><span class="string">"Refatora o modulo de pagamentos."</span></pre>
+      </div>
+    </div>
+    <div class="vs-divider">vs</div>
+    <div class="vs-col" style="border-color: var(--green);">
+      <h4 style="color: var(--green);">
+        <span class="icon-circle" style="background: var(--green-soft); color: var(--green);">+</span>
+        Prompt com SLD
+      </h4>
+      <div class="code-block" style="margin: 0;">
+        <pre><span class="comment"># Sintoma (problema estrutural)</span>
+<span class="string">PaymentService.ts tem 800 linhas e
+mistura logica de Stripe, Boleto e
+Pix. Adicionar novo metodo de
+pagamento exige mudar 12+ lugares.</span>
+
+<span class="comment"># Localizacao</span>
+<span class="string">src/payments/PaymentService.ts
+Testes em tests/payments/*.test.ts</span>
+
+<span class="comment"># Definicao de resolvido</span>
+<span class="string">Extrair Strategy pattern com uma
+classe por metodo de pagamento.
+Todos os 34 testes existentes passam
+sem modificacao (nenhuma mudanca de
+comportamento externo).</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════ GRID DE TEMPLATES ════════════ -->
+  <h2>Templates prontos por tipo de tarefa</h2>
+
+  <p>
+    Use estes templates como ponto de partida. Copie, preencha os campos e envie ao Claude Code.
+    A estrutura ja garante que os tres componentes do SLD estejam presentes.
+  </p>
+
+  <h3>Template: Bug Fix</h3>
+  <div class="template-box">
+    <span class="label"># Sintoma</span><br>
+    <span class="placeholder">[Comportamento atual] ao inves de [comportamento esperado].</span><br>
+    <span class="placeholder">Erro exato: [mensagem de erro ou stack trace]</span><br><br>
+    <span class="label"># Localizacao</span><br>
+    <span class="placeholder">[arquivo:funcao] -- [como reproduzir o bug]</span><br><br>
+    <span class="label"># Resolvido quando</span><br>
+    <span class="placeholder">[comando de teste] passa e [comportamento esperado] funciona.</span>
+  </div>
+
+  <h3>Template: Nova Feature</h3>
+  <div class="template-box">
+    <span class="label"># Sintoma (estado atual)</span><br>
+    <span class="placeholder">[O que o sistema faz hoje] -- [por que isso e insuficiente].</span><br><br>
+    <span class="label"># Localizacao</span><br>
+    <span class="placeholder">[arquivos que serao modificados] e [arquivos de referencia para seguir o padrao]</span><br><br>
+    <span class="label"># Resolvido quando</span><br>
+    <span class="placeholder">[endpoint/funcao] retorna [resultado esperado].</span><br>
+    <span class="placeholder">Testes existentes continuam passando + novos testes cobrem [cenarios].</span>
+  </div>
+
+  <h3>Template: Performance</h3>
+  <div class="template-box">
+    <span class="label"># Sintoma</span><br>
+    <span class="placeholder">[Metrica atual: Xs, Nms, N re-renders] -- [metrica aceitavel: Ys, Nms].</span><br>
+    <span class="placeholder">Profiling mostra: [gargalo identificado].</span><br><br>
+    <span class="label"># Localizacao</span><br>
+    <span class="placeholder">[arquivo:funcao onde o gargalo esta]</span><br><br>
+    <span class="label"># Resolvido quando</span><br>
+    <span class="placeholder">[Metrica] cai de [valor atual] para [valor alvo].</span><br>
+    <span class="placeholder">[comando de build/test] passa sem regressao.</span>
+  </div>
+
+  <h3>Template: Refactoring</h3>
+  <div class="template-box">
+    <span class="label"># Sintoma (problema estrutural)</span><br>
+    <span class="placeholder">[Descricao do code smell: arquivo grande, duplicacao, acoplamento, etc.]</span><br><br>
+    <span class="label"># Localizacao</span><br>
+    <span class="placeholder">[arquivos afetados] -- testes em [diretorio de testes]</span><br><br>
+    <span class="label"># Resolvido quando</span><br>
+    <span class="placeholder">[Padrao alvo: Strategy, Repository, etc.] implementado.</span><br>
+    <span class="placeholder">Todos os [N] testes existentes passam SEM modificacao.</span><br>
+    <span class="placeholder">Nenhuma mudanca de comportamento externo.</span>
+  </div>
+
+  <!-- ════════════ COMBINANDO COM PLAN MODE ════════════ -->
+  <h2>Combinando SLD com Plan Mode</h2>
+
+  <p>
+    Para tarefas complexas onde o escopo nao e claro, voce pode usar o SLD junto com o
+    <strong>Plan Mode</strong> (<code>shift+tab</code> para ativar). A ideia e: voce fornece o SLD,
+    e pede ao Claude para <em>planejar antes de agir</em>. Isso e especialmente util quando a
+    mudanca envolve multiplos arquivos ou voce nao conhece bem o codigo.
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>SLD + Plan Mode</span>
+      <span>Prompt completo</span>
+    </div>
+    <pre>
+<span class="comment"># Sintoma</span>
+<span class="string">O endpoint POST /api/orders retorna 500 quando
+o carrinho tem mais de 50 itens. O erro no log e
+"Maximum call stack size exceeded".</span>
+
+<span class="comment"># Localizacao</span>
+<span class="string">src/orders/order.service.ts, funcao calculateTotal().
+Suspeito de recursao infinita no calculo de descontos
+cumulativos em src/pricing/discount.engine.ts.</span>
+
+<span class="comment"># Definicao de resolvido</span>
+<span class="string">POST /api/orders com 100 itens retorna 201.
+npm test -- --grep "order" passa.
+Nenhuma regressao nos testes de pricing.</span>
+
+<span class="comment"># Instrucao</span>
+<span class="keyword">Antes de implementar, use o Plan Mode para:</span>
+<span class="string">1. Confirmar a causa raiz lendo os arquivos</span>
+<span class="string">2. Listar todos os arquivos que precisam mudar</span>
+<span class="string">3. Propor a abordagem de correcao</span>
+<span class="string">Depois implemente e rode os testes.</span></pre>
+  </div>
+
+  <div class="callout-blue callout">
+    <strong>Quando usar Plan Mode com SLD:</strong> A regra da Anthropic e simples -- se voce consegue
+    descrever a mudanca em uma frase, pule o plano. Se a mudanca envolve multiplos arquivos,
+    ou voce esta pouco familiarizado com o codigo, peca um plano primeiro.
+  </div>
+
+  <!-- ════════════ ANTI-PATTERNS ════════════ -->
+  <h2>Anti-patterns: o que evitar</h2>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Anti-pattern</th>
+          <th>Exemplo</th>
+          <th>Problema</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="color: var(--red);"><strong>Prescrever a solucao</strong></td>
+          <td><code>"Mude a linha 42 para usar Promise.all"</code></td>
+          <td>Voce tira a autonomia do agente. Ele pode encontrar uma solucao melhor se voce descrever o <em>problema</em>, nao a <em>solucao</em>.</td>
+        </tr>
+        <tr>
+          <td style="color: var(--red);"><strong>Ser generico demais</strong></td>
+          <td><code>"Melhora o codigo"</code></td>
+          <td>Sem sintoma, sem localizacao, sem criterio. O agente nao sabe o que e "melhor" no seu contexto.</td>
+        </tr>
+        <tr>
+          <td style="color: var(--red);"><strong>Omitir a verificacao</strong></td>
+          <td><code>"Corrige o bug no auth"</code> (sem dizer como testar)</td>
+          <td>O agente implementa e para. Sem criterio de verificacao, ele nao usa o loop de auto-correcao.</td>
+        </tr>
+        <tr>
+          <td style="color: var(--red);"><strong>Descrever a teoria, nao o sintoma</strong></td>
+          <td><code>"Acho que tem um race condition"</code></td>
+          <td>Pode ser race condition ou nao. Descreva o que voce <em>observa</em> (ex: "dados inconsistentes apos requests simultaneos") e deixe o agente diagnosticar.</td>
+        </tr>
+        <tr>
+          <td style="color: var(--red);"><strong>Kitchen sink de contexto</strong></td>
+          <td>Colar 500 linhas de codigo no prompt</td>
+          <td>O agente pode ler o arquivo sozinho com Read. Aponte para o arquivo e deixe ele explorar.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout-red callout">
+    <strong>Armadilha comum:</strong> Corrigir o Claude varias vezes quando ele erra, poluindo o contexto
+    com tentativas falhas. A documentacao da Anthropic recomenda: apos duas correcoes sem sucesso,
+    use <code>/clear</code> e reescreva um prompt SLD melhor incorporando o que voce aprendeu.
+  </div>
+
+  <!-- ════════════ EXEMPLO COMPLETO END-TO-END ════════════ -->
+  <h2>Exemplo completo: do prompt ao resultado</h2>
+
+  <p>
+    Veja como um prompt SLD bem escrito se traduz em acoes concretas do agente:
+  </p>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>Prompt enviado ao Claude Code</span>
+      <span>SLD completo</span>
+    </div>
+    <pre>
+<span class="comment"># Sintoma</span>
+<span class="string">O formulario de signup aceita emails invalidos como "user@" e "@@test".
+O campo email nao tem validacao -- qualquer string e aceita.
+Esperado: emails invalidos mostram mensagem de erro inline.</span>
+
+<span class="comment"># Localizacao</span>
+<span class="string">@src/components/SignupForm.tsx -- o campo email na linha ~28
+@src/schemas/signup.schema.ts -- schema Zod sem .email()</span>
+
+<span class="comment"># Resolvido quando</span>
+<span class="string">1. npm test -- --grep "signup" passa
+2. Emails invalidos ("user@", "@@test", "sem-arroba") sao rejeitados
+3. Emails validos ("user@example.com") sao aceitos
+4. Mensagem de erro: "Informe um email valido"</span></pre>
+  </div>
+
+  <div class="code-block">
+    <div class="code-header">
+      <span>O que o Claude Code faz internamente</span>
+      <span>Sequencia de tool calls</span>
+    </div>
+    <pre>
+<span class="comment">// 1. Le os arquivos indicados na Localizacao</span>
+<span class="tool">Read</span> { file: <span class="string">"src/components/SignupForm.tsx"</span> }
+<span class="tool">Read</span> { file: <span class="string">"src/schemas/signup.schema.ts"</span> }
+<span class="comment">  -> Confirma: schema Zod com email: z.string() sem .email()</span>
+
+<span class="comment">// 2. Implementa a correcao (Sintoma -> acao)</span>
+<span class="tool">Edit</span> { file: <span class="string">"src/schemas/signup.schema.ts"</span>,
+       old: <span class="string">"email: z.string()"</span>,
+       new: <span class="string">"email: z.string().email('Informe um email valido')"</span> }
+
+<span class="comment">// 3. Verifica (Definicao de Resolvido -> auto-check)</span>
+<span class="tool">Bash</span> { command: <span class="string">"npm test -- --grep signup"</span> }
+<span class="comment">  -> 1 teste falhou (snapshot desatualizado)</span>
+
+<span class="comment">// 4. Auto-corrige e verifica de novo</span>
+<span class="tool">Bash</span> { command: <span class="string">"npm test -- --grep signup -u"</span> }
+<span class="comment">  -> Todos os testes passaram</span>
+
+<span class="comment">// 5. Entrega: todas as condicoes do "Resolvido" atendidas</span></pre>
+  </div>
+
+  <div class="callout-green callout">
+    <strong>Observe:</strong> Cada componente do SLD guiou uma fase do trabalho do agente.
+    O <strong>Sintoma</strong> disse o que corrigir, a <strong>Localizacao</strong> disse onde comecar
+    (sem buscas extras), e a <strong>Definicao de Resolvido</strong> permitiu que ele se auto-verificasse
+    e auto-corrigisse o snapshot falho -- tudo sem intervencao humana.
+  </div>
+
+  <!-- ════════════ FONTES ════════════ -->
+  <div class="sources">
+    <h3>Fontes e Referencias</h3>
+    <ul>
+      <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Anthropic -- Best Practices for Claude Code</a></li>
+      <li><a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/claude-4-best-practices" target="_blank">Anthropic -- Prompting Best Practices (Claude 4)</a></li>
+      <li><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank">Anthropic -- Effective Context Engineering for AI Agents</a></li>
+      <li><a href="https://www.anthropic.com/news/how-anthropic-teams-use-claude-code" target="_blank">Anthropic -- How Anthropic Teams Use Claude Code</a></li>
+      <li><a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview" target="_blank">Anthropic -- Prompt Engineering Overview</a></li>
+      <li><a href="https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents" target="_blank">Anthropic -- Effective Harnesses for Long-Running Agents</a></li>
+    </ul>
+  </div>
+
+  <!-- ════════════ NAV FOOTER ════════════ -->
+  <div class="nav-footer">
+    <a href="modulo-04-topico-03-pipe-urls-imagens.html" class="nav-btn">&larr; Topico 3 . Pipe, URLs e Imagens</a>
+    <a href="../index.html" class="nav-btn">&#8962; Indice</a>
+    <a href="modulo-04-topico-05-prompts-vagos.html" class="nav-btn">Topico 5 . Prompts Vagos &rarr;</a>
+  </div>
+
+</body>
+</html>
