@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modulo 8 - Topico 1: Subagentes e Task/Agent Tool | Workshop Claude Code</title>
+<style>
+:root {
+  --bg: #0f1117; --bg-card: #1a1d27; --bg-code: #141620; --border: #2a2d3a;
+  --text: #e4e4e7; --text-dim: #9ca3af; --accent: #c4956a; --accent-soft: rgba(196, 149, 106, 0.12);
+  --blue: #60a5fa; --blue-soft: rgba(96, 165, 250, 0.12); --green: #6ee7b7; --green-soft: rgba(110, 231, 183, 0.12);
+  --purple: #a78bfa; --purple-soft: rgba(167, 139, 250, 0.12); --red: #f87171; --red-soft: rgba(248, 113, 113, 0.12);
+  --yellow: #fbbf24; --yellow-soft: rgba(251, 191, 36, 0.12);
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace; --radius: 12px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.7; padding: 2rem; max-width: 960px; margin: 0 auto; }
+.topic-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); background: var(--accent-soft); padding: 6px 14px; border-radius: 20px; margin-bottom: 1rem; }
+h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+.subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+p { margin-bottom: 1rem; } a { color: var(--blue); text-decoration: none; } a:hover { text-decoration: underline; }
+code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+strong { color: #fff; }
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0; }
+.diagram-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto; }
+.diagram-container svg { display: block; margin: 0 auto; }
+.diagram-caption { text-align: center; font-size: 0.85rem; color: var(--text-dim); margin-top: 1rem; font-style: italic; }
+.code-block { background: var(--bg-code); border: 1px solid var(--border); border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden; }
+.code-header { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 1rem; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim); }
+.code-block pre { padding: 1rem 1.25rem; overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8; }
+.callout { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem; }
+.callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+.callout-red { border-left-color: var(--red); background: var(--red-soft); }
+.callout-green { border-left-color: var(--green); background: var(--green-soft); }
+.callout-yellow { border-left-color: var(--yellow); background: var(--yellow-soft); }
+.callout strong { color: #fff; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+@media (max-width: 640px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } body { padding: 1rem; } h1 { font-size: 1.5rem; } }
+.mini-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
+.mini-card h4 { font-size: 0.95rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px; }
+.mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+.icon-circle { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+td { color: var(--text); } tr:last-child td { border-bottom: none; }
+.sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+.sources ul { list-style: none; padding: 0; }
+.sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+.sources li::before { content: "\2192 "; color: var(--accent); }
+.nav-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.nav-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; color: var(--text); background: var(--bg-card); border: 1px solid var(--border); text-decoration: none; transition: border-color 0.2s; }
+.nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="topic-badge">Modulo 8 &bull; Topico 1</div>
+<h1>Como o Claude Delega Tarefas a Subagentes (Agent Tool)</h1>
+<p class="subtitle">
+  Entenda o mecanismo de delegacao do Claude Code: subagentes especializados que operam em context windows isoladas, com system prompts, ferramentas e permissoes independentes. Do Task tool ao Agent tool, dos built-ins aos personalizados.
+</p>
+
+<!-- ================================================ -->
+<h2>O que sao Subagentes</h2>
+
+<p>
+  Subagentes sao assistentes de IA especializados que executam tipos especificos de tarefas dentro do Claude Code. Cada subagente opera em sua <strong>propria context window</strong>, com system prompt customizado, acesso restrito a ferramentas e permissoes independentes da conversa principal.
+</p>
+
+<p>
+  O principio e simples: quando uma tarefa lateral inundaria a conversa principal com resultados de busca, logs ou conteudo de arquivos que voce nao vai referenciar novamente, o subagente faz esse trabalho em seu proprio contexto e retorna apenas o resumo. A conversa principal permanece limpa e focada.
+</p>
+
+<div class="callout callout-blue">
+  <strong>Quando criar um subagente customizado?</strong> Quando voce percebe que esta repetidamente criando o mesmo tipo de worker com as mesmas instrucoes. Em vez de reescrever o prompt toda vez, defina um subagente reutilizavel.
+</div>
+
+<h3>Beneficios concretos</h3>
+
+<div class="grid-2">
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">C</span> Preservar contexto</h4>
+    <p>Exploracao e implementacao ficam fora da conversa principal. Apenas o resultado resumido retorna.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">R</span> Restringir ferramentas</h4>
+    <p>Limite quais tools o subagente pode usar. Um reviewer nao precisa de Write ou Edit.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">$</span> Controlar custos</h4>
+    <p>Roteie tarefas para modelos mais rapidos e baratos como Haiku quando a tarefa permitir.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">S</span> Especializar comportamento</h4>
+    <p>System prompts focados para dominios especificos: review, debug, data analysis, etc.</p>
+  </div>
+</div>
+
+<!-- ================================================ -->
+<h2>Nota sobre Renomeacao: Task Tool &rarr; Agent Tool</h2>
+
+<div class="callout callout-yellow">
+  <strong>v2.1.63:</strong> O <code>Task</code> tool foi renomeado para <code>Agent</code> tool. Referencias existentes como <code>Task(...)</code> em settings e definicoes de agentes continuam funcionando como aliases. Se voce tem configuracoes antigas com <code>"deny": ["Task(Explore)"]</code>, isso ainda funciona, mas o formato recomendado agora e <code>"deny": ["Agent(Explore)"]</code>.
+</div>
+
+<p>
+  Na pratica, quando Claude precisa delegar uma tarefa, ele invoca a tool <code>Agent</code> (anteriormente <code>Task</code>) com parametros que incluem o tipo do subagente, a mensagem de delegacao e opcionalmente o modelo a usar. O mecanismo interno e identico; apenas o nome mudou para refletir melhor a natureza do que esta acontecendo.
+</p>
+
+<!-- ================================================ -->
+<h2>Subagentes Built-in</h2>
+
+<p>
+  O Claude Code inclui subagentes built-in que sao usados automaticamente quando apropriado. Cada um herda as permissoes da conversa pai com restricoes adicionais de ferramentas.
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Subagente</th>
+      <th>Modelo</th>
+      <th>Tools</th>
+      <th>Quando e usado</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Explore</strong></td>
+      <td>Haiku</td>
+      <td>Read-only (sem Write/Edit)</td>
+      <td>Busca e analise de codebase. Claude especifica nivel de thoroughness: <code>quick</code>, <code>medium</code>, <code>very thorough</code></td>
+    </tr>
+    <tr>
+      <td><strong>Plan</strong></td>
+      <td>Herda do pai</td>
+      <td>Read-only (sem Write/Edit)</td>
+      <td>Pesquisa de codebase durante <code>plan mode</code>. Coleta contexto antes de apresentar o plano</td>
+    </tr>
+    <tr>
+      <td><strong>General-purpose</strong></td>
+      <td>Herda do pai</td>
+      <td>Todas as tools</td>
+      <td>Tarefas complexas que exigem exploracao + modificacao, raciocinio complexo, etapas dependentes</td>
+    </tr>
+    <tr>
+      <td><strong>statusline-setup</strong></td>
+      <td>Sonnet</td>
+      <td>Especificas</td>
+      <td>Quando voce roda <code>/statusline</code> para configurar a status line</td>
+    </tr>
+    <tr>
+      <td><strong>claude-code-guide</strong></td>
+      <td>Haiku</td>
+      <td>Especificas</td>
+      <td>Quando voce pergunta sobre features do Claude Code</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout callout-green">
+  <strong>Diferenca importante:</strong> Explore e Plan <strong>pulam</strong> os arquivos CLAUDE.md e o git status da sessao pai para manter a pesquisa rapida e barata. Todos os outros subagentes (built-in e custom) carregam ambos normalmente.
+</div>
+
+<!-- ================================================ -->
+<h2>Diagrama: Fluxo de Delegacao</h2>
+
+<div class="diagram-container">
+  <svg viewBox="0 0 860 520" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+    <!-- Background regions -->
+    <rect x="20" y="20" width="820" height="480" rx="12" fill="none" stroke="#2a2d3a" stroke-width="1" stroke-dasharray="6,4"/>
+
+    <!-- User -->
+    <rect x="340" y="35" width="180" height="48" rx="24" fill="#1a1d27" stroke="#60a5fa" stroke-width="2"/>
+    <text x="430" y="65" text-anchor="middle" fill="#60a5fa" font-size="14" font-weight="600">Usuario</text>
+
+    <!-- Arrow down -->
+    <line x1="430" y1="83" x2="430" y2="115" stroke="#4a4d5a" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+    <text x="445" y="103" fill="#9ca3af" font-size="10">prompt</text>
+
+    <!-- Claude Main -->
+    <rect x="300" y="115" width="260" height="60" rx="10" fill="#1a1d27" stroke="#c4956a" stroke-width="2"/>
+    <text x="430" y="142" text-anchor="middle" fill="#c4956a" font-size="14" font-weight="600">Claude (Main Thread)</text>
+    <text x="430" y="162" text-anchor="middle" fill="#9ca3af" font-size="11">Analisa description dos subagentes</text>
+
+    <!-- Decision diamond area -->
+    <polygon points="430,200 510,240 430,280 350,240" fill="#1a1d27" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="430" y="244" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="600">Delegar?</text>
+
+    <!-- Arrow from main to diamond -->
+    <line x1="430" y1="175" x2="430" y2="200" stroke="#4a4d5a" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+
+    <!-- No path - stays in main -->
+    <line x1="510" y1="240" x2="610" y2="240" stroke="#4a4d5a" stroke-width="1.5"/>
+    <text x="555" y="232" fill="#9ca3af" font-size="10">Nao</text>
+    <rect x="610" y="222" width="170" height="36" rx="8" fill="#1a1d27" stroke="#2a2d3a" stroke-width="1"/>
+    <text x="695" y="245" text-anchor="middle" fill="#9ca3af" font-size="11">Executa na conversa principal</text>
+
+    <!-- Yes path - delegate -->
+    <line x1="430" y1="280" x2="430" y2="310" stroke="#4a4d5a" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+    <text x="445" y="298" fill="#6ee7b7" font-size="10">Sim</text>
+
+    <!-- Agent Tool invocation -->
+    <rect x="310" y="310" width="240" height="40" rx="8" fill="rgba(167,139,250,0.12)" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="430" y="335" text-anchor="middle" fill="#a78bfa" font-size="12" font-weight="500">Agent(type, prompt, model)</text>
+
+    <!-- Arrow to subagent context -->
+    <line x1="430" y1="350" x2="430" y2="375" stroke="#4a4d5a" stroke-width="1.5" marker-end="url(#arrowGray)"/>
+
+    <!-- Subagent isolated context -->
+    <rect x="200" y="375" width="460" height="70" rx="10" fill="rgba(110,231,183,0.08)" stroke="#6ee7b7" stroke-width="1.5" stroke-dasharray="5,3"/>
+    <text x="430" y="398" text-anchor="middle" fill="#6ee7b7" font-size="13" font-weight="600">Context Window Isolada do Subagente</text>
+    <text x="430" y="418" text-anchor="middle" fill="#9ca3af" font-size="11">System prompt proprio | Tools restritas | Permissoes independentes</text>
+    <text x="430" y="435" text-anchor="middle" fill="#9ca3af" font-size="10">CLAUDE.md + git status (exceto Explore/Plan) + Skills preloaded</text>
+
+    <!-- Arrow back up -->
+    <path d="M200,410 L120,410 L120,150 L300,150" fill="none" stroke="#6ee7b7" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrowGreen)"/>
+    <text x="70" y="285" fill="#6ee7b7" font-size="10" transform="rotate(-90, 70, 285)">Resultado resumido</text>
+
+    <!-- Final integration -->
+    <rect x="50" y="460" width="760" height="30" rx="6" fill="rgba(96,165,250,0.08)" stroke="#60a5fa" stroke-width="1"/>
+    <text x="430" y="480" text-anchor="middle" fill="#60a5fa" font-size="11">Claude integra o resumo na conversa principal &mdash; output verbose fica no contexto do subagente</text>
+
+    <!-- Arrow markers -->
+    <defs>
+      <marker id="arrowGray" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#4a4d5a"/></marker>
+      <marker id="arrowGreen" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#6ee7b7"/></marker>
+    </defs>
+  </svg>
+  <div class="diagram-caption">Fluxo de delegacao: o Claude analisa as descriptions dos subagentes disponiveis e delega automaticamente quando a tarefa corresponde</div>
+</div>
+
+<!-- ================================================ -->
+<h2>Como Criar Subagentes Personalizados</h2>
+
+<p>
+  Subagentes sao definidos em <strong>arquivos Markdown com YAML frontmatter</strong>. O frontmatter configura metadados e restricoes; o corpo do arquivo se torna o system prompt do subagente. Voce pode cria-los manualmente ou usar o comando interativo <code>/agents</code>.
+</p>
+
+<h3>Exemplo completo de definicao</h3>
+
+<div class="code-block">
+  <div class="code-header"><span>~/.claude/agents/code-reviewer.md</span><span>Markdown + YAML</span></div>
+  <pre>---
+name: code-reviewer
+description: Expert code review specialist. Proactively reviews code for quality, security, and maintainability. Use immediately after writing or modifying code.
+tools: Read, Grep, Glob, Bash
+model: sonnet
+memory: user
+---
+
+You are a senior code reviewer ensuring high standards of code quality and security.
+
+When invoked:
+1. Run git diff to see recent changes
+2. Focus on modified files
+3. Begin review immediately
+
+Review checklist:
+- Code is clear and readable
+- Functions and variables are well-named
+- No duplicated code
+- Proper error handling
+- No exposed secrets or API keys
+- Input validation implemented
+- Good test coverage
+- Performance considerations addressed
+
+Provide feedback organized by priority:
+- Critical issues (must fix)
+- Warnings (should fix)
+- Suggestions (consider improving)
+
+Include specific examples of how to fix issues.</pre>
+</div>
+
+<h3>Criacao interativa com /agents</h3>
+
+<p>
+  O comando <code>/agents</code> abre uma interface com abas para gerenciar subagentes. A aba <strong>Running</strong> mostra subagentes ativos e permite abrir ou parar. A aba <strong>Library</strong> permite:
+</p>
+
+<ul style="margin-bottom: 1rem; padding-left: 1.5rem; color: var(--text-dim);">
+  <li>Visualizar todos os subagentes disponiveis (built-in, usuario, projeto, plugin)</li>
+  <li>Criar novos subagentes com setup guiado ou geracao via Claude</li>
+  <li>Editar configuracao e acesso a ferramentas de subagentes existentes</li>
+  <li>Deletar subagentes customizados</li>
+</ul>
+
+<p>
+  No fluxo de criacao, voce pode selecionar <strong>Generate with Claude</strong> e descrever o subagente em linguagem natural. O Claude gera o identificador, description e system prompt automaticamente.
+</p>
+
+<h3>Escopo de subagentes</h3>
+
+<p>
+  Subagentes podem ser armazenados em diferentes locais dependendo do escopo desejado. Quando multiplos subagentes compartilham o mesmo nome, o de maior prioridade vence.
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Local</th>
+      <th>Escopo</th>
+      <th>Prioridade</th>
+      <th>Como criar</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Managed settings</code></td>
+      <td>Organizacao</td>
+      <td>1 (mais alta)</td>
+      <td>Deploy via managed settings</td>
+    </tr>
+    <tr>
+      <td><code>--agents</code> CLI flag</td>
+      <td>Sessao atual</td>
+      <td>2</td>
+      <td>JSON ao iniciar Claude Code</td>
+    </tr>
+    <tr>
+      <td><code>.claude/agents/</code></td>
+      <td>Projeto atual</td>
+      <td>3</td>
+      <td>Interativo ou manual</td>
+    </tr>
+    <tr>
+      <td><code>~/.claude/agents/</code></td>
+      <td>Todos os projetos do usuario</td>
+      <td>4</td>
+      <td>Interativo ou manual</td>
+    </tr>
+    <tr>
+      <td><code>Plugin agents/</code></td>
+      <td>Onde o plugin esta habilitado</td>
+      <td>5 (mais baixa)</td>
+      <td>Instalado via plugins</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout">
+  <strong>Dica:</strong> Subagentes de projeto (<code>.claude/agents/</code>) sao ideais para subagentes especificos do codebase. Faca commit no version control para que o time inteiro use e aprimore colaborativamente. Para subagentes pessoais disponiveis em todos os seus projetos, use <code>~/.claude/agents/</code>.
+</div>
+
+<h3>Definicao via CLI (sessao unica)</h3>
+
+<div class="code-block">
+  <div class="code-header"><span>Terminal</span><span>bash</span></div>
+  <pre>claude --agents '{
+  "code-reviewer": {
+    "description": "Expert code reviewer. Use proactively after code changes.",
+    "prompt": "You are a senior code reviewer. Focus on code quality, security, and best practices.",
+    "tools": ["Read", "Grep", "Glob", "Bash"],
+    "model": "sonnet"
+  },
+  "debugger": {
+    "description": "Debugging specialist for errors and test failures.",
+    "prompt": "You are an expert debugger. Analyze errors, identify root causes, and provide fixes."
+  }
+}'</pre>
+</div>
+
+<p>
+  Os subagentes definidos via <code>--agents</code> existem apenas para aquela sessao e nao sao salvos em disco. Util para testes rapidos e scripts de automacao.
+</p>
+
+<!-- ================================================ -->
+<h2>Campos do Frontmatter</h2>
+
+<p>
+  A tabela abaixo documenta todos os campos suportados no YAML frontmatter dos arquivos de definicao de subagentes. Apenas <code>name</code> e <code>description</code> sao obrigatorios.
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Campo</th>
+      <th>Obrigatorio</th>
+      <th>Descricao</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>name</code></td>
+      <td style="color: var(--red);">Sim</td>
+      <td>Identificador unico usando letras minusculas e hifens. Hooks recebem esse valor como <code>agent_type</code></td>
+    </tr>
+    <tr>
+      <td><code>description</code></td>
+      <td style="color: var(--red);">Sim</td>
+      <td>Quando o Claude deve delegar a este subagente. Quanto mais clara, melhor a delegacao automatica</td>
+    </tr>
+    <tr>
+      <td><code>tools</code></td>
+      <td>Nao</td>
+      <td>Tools que o subagente pode usar. Herda todas se omitido. Suporta <code>Agent(worker, researcher)</code> para restringir subagentes que podem ser spawnados</td>
+    </tr>
+    <tr>
+      <td><code>disallowedTools</code></td>
+      <td>Nao</td>
+      <td>Tools a negar, removidas da lista herdada ou especificada. Aplicado antes de <code>tools</code></td>
+    </tr>
+    <tr>
+      <td><code>model</code></td>
+      <td>Nao</td>
+      <td><code>sonnet</code>, <code>opus</code>, <code>haiku</code>, ID completo (ex: <code>claude-opus-4-7</code>), ou <code>inherit</code>. Default: <code>inherit</code></td>
+    </tr>
+    <tr>
+      <td><code>permissionMode</code></td>
+      <td>Nao</td>
+      <td><code>default</code>, <code>acceptEdits</code>, <code>auto</code>, <code>dontAsk</code>, <code>bypassPermissions</code>, ou <code>plan</code>. Ignorado para plugin subagents</td>
+    </tr>
+    <tr>
+      <td><code>maxTurns</code></td>
+      <td>Nao</td>
+      <td>Numero maximo de turns agenticos antes do subagente parar</td>
+    </tr>
+    <tr>
+      <td><code>skills</code></td>
+      <td>Nao</td>
+      <td>Skills para pre-carregar no contexto do subagente no startup. O conteudo completo da skill e injetado</td>
+    </tr>
+    <tr>
+      <td><code>mcpServers</code></td>
+      <td>Nao</td>
+      <td>MCP servers disponiveis para o subagente. Definicao inline ou referencia por nome. Ignorado para plugins</td>
+    </tr>
+    <tr>
+      <td><code>hooks</code></td>
+      <td>Nao</td>
+      <td>Lifecycle hooks com escopo neste subagente. Suporta <code>PreToolUse</code>, <code>PostToolUse</code>, <code>Stop</code>. Ignorado para plugins</td>
+    </tr>
+    <tr>
+      <td><code>memory</code></td>
+      <td>Nao</td>
+      <td>Escopo de memoria persistente: <code>user</code> (<code>~/.claude/agent-memory/</code>), <code>project</code> (<code>.claude/agent-memory/</code>), ou <code>local</code></td>
+    </tr>
+    <tr>
+      <td><code>background</code></td>
+      <td>Nao</td>
+      <td><code>true</code> para sempre rodar como background task. Default: <code>false</code></td>
+    </tr>
+    <tr>
+      <td><code>effort</code></td>
+      <td>Nao</td>
+      <td>Nivel de esforco: <code>low</code>, <code>medium</code>, <code>high</code>, <code>xhigh</code>, <code>max</code>. Override do nivel da sessao</td>
+    </tr>
+    <tr>
+      <td><code>isolation</code></td>
+      <td>Nao</td>
+      <td><code>worktree</code> para rodar em git worktree temporario com copia isolada do repositorio</td>
+    </tr>
+    <tr>
+      <td><code>color</code></td>
+      <td>Nao</td>
+      <td>Cor de display: <code>red</code>, <code>blue</code>, <code>green</code>, <code>yellow</code>, <code>purple</code>, <code>orange</code>, <code>pink</code>, <code>cyan</code></td>
+    </tr>
+    <tr>
+      <td><code>initialPrompt</code></td>
+      <td>Nao</td>
+      <td>Auto-submetido como primeiro user turn quando rodando como agente principal via <code>--agent</code>. Commands e skills sao processados</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Resolucao de modelo</h3>
+
+<p>
+  Quando o Claude invoca um subagente, o modelo e resolvido nesta ordem de prioridade:
+</p>
+
+<div class="code-block">
+  <div class="code-header"><span>Ordem de resolucao</span><span>prioridade decrescente</span></div>
+  <pre>1. CLAUDE_CODE_SUBAGENT_MODEL (env var, se definida)
+2. Parametro model da invocacao especifica
+3. Campo model do frontmatter do subagente
+4. Modelo da conversa principal (inherit)</pre>
+</div>
+
+<!-- ================================================ -->
+<h2>Foreground vs Background</h2>
+
+<p>
+  Subagentes podem rodar em dois modos de execucao, e a diferenca e fundamental para o fluxo de trabalho:
+</p>
+
+<div class="grid-2">
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">F</span> Foreground (Bloqueante)</h4>
+    <p>Bloqueia a conversa principal ate completar. Permission prompts sao repassados ao usuario conforme surgem. Ideal para tarefas que precisam de interacao.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">B</span> Background (Concorrente)</h4>
+    <p>Roda em paralelo enquanto voce continua trabalhando. Usa permissoes ja concedidas na sessao e faz <strong>auto-deny</strong> em qualquer tool call que exigiria prompt. Se precisar de perguntas, o tool call falha mas o subagente continua.</p>
+  </div>
+</div>
+
+<div class="callout callout-blue">
+  <strong>Ctrl+B</strong> move um subagente em foreground para background a qualquer momento. Voce tambem pode pedir ao Claude diretamente: "run this in the background". Para desabilitar toda funcionalidade de background tasks, defina <code>CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1</code>.
+</div>
+
+<p>
+  O Claude decide automaticamente se roda foreground ou background com base na tarefa, mas voce pode influenciar via campo <code>background: true</code> no frontmatter ou solicitando explicitamente. Se um background subagent falhar por falta de permissoes, inicie um novo em foreground com a mesma tarefa para retry com prompts interativos.
+</p>
+
+<!-- ================================================ -->
+<h2>Gestao de Contexto dos Subagentes</h2>
+
+<h3>O que carrega no startup</h3>
+
+<p>
+  Cada subagente inicia com uma context window <strong>fresca e isolada</strong>. Ele nao ve o historico da sua conversa, as skills ja invocadas, nem os arquivos que o Claude ja leu. O Claude compoe uma mensagem de delegacao que resume a tarefa, e o subagente trabalha a partir dai.
+</p>
+
+<p>
+  O contexto inicial de um subagente (nao-fork) contem:
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Componente</th>
+      <th>O que e</th>
+      <th>Explore/Plan</th>
+      <th>Outros</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>System prompt</strong></td>
+      <td>Prompt proprio do agente + detalhes de ambiente (nao o system prompt completo do Claude Code)</td>
+      <td>Sim</td>
+      <td>Sim</td>
+    </tr>
+    <tr>
+      <td><strong>Task message</strong></td>
+      <td>Prompt de delegacao escrito pelo Claude ao delegar o trabalho</td>
+      <td>Sim</td>
+      <td>Sim</td>
+    </tr>
+    <tr>
+      <td><strong>CLAUDE.md + memory</strong></td>
+      <td>Toda a hierarquia de memoria: <code>~/.claude/CLAUDE.md</code>, project rules, <code>CLAUDE.local.md</code>, managed policy files</td>
+      <td style="color: var(--red);">Nao</td>
+      <td style="color: var(--green);">Sim</td>
+    </tr>
+    <tr>
+      <td><strong>Git status</strong></td>
+      <td>Snapshot tirado no inicio da sessao pai</td>
+      <td style="color: var(--red);">Nao</td>
+      <td style="color: var(--green);">Sim</td>
+    </tr>
+    <tr>
+      <td><strong>Preloaded skills</strong></td>
+      <td>Conteudo completo de skills listadas no campo <code>skills</code></td>
+      <td style="color: var(--red);">Nao</td>
+      <td style="color: var(--green);">Sim</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout callout-red">
+  <strong>Restricao critica:</strong> Subagentes <strong>NAO podem spawnar outros subagentes</strong>. Se seu workflow requer delegacao aninhada, use Skills ou encadeie subagentes a partir da conversa principal.
+</div>
+
+<h3>Auto-compaction</h3>
+
+<p>
+  Subagentes suportam compactacao automatica usando a mesma logica da conversa principal. Por padrao, a compactacao dispara em aproximadamente 95% de capacidade. Para disparar mais cedo, defina <code>CLAUDE_AUTOCOMPACT_PCT_OVERRIDE</code> com uma porcentagem menor (por exemplo, <code>50</code>).
+</p>
+
+<!-- ================================================ -->
+<h2>Resumir Subagentes com SendMessage</h2>
+
+<p>
+  Cada invocacao de subagente cria uma nova instancia com contexto fresco. Para <strong>continuar o trabalho de um subagente existente</strong> em vez de comecar do zero, voce pode pedir ao Claude para resumi-lo.
+</p>
+
+<p>
+  O mecanismo funciona via <code>SendMessage</code> tool com o ID do agente no campo <code>to</code>. O subagente resumido retem todo o historico da conversa anterior, incluindo tool calls, resultados e raciocinio. Ele continua exatamente de onde parou.
+</p>
+
+<div class="callout callout-yellow">
+  <strong>Pre-requisito:</strong> A funcionalidade de resumir subagentes requer <strong>agent teams</strong> habilitado via <code>CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code>. Sem isso, o <code>SendMessage</code> tool nao esta disponivel.
+</div>
+
+<div class="code-block">
+  <div class="code-header"><span>Exemplo de fluxo</span><span>Conversa interativa</span></div>
+  <pre># Primeira invocacao
+> Use the code-reviewer subagent to review the authentication module
+[Agent completes review]
+
+# Continuacao - Claude resume o mesmo subagente
+> Continue that code review and now analyze the authorization logic
+[Claude resumes the subagent with full context from previous conversation]</pre>
+</div>
+
+<p>
+  Se um subagente parado receber um <code>SendMessage</code>, ele auto-resume em background sem precisar de uma nova invocacao via <code>Agent</code>. Os transcripts dos subagentes ficam em <code>~/.claude/projects/{project}/{sessionId}/subagents/agent-{agentId}.jsonl</code>.
+</p>
+
+<!-- ================================================ -->
+<h2>Padroes de Uso Efetivos</h2>
+
+<div class="grid-3">
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">1</span> Isolar operacoes volumosas</h4>
+    <p>Rodar testes, buscar docs, processar logs em subagentes. O output verbose fica no contexto do subagente; apenas o resumo retorna.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">2</span> Pesquisa em paralelo</h4>
+    <p>Spawnar multiplos subagentes para investigar modulos independentes simultaneamente. Funciona melhor quando as pesquisas nao dependem uma da outra.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">3</span> Encadear subagentes</h4>
+    <p>Usar subagentes em sequencia: reviewer encontra problemas, optimizer corrige. Cada um completa e retorna resultados ao Claude, que passa contexto ao proximo.</p>
+  </div>
+</div>
+
+<div class="code-block">
+  <div class="code-header"><span>Exemplos de uso</span><span>Prompts</span></div>
+  <pre># Isolar output volumoso
+Use a subagent to run the test suite and report only the failing tests with their error messages
+
+# Pesquisa paralela
+Research the authentication, database, and API modules in parallel using separate subagents
+
+# Encadeamento
+Use the code-reviewer subagent to find performance issues, then use the optimizer subagent to fix them</pre>
+</div>
+
+<div class="callout callout-yellow">
+  <strong>Cuidado com contexto:</strong> Quando subagentes completam, seus resultados retornam a conversa principal. Rodar muitos subagentes que retornam resultados detalhados pode consumir contexto significativo. Para tarefas que precisam de paralelismo sustentado ou excedem a context window, considere agent teams.
+</div>
+
+<!-- ================================================ -->
+<h2>Quando Usar Subagente vs Conversa Principal</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Cenario</th>
+      <th>Recomendacao</th>
+      <th>Motivo</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Tarefa precisa de back-and-forth iterativo</td>
+      <td><strong>Conversa principal</strong></td>
+      <td>Subagentes nao suportam interacao continua facilmente</td>
+    </tr>
+    <tr>
+      <td>Multiplas fases compartilham contexto significativo</td>
+      <td><strong>Conversa principal</strong></td>
+      <td>Planejamento &rarr; implementacao &rarr; teste: o contexto compartilhado e valioso</td>
+    </tr>
+    <tr>
+      <td>Mudanca rapida e pontual</td>
+      <td><strong>Conversa principal</strong></td>
+      <td>Overhead de spawnar subagente nao compensa</td>
+    </tr>
+    <tr>
+      <td>Latencia importa muito</td>
+      <td><strong>Conversa principal</strong></td>
+      <td>Subagentes comecam do zero e precisam de tempo para coletar contexto</td>
+    </tr>
+    <tr>
+      <td>Tarefa produz output verbose desnecessario</td>
+      <td><strong>Subagente</strong></td>
+      <td>O verbose fica isolado; apenas o resumo retorna</td>
+    </tr>
+    <tr>
+      <td>Quer enforcar restricoes de ferramentas</td>
+      <td><strong>Subagente</strong></td>
+      <td>Tools e permissoes especificas por subagente</td>
+    </tr>
+    <tr>
+      <td>Trabalho autocontido que retorna um resumo</td>
+      <td><strong>Subagente</strong></td>
+      <td>Preserva a context window principal</td>
+    </tr>
+    <tr>
+      <td>Pergunta rapida sobre algo ja no contexto</td>
+      <td><code>/btw</code></td>
+      <td>Ve seu contexto completo, sem acesso a tools, resposta descartada do historico</td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ================================================ -->
+<h2>Invocacao Explicita de Subagentes</h2>
+
+<p>
+  Alem da delegacao automatica, existem tres formas de invocar subagentes explicitamente, com nivel crescente de comprometimento:
+</p>
+
+<h3>1. Linguagem natural</h3>
+
+<div class="code-block">
+  <div class="code-header"><span>Prompt</span><span>Nenhuma sintaxe especial</span></div>
+  <pre>Use the test-runner subagent to fix failing tests
+Have the code-reviewer subagent look at my recent changes</pre>
+</div>
+
+<p>Sem sintaxe especial. Nomeie o subagente e o Claude tipicamente delega.</p>
+
+<h3>2. @-mention (garante execucao)</h3>
+
+<div class="code-block">
+  <div class="code-header"><span>Prompt</span><span>@ + typeahead</span></div>
+  <pre>@"code-reviewer (agent)" look at the auth changes</pre>
+</div>
+
+<p>
+  Digite <code>@</code> e selecione o subagente no typeahead (mesmo mecanismo de @-mencionar arquivos). Isso <strong>garante</strong> que aquele subagente especifico roda, em vez de deixar a escolha para o Claude.
+</p>
+
+<h3>3. Sessao inteira como subagente (--agent)</h3>
+
+<div class="code-block">
+  <div class="code-header"><span>Terminal</span><span>bash</span></div>
+  <pre># A sessao inteira usa o system prompt, tools e modelo do subagente
+claude --agent code-reviewer
+
+# Para tornar padrao em um projeto:
+# .claude/settings.json
+{
+  "agent": "code-reviewer"
+}</pre>
+</div>
+
+<p>
+  O system prompt do subagente <strong>substitui inteiramente</strong> o system prompt padrao do Claude Code. CLAUDE.md e project memory ainda carregam normalmente. O nome do agente aparece como <code>@&lt;name&gt;</code> no header de startup.
+</p>
+
+<!-- ================================================ -->
+<h2>Fork Mode: Herdando a Conversa Inteira</h2>
+
+<div class="callout callout-yellow">
+  <strong>Experimental:</strong> Requer Claude Code v2.1.117+ e <code>CLAUDE_CODE_FORK_SUBAGENT=1</code>. Comportamento pode mudar em releases futuras. Funciona em modo interativo, nao-interativo e via SDK.
+</div>
+
+<p>
+  Um fork e um subagente que <strong>herda toda a conversa ate aquele momento</strong> em vez de comecar do zero. Ele ve o mesmo system prompt, tools, modelo e historico de mensagens da sessao principal. As tool calls do fork ficam fora da sua conversa; apenas o resultado final retorna.
+</p>
+
+<p>
+  Use fork quando um subagente nomeado precisaria de muito background para ser util, ou quando voce quer testar varias abordagens em paralelo a partir do mesmo ponto de partida.
+</p>
+
+<div class="code-block">
+  <div class="code-header"><span>Prompt</span><span>/fork command</span></div>
+  <pre>/fork draft unit tests for the parser changes so far</pre>
+</div>
+
+<h3>Comportamentos do fork mode</h3>
+
+<p>Habilitar fork mode muda o Claude Code de tres formas:</p>
+
+<ul style="margin-bottom: 1rem; padding-left: 1.5rem; color: var(--text-dim);">
+  <li>Claude spawna um fork quando usaria o subagente <strong>general-purpose</strong>. Subagentes nomeados como Explore continuam normais</li>
+  <li>Todo spawn de subagente roda em <strong>background</strong> (fork ou nomeado)</li>
+  <li>O comando <code>/fork</code> spawna um fork em vez de agir como alias para <code>/branch</code></li>
+</ul>
+
+<h3>Fork vs Named Subagent</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Aspecto</th>
+      <th>Fork</th>
+      <th>Named Subagent</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Contexto</strong></td>
+      <td>Historico completo da conversa</td>
+      <td>Contexto fresco com o prompt que voce passa</td>
+    </tr>
+    <tr>
+      <td><strong>System prompt + tools</strong></td>
+      <td>Mesmo da sessao principal</td>
+      <td>Do arquivo de definicao do subagente</td>
+    </tr>
+    <tr>
+      <td><strong>Modelo</strong></td>
+      <td>Mesmo da sessao principal</td>
+      <td>Do campo <code>model</code> do subagente</td>
+    </tr>
+    <tr>
+      <td><strong>Permissoes</strong></td>
+      <td>Prompts aparecem no terminal</td>
+      <td>Auto-denied quando em background</td>
+    </tr>
+    <tr>
+      <td><strong>Prompt cache</strong></td>
+      <td>Compartilhado com sessao principal</td>
+      <td>Cache separado</td>
+    </tr>
+    <tr>
+      <td><strong>Custo</strong></td>
+      <td>Mais barato (reutiliza cache)</td>
+      <td>Mais caro (novo contexto)</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout callout-green">
+  <strong>Vantagem do fork:</strong> Como o system prompt e as definicoes de tools do fork sao identicas ao pai, o primeiro request reutiliza o prompt cache do pai. Isso torna o forking mais barato que spawnar um subagente fresco para tarefas que precisam do mesmo contexto.
+</div>
+
+<p>
+  Limitacoes: um fork <strong>nao pode spawnar outros forks</strong>. O fork pode opcionalmente receber <code>isolation: "worktree"</code> para que edits de arquivo sejam escritos em um git worktree separado.
+</p>
+
+<!-- ================================================ -->
+<h2>Hooks para Subagentes</h2>
+
+<p>
+  Ha duas formas de configurar hooks que interagem com subagentes:
+</p>
+
+<h3>1. Hooks no frontmatter do subagente</h3>
+
+<p>
+  Hooks definidos diretamente no markdown do subagente rodam <strong>apenas enquanto aquele subagente esta ativo</strong>. Suportam os eventos <code>PreToolUse</code>, <code>PostToolUse</code> e <code>Stop</code> (convertido para <code>SubagentStop</code> em runtime).
+</p>
+
+<div class="code-block">
+  <div class="code-header"><span>Subagente com hooks</span><span>Markdown + YAML</span></div>
+  <pre>---
+name: db-reader
+description: Execute read-only database queries
+tools: Bash
+hooks:
+  PreToolUse:
+    - matcher: "Bash"
+      hooks:
+        - type: command
+          command: "./scripts/validate-readonly-query.sh"
+---
+
+You are a database analyst with read-only access.
+Execute SELECT queries to answer questions about the data.</pre>
+</div>
+
+<h3>2. Hooks no settings.json (nivel de projeto)</h3>
+
+<p>
+  Hooks em <code>settings.json</code> respondem a eventos do ciclo de vida de subagentes na sessao principal:
+</p>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/settings.json</span><span>JSON</span></div>
+  <pre>{
+  "hooks": {
+    "SubagentStart": [
+      {
+        "matcher": "db-agent",
+        "hooks": [
+          { "type": "command", "command": "./scripts/setup-db-connection.sh" }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "./scripts/cleanup-db-connection.sh" }
+        ]
+      }
+    ]
+  }
+}</pre>
+</div>
+
+<!-- ================================================ -->
+<h2>Desabilitar Subagentes Especificos</h2>
+
+<p>
+  Voce pode impedir o Claude de usar subagentes especificos adicionando-os ao array <code>deny</code> nos settings:
+</p>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/settings.json</span><span>JSON</span></div>
+  <pre>{
+  "permissions": {
+    "deny": ["Agent(Explore)", "Agent(my-custom-agent)"]
+  }
+}</pre>
+</div>
+
+<p>
+  Funciona para built-in e custom subagentes. Via CLI: <code>claude --disallowedTools "Agent(Explore)"</code>.
+</p>
+
+<!-- ================================================ -->
+<h2>MCP Servers com Escopo de Subagente</h2>
+
+<p>
+  O campo <code>mcpServers</code> permite dar a um subagente acesso a MCP servers que nao estao disponiveis na conversa principal. Servers inline definidos aqui sao conectados quando o subagente inicia e desconectados quando termina:
+</p>
+
+<div class="code-block">
+  <div class="code-header"><span>Subagente com MCP</span><span>Markdown + YAML</span></div>
+  <pre>---
+name: browser-tester
+description: Tests features in a real browser using Playwright
+mcpServers:
+  # Definicao inline: com escopo apenas neste subagente
+  - playwright:
+      type: stdio
+      command: npx
+      args: ["-y", "@playwright/mcp@latest"]
+  # Referencia por nome: reutiliza server ja configurado
+  - github
+---
+
+Use the Playwright tools to navigate, screenshot, and interact with pages.</pre>
+</div>
+
+<div class="callout">
+  <strong>Dica de contexto:</strong> Para manter um MCP server fora da conversa principal (evitando que tool descriptions consumam contexto la), defina-o inline no subagente. O subagente recebe as tools; a conversa pai nao.
+</div>
+
+<!-- ================================================ -->
+<h2>Diagrama: Escopos e Prioridade de Subagentes</h2>
+
+<div class="diagram-container">
+  <svg viewBox="0 0 700 340" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+    <!-- Stack of priority layers -->
+    <rect x="100" y="20" width="500" height="50" rx="8" fill="rgba(248,113,113,0.12)" stroke="#f87171" stroke-width="1.5"/>
+    <text x="120" y="50" fill="#f87171" font-size="13" font-weight="600">1. Managed Settings</text>
+    <text x="500" y="50" fill="#9ca3af" font-size="11" text-anchor="end">Organizacao (admin deploy)</text>
+
+    <rect x="100" y="80" width="500" height="50" rx="8" fill="rgba(251,191,36,0.12)" stroke="#fbbf24" stroke-width="1.5"/>
+    <text x="120" y="110" fill="#fbbf24" font-size="13" font-weight="600">2. --agents CLI flag</text>
+    <text x="500" y="110" fill="#9ca3af" font-size="11" text-anchor="end">Sessao atual (JSON efemero)</text>
+
+    <rect x="100" y="140" width="500" height="50" rx="8" fill="rgba(96,165,250,0.12)" stroke="#60a5fa" stroke-width="1.5"/>
+    <text x="120" y="170" fill="#60a5fa" font-size="13" font-weight="600">3. .claude/agents/</text>
+    <text x="500" y="170" fill="#9ca3af" font-size="11" text-anchor="end">Projeto (versionado no git)</text>
+
+    <rect x="100" y="200" width="500" height="50" rx="8" fill="rgba(110,231,183,0.12)" stroke="#6ee7b7" stroke-width="1.5"/>
+    <text x="120" y="230" fill="#6ee7b7" font-size="13" font-weight="600">4. ~/.claude/agents/</text>
+    <text x="500" y="230" fill="#9ca3af" font-size="11" text-anchor="end">Usuario (todos os projetos)</text>
+
+    <rect x="100" y="260" width="500" height="50" rx="8" fill="rgba(167,139,250,0.12)" stroke="#a78bfa" stroke-width="1.5"/>
+    <text x="120" y="290" fill="#a78bfa" font-size="13" font-weight="600">5. Plugin agents/</text>
+    <text x="500" y="290" fill="#9ca3af" font-size="11" text-anchor="end">Onde o plugin esta habilitado</text>
+
+    <!-- Priority arrow -->
+    <text x="50" y="170" fill="#9ca3af" font-size="11" text-anchor="middle" transform="rotate(-90, 50, 170)">Prioridade</text>
+    <line x1="50" y1="40" x2="50" y2="290" stroke="#4a4d5a" stroke-width="1.5" marker-end="url(#arrowDown)"/>
+    <defs>
+      <marker id="arrowDown" markerWidth="8" markerHeight="6" refX="4" refY="6" orient="auto"><path d="M0,0 L4,6 L8,0" fill="#4a4d5a"/></marker>
+    </defs>
+  </svg>
+  <div class="diagram-caption">Quando multiplos subagentes compartilham o mesmo name, o de maior prioridade vence</div>
+</div>
+
+<!-- ================================================ -->
+<h2>Restricoes de Seguranca para Plugin Subagents</h2>
+
+<p>
+  Por razoes de seguranca, subagentes fornecidos por plugins <strong>nao suportam</strong> os campos <code>hooks</code>, <code>mcpServers</code> ou <code>permissionMode</code> no frontmatter. Esses campos sao ignorados ao carregar agentes de um plugin. Se voce precisa dessas funcionalidades, copie o arquivo do agente para <code>.claude/agents/</code> ou <code>~/.claude/agents/</code>.
+</p>
+
+<!-- ================================================ -->
+<h2>Memoria Persistente de Subagentes</h2>
+
+<p>
+  O campo <code>memory</code> da ao subagente um diretorio persistente que sobrevive entre conversas. O subagente usa esse diretorio para acumular conhecimento ao longo do tempo: padroes do codebase, insights de debugging, decisoes arquiteturais.
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Escopo</th>
+      <th>Localizacao</th>
+      <th>Quando usar</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>user</code></td>
+      <td><code>~/.claude/agent-memory/&lt;name&gt;/</code></td>
+      <td>Aprendizados que valem para todos os projetos</td>
+    </tr>
+    <tr>
+      <td><code>project</code></td>
+      <td><code>.claude/agent-memory/&lt;name&gt;/</code></td>
+      <td>Conhecimento especifico do projeto, compartilhavel via VCS (recomendado)</td>
+    </tr>
+    <tr>
+      <td><code>local</code></td>
+      <td><code>.claude/agent-memory-local/&lt;name&gt;/</code></td>
+      <td>Especifico do projeto mas nao deve ir para version control</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  Quando memoria esta habilitada, o system prompt do subagente inclui instrucoes para ler e escrever no diretorio de memoria, e as primeiras 200 linhas ou 25KB do <code>MEMORY.md</code> sao injetadas. Read, Write e Edit sao automaticamente habilitados para gerenciamento da memoria.
+</p>
+
+<!-- ================================================ -->
+
+<div class="sources">
+  <h3>Fontes</h3>
+  <ul>
+    <li><a href="https://docs.claude.com/en/docs/claude-code/sub-agents">Claude Code - Sub-agents (Documentacao Oficial)</a></li>
+    <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices">Anthropic Engineering - Claude Code Best Practices</a></li>
+  </ul>
+</div>
+
+<nav class="nav-footer">
+  <a href="../modulo-07/modulo-07-topico-05-quality-gates.html" class="nav-btn">&larr; Topico 5 &bull; Quality Gates</a>
+  <a href="../index.html" class="nav-btn">Indice</a>
+  <a href="modulo-08-topico-02-git-worktrees.html" class="nav-btn">Topico 2 &bull; Git Worktrees &rarr;</a>
+</nav>
+
+</body>
+</html>

@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modulo 8 - Topico 4: Controle de Subagentes com disallowedTools | Workshop Claude Code</title>
+<style>
+:root {
+  --bg: #0f1117; --bg-card: #1a1d27; --bg-code: #141620; --border: #2a2d3a;
+  --text: #e4e4e7; --text-dim: #9ca3af; --accent: #c4956a; --accent-soft: rgba(196, 149, 106, 0.12);
+  --blue: #60a5fa; --blue-soft: rgba(96, 165, 250, 0.12); --green: #6ee7b7; --green-soft: rgba(110, 231, 183, 0.12);
+  --purple: #a78bfa; --purple-soft: rgba(167, 139, 250, 0.12); --red: #f87171; --red-soft: rgba(248, 113, 113, 0.12);
+  --yellow: #fbbf24; --yellow-soft: rgba(251, 191, 36, 0.12);
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace; --radius: 12px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.7; padding: 2rem; max-width: 960px; margin: 0 auto; }
+.topic-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); background: var(--accent-soft); padding: 6px 14px; border-radius: 20px; margin-bottom: 1rem; }
+h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+.subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+p { margin-bottom: 1rem; } a { color: var(--blue); text-decoration: none; } a:hover { text-decoration: underline; }
+code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+strong { color: #fff; }
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0; }
+.diagram-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto; }
+.diagram-container svg { display: block; margin: 0 auto; }
+.diagram-caption { text-align: center; font-size: 0.85rem; color: var(--text-dim); margin-top: 1rem; font-style: italic; }
+.code-block { background: var(--bg-code); border: 1px solid var(--border); border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden; }
+.code-header { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 1rem; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim); }
+.code-block pre { padding: 1rem 1.25rem; overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8; }
+.callout { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem; }
+.callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+.callout-red { border-left-color: var(--red); background: var(--red-soft); }
+.callout-green { border-left-color: var(--green); background: var(--green-soft); }
+.callout-yellow { border-left-color: var(--yellow); background: var(--yellow-soft); }
+.callout strong { color: #fff; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+@media (max-width: 640px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } body { padding: 1rem; } h1 { font-size: 1.5rem; } }
+.mini-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
+.mini-card h4 { font-size: 0.95rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px; }
+.mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+.icon-circle { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+td { color: var(--text); } tr:last-child td { border-bottom: none; }
+.sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+.sources ul { list-style: none; padding: 0; }
+.sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+.sources li::before { content: "\2192 "; color: var(--accent); }
+.nav-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.nav-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; color: var(--text); background: var(--bg-card); border: 1px solid var(--border); text-decoration: none; transition: border-color 0.2s; }
+.nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="topic-badge">Modulo 8 &bull; Topico 4</div>
+<h1>Controle de Subagentes com disallowedTools</h1>
+<p class="subtitle">Como aplicar o principio de menor privilegio em subagentes, restringindo ferramentas via allowlist e denylist para garantir seguranca e previsibilidade em pipelines multi-agente.</p>
+
+<!-- ========== SECAO 1: PRINCIPIO DE MENOR PRIVILEGIO ========== -->
+<h2>1. Principio de Menor Privilegio</h2>
+
+<p>Quando um subagente e invocado via <code>Agent</code>, ele herda <strong>todas as ferramentas</strong> da conversa principal por padrao - incluindo <code>Write</code>, <code>Edit</code>, <code>Bash</code> e qualquer MCP tool conectada. Em muitos cenarios, isso e excessivo e perigoso.</p>
+
+<div class="grid-3">
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--red-soft); color: var(--red);">!</span> Seguranca</h4>
+    <p>Um subagente de pesquisa nao precisa de <code>Write</code> ou <code>Edit</code>. Se o prompt for mal interpretado, ele pode sobrescrever arquivos criticos.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">&#9881;</span> Previsibilidade</h4>
+    <p>Restringir ferramentas torna o comportamento do subagente determinístico. Ele so pode fazer o que foi explicitamente permitido.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">&#10003;</span> Reducao de Risco</h4>
+    <p>Menos ferramentas = menos superficie de ataque. Subagentes limitados nao podem executar acoes nao intencionais.</p>
+  </div>
+</div>
+
+<div class="callout callout-red">
+  <strong>Regra fundamental:</strong> Cada subagente deve ter acesso apenas as ferramentas estritamente necessarias para completar sua tarefa. Nunca confie no padrao de herdar tudo.
+</div>
+
+<!-- ========== SECAO 2: ALLOWLIST VS DENYLIST ========== -->
+<h2>2. Duas Abordagens: allowlist vs denylist</h2>
+
+<p>O Claude Code oferece dois mecanismos complementares para controlar quais ferramentas um subagente pode usar. Ambos sao definidos no <strong>frontmatter</strong> do arquivo <code>.md</code> do agente.</p>
+
+<div class="grid-2">
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">+</span> tools (allowlist)</h4>
+    <p>Lista <strong>apenas</strong> as ferramentas permitidas. Tudo que nao esta listado e bloqueado. Abordagem mais restritiva e segura.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--red-soft); color: var(--red);">-</span> disallowedTools (denylist)</h4>
+    <p>Herda <strong>tudo</strong> da conversa principal, exceto as ferramentas listadas. Util quando voce quer remover apenas algumas tools especificas.</p>
+  </div>
+</div>
+
+<h3>Allowlist com tools</h3>
+
+<div class="code-block">
+  <div class="code-header"><span>safe-researcher.md (frontmatter)</span><span>YAML</span></div>
+  <pre>---
+tools: Read, Grep, Glob
+---
+
+# Safe Researcher
+
+Voce e um agente de pesquisa read-only.
+Analise o codebase e retorne suas descobertas.
+Nunca modifique nenhum arquivo.</pre>
+</div>
+
+<p>Neste exemplo, o subagente so pode usar <code>Read</code>, <code>Grep</code> e <code>Glob</code>. Ferramentas como <code>Write</code>, <code>Edit</code>, <code>Bash</code> e qualquer MCP tool ficam completamente inacessiveis.</p>
+
+<h3>Denylist com disallowedTools</h3>
+
+<div class="code-block">
+  <div class="code-header"><span>no-writes.md (frontmatter)</span><span>YAML</span></div>
+  <pre>---
+disallowedTools: Write, Edit
+---
+
+# No-Writes Agent
+
+Voce pode fazer tudo exceto criar ou modificar arquivos.
+Use Bash para executar testes e Grep para buscar padroes.</pre>
+</div>
+
+<p>Aqui o subagente herda todas as ferramentas da conversa principal (incluindo <code>Bash</code>, <code>Read</code>, MCP tools, etc.), mas <code>Write</code> e <code>Edit</code> sao explicitamente removidas.</p>
+
+<h3>Quando ambos sao definidos</h3>
+
+<div class="callout callout-yellow">
+  <strong>Ordem de resolucao:</strong> Quando <code>tools</code> e <code>disallowedTools</code> estao presentes no mesmo frontmatter, <code>disallowedTools</code> e aplicado primeiro ao pool completo de ferramentas. Depois, <code>tools</code> e resolvido contra o pool restante. Uma ferramenta listada em ambos e sempre removida.
+</div>
+
+<div class="code-block">
+  <div class="code-header"><span>Exemplo: ambos definidos</span><span>YAML</span></div>
+  <pre>---
+tools: Read, Grep, Bash
+disallowedTools: Bash
+---
+
+# Resultado: apenas Read e Grep disponiveis
+# Bash aparece em tools mas tambem em disallowedTools
+# disallowedTools tem precedencia → Bash e removido</pre>
+</div>
+
+<!-- ========== DIAGRAMA SVG ========== -->
+<h2>3. Fluxo de Resolucao de Ferramentas</h2>
+
+<div class="diagram-container">
+  <svg viewBox="0 0 860 340" xmlns="http://www.w3.org/2000/svg" fill="none">
+    <!-- Pool Inicial -->
+    <rect x="20" y="30" width="180" height="280" rx="12" stroke="#60a5fa" stroke-width="1.5" fill="rgba(96,165,250,0.08)"/>
+    <text x="110" y="22" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="600" font-family="Inter, sans-serif">POOL COMPLETO</text>
+    <text x="110" y="60" text-anchor="middle" fill="#d4d4d8" font-size="11" font-family="monospace">Read</text>
+    <text x="110" y="82" text-anchor="middle" fill="#d4d4d8" font-size="11" font-family="monospace">Write</text>
+    <text x="110" y="104" text-anchor="middle" fill="#d4d4d8" font-size="11" font-family="monospace">Edit</text>
+    <text x="110" y="126" text-anchor="middle" fill="#d4d4d8" font-size="11" font-family="monospace">Bash</text>
+    <text x="110" y="148" text-anchor="middle" fill="#d4d4d8" font-size="11" font-family="monospace">Glob</text>
+    <text x="110" y="170" text-anchor="middle" fill="#d4d4d8" font-size="11" font-family="monospace">Grep</text>
+    <text x="110" y="192" text-anchor="middle" fill="#d4d4d8" font-size="11" font-family="monospace">Agent</text>
+    <text x="110" y="214" text-anchor="middle" fill="#d4d4d8" font-size="11" font-family="monospace">mcp__github</text>
+    <text x="110" y="236" text-anchor="middle" fill="#d4d4d8" font-size="11" font-family="monospace">mcp__slack</text>
+    <text x="110" y="258" text-anchor="middle" fill="#9ca3af" font-size="11" font-family="monospace">... (herdados)</text>
+
+    <!-- Seta 1 -->
+    <line x1="210" y1="170" x2="270" y2="170" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+    <!-- Filtro disallowedTools -->
+    <rect x="280" y="100" width="180" height="140" rx="12" stroke="#f87171" stroke-width="1.5" fill="rgba(248,113,113,0.08)"/>
+    <text x="370" y="92" text-anchor="middle" fill="#f87171" font-size="12" font-weight="600" font-family="Inter, sans-serif">disallowedTools</text>
+    <text x="370" y="135" text-anchor="middle" fill="#f87171" font-size="11" font-family="monospace">- Write</text>
+    <text x="370" y="157" text-anchor="middle" fill="#f87171" font-size="11" font-family="monospace">- Edit</text>
+    <text x="370" y="179" text-anchor="middle" fill="#f87171" font-size="11" font-family="monospace">- mcp__slack</text>
+    <text x="370" y="210" text-anchor="middle" fill="#9ca3af" font-size="10" font-family="Inter, sans-serif">(remove do pool)</text>
+
+    <!-- Seta 2 -->
+    <line x1="470" y1="170" x2="530" y2="170" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+    <!-- Filtro tools -->
+    <rect x="540" y="100" width="160" height="140" rx="12" stroke="#6ee7b7" stroke-width="1.5" fill="rgba(110,231,183,0.08)"/>
+    <text x="620" y="92" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="600" font-family="Inter, sans-serif">tools (allowlist)</text>
+    <text x="620" y="135" text-anchor="middle" fill="#6ee7b7" font-size="11" font-family="monospace">+ Read</text>
+    <text x="620" y="157" text-anchor="middle" fill="#6ee7b7" font-size="11" font-family="monospace">+ Grep</text>
+    <text x="620" y="179" text-anchor="middle" fill="#6ee7b7" font-size="11" font-family="monospace">+ Bash</text>
+    <text x="620" y="210" text-anchor="middle" fill="#9ca3af" font-size="10" font-family="Inter, sans-serif">(so estas passam)</text>
+
+    <!-- Seta 3 -->
+    <line x1="710" y1="170" x2="740" y2="170" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+    <!-- Pool Final -->
+    <rect x="750" y="115" width="100" height="110" rx="12" stroke="#c4956a" stroke-width="1.5" fill="rgba(196,149,106,0.08)"/>
+    <text x="800" y="107" text-anchor="middle" fill="#c4956a" font-size="12" font-weight="600" font-family="Inter, sans-serif">FINAL</text>
+    <text x="800" y="148" text-anchor="middle" fill="#d4d4d8" font-size="11" font-family="monospace">Read</text>
+    <text x="800" y="170" text-anchor="middle" fill="#d4d4d8" font-size="11" font-family="monospace">Grep</text>
+    <text x="800" y="192" text-anchor="middle" fill="#d4d4d8" font-size="11" font-family="monospace">Bash</text>
+
+    <!-- Arrow marker -->
+    <defs>
+      <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#9ca3af"/>
+      </marker>
+    </defs>
+  </svg>
+  <div class="diagram-caption">Fluxo de resolucao: pool completo → disallowedTools remove → tools filtra → pool final do subagente</div>
+</div>
+
+<!-- ========== SECAO 4: FERRAMENTAS DISPONIVEIS ========== -->
+<h2>4. Ferramentas Disponiveis no Claude Code</h2>
+
+<p>O Claude Code expoe um conjunto de ferramentas internas (built-in tools) que todo subagente pode potencialmente herdar. Alem dessas, qualquer MCP server conectado na conversa principal tambem e herdado.</p>
+
+<table>
+  <thead>
+    <tr><th>Ferramenta</th><th>Tipo</th><th>Descricao</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>Read</code></td><td>Leitura</td><td>Le conteudo de arquivos do filesystem</td></tr>
+    <tr><td><code>Write</code></td><td>Escrita</td><td>Cria ou sobrescreve arquivos</td></tr>
+    <tr><td><code>Edit</code></td><td>Escrita</td><td>Aplica diferencas (diffs) em arquivos existentes</td></tr>
+    <tr><td><code>Bash</code></td><td>Execucao</td><td>Executa comandos shell arbitrarios</td></tr>
+    <tr><td><code>Glob</code></td><td>Leitura</td><td>Busca arquivos por padrao de nome (glob patterns)</td></tr>
+    <tr><td><code>Grep</code></td><td>Leitura</td><td>Busca conteudo dentro de arquivos (regex)</td></tr>
+    <tr><td><code>Agent</code></td><td>Orquestracao</td><td>Invoca subagentes (pode ser restrito por tipo)</td></tr>
+    <tr><td><code>Skill</code></td><td>Especial</td><td>Executa skills registradas</td></tr>
+    <tr><td><code>mcp__*</code></td><td>MCP</td><td>Qualquer tool exposta por MCP servers conectados</td></tr>
+  </tbody>
+</table>
+
+<div class="callout callout-blue">
+  <strong>Heranca de MCP tools:</strong> Por padrao, subagentes herdam todas as MCP tools da conversa principal. Isso inclui tools como <code>mcp__github__create_issue</code>, <code>mcp__slack__send_message</code>, etc. Use <code>disallowedTools</code> para remover MCP tools especificas ou <code>tools</code> para excluir todas implicitamente.
+</div>
+
+<!-- ========== SECAO 5: RESTRINGINDO SUBAGENTES ========== -->
+<h2>5. Restringindo Quais Subagentes Podem Ser Spawned</h2>
+
+<p>O campo <code>tools</code> no frontmatter tambem controla quais <strong>tipos de subagentes</strong> um agente pode invocar. Isso e particularmente relevante quando agentes rodam como main thread via <code>--agent</code>.</p>
+
+<div class="code-block">
+  <div class="code-header"><span>Controle granular de Agent types</span><span>YAML</span></div>
+  <pre>---
+# Permite APENAS spawnar subagentes "worker" e "researcher"
+tools: Read, Grep, Glob, Agent(worker, researcher)
+---
+
+# Orchestrator Agent
+Delegue tarefas de pesquisa para o researcher
+e tarefas de implementacao para o worker.</pre>
+</div>
+
+<table>
+  <thead>
+    <tr><th>Sintaxe no frontmatter</th><th>Comportamento</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>Agent(worker, researcher)</code></td><td>So pode spawnar subagentes com esses nomes especificos</td></tr>
+    <tr><td><code>Agent</code></td><td>Pode spawnar qualquer tipo de subagente</td></tr>
+    <tr><td><em>(omitido)</em></td><td>Nao pode spawnar nenhum subagente</td></tr>
+  </tbody>
+</table>
+
+<div class="callout callout-yellow">
+  <strong>Escopo importante:</strong> O controle de <code>Agent(type)</code> na lista de <code>tools</code> so se aplica a agentes rodando como main thread via <code>claude --agent orchestrator.md</code>. Em subagentes comuns, o campo <code>tools</code> controla apenas as ferramentas built-in e MCP.
+</div>
+
+<!-- ========== SECAO 6: DESABILITANDO SUBAGENTES ESPECIFICOS ========== -->
+<h2>6. Desabilitando Subagentes Especificos</h2>
+
+<p>Alem de usar <code>tools</code> como allowlist, voce pode usar <code>disallowedTools</code> ou <code>permissions.deny</code> para bloquear subagentes especificos pelo nome.</p>
+
+<h3>Via permissions.deny no settings</h3>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/settings.json</span><span>JSON</span></div>
+  <pre>{
+  "permissions": {
+    "deny": [
+      "Agent(Explore)",
+      "Agent(my-custom-agent)"
+    ]
+  }
+}</pre>
+</div>
+
+<h3>Via CLI flag</h3>
+
+<div class="code-block">
+  <div class="code-header"><span>Terminal</span><span>Shell</span></div>
+  <pre># Bloquear um subagente especifico via flag
+claude --disallowedTools "Agent(Explore)"
+
+# Bloquear multiplos
+claude --disallowedTools "Agent(Explore),Agent(writer)"</pre>
+</div>
+
+<p>Isso e util para desabilitar agentes built-in que voce nao quer que sejam invocados, como o <code>Explore</code>, ou agentes customizados que existem no diretorio <code>.claude/agents/</code> mas nao devem ser usados em certos contextos.</p>
+
+<!-- ========== SECAO 7: PERMISSION MODES ========== -->
+<h2>7. Permission Modes em Subagentes</h2>
+
+<p>Subagentes podem ter seu modo de permissao definido no frontmatter via <code>permissionMode</code>. Porem, ha regras de heranca que o agente principal impoe.</p>
+
+<table>
+  <thead>
+    <tr><th>Mode</th><th>Descricao</th><th>Heranca</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>default</code></td>
+      <td>Pede confirmacao para acoes potencialmente destrutivas</td>
+      <td>Subagente usa seu proprio frontmatter</td>
+    </tr>
+    <tr>
+      <td><code>acceptEdits</code></td>
+      <td>Aceita edicoes automaticamente, pede confirmacao para Bash</td>
+      <td><strong>Prevalece</strong> sobre frontmatter do subagente</td>
+    </tr>
+    <tr>
+      <td><code>auto</code></td>
+      <td>Aceita tudo automaticamente dentro das allowlists</td>
+      <td>Subagente herda; frontmatter e ignorado</td>
+    </tr>
+    <tr>
+      <td><code>dontAsk</code></td>
+      <td>Nunca pergunta, mas pula acoes nao permitidas</td>
+      <td>Subagente usa seu proprio frontmatter</td>
+    </tr>
+    <tr>
+      <td><code>bypassPermissions</code></td>
+      <td>Ignora todas as verificacoes de permissao</td>
+      <td><strong>Prevalece</strong> sobre frontmatter do subagente</td>
+    </tr>
+    <tr>
+      <td><code>plan</code></td>
+      <td>Modo somente leitura - planeja mas nao executa</td>
+      <td>Subagente usa seu proprio frontmatter</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout callout-red">
+  <strong>Regras de heranca criticas:</strong> Se o agente principal usa <code>bypassPermissions</code> ou <code>acceptEdits</code>, esse modo prevalece sobre qualquer configuracao no frontmatter do subagente. Se o parent usa <code>auto</code> mode, o subagente herda <code>auto</code> e seu proprio frontmatter de permissao e completamente ignorado.
+</div>
+
+<div class="code-block">
+  <div class="code-header"><span>Exemplo: permissionMode no frontmatter</span><span>YAML</span></div>
+  <pre>---
+tools: Read, Grep, Glob, Bash
+permissionMode: dontAsk
+---
+
+# Test Runner
+
+Execute os testes do projeto e reporte resultados.
+Se algum teste falhar, analise o erro e sugira correcoes.
+
+# Comportamento: se Bash nao for permitido,
+# o subagente pula silenciosamente sem perguntar.</pre>
+</div>
+
+<!-- ========== SECAO 8: HOOKS CONDICIONAIS ========== -->
+<h2>8. Hooks Condicionais com PreToolUse</h2>
+
+<p>Hooks <code>PreToolUse</code> permitem validacao customizada antes que uma ferramenta seja executada. Isso e especialmente poderoso em subagentes que usam <code>Bash</code> para operacoes de banco de dados.</p>
+
+<h3>Exemplo: db-reader com validacao SQL</h3>
+
+<div class="code-block">
+  <div class="code-header"><span>db-reader.md</span><span>Markdown</span></div>
+  <pre>---
+tools: Read, Bash, Grep
+hooks:
+  PreToolUse:
+    - matcher: Bash
+      hooks:
+        - command: .claude/hooks/validate-sql.sh
+---
+
+# Database Reader
+
+Voce consulta o banco de dados PostgreSQL para responder
+perguntas sobre dados. Use APENAS queries SELECT.
+Nunca execute INSERT, UPDATE, DELETE ou DROP.</pre>
+</div>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/hooks/validate-sql.sh</span><span>Shell</span></div>
+  <pre>#!/bin/bash
+# Le o input JSON do hook via stdin
+INPUT=$(cat)
+COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command')
+
+# Verifica se o comando contem SQL destrutivo
+if echo "$COMMAND" | grep -iE '(INSERT|UPDATE|DELETE|DROP|ALTER|TRUNCATE|CREATE)' > /dev/null; then
+  # Exit code 2 = bloqueia a execucao da tool
+  echo '{"reason": "Query SQL destrutiva detectada. Apenas SELECT e permitido."}' >&2
+  exit 2
+fi
+
+# Exit code 0 = permite a execucao
+exit 0</pre>
+</div>
+
+<div class="callout callout-green">
+  <strong>Exit codes do hook:</strong> <code>0</code> = permite a execucao normalmente. <code>2</code> = bloqueia a ferramenta e retorna a mensagem de erro para o agente. Qualquer outro exit code e tratado como erro do proprio hook.
+</div>
+
+<!-- ========== SECAO 9: MCP SERVERS SCOPED ========== -->
+<h2>9. MCP Servers Scoped para Subagentes</h2>
+
+<p>O campo <code>mcpServers</code> no frontmatter permite dar acesso a MCP servers <strong>exclusivos</strong> do subagente, que nao existem na conversa principal. Isso e util para isolar contexto e economizar tokens.</p>
+
+<h3>Definicao inline</h3>
+
+<div class="code-block">
+  <div class="code-header"><span>github-agent.md</span><span>YAML</span></div>
+  <pre>---
+tools: Read, Grep
+mcpServers:
+  github:
+    command: npx
+    args: ["-y", "@modelcontextprotocol/server-github"]
+    env:
+      GITHUB_TOKEN: "${GITHUB_TOKEN}"
+---
+
+# GitHub Agent
+
+Voce gerencia issues e pull requests no GitHub.
+Use as ferramentas MCP do GitHub para suas operacoes.</pre>
+</div>
+
+<h3>Referencia por string</h3>
+
+<p>Se o MCP server ja esta definido no <code>.claude/settings.json</code>, voce pode referencia-lo por nome:</p>
+
+<div class="code-block">
+  <div class="code-header"><span>Referencia a server existente</span><span>YAML</span></div>
+  <pre>---
+tools: Read, Grep, Bash
+mcpServers:
+  - github
+  - linear
+---
+
+# Issue Tracker Agent
+# Herda os servers "github" e "linear" do settings.json</pre>
+</div>
+
+<div class="callout callout-blue">
+  <strong>Economia de contexto:</strong> Manter MCP tools fora da conversa principal e usa-las apenas em subagentes dedicados reduz significativamente o consumo de contexto. Cada MCP tool adicionada a conversa principal consome tokens de definicao em toda interacao, mesmo quando nao usada.
+</div>
+
+<!-- ========== SECAO 10: PLUGIN SUBAGENTS LIMITACOES ========== -->
+<h2>10. Plugins vs Agents: Limitacoes</h2>
+
+<p>Plugins distribuidos via registro de plugins tem limitacoes importantes quando comparados a agentes locais definidos em <code>.claude/agents/</code>.</p>
+
+<div class="grid-2">
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">&#10003;</span> Agents (.claude/agents/)</h4>
+    <p>Suportam <code>hooks</code>, <code>mcpServers</code>, <code>permissionMode</code>, <code>tools</code> e <code>disallowedTools</code> no frontmatter. Controle total.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--red-soft); color: var(--red);">&#10007;</span> Plugins (registro)</h4>
+    <p><strong>NAO suportam</strong> <code>hooks</code>, <code>mcpServers</code> ou <code>permissionMode</code> no frontmatter. Funcionalidade limitada.</p>
+  </div>
+</div>
+
+<div class="callout">
+  <strong>Workaround:</strong> Se voce precisa usar um plugin com hooks ou MCP servers, copie o arquivo <code>.md</code> do plugin para <code>.claude/agents/</code> (escopo de projeto) ou <code>~/.claude/agents/</code> (escopo global). Assim ele passa a ser tratado como um agente local com suporte completo a frontmatter.
+</div>
+
+<!-- ========== SECAO 11: EXEMPLOS PRATICOS ========== -->
+<h2>11. Exemplos Praticos</h2>
+
+<h3>safe-researcher: Agente read-only</h3>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/agents/safe-researcher.md</span><span>Markdown</span></div>
+  <pre>---
+tools: Read, Grep, Glob
+---
+
+# Safe Researcher
+
+Voce e um agente de pesquisa que analisa codebases.
+
+## Regras
+- Apenas leia e busque informacoes
+- Retorne descobertas em formato estruturado
+- Nunca sugira modificacoes diretamente - apenas reporte</pre>
+</div>
+
+<h3>db-reader: Queries read-only com hook de validacao</h3>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/agents/db-reader.md</span><span>Markdown</span></div>
+  <pre>---
+tools: Read, Bash, Grep
+hooks:
+  PreToolUse:
+    - matcher: Bash
+      hooks:
+        - command: .claude/hooks/validate-sql.sh
+permissionMode: dontAsk
+---
+
+# Database Reader
+
+Consulte o banco PostgreSQL via psql.
+Use APENAS queries SELECT para extrair dados.
+
+## Conexao
+```
+psql -h localhost -U readonly -d analytics
+```</pre>
+</div>
+
+<h3>code-reviewer: Analise + execucao de testes</h3>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/agents/code-reviewer.md</span><span>Markdown</span></div>
+  <pre>---
+tools: Read, Grep, Glob, Bash
+disallowedTools: Write, Edit, Agent
+---
+
+# Code Reviewer
+
+Analise o codigo e execute testes para validar qualidade.
+
+## Workflow
+1. Leia os arquivos modificados
+2. Execute os testes relevantes com Bash
+3. Busque padroes problematicos com Grep
+4. Retorne um relatorio com issues encontradas</pre>
+</div>
+
+<h3>no-writes: Tudo exceto escrita</h3>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/agents/no-writes.md</span><span>Markdown</span></div>
+  <pre>---
+disallowedTools: Write, Edit
+---
+
+# No-Writes Agent
+
+Voce pode usar Bash, Grep, Read, Glob e qualquer MCP tool
+disponivel. Voce NAO pode criar ou modificar arquivos.
+
+Use este agente para diagnostico e analise sem risco
+de alteracao acidental do codebase.</pre>
+</div>
+
+<h3>orchestrator: Controle de subagentes com allowlist</h3>
+
+<div class="code-block">
+  <div class="code-header"><span>.claude/agents/orchestrator.md</span><span>Markdown</span></div>
+  <pre>---
+tools: Read, Grep, Glob, Agent(safe-researcher, code-reviewer)
+---
+
+# Orchestrator
+
+Voce coordena tarefas delegando para subagentes especificos:
+- **safe-researcher**: para investigar e coletar informacoes
+- **code-reviewer**: para validar qualidade de codigo
+
+Voce NAO pode spawnar outros tipos de subagentes.
+Voce NAO pode escrever ou editar arquivos diretamente.</pre>
+</div>
+
+<!-- ========== DIAGRAMA: ARQUITETURA MULTI-CAMADA ========== -->
+<h2>12. Arquitetura de Restricao em Camadas</h2>
+
+<div class="diagram-container">
+  <svg viewBox="0 0 800 420" xmlns="http://www.w3.org/2000/svg" fill="none">
+    <!-- Camada 1: CLI -->
+    <rect x="40" y="20" width="720" height="70" rx="12" stroke="#a78bfa" stroke-width="1.5" fill="rgba(167,139,250,0.06)"/>
+    <text x="60" y="48" fill="#a78bfa" font-size="12" font-weight="600" font-family="Inter, sans-serif">CAMADA 1: CLI FLAGS</text>
+    <text x="60" y="70" fill="#9ca3af" font-size="11" font-family="monospace">claude --disallowedTools "Write,Edit" --agent orchestrator.md</text>
+
+    <!-- Camada 2: Settings -->
+    <rect x="40" y="110" width="720" height="70" rx="12" stroke="#60a5fa" stroke-width="1.5" fill="rgba(96,165,250,0.06)"/>
+    <text x="60" y="138" fill="#60a5fa" font-size="12" font-weight="600" font-family="Inter, sans-serif">CAMADA 2: SETTINGS (permissions.deny)</text>
+    <text x="60" y="160" fill="#9ca3af" font-size="11" font-family="monospace">.claude/settings.json → permissions.deny: ["Agent(Explore)", "mcp__slack"]</text>
+
+    <!-- Camada 3: Frontmatter -->
+    <rect x="40" y="200" width="720" height="70" rx="12" stroke="#c4956a" stroke-width="1.5" fill="rgba(196,149,106,0.06)"/>
+    <text x="60" y="228" fill="#c4956a" font-size="12" font-weight="600" font-family="Inter, sans-serif">CAMADA 3: FRONTMATTER DO AGENTE</text>
+    <text x="60" y="250" fill="#9ca3af" font-size="11" font-family="monospace">tools: Read, Grep, Bash | disallowedTools: Write | permissionMode: dontAsk</text>
+
+    <!-- Camada 4: Hooks -->
+    <rect x="40" y="290" width="720" height="70" rx="12" stroke="#6ee7b7" stroke-width="1.5" fill="rgba(110,231,183,0.06)"/>
+    <text x="60" y="318" fill="#6ee7b7" font-size="12" font-weight="600" font-family="Inter, sans-serif">CAMADA 4: HOOKS (PreToolUse)</text>
+    <text x="60" y="340" fill="#9ca3af" font-size="11" font-family="monospace">validate-sql.sh → exit 2 bloqueia | exit 0 permite</text>
+
+    <!-- Setas verticais -->
+    <line x1="400" y1="90" x2="400" y2="110" stroke="#9ca3af" stroke-width="1" stroke-dasharray="4" marker-end="url(#arrow2)"/>
+    <line x1="400" y1="180" x2="400" y2="200" stroke="#9ca3af" stroke-width="1" stroke-dasharray="4" marker-end="url(#arrow2)"/>
+    <line x1="400" y1="270" x2="400" y2="290" stroke="#9ca3af" stroke-width="1" stroke-dasharray="4" marker-end="url(#arrow2)"/>
+
+    <!-- Resultado -->
+    <rect x="240" y="380" width="320" height="30" rx="8" stroke="#fbbf24" stroke-width="1.5" fill="rgba(251,191,36,0.08)"/>
+    <text x="400" y="400" text-anchor="middle" fill="#fbbf24" font-size="12" font-weight="600" font-family="Inter, sans-serif">POOL FINAL DE FERRAMENTAS DO SUBAGENTE</text>
+    <line x1="400" y1="360" x2="400" y2="380" stroke="#9ca3af" stroke-width="1" stroke-dasharray="4" marker-end="url(#arrow2)"/>
+
+    <defs>
+      <marker id="arrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 0 L 10 5 L 0 10 z" fill="#9ca3af"/>
+      </marker>
+    </defs>
+  </svg>
+  <div class="diagram-caption">As quatro camadas de restricao sao aplicadas sequencialmente: CLI → settings → frontmatter → hooks</div>
+</div>
+
+<!-- ========== TABELA RESUMO ========== -->
+<h2>13. Tabela de Referencia Rapida</h2>
+
+<table>
+  <thead>
+    <tr><th>Cenario</th><th>Abordagem Recomendada</th><th>Frontmatter</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Agente so leitura</td>
+      <td>allowlist restritiva</td>
+      <td><code>tools: Read, Grep, Glob</code></td>
+    </tr>
+    <tr>
+      <td>Agente sem escrita</td>
+      <td>denylist seletiva</td>
+      <td><code>disallowedTools: Write, Edit</code></td>
+    </tr>
+    <tr>
+      <td>Agente de testes</td>
+      <td>allowlist com Bash</td>
+      <td><code>tools: Read, Grep, Bash</code></td>
+    </tr>
+    <tr>
+      <td>Agente de DB</td>
+      <td>allowlist + hook</td>
+      <td><code>tools: Read, Bash</code> + hook SQL</td>
+    </tr>
+    <tr>
+      <td>Bloquear MCP tool</td>
+      <td>denylist especifica</td>
+      <td><code>disallowedTools: mcp__slack</code></td>
+    </tr>
+    <tr>
+      <td>Bloquear subagente</td>
+      <td>permissions.deny ou denylist</td>
+      <td><code>disallowedTools: Agent(Explore)</code></td>
+    </tr>
+    <tr>
+      <td>Orchestrator limitado</td>
+      <td>allowlist com Agent types</td>
+      <td><code>tools: Read, Agent(worker, reviewer)</code></td>
+    </tr>
+    <tr>
+      <td>MCP exclusivo</td>
+      <td>mcpServers no frontmatter</td>
+      <td><code>mcpServers: { github: ... }</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ========== BOAS PRATICAS ========== -->
+<h2>14. Boas Praticas</h2>
+
+<div class="grid-2">
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">1</span> Prefira allowlist</h4>
+    <p>Use <code>tools</code> em vez de <code>disallowedTools</code> quando possivel. E mais seguro listar o que e permitido do que tentar prever tudo que deve ser bloqueado.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">2</span> Isole MCP servers</h4>
+    <p>Defina MCP servers no <code>mcpServers</code> do frontmatter em vez de na conversa principal. Economiza contexto e reduz superficie de ataque.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">3</span> Use hooks para validacao</h4>
+    <p>Quando <code>Bash</code> e necessario mas perigoso, adicione hooks <code>PreToolUse</code> para validar comandos antes da execucao.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">4</span> Teste com plan mode</h4>
+    <p>Use <code>permissionMode: plan</code> para testar o comportamento de um subagente antes de dar permissoes reais de execucao.</p>
+  </div>
+</div>
+
+<!-- ========== FONTES ========== -->
+<div class="sources">
+  <h3>Fontes e Referencias</h3>
+  <ul>
+    <li><a href="https://docs.claude.com/en/docs/claude-code/sub-agents" target="_blank">Documentacao Oficial - Claude Code Sub-agents</a></li>
+    <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank">Anthropic Engineering - Claude Code Best Practices</a></li>
+  </ul>
+</div>
+
+<!-- ========== NAV FOOTER ========== -->
+<nav class="nav-footer">
+  <a href="modulo-08-topico-03-escolha-modelo.html" class="nav-btn">&larr; Anterior: Escolha de Modelo</a>
+  <a href="../index.html" class="nav-btn">Indice</a>
+  <a href="modulo-08-topico-05-padroes-multi-agente.html" class="nav-btn">Proximo: Padroes Multi-Agente &rarr;</a>
+</nav>
+
+</body>
+</html>

@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modulo 8 - Topico 3: Escolha do Modelo por Tarefa | Workshop Claude Code</title>
+<style>
+:root {
+  --bg: #0f1117; --bg-card: #1a1d27; --bg-code: #141620; --border: #2a2d3a;
+  --text: #e4e4e7; --text-dim: #9ca3af; --accent: #c4956a; --accent-soft: rgba(196, 149, 106, 0.12);
+  --blue: #60a5fa; --blue-soft: rgba(96, 165, 250, 0.12); --green: #6ee7b7; --green-soft: rgba(110, 231, 183, 0.12);
+  --purple: #a78bfa; --purple-soft: rgba(167, 139, 250, 0.12); --red: #f87171; --red-soft: rgba(248, 113, 113, 0.12);
+  --yellow: #fbbf24; --yellow-soft: rgba(251, 191, 36, 0.12);
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace; --radius: 12px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.7; padding: 2rem; max-width: 960px; margin: 0 auto; }
+.topic-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); background: var(--accent-soft); padding: 6px 14px; border-radius: 20px; margin-bottom: 1rem; }
+h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+.subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+p { margin-bottom: 1rem; } a { color: var(--blue); text-decoration: none; } a:hover { text-decoration: underline; }
+code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+strong { color: #fff; }
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0; }
+.diagram-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto; }
+.diagram-container svg { display: block; margin: 0 auto; }
+.diagram-caption { text-align: center; font-size: 0.85rem; color: var(--text-dim); margin-top: 1rem; font-style: italic; }
+.code-block { background: var(--bg-code); border: 1px solid var(--border); border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden; }
+.code-header { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 1rem; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim); }
+.code-block pre { padding: 1rem 1.25rem; overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8; }
+.callout { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem; }
+.callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+.callout-red { border-left-color: var(--red); background: var(--red-soft); }
+.callout-green { border-left-color: var(--green); background: var(--green-soft); }
+.callout-yellow { border-left-color: var(--yellow); background: var(--yellow-soft); }
+.callout strong { color: #fff; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+@media (max-width: 640px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } body { padding: 1rem; } h1 { font-size: 1.5rem; } }
+.mini-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
+.mini-card h4 { font-size: 0.95rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px; }
+.mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+.icon-circle { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+td { color: var(--text); } tr:last-child td { border-bottom: none; }
+.sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+.sources ul { list-style: none; padding: 0; }
+.sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+.sources li::before { content: "\2192 "; color: var(--accent); }
+.nav-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.nav-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; color: var(--text); background: var(--bg-card); border: 1px solid var(--border); text-decoration: none; transition: border-color 0.2s; }
+.nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="topic-badge">Modulo 8 &bull; Topico 3</div>
+<h1>Escolha do Modelo por Tarefa: Opus, Sonnet, Haiku</h1>
+<p class="subtitle">Como selecionar o modelo certo para cada subagente, otimizando custo, latencia e capacidade em workflows multi-agente do Claude Code.</p>
+
+<!-- ============================================ -->
+<h2>Por que a Escolha do Modelo Importa</h2>
+
+<p>Em workflows multi-agente, cada subagente executa uma tarefa diferente com requisitos distintos. Um subagente que apenas busca arquivos nao precisa da mesma capacidade de raciocinio que um orquestrador que toma decisoes arquiteturais. A escolha do modelo por tarefa permite otimizar tres dimensoes simultaneamente:</p>
+
+<div class="grid-3">
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">C</span> Capacidade</h4>
+    <p>Profundidade de raciocinio, compreensao de contexto complexo, qualidade das decisoes tomadas pelo agente.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">$</span> Custo</h4>
+    <p>Tokens consumidos por invocacao. Em pipelines com dezenas de subagentes, a diferenca se acumula rapidamente.</p>
+  </div>
+  <div class="mini-card">
+    <h4><span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">L</span> Latencia</h4>
+    <p>Tempo de resposta por invocacao. Modelos menores respondem mais rapido, critico para tarefas interativas.</p>
+  </div>
+</div>
+
+<div class="callout callout-blue">
+  <strong>Principio fundamental:</strong> Use o modelo mais barato e rapido que consiga realizar a tarefa com qualidade aceitavel. Nao faz sentido usar Opus para listar arquivos em um diretorio.
+</div>
+
+<!-- ============================================ -->
+<h2>Modelos Disponiveis no Claude Code</h2>
+
+<p>O Claude Code suporta tres familias de modelos, cada uma acessivel tanto por <strong>alias</strong> (nome curto) quanto por <strong>model ID completo</strong>:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Alias</th>
+      <th>Model ID</th>
+      <th>Perfil</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>opus</code></td>
+      <td><code>claude-opus-4-7</code></td>
+      <td>Maxima capacidade, mais lento e caro</td>
+    </tr>
+    <tr>
+      <td><code>sonnet</code></td>
+      <td><code>claude-sonnet-4-6</code></td>
+      <td>Equilibrio entre capacidade e custo</td>
+    </tr>
+    <tr>
+      <td><code>haiku</code></td>
+      <td><code>claude-haiku-3-5-20241022</code></td>
+      <td>Rapido e economico, menor capacidade</td>
+    </tr>
+    <tr>
+      <td><code>inherit</code></td>
+      <td>&#8212;</td>
+      <td>Herda o modelo da conversa principal (padrao)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>O valor <code>inherit</code> e o padrao para subagentes. Quando nenhum modelo e especificado, o subagente usa automaticamente o mesmo modelo da sessao principal do Claude Code.</p>
+
+<div class="callout callout-yellow">
+  <strong>Dica:</strong> Use aliases (<code>sonnet</code>, <code>opus</code>, <code>haiku</code>) para simplicidade. Use model IDs completos quando precisar fixar uma versao especifica para reprodutibilidade.
+</div>
+
+<!-- ============================================ -->
+<h2>Ordem de Resolucao do Modelo</h2>
+
+<p>Quando um subagente e invocado, o Claude Code resolve qual modelo usar seguindo uma cadeia de prioridade bem definida. A primeira fonte que fornece um valor vence:</p>
+
+<div class="card">
+  <h3 style="margin-top: 0;">Cadeia de prioridade (da mais alta para a mais baixa)</h3>
+
+  <div style="margin-top: 1rem;">
+    <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 1rem;">
+      <span class="icon-circle" style="background: var(--red-soft); color: var(--red); font-weight: 700;">1</span>
+      <div>
+        <strong>Variavel de ambiente <code>CLAUDE_CODE_SUBAGENT_MODEL</code></strong>
+        <p style="margin: 0.25rem 0 0; font-size: 0.9rem; color: var(--text-dim);">Sobrescreve tudo. Util para forcar um modelo em todos os subagentes durante desenvolvimento ou CI.</p>
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 1rem;">
+      <span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow); font-weight: 700;">2</span>
+      <div>
+        <strong>Parametro <code>model</code> por invocacao</strong>
+        <p style="margin: 0.25rem 0 0; font-size: 0.9rem; color: var(--text-dim);">Passado diretamente na chamada ao subagente via CLI ou API programatica.</p>
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 1rem;">
+      <span class="icon-circle" style="background: var(--blue-soft); color: var(--blue); font-weight: 700;">3</span>
+      <div>
+        <strong>Campo <code>model</code> no frontmatter do subagente</strong>
+        <p style="margin: 0.25rem 0 0; font-size: 0.9rem; color: var(--text-dim);">Definido no arquivo YAML/Markdown do subagente. E a forma mais comum de configurar.</p>
+      </div>
+    </div>
+
+    <div style="display: flex; align-items: flex-start; gap: 12px;">
+      <span class="icon-circle" style="background: var(--green-soft); color: var(--green); font-weight: 700;">4</span>
+      <div>
+        <strong>Modelo da conversa principal (inherit)</strong>
+        <p style="margin: 0.25rem 0 0; font-size: 0.9rem; color: var(--text-dim);">Fallback padrao. O subagente usa o mesmo modelo que o agente principal esta usando.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="code-block">
+  <div class="code-header"><span>Exemplo: Forcar Haiku em todos os subagentes via env</span></div>
+  <pre>export CLAUDE_CODE_SUBAGENT_MODEL=haiku
+claude "refatorar o modulo de autenticacao"</pre>
+</div>
+
+<!-- ============================================ -->
+<h2>Perfil de Cada Modelo</h2>
+
+<div class="grid-3">
+  <div class="mini-card" style="border-top: 3px solid var(--purple);">
+    <h4><span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">O</span> Opus</h4>
+    <p style="margin-bottom: 0.75rem;"><strong style="color: var(--purple);">Maxima capacidade</strong></p>
+    <p><strong>Melhor para:</strong></p>
+    <p style="margin-bottom: 0.25rem;">&#8226; Orquestracao complexa</p>
+    <p style="margin-bottom: 0.25rem;">&#8226; Decisoes arquiteturais</p>
+    <p style="margin-bottom: 0.25rem;">&#8226; Coordenar equipes de subagentes</p>
+    <p style="margin-bottom: 0.25rem;">&#8226; Raciocinio multi-etapa profundo</p>
+    <p style="margin-top: 0.75rem;"><strong>Trade-off:</strong> Mais lento e mais caro por token. Use apenas quando a qualidade da decisao justifica o investimento.</p>
+  </div>
+
+  <div class="mini-card" style="border-top: 3px solid var(--blue);">
+    <h4><span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">S</span> Sonnet</h4>
+    <p style="margin-bottom: 0.75rem;"><strong style="color: var(--blue);">Equilibrio ideal</strong></p>
+    <p><strong>Melhor para:</strong></p>
+    <p style="margin-bottom: 0.25rem;">&#8226; Implementacao de codigo</p>
+    <p style="margin-bottom: 0.25rem;">&#8226; Code review detalhado</p>
+    <p style="margin-bottom: 0.25rem;">&#8226; Analise e documentacao</p>
+    <p style="margin-bottom: 0.25rem;">&#8226; Maioria das tarefas do dia-a-dia</p>
+    <p style="margin-top: 0.75rem;"><strong>Trade-off:</strong> Bom custo-beneficio. E o modelo padrao recomendado para a maioria dos subagentes.</p>
+  </div>
+
+  <div class="mini-card" style="border-top: 3px solid var(--green);">
+    <h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">H</span> Haiku</h4>
+    <p style="margin-bottom: 0.75rem;"><strong style="color: var(--green);">Velocidade e economia</strong></p>
+    <p><strong>Melhor para:</strong></p>
+    <p style="margin-bottom: 0.25rem;">&#8226; Exploracao rapida de codebase</p>
+    <p style="margin-bottom: 0.25rem;">&#8226; Classificacao e triagem</p>
+    <p style="margin-bottom: 0.25rem;">&#8226; Busca e filtragem</p>
+    <p style="margin-bottom: 0.25rem;">&#8226; Tarefas simples e repetitivas</p>
+    <p style="margin-top: 0.75rem;"><strong>Trade-off:</strong> Menor capacidade de raciocinio complexo. Nao recomendado para decisoes criticas.</p>
+  </div>
+</div>
+
+<!-- ============================================ -->
+<h2>Diagrama: Hierarquia de Modelos por Funcao</h2>
+
+<div class="diagram-container">
+  <svg viewBox="0 0 700 420" xmlns="http://www.w3.org/2000/svg" fill="none">
+    <!-- Piramide -->
+    <polygon points="350,30 550,180 150,180" fill="rgba(167,139,250,0.15)" stroke="#a78bfa" stroke-width="2"/>
+    <polygon points="150,180 550,180 620,300 80,300" fill="rgba(96,165,250,0.15)" stroke="#60a5fa" stroke-width="2"/>
+    <polygon points="80,300 620,300 680,400 20,400" fill="rgba(110,231,183,0.15)" stroke="#6ee7b7" stroke-width="2"/>
+
+    <!-- Labels dentro da piramide -->
+    <text x="350" y="100" text-anchor="middle" fill="#a78bfa" font-family="Inter, sans-serif" font-size="16" font-weight="700">OPUS</text>
+    <text x="350" y="122" text-anchor="middle" fill="#9ca3af" font-family="Inter, sans-serif" font-size="11">Orquestracao &amp; Decisoes</text>
+
+    <text x="350" y="235" text-anchor="middle" fill="#60a5fa" font-family="Inter, sans-serif" font-size="16" font-weight="700">SONNET</text>
+    <text x="350" y="257" text-anchor="middle" fill="#9ca3af" font-family="Inter, sans-serif" font-size="11">Implementacao &amp; Analise</text>
+
+    <text x="350" y="355" text-anchor="middle" fill="#6ee7b7" font-family="Inter, sans-serif" font-size="16" font-weight="700">HAIKU</text>
+    <text x="350" y="377" text-anchor="middle" fill="#9ca3af" font-family="Inter, sans-serif" font-size="11">Exploracao &amp; Busca</text>
+
+    <!-- Setas de delegacao -->
+    <defs>
+      <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+        <polygon points="0 0, 8 3, 0 6" fill="#9ca3af"/>
+      </marker>
+    </defs>
+
+    <!-- Opus -> Sonnet -->
+    <line x1="280" y1="135" x2="220" y2="195" stroke="#9ca3af" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+    <line x1="420" y1="135" x2="480" y2="195" stroke="#9ca3af" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+
+    <!-- Sonnet -> Haiku -->
+    <line x1="200" y1="270" x2="140" y2="320" stroke="#9ca3af" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+    <line x1="500" y1="270" x2="560" y2="320" stroke="#9ca3af" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+
+    <!-- Labels laterais -->
+    <text x="690" y="105" text-anchor="start" fill="#a78bfa" font-family="Inter, sans-serif" font-size="10" font-weight="600">+ CUSTO</text>
+    <text x="690" y="118" text-anchor="start" fill="#a78bfa" font-family="Inter, sans-serif" font-size="10" font-weight="600">+ CAPACIDADE</text>
+
+    <text x="690" y="370" text-anchor="start" fill="#6ee7b7" font-family="Inter, sans-serif" font-size="10" font-weight="600">+ VELOCIDADE</text>
+    <text x="690" y="383" text-anchor="start" fill="#6ee7b7" font-family="Inter, sans-serif" font-size="10" font-weight="600">+ ECONOMIA</text>
+
+    <!-- Seta lateral indicando direcao -->
+    <line x1="680" y1="130" x2="680" y2="355" stroke="#4a4d5a" stroke-width="1" marker-end="url(#arrow)"/>
+  </svg>
+  <div class="diagram-caption">Piramide de delegacao: Opus orquestra, Sonnet implementa, Haiku explora. As setas tracejadas representam delegacao de tarefas.</div>
+</div>
+
+<!-- ============================================ -->
+<h2>Escolha Built-in dos Subagentes</h2>
+
+<p>O Claude Code ja vem com subagentes internos pre-configurados com modelos especificos. Esses defaults refletem as melhores praticas da equipe da Anthropic:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Subagente</th>
+      <th>Modelo</th>
+      <th>Razao</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>Explore</code></td>
+      <td><span style="color: var(--green);">Haiku</span></td>
+      <td>Busca rapida em codebase. Nao precisa raciocinar, apenas localizar.</td>
+    </tr>
+    <tr>
+      <td><code>Plan</code></td>
+      <td><span style="color: var(--text-dim);">inherit</span></td>
+      <td>Planejamento requer raciocinio. Herda o modelo principal.</td>
+    </tr>
+    <tr>
+      <td><code>General-purpose</code></td>
+      <td><span style="color: var(--text-dim);">inherit</span></td>
+      <td>Subagente generico. Herda para flexibilidade.</td>
+    </tr>
+    <tr>
+      <td><code>statusline-setup</code></td>
+      <td><span style="color: var(--blue);">Sonnet</span></td>
+      <td>Configuracao de UI. Requer capacidade moderada.</td>
+    </tr>
+    <tr>
+      <td><code>claude-code-guide</code></td>
+      <td><span style="color: var(--green);">Haiku</span></td>
+      <td>Consulta a documentacao. Tarefa simples de recuperacao.</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout callout-green">
+  <strong>Observe o padrao:</strong> Tarefas de busca e consulta usam Haiku. Tarefas que precisam de raciocinio herdam o modelo principal. Essa mesma logica deve guiar suas escolhas ao criar subagentes customizados.
+</div>
+
+<!-- ============================================ -->
+<h2>Configurando o Modelo no Subagente</h2>
+
+<h3>Via frontmatter YAML</h3>
+
+<p>A forma mais comum e declarar o campo <code>model</code> diretamente no frontmatter do arquivo de definicao do subagente:</p>
+
+<div class="code-block">
+  <div class="code-header"><span>agents/explorer.md</span><span>YAML frontmatter</span></div>
+  <pre>---
+name: explorer
+model: haiku
+description: Explora o codebase buscando arquivos e padroes relevantes
+allowed_tools:
+  - Read
+  - Glob
+  - Grep
+---
+
+Voce e um agente de exploracao de codebase.
+Sua funcao e localizar arquivos, padroes e trechos
+de codigo relevantes para a tarefa solicitada.
+
+Retorne apenas os caminhos e trechos encontrados,
+sem tentar modificar nenhum arquivo.</pre>
+</div>
+
+<div class="code-block">
+  <div class="code-header"><span>agents/architect.md</span><span>YAML frontmatter</span></div>
+  <pre>---
+name: architect
+model: opus
+description: Analisa arquitetura e toma decisoes de design
+allowed_tools:
+  - Read
+  - Glob
+  - Grep
+---
+
+Voce e um arquiteto de software senior.
+Analise o codebase, identifique padroes arquiteturais
+e proponha decisoes de design fundamentadas.
+
+Considere trade-offs de manutenibilidade,
+performance e escalabilidade.</pre>
+</div>
+
+<h3>Via CLI com --agents</h3>
+
+<p>Tambem e possivel especificar subagentes e seus modelos diretamente na linha de comando usando JSON:</p>
+
+<div class="code-block">
+  <div class="code-header"><span>Terminal</span><span>CLI</span></div>
+  <pre># Invocacao direta com modelo especifico
+claude --model opus "analisar a arquitetura do projeto"
+
+# Variavel de ambiente para forcar modelo em subagentes
+CLAUDE_CODE_SUBAGENT_MODEL=haiku claude "refatorar modulo X"</pre>
+</div>
+
+<h3>Via model ID completo</h3>
+
+<p>Para fixar uma versao especifica do modelo (util em pipelines de CI/CD onde reprodutibilidade importa):</p>
+
+<div class="code-block">
+  <div class="code-header"><span>agents/reviewer.md</span><span>YAML frontmatter</span></div>
+  <pre>---
+name: reviewer
+model: claude-sonnet-4-6
+description: Revisa codigo com criterios de qualidade
+allowed_tools:
+  - Read
+  - Glob
+  - Grep
+---
+
+Voce e um revisor de codigo.
+Analise o diff fornecido e reporte problemas
+de qualidade, seguranca e performance.</pre>
+</div>
+
+<!-- ============================================ -->
+<h2>Effort Levels</h2>
+
+<p>Alem do modelo, o Claude Code permite configurar o <strong>nivel de esforco</strong> do subagente atraves do campo <code>effort</code> no frontmatter. Esse campo controla o quanto de processamento o modelo dedica a cada resposta:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Effort</th>
+      <th>Descricao</th>
+      <th>Caso de uso</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>low</code></td>
+      <td>Respostas rapidas, menos reflexao</td>
+      <td>Classificacao, triagem, lookups simples</td>
+    </tr>
+    <tr>
+      <td><code>medium</code></td>
+      <td>Nivel padrao de processamento</td>
+      <td>Maioria das tarefas do dia-a-dia</td>
+    </tr>
+    <tr>
+      <td><code>high</code></td>
+      <td>Mais reflexao e verificacao</td>
+      <td>Implementacao, code review</td>
+    </tr>
+    <tr>
+      <td><code>xhigh</code></td>
+      <td>Processamento extensivo</td>
+      <td>Analise arquitetural, decisoes criticas</td>
+    </tr>
+    <tr>
+      <td><code>max</code></td>
+      <td>Maximo de esforco possivel</td>
+      <td>Problemas extremamente complexos</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="code-block">
+  <div class="code-header"><span>agents/quick-classifier.md</span><span>YAML frontmatter</span></div>
+  <pre>---
+name: quick-classifier
+model: haiku
+effort: low
+description: Classifica rapidamente o tipo de tarefa
+allowed_tools:
+  - Read
+---
+
+Classifique a tarefa recebida em uma das categorias:
+bug-fix, feature, refactor, docs, test.
+Responda apenas com a categoria.</pre>
+</div>
+
+<div class="callout">
+  <strong>Interacao model + effort:</strong> Combinar um modelo mais capaz com effort baixo pode ser mais eficiente do que usar um modelo menos capaz com effort alto. Por exemplo, <code>sonnet</code> com <code>effort: low</code> pode superar <code>haiku</code> com <code>effort: high</code> em certas tarefas, com latencia comparavel.
+</div>
+
+<!-- ============================================ -->
+<h2>Estrategias de Otimizacao de Custo</h2>
+
+<div class="grid-2">
+  <div class="mini-card" style="border-left: 3px solid var(--green);">
+    <h4>Haiku para Exploracao</h4>
+    <p>Use Haiku para subagentes que apenas leem e buscam: listar arquivos, grep por padroes, navegar na estrutura do projeto. Essas tarefas nao exigem raciocinio profundo.</p>
+  </div>
+  <div class="mini-card" style="border-left: 3px solid var(--blue);">
+    <h4>Sonnet para Implementacao</h4>
+    <p>Subagentes que escrevem codigo, fazem review ou geram documentacao se beneficiam do equilibrio do Sonnet. E o sweet spot para a maioria das tarefas de desenvolvimento.</p>
+  </div>
+  <div class="mini-card" style="border-left: 3px solid var(--purple);">
+    <h4>Opus para Orquestracao</h4>
+    <p>Reserve Opus para o agente principal que coordena os demais, toma decisoes arquiteturais e precisa manter coerencia em fluxos complexos multi-etapa.</p>
+  </div>
+  <div class="mini-card" style="border-left: 3px solid var(--yellow);">
+    <h4>Env Var para Controle Global</h4>
+    <p>Use <code>CLAUDE_CODE_SUBAGENT_MODEL</code> para forcar um modelo economico durante desenvolvimento/testes, e depois remova para usar os defaults em producao.</p>
+  </div>
+</div>
+
+<h3>Exemplo: Impacto no custo</h3>
+
+<p>Considere um workflow com 5 subagentes executando em sequencia. A tabela abaixo ilustra a diferenca de custo ao escolher modelos adequados vs usar Opus para tudo:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Subagente</th>
+      <th>Tarefa</th>
+      <th>Todos Opus</th>
+      <th>Modelo Otimizado</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Explorer</td>
+      <td>Buscar arquivos</td>
+      <td style="color: var(--red);">Opus $$$$</td>
+      <td style="color: var(--green);">Haiku $</td>
+    </tr>
+    <tr>
+      <td>Analyzer</td>
+      <td>Analisar dependencias</td>
+      <td style="color: var(--red);">Opus $$$$</td>
+      <td style="color: var(--blue);">Sonnet $$</td>
+    </tr>
+    <tr>
+      <td>Implementer</td>
+      <td>Escrever codigo</td>
+      <td style="color: var(--red);">Opus $$$$</td>
+      <td style="color: var(--blue);">Sonnet $$</td>
+    </tr>
+    <tr>
+      <td>Reviewer</td>
+      <td>Revisar mudancas</td>
+      <td style="color: var(--red);">Opus $$$$</td>
+      <td style="color: var(--blue);">Sonnet $$</td>
+    </tr>
+    <tr>
+      <td>Orchestrator</td>
+      <td>Coordenar tudo</td>
+      <td style="color: var(--red);">Opus $$$$</td>
+      <td style="color: var(--purple);">Opus $$$$</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout callout-green">
+  <strong>Economia estimada:</strong> Ao usar modelos adequados por tarefa, voce pode reduzir o custo total do workflow em 60-70% comparado a usar Opus para tudo, sem perda perceptivel de qualidade nas tarefas que nao exigem raciocinio profundo.
+</div>
+
+<!-- ============================================ -->
+<h2>Diagrama: Fluxo de Resolucao do Modelo</h2>
+
+<div class="diagram-container">
+  <svg viewBox="0 0 700 340" xmlns="http://www.w3.org/2000/svg" fill="none">
+    <defs>
+      <marker id="arrow2" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+        <polygon points="0 0, 8 3, 0 6" fill="#9ca3af"/>
+      </marker>
+    </defs>
+
+    <!-- Step 1: Env var -->
+    <rect x="20" y="20" width="220" height="60" rx="8" fill="rgba(248,113,113,0.12)" stroke="#f87171" stroke-width="1.5"/>
+    <text x="130" y="45" text-anchor="middle" fill="#f87171" font-family="monospace" font-size="11" font-weight="600">CLAUDE_CODE_SUBAGENT_MODEL</text>
+    <text x="130" y="62" text-anchor="middle" fill="#9ca3af" font-family="Inter, sans-serif" font-size="10">Variavel de ambiente</text>
+
+    <!-- Arrow 1->2 -->
+    <line x1="240" y1="50" x2="280" y2="50" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#arrow2)"/>
+    <text x="260" y="42" text-anchor="middle" fill="#4a4d5a" font-family="Inter, sans-serif" font-size="9">nao?</text>
+
+    <!-- Step 2: Param -->
+    <rect x="285" y="20" width="160" height="60" rx="8" fill="rgba(251,191,36,0.12)" stroke="#fbbf24" stroke-width="1.5"/>
+    <text x="365" y="45" text-anchor="middle" fill="#fbbf24" font-family="monospace" font-size="11" font-weight="600">model param</text>
+    <text x="365" y="62" text-anchor="middle" fill="#9ca3af" font-family="Inter, sans-serif" font-size="10">Por invocacao</text>
+
+    <!-- Arrow 2->3 -->
+    <line x1="445" y1="50" x2="485" y2="50" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#arrow2)"/>
+    <text x="465" y="42" text-anchor="middle" fill="#4a4d5a" font-family="Inter, sans-serif" font-size="9">nao?</text>
+
+    <!-- Step 3: Frontmatter -->
+    <rect x="490" y="20" width="190" height="60" rx="8" fill="rgba(96,165,250,0.12)" stroke="#60a5fa" stroke-width="1.5"/>
+    <text x="585" y="45" text-anchor="middle" fill="#60a5fa" font-family="monospace" font-size="11" font-weight="600">frontmatter.model</text>
+    <text x="585" y="62" text-anchor="middle" fill="#9ca3af" font-family="Inter, sans-serif" font-size="10">No arquivo .md</text>
+
+    <!-- Arrow 3->4 (going down) -->
+    <line x1="585" y1="80" x2="585" y2="120" stroke="#9ca3af" stroke-width="1.5" marker-end="url(#arrow2)"/>
+    <text x="598" y="105" text-anchor="start" fill="#4a4d5a" font-family="Inter, sans-serif" font-size="9">nao?</text>
+
+    <!-- Step 4: Inherit -->
+    <rect x="490" y="125" width="190" height="60" rx="8" fill="rgba(110,231,183,0.12)" stroke="#6ee7b7" stroke-width="1.5"/>
+    <text x="585" y="150" text-anchor="middle" fill="#6ee7b7" font-family="monospace" font-size="11" font-weight="600">inherit</text>
+    <text x="585" y="167" text-anchor="middle" fill="#9ca3af" font-family="Inter, sans-serif" font-size="10">Modelo da conversa principal</text>
+
+    <!-- "sim" labels com setas para baixo -->
+    <line x1="130" y1="80" x2="130" y2="250" stroke="#f87171" stroke-width="1.5" stroke-dasharray="4,3"/>
+    <line x1="365" y1="80" x2="365" y2="250" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="4,3"/>
+    <line x1="585" y1="185" x2="585" y2="250" stroke="#6ee7b7" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+    <!-- Caixa resultado -->
+    <rect x="50" y="255" width="600" height="55" rx="8" fill="rgba(196,149,106,0.12)" stroke="#c4956a" stroke-width="1.5"/>
+    <text x="350" y="280" text-anchor="middle" fill="#c4956a" font-family="Inter, sans-serif" font-size="13" font-weight="600">Modelo resolvido para o subagente</text>
+    <text x="350" y="298" text-anchor="middle" fill="#9ca3af" font-family="Inter, sans-serif" font-size="10">Primeiro valor encontrado na cadeia de prioridade vence</text>
+
+    <!-- sim labels -->
+    <text x="140" y="245" text-anchor="start" fill="#f87171" font-family="Inter, sans-serif" font-size="9">sim</text>
+    <text x="375" y="245" text-anchor="start" fill="#fbbf24" font-family="Inter, sans-serif" font-size="9">sim</text>
+    <text x="595" y="245" text-anchor="start" fill="#6ee7b7" font-family="Inter, sans-serif" font-size="9">sempre</text>
+  </svg>
+  <div class="diagram-caption">Fluxo de resolucao: a primeira fonte com valor definido determina o modelo do subagente.</div>
+</div>
+
+<!-- ============================================ -->
+<h2>Exemplo Pratico Completo: Pipeline Multi-Modelo</h2>
+
+<p>Vamos montar um pipeline real onde um orquestrador Opus coordena um implementador Sonnet e um explorador Haiku:</p>
+
+<div class="code-block">
+  <div class="code-header"><span>agents/orchestrator.md</span><span>Orquestrador (Opus)</span></div>
+  <pre>---
+name: orchestrator
+model: opus
+effort: high
+description: Coordena o pipeline de refatoracao
+allowed_tools:
+  - Read
+  - Glob
+  - Grep
+  - Write
+  - dispatch_agent
+---
+
+Voce e o orquestrador de um pipeline de refatoracao.
+
+## Seu fluxo de trabalho:
+
+1. Use o agente "explorer" para mapear os arquivos relevantes
+2. Analise os resultados e defina a estrategia de refatoracao
+3. Use o agente "implementer" para aplicar as mudancas
+4. Valide o resultado final
+
+## Regras:
+- Nao implemente codigo diretamente, delegue
+- Foque em decisoes arquiteturais e coordenacao
+- Verifique a coerencia entre as mudancas</pre>
+</div>
+
+<div class="code-block">
+  <div class="code-header"><span>agents/explorer.md</span><span>Explorador (Haiku)</span></div>
+  <pre>---
+name: explorer
+model: haiku
+effort: low
+description: Explora rapidamente o codebase
+allowed_tools:
+  - Read
+  - Glob
+  - Grep
+---
+
+Voce e um explorador de codebase ultra-rapido.
+Busque arquivos, padroes e dependencias conforme solicitado.
+Retorne resultados de forma concisa e estruturada.
+Nao tente analisar ou modificar nada.</pre>
+</div>
+
+<div class="code-block">
+  <div class="code-header"><span>agents/implementer.md</span><span>Implementador (Sonnet)</span></div>
+  <pre>---
+name: implementer
+model: sonnet
+effort: high
+description: Implementa mudancas de codigo com qualidade
+allowed_tools:
+  - Read
+  - Write
+  - Glob
+  - Grep
+---
+
+Voce e um implementador de codigo.
+Receba instrucoes especificas do orquestrador e
+aplique as mudancas com qualidade de producao.
+
+## Requisitos:
+- Siga os padroes existentes do codebase
+- Mantenha backward compatibility
+- Adicione comentarios quando necessario
+- Trate edge cases</pre>
+</div>
+
+<h3>Executando o pipeline</h3>
+
+<div class="code-block">
+  <div class="code-header"><span>Terminal</span><span>Execucao</span></div>
+  <pre># O orquestrador (Opus) delega para explorer (Haiku)
+# e implementer (Sonnet) automaticamente
+claude --model opus \
+  --agents-dir ./agents \
+  "refatorar o modulo de pagamentos para usar o padrao Strategy"</pre>
+</div>
+
+<div class="callout callout-blue">
+  <strong>Fluxo resultante:</strong> Opus analisa a tarefa e delega a exploracao para Haiku (rapido e barato). Com os resultados, Opus define a estrategia e delega a implementacao para Sonnet (bom custo-beneficio). Opus valida o resultado final. Cada modelo trabalha no que faz melhor.
+</div>
+
+<!-- ============================================ -->
+<h2>Diagrama: Pipeline Multi-Modelo em Acao</h2>
+
+<div class="diagram-container">
+  <svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg" fill="none">
+    <defs>
+      <marker id="arrow3" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+        <polygon points="0 0, 8 3, 0 6" fill="#c4956a"/>
+      </marker>
+    </defs>
+
+    <!-- Orchestrator box -->
+    <rect x="240" y="10" width="220" height="70" rx="10" fill="rgba(167,139,250,0.15)" stroke="#a78bfa" stroke-width="2"/>
+    <text x="350" y="38" text-anchor="middle" fill="#a78bfa" font-family="Inter, sans-serif" font-size="14" font-weight="700">Orchestrator</text>
+    <text x="350" y="58" text-anchor="middle" fill="#9ca3af" font-family="monospace" font-size="11">model: opus</text>
+
+    <!-- Explorer box -->
+    <rect x="30" y="140" width="200" height="70" rx="10" fill="rgba(110,231,183,0.15)" stroke="#6ee7b7" stroke-width="2"/>
+    <text x="130" y="168" text-anchor="middle" fill="#6ee7b7" font-family="Inter, sans-serif" font-size="14" font-weight="700">Explorer</text>
+    <text x="130" y="188" text-anchor="middle" fill="#9ca3af" font-family="monospace" font-size="11">model: haiku</text>
+
+    <!-- Implementer box -->
+    <rect x="470" y="140" width="200" height="70" rx="10" fill="rgba(96,165,250,0.15)" stroke="#60a5fa" stroke-width="2"/>
+    <text x="570" y="168" text-anchor="middle" fill="#60a5fa" font-family="Inter, sans-serif" font-size="14" font-weight="700">Implementer</text>
+    <text x="570" y="188" text-anchor="middle" fill="#9ca3af" font-family="monospace" font-size="11">model: sonnet</text>
+
+    <!-- Arrows -->
+    <path d="M290 80 L160 140" stroke="#c4956a" stroke-width="1.5" marker-end="url(#arrow3)"/>
+    <path d="M410 80 L540 140" stroke="#c4956a" stroke-width="1.5" marker-end="url(#arrow3)"/>
+
+    <!-- Return arrows (dashed) -->
+    <path d="M180 210 L310 260" stroke="#6ee7b7" stroke-width="1" stroke-dasharray="4,3"/>
+    <path d="M520 210 L390 260" stroke="#60a5fa" stroke-width="1" stroke-dasharray="4,3"/>
+
+    <!-- Labels on arrows -->
+    <text x="195" y="105" text-anchor="middle" fill="#c4956a" font-family="Inter, sans-serif" font-size="10" font-weight="500">1. buscar arquivos</text>
+    <text x="505" y="105" text-anchor="middle" fill="#c4956a" font-family="Inter, sans-serif" font-size="10" font-weight="500">3. implementar</text>
+
+    <text x="210" y="245" text-anchor="middle" fill="#6ee7b7" font-family="Inter, sans-serif" font-size="10">2. retorna mapa</text>
+    <text x="490" y="245" text-anchor="middle" fill="#60a5fa" font-family="Inter, sans-serif" font-size="10">4. retorna diff</text>
+
+    <!-- Result box -->
+    <rect x="240" y="260" width="220" height="30" rx="6" fill="rgba(196,149,106,0.12)" stroke="#c4956a" stroke-width="1"/>
+    <text x="350" y="280" text-anchor="middle" fill="#c4956a" font-family="Inter, sans-serif" font-size="11" font-weight="600">5. Opus valida e finaliza</text>
+  </svg>
+  <div class="diagram-caption">Pipeline completo: Opus orquestra, Haiku explora, Sonnet implementa. Cada modelo no seu sweet spot.</div>
+</div>
+
+<!-- ============================================ -->
+<h2>Boas Praticas e Armadilhas</h2>
+
+<div class="grid-2">
+  <div class="mini-card" style="border-left: 3px solid var(--green);">
+    <h4 style="color: var(--green);">Faca</h4>
+    <p style="margin-bottom: 0.5rem;">&#8226; Comece com <code>inherit</code> e otimize depois</p>
+    <p style="margin-bottom: 0.5rem;">&#8226; Use Haiku para agentes read-only</p>
+    <p style="margin-bottom: 0.5rem;">&#8226; Combine <code>model</code> e <code>effort</code> estrategicamente</p>
+    <p style="margin-bottom: 0.5rem;">&#8226; Documente a razao da escolha de modelo</p>
+    <p>&#8226; Teste com <code>CLAUDE_CODE_SUBAGENT_MODEL</code> antes de fixar</p>
+  </div>
+  <div class="mini-card" style="border-left: 3px solid var(--red);">
+    <h4 style="color: var(--red);">Evite</h4>
+    <p style="margin-bottom: 0.5rem;">&#8226; Usar Opus para todas as tarefas indiscriminadamente</p>
+    <p style="margin-bottom: 0.5rem;">&#8226; Usar Haiku para tarefas que exigem raciocinio</p>
+    <p style="margin-bottom: 0.5rem;">&#8226; Ignorar o campo <code>effort</code> (default pode nao ser ideal)</p>
+    <p style="margin-bottom: 0.5rem;">&#8226; Fixar model IDs sem necessidade de reprodutibilidade</p>
+    <p>&#8226; Esquecer que env var sobrescreve tudo</p>
+  </div>
+</div>
+
+<div class="callout callout-red">
+  <strong>Armadilha comum:</strong> Definir <code>CLAUDE_CODE_SUBAGENT_MODEL=haiku</code> no <code>.env</code> do projeto e esquecer. Isso forca Haiku em todos os subagentes, incluindo os que precisam de raciocinio complexo. Use essa variavel apenas temporariamente para testes de custo.
+</div>
+
+<!-- ============================================ -->
+<h2>Resumo da Decisao</h2>
+
+<div class="card">
+  <h3 style="margin-top: 0;">Guia rapido: qual modelo usar?</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Tipo de Tarefa</th>
+        <th>Modelo</th>
+        <th>Effort</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Buscar arquivos, grep, listar</td>
+        <td><span style="color: var(--green);">haiku</span></td>
+        <td>low</td>
+      </tr>
+      <tr>
+        <td>Classificar, triar, categorizar</td>
+        <td><span style="color: var(--green);">haiku</span></td>
+        <td>low / medium</td>
+      </tr>
+      <tr>
+        <td>Implementar codigo</td>
+        <td><span style="color: var(--blue);">sonnet</span></td>
+        <td>high</td>
+      </tr>
+      <tr>
+        <td>Code review</td>
+        <td><span style="color: var(--blue);">sonnet</span></td>
+        <td>high</td>
+      </tr>
+      <tr>
+        <td>Gerar documentacao</td>
+        <td><span style="color: var(--blue);">sonnet</span></td>
+        <td>medium</td>
+      </tr>
+      <tr>
+        <td>Decisao arquitetural</td>
+        <td><span style="color: var(--purple);">opus</span></td>
+        <td>high / xhigh</td>
+      </tr>
+      <tr>
+        <td>Orquestrar multi-agentes</td>
+        <td><span style="color: var(--purple);">opus</span></td>
+        <td>high</td>
+      </tr>
+      <tr>
+        <td>Debug complexo</td>
+        <td><span style="color: var(--purple);">opus</span></td>
+        <td>xhigh / max</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ============================================ -->
+<div class="sources">
+  <h3>Fontes e Referencias</h3>
+  <ul>
+    <li><a href="https://docs.claude.com/en/docs/claude-code/sub-agents">Documentacao oficial: Claude Code Sub-agents</a></li>
+    <li><a href="https://www.anthropic.com/engineering/claude-code-best-practices">Anthropic Engineering: Claude Code Best Practices</a></li>
+  </ul>
+</div>
+
+<div class="nav-footer">
+  <a href="modulo-08-topico-02-git-worktrees.html" class="nav-btn">&larr; Anterior: Git Worktrees</a>
+  <a href="../index.html" class="nav-btn">Indice</a>
+  <a href="modulo-08-topico-04-controle-ferramentas.html" class="nav-btn">Proximo: Controle de Ferramentas &rarr;</a>
+</div>
+
+</body>
+</html>

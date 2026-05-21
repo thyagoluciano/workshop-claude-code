@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modulo 8 - Topico 5: Padroes Multi-Agente | Workshop Claude Code</title>
+<style>
+:root {
+  --bg: #0f1117; --bg-card: #1a1d27; --bg-code: #141620; --border: #2a2d3a;
+  --text: #e4e4e7; --text-dim: #9ca3af; --accent: #c4956a; --accent-soft: rgba(196, 149, 106, 0.12);
+  --blue: #60a5fa; --blue-soft: rgba(96, 165, 250, 0.12); --green: #6ee7b7; --green-soft: rgba(110, 231, 183, 0.12);
+  --purple: #a78bfa; --purple-soft: rgba(167, 139, 250, 0.12); --red: #f87171; --red-soft: rgba(248, 113, 113, 0.12);
+  --yellow: #fbbf24; --yellow-soft: rgba(251, 191, 36, 0.12);
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace; --radius: 12px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.7; padding: 2rem; max-width: 960px; margin: 0 auto; }
+.topic-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); background: var(--accent-soft); padding: 6px 14px; border-radius: 20px; margin-bottom: 1rem; }
+h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+.subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+p { margin-bottom: 1rem; } a { color: var(--blue); text-decoration: none; } a:hover { text-decoration: underline; }
+code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+strong { color: #fff; }
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0; }
+.diagram-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto; }
+.diagram-container svg { display: block; margin: 0 auto; }
+.diagram-caption { text-align: center; font-size: 0.85rem; color: var(--text-dim); margin-top: 1rem; font-style: italic; }
+.code-block { background: var(--bg-code); border: 1px solid var(--border); border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden; }
+.code-header { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 1rem; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim); }
+.code-block pre { padding: 1rem 1.25rem; overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8; }
+.callout { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem; }
+.callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+.callout-red { border-left-color: var(--red); background: var(--red-soft); }
+.callout-green { border-left-color: var(--green); background: var(--green-soft); }
+.callout-yellow { border-left-color: var(--yellow); background: var(--yellow-soft); }
+.callout strong { color: #fff; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+@media (max-width: 640px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } body { padding: 1rem; } h1 { font-size: 1.5rem; } }
+.mini-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
+.mini-card h4 { font-size: 0.95rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px; }
+.mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+.icon-circle { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+td { color: var(--text); } tr:last-child td { border-bottom: none; }
+.sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+.sources ul { list-style: none; padding: 0; }
+.sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+.sources li::before { content: "\2192 "; color: var(--accent); }
+.nav-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.nav-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; color: var(--text); background: var(--bg-card); border: 1px solid var(--border); text-decoration: none; transition: border-color 0.2s; }
+.nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="topic-badge">Modulo 8 &bull; Topico 5</div>
+<h1>Padroes Multi-Agente: Revisor, Planejador, Executor</h1>
+<p class="subtitle">
+Arquiteturas de orquestracao com subagentes especializados no Claude Code. Do pesquisador read-only ao agent team com comunicacao bidirecional.
+</p>
+
+<!-- ============================================================ -->
+<h2>1. Introducao: Orquestracao Multi-Agente</h2>
+
+<p>
+O Claude Code suporta multiplos padroes de orquestracao multi-agente, desde subagentes simples que executam tarefas isoladas ate agent teams experimentais com comunicacao bidirecional. A ideia central e <strong>dividir responsabilidades</strong>: cada subagente tem um escopo bem definido, ferramentas restritas e, opcionalmente, um modelo diferente.
+</p>
+
+<p>
+Subagentes sao definidos como arquivos <code>.md</code> dentro do diretorio <code>.claude/agents/</code> do projeto. Cada arquivo declara nome, descricao, modelo, ferramentas permitidas e instrucoes de sistema. O agente principal (orchestrator) pode delegar tarefas a qualquer subagente configurado.
+</p>
+
+<div class="callout callout-blue">
+<strong>Conceito fundamental:</strong> Subagentes herdam o contexto do projeto (CLAUDE.md, .claude/settings.json) mas possuem <strong>contexto de conversa independente</strong>. Isso significa que nao poluem a janela de contexto do agente principal e podem usar modelos mais baratos para tarefas simples.
+</div>
+
+<h3>Estrutura basica de um subagente</h3>
+
+<div class="code-block">
+<div class="code-header"><span>.claude/agents/nome-do-agente.md</span></div>
+<pre>
+---
+name: nome-do-agente
+description: "Descricao curta do que o agente faz"
+model: claude-sonnet-4-20250514
+tools:
+  - Read
+  - Grep
+  - Glob
+---
+
+# Instrucoes de Sistema
+
+Voce e um agente especializado em [tarefa].
+Siga estas regras:
+1. ...
+2. ...
+</pre>
+</div>
+
+<!-- ============================================================ -->
+<h2>2. Padrao 1: Pesquisador (Explorer/Researcher)</h2>
+
+<p>
+O pesquisador e um subagente <strong>read-only</strong> que explora o codebase e retorna findings sem modificar nada. O Claude Code ja inclui um built-in chamado <code>Explore</code> que usa exatamente esse padrao: modelo Haiku, ferramentas limitadas a <code>Read</code>, <code>Grep</code> e <code>Glob</code>.
+</p>
+
+<p>
+O caso de uso principal e <strong>investigacao sem poluir o contexto principal</strong>. Quando voce precisa entender uma parte do codebase antes de decidir o que fazer, spawnar um pesquisador evita gastar tokens do agente principal com leitura exploratoria.
+</p>
+
+<div class="code-block">
+<div class="code-header"><span>.claude/agents/researcher.md</span></div>
+<pre>
+---
+name: researcher
+description: "Investiga o codebase e retorna analise detalhada.
+  Use para entender arquitetura, encontrar padroes,
+  mapear dependencias."
+model: claude-haiku-4-20250414
+tools:
+  - Read
+  - Grep
+  - Glob
+memory: project
+---
+
+# Researcher Agent
+
+Voce e um pesquisador de codebase. Sua funcao e:
+1. Explorar arquivos e diretorios relevantes
+2. Identificar padroes arquiteturais
+3. Mapear dependencias entre modulos
+4. Retornar um resumo estruturado dos findings
+
+## Regras
+- NUNCA sugira mudancas de codigo
+- Foque em FATOS observaveis no codigo
+- Use Grep para busca ampla, Read para analise profunda
+- Consulte sua memoria antes de comecar para evitar
+  trabalho duplicado
+- Salve aprendizados importantes na memoria ao finalizar
+</pre>
+</div>
+
+<div class="callout callout-green">
+<strong>Dica:</strong> Com <code>memory: project</code>, o pesquisador acumula conhecimento ao longo do tempo. Na proxima vez que for invocado, ele pode consultar a memoria para evitar re-explorar areas ja mapeadas.
+</div>
+
+<!-- ============================================================ -->
+<h2>3. Padrao 2: Planejador (Planner)</h2>
+
+<p>
+O planejador analisa o codebase e propoe planos de acao <strong>antes</strong> de qualquer execucao. O built-in <code>Plan</code> do Claude Code segue esse padrao: e read-only, herda o modelo do agente principal e nao pode editar arquivos. A separacao entre planejamento e execucao e critica para tarefas complexas.
+</p>
+
+<div class="code-block">
+<div class="code-header"><span>.claude/agents/planner.md</span></div>
+<pre>
+---
+name: planner
+description: "Analisa tarefas complexas e gera planos de execucao
+  detalhados com etapas, riscos e dependencias."
+model: claude-sonnet-4-20250514
+tools:
+  - Read
+  - Grep
+  - Glob
+  - Bash(git log:*, git diff:*, git show:*, wc:*)
+---
+
+# Planner Agent
+
+Voce e um planejador tecnico. Receba uma tarefa e produza
+um plano de execucao estruturado.
+
+## Formato de saida
+1. **Contexto**: O que existe hoje
+2. **Objetivo**: O que precisa mudar
+3. **Etapas**: Lista ordenada de acoes especificas
+4. **Riscos**: O que pode dar errado
+5. **Dependencias**: Ordem de execucao entre etapas
+6. **Estimativa**: Complexidade (baixa/media/alta)
+
+## Regras
+- Leia o codigo antes de planejar
+- Cada etapa deve ser acionavel por um agente executor
+- Identifique arquivos que serao criados/modificados
+- NAO execute nenhuma mudanca, apenas planeje
+</pre>
+</div>
+
+<p>
+Casos de uso ideais para o planejador:
+</p>
+<ul style="margin-bottom: 1rem; padding-left: 1.5rem;">
+<li>Dividir tarefas complexas em etapas atomicas</li>
+<li>Avaliar impacto de mudancas antes de implementar</li>
+<li>Gerar planos de migracao (framework, versao, API)</li>
+<li>Estimar escopo e identificar riscos</li>
+</ul>
+
+<!-- ============================================================ -->
+<h2>4. Padrao 3: Executor (Implementer)</h2>
+
+<p>
+O executor e o subagente com <strong>permissao para editar codigo</strong>. Diferente do pesquisador e planejador, ele tem acesso a ferramentas de escrita: <code>Write</code>, <code>Edit</code> e <code>Bash</code>. Pode opcionalmente usar <strong>isolation: worktree</strong> para trabalhar em uma branch separada via git worktree.
+</p>
+
+<div class="code-block">
+<div class="code-header"><span>.claude/agents/implementer.md</span></div>
+<pre>
+---
+name: implementer
+description: "Implementa mudancas de codigo seguindo planos
+  definidos. Cria, edita e testa arquivos."
+model: claude-sonnet-4-20250514
+tools:
+  - Read
+  - Write
+  - Edit
+  - Bash
+  - Grep
+  - Glob
+isolation: worktree
+hooks:
+  PostToolUse:
+    - matcher: Write|Edit
+      command: "npx eslint --fix $CLAUDE_FILE_PATH 2>/dev/null || true"
+---
+
+# Implementer Agent
+
+Voce e um executor de codigo. Receba um plano e implemente
+cada etapa com precisao.
+
+## Regras
+1. Siga o plano fornecido sem desvios
+2. Implemente UMA etapa por vez
+3. Verifique cada mudanca com testes quando possivel
+4. Use git diff para confirmar o que foi alterado
+5. Reporte progresso apos cada etapa
+</pre>
+</div>
+
+<div class="callout callout-yellow">
+<strong>isolation: worktree</strong> cria um git worktree separado para o subagente. Isso significa que ele trabalha em uma branch isolada, sem afetar o working directory principal. Ideal para implementacoes que podem precisar de rollback.
+</div>
+
+<p>
+O campo <code>hooks.PostToolUse</code> no exemplo acima executa ESLint automaticamente apos cada escrita ou edicao de arquivo. Isso garante que o codigo gerado pelo subagente ja sai formatado e sem erros de lint.
+</p>
+
+<!-- ============================================================ -->
+<h2>5. Padrao 4: Revisor (Code Reviewer)</h2>
+
+<p>
+O revisor e um subagente read-only que analisa codigo recentemente modificado. O padrao classico e usar <code>git diff</code> para identificar o que mudou e produzir um code review estruturado. O campo <code>description</code> pode incluir a diretiva de uso proativo.
+</p>
+
+<div class="code-block">
+<div class="code-header"><span>.claude/agents/code-reviewer.md</span></div>
+<pre>
+---
+name: code-reviewer
+description: "Revisa mudancas de codigo em busca de bugs,
+  problemas de seguranca e melhorias.
+  Use proactively after code changes."
+model: claude-sonnet-4-20250514
+tools:
+  - Read
+  - Grep
+  - Glob
+  - Bash(git diff:*, git log:*, git show:*)
+---
+
+# Code Reviewer Agent
+
+Voce e um revisor de codigo experiente. Analise as mudancas
+recentes e produza um review detalhado.
+
+## Processo
+1. Execute `git diff HEAD~1` para ver as mudancas
+2. Leia os arquivos completos para ter contexto
+3. Analise cada mudanca
+
+## Categorias de Review
+- **Bugs**: Erros logicos, null references, edge cases
+- **Seguranca**: Injecao, autenticacao, exposicao de dados
+- **Performance**: Complexidade, queries N+1, memory leaks
+- **Manutenibilidade**: Nomes, duplicacao, acoplamento
+- **Testes**: Cobertura, casos de borda, assertions
+
+## Formato de saida
+Para cada finding:
+- Severidade: critico / alto / medio / baixo
+- Arquivo e linha
+- Descricao do problema
+- Sugestao de correcao
+</pre>
+</div>
+
+<div class="callout callout-blue">
+<strong>Uso proativo:</strong> A descricao <code>"Use proactively after code changes"</code> faz com que o Claude Code sugira automaticamente usar este subagente apos mudancas de codigo. O orquestrador pode decidir spawnar o revisor sem que o usuario peca explicitamente.
+</div>
+
+<!-- ============================================================ -->
+<h2>6. Padrao 5: Debugger</h2>
+
+<p>
+O debugger e um subagente focado em <strong>root cause analysis</strong>. Tem acesso a <code>Read</code>, <code>Edit</code> e <code>Bash</code> para poder executar testes, inspecionar logs e aplicar fixes pontuais.
+</p>
+
+<div class="code-block">
+<div class="code-header"><span>.claude/agents/debugger.md</span></div>
+<pre>
+---
+name: debugger
+description: "Diagnostica e corrige bugs. Executa testes,
+  analisa stack traces e aplica fixes."
+model: claude-sonnet-4-20250514
+tools:
+  - Read
+  - Edit
+  - Bash
+  - Grep
+  - Glob
+---
+
+# Debugger Agent
+
+Voce e um especialista em debugging. Seu objetivo e
+encontrar a causa raiz de bugs e corrigi-los.
+
+## Metodologia
+1. **Reproduzir**: Execute o teste/comando que falha
+2. **Isolar**: Identifique o modulo/funcao com o bug
+3. **Analisar**: Leia o codigo e trace o fluxo de dados
+4. **Diagnosticar**: Determine a causa raiz exata
+5. **Corrigir**: Aplique o fix minimo necessario
+6. **Verificar**: Execute os testes novamente
+
+## Regras
+- Sempre reproduza o bug antes de tentar corrigir
+- Prefira fixes cirurgicos a refatoracoes amplas
+- Documente a causa raiz no output final
+- Execute os testes apos cada correcao
+</pre>
+</div>
+
+<!-- ============================================================ -->
+<h2>7. Padrao 6: Data Scientist</h2>
+
+<p>
+Subagente especializado em analise de dados com SQL, BigQuery ou ferramentas similares. Usa modelo Sonnet para equilibrar custo e capacidade, e tem acesso a <code>Bash</code>, <code>Read</code> e <code>Write</code> para executar queries e gerar relatorios.
+</p>
+
+<div class="code-block">
+<div class="code-header"><span>.claude/agents/data-scientist.md</span></div>
+<pre>
+---
+name: data-scientist
+description: "Analisa dados usando SQL/BigQuery. Executa queries,
+  gera relatorios e visualizacoes."
+model: claude-sonnet-4-20250514
+tools:
+  - Bash(bq:*, psql:*, sqlite3:*, python3:*)
+  - Read
+  - Write
+---
+
+# Data Scientist Agent
+
+Voce e um analista de dados. Execute queries SQL,
+analise resultados e gere relatorios.
+
+## Regras
+- Use queries READ-ONLY (SELECT apenas)
+- Sempre adicione LIMIT em queries exploratoras
+- Documente cada query com comentarios
+- Gere resumos estatisticos quando relevante
+- Salve resultados em arquivos CSV/JSON quando solicitado
+</pre>
+</div>
+
+<!-- ============================================================ -->
+<h2>8. Padrao 7: DB Reader com Hooks de Validacao</h2>
+
+<p>
+Um padrao poderoso e combinar subagentes com <strong>hooks PreToolUse</strong> para validar operacoes antes da execucao. O exemplo classico e um DB Reader que valida se todas as queries SQL sao read-only antes de permitir execucao.
+</p>
+
+<div class="code-block">
+<div class="code-header"><span>.claude/agents/db-reader.md</span></div>
+<pre>
+---
+name: db-reader
+description: "Consulta bancos de dados de forma segura.
+  Todas as queries sao validadas como read-only."
+model: claude-sonnet-4-20250514
+tools:
+  - Bash(psql:*, mysql:*, sqlite3:*)
+  - Read
+hooks:
+  PreToolUse:
+    - matcher: Bash
+      command: ".claude/hooks/validate-readonly-sql.sh"
+---
+
+# DB Reader Agent
+
+Voce consulta bancos de dados de producao de forma segura.
+Todas as queries DEVEM ser SELECT. Qualquer tentativa de
+INSERT, UPDATE, DELETE, DROP, ALTER, TRUNCATE sera bloqueada
+automaticamente pelo hook de validacao.
+</pre>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span>.claude/hooks/validate-readonly-sql.sh</span></div>
+<pre>
+#!/bin/bash
+# Le o input do hook via stdin (JSON com tool_input)
+INPUT=$(cat)
+COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command')
+
+# Verifica se contem comandos destrutivos
+if echo "$COMMAND" | grep -iE \
+  '(INSERT|UPDATE|DELETE|DROP|ALTER|TRUNCATE|CREATE|GRANT|REVOKE)' \
+  > /dev/null 2>&1; then
+
+  # Bloqueia a execucao
+  echo '{"decision": "block", "reason": "Query nao e read-only. Apenas SELECT e permitido."}' >&2
+  exit 2
+fi
+
+# Permite a execucao
+exit 0
+</pre>
+</div>
+
+<div class="callout callout-red">
+<strong>Seguranca:</strong> O hook <code>PreToolUse</code> executa <strong>antes</strong> de cada chamada de ferramenta. Se o exit code for 2, a operacao e bloqueada e a mensagem de erro e retornada ao agente. Isso cria uma camada de protecao programatica independente do prompt.
+</div>
+
+<!-- ============================================================ -->
+<h2>9. Arquitetura Multi-Agente: Visao Geral</h2>
+
+<div class="diagram-container">
+<svg viewBox="0 0 860 520" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+  <!-- Background grid -->
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="#c4956a" />
+    </marker>
+    <marker id="arrow-blue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="#60a5fa" />
+    </marker>
+    <marker id="arrow-green" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="#6ee7b7" />
+    </marker>
+  </defs>
+
+  <!-- Orchestrator (center) -->
+  <rect x="310" y="20" width="240" height="80" rx="12" fill="#1a1d27" stroke="#c4956a" stroke-width="2"/>
+  <text x="430" y="50" text-anchor="middle" fill="#c4956a" font-size="11" font-weight="600" letter-spacing="0.08em">ORCHESTRATOR</text>
+  <text x="430" y="72" text-anchor="middle" fill="#e4e4e7" font-size="13" font-weight="600">Agente Principal (Opus)</text>
+  <text x="430" y="90" text-anchor="middle" fill="#9ca3af" font-size="10">Coordena delegacao e coleta resultados</text>
+
+  <!-- Planner (top-left) -->
+  <rect x="30" y="170" width="190" height="90" rx="10" fill="#1a1d27" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="125" y="198" text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="600">PLANNER</text>
+  <text x="125" y="216" text-anchor="middle" fill="#e4e4e7" font-size="12" font-weight="500">Planejador</text>
+  <text x="125" y="234" text-anchor="middle" fill="#9ca3af" font-size="9">Read-only | Herda modelo</text>
+  <text x="125" y="248" text-anchor="middle" fill="#9ca3af" font-size="9">Read, Grep, Glob, Bash(git:*)</text>
+
+  <!-- Researcher (top-right) -->
+  <rect x="640" y="170" width="190" height="90" rx="10" fill="#1a1d27" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="735" y="198" text-anchor="middle" fill="#60a5fa" font-size="10" font-weight="600">RESEARCHER</text>
+  <text x="735" y="216" text-anchor="middle" fill="#e4e4e7" font-size="12" font-weight="500">Pesquisador</text>
+  <text x="735" y="234" text-anchor="middle" fill="#9ca3af" font-size="9">Read-only | Haiku</text>
+  <text x="735" y="248" text-anchor="middle" fill="#9ca3af" font-size="9">Read, Grep, Glob</text>
+
+  <!-- Implementer (bottom-left) -->
+  <rect x="30" y="340" width="190" height="90" rx="10" fill="#1a1d27" stroke="#6ee7b7" stroke-width="1.5"/>
+  <text x="125" y="368" text-anchor="middle" fill="#6ee7b7" font-size="10" font-weight="600">IMPLEMENTER</text>
+  <text x="125" y="386" text-anchor="middle" fill="#e4e4e7" font-size="12" font-weight="500">Executor</text>
+  <text x="125" y="404" text-anchor="middle" fill="#9ca3af" font-size="9">Read+Write | Sonnet | Worktree</text>
+  <text x="125" y="418" text-anchor="middle" fill="#9ca3af" font-size="9">Read, Write, Edit, Bash</text>
+
+  <!-- Reviewer (bottom-center) -->
+  <rect x="335" y="340" width="190" height="90" rx="10" fill="#1a1d27" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="430" y="368" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="600">REVIEWER</text>
+  <text x="430" y="386" text-anchor="middle" fill="#e4e4e7" font-size="12" font-weight="500">Revisor</text>
+  <text x="430" y="404" text-anchor="middle" fill="#9ca3af" font-size="9">Read-only | Sonnet</text>
+  <text x="430" y="418" text-anchor="middle" fill="#9ca3af" font-size="9">Read, Grep, Bash(git diff:*)</text>
+
+  <!-- Debugger (bottom-right) -->
+  <rect x="640" y="340" width="190" height="90" rx="10" fill="#1a1d27" stroke="#f87171" stroke-width="1.5"/>
+  <text x="735" y="368" text-anchor="middle" fill="#f87171" font-size="10" font-weight="600">DEBUGGER</text>
+  <text x="735" y="386" text-anchor="middle" fill="#e4e4e7" font-size="12" font-weight="500">Debugger</text>
+  <text x="735" y="404" text-anchor="middle" fill="#9ca3af" font-size="9">Read+Edit | Sonnet</text>
+  <text x="735" y="418" text-anchor="middle" fill="#9ca3af" font-size="9">Read, Edit, Bash, Grep</text>
+
+  <!-- Arrows from Orchestrator -->
+  <!-- To Planner -->
+  <path d="M340,100 Q125,135 125,165" fill="none" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrow)" stroke-dasharray="6,3"/>
+  <text x="200" y="130" fill="#a78bfa" font-size="9">planejar</text>
+
+  <!-- To Researcher -->
+  <path d="M520,100 Q735,135 735,165" fill="none" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#arrow-blue)" stroke-dasharray="6,3"/>
+  <text x="630" y="130" fill="#60a5fa" font-size="9">investigar</text>
+
+  <!-- To Implementer -->
+  <path d="M330,100 Q80,230 100,335" fill="none" stroke="#6ee7b7" stroke-width="1.5" marker-end="url(#arrow-green)" stroke-dasharray="6,3"/>
+  <text x="60" y="290" fill="#6ee7b7" font-size="9">implementar</text>
+
+  <!-- To Reviewer -->
+  <path d="M430,100 L430,335" fill="none" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arrow)" stroke-dasharray="6,3"/>
+  <text x="440" y="230" fill="#fbbf24" font-size="9">revisar</text>
+
+  <!-- To Debugger -->
+  <path d="M530,100 Q780,230 760,335" fill="none" stroke="#f87171" stroke-width="1.5" marker-end="url(#arrow)" stroke-dasharray="6,3"/>
+  <text x="770" y="290" fill="#f87171" font-size="9">debugar</text>
+
+  <!-- Flow annotation -->
+  <rect x="270" y="470" width="320" height="36" rx="8" fill="rgba(196,149,106,0.08)" stroke="#2a2d3a" stroke-width="1"/>
+  <text x="430" y="493" text-anchor="middle" fill="#9ca3af" font-size="10">Cada subagente tem contexto independente e retorna resultado ao orchestrator</text>
+</svg>
+<div class="diagram-caption">Arquitetura multi-agente tipica: Orchestrator delega tarefas especializadas para subagentes com diferentes permissoes e modelos</div>
+</div>
+
+<!-- ============================================================ -->
+<h2>10. Combinando Padroes: Chain de Subagentes</h2>
+
+<p>
+Um padrao poderoso e <strong>encadear subagentes em sequencia</strong>, onde o output de um alimenta o input do proximo. O orquestrador coordena passando contexto relevante entre eles.
+</p>
+
+<div class="code-block">
+<div class="code-header"><span>Prompt para o orchestrator</span></div>
+<pre>
+Use code-reviewer para encontrar problemas de performance
+no modulo de autenticacao. Depois use implementer para
+corrigir os problemas identificados. Por fim, use
+code-reviewer novamente para validar as correcoes.
+</pre>
+</div>
+
+<p>
+O fluxo de execucao e:
+</p>
+
+<div class="card">
+<p><strong>1.</strong> <code>code-reviewer</code> analisa o modulo e retorna findings</p>
+<p><strong>2.</strong> O orchestrator extrai os problemas criticos do review</p>
+<p><strong>3.</strong> <code>implementer</code> recebe os problemas e aplica correcoes</p>
+<p><strong>4.</strong> <code>code-reviewer</code> valida que as correcoes resolveram os problemas</p>
+<p style="margin-bottom:0"><strong>5.</strong> O orchestrator consolida e reporta o resultado final</p>
+</div>
+
+<div class="callout">
+<strong>Passagem de contexto:</strong> O orchestrator e responsavel por extrair a informacao relevante do output de cada subagente e passar como instrucao para o proximo. Subagentes nao se comunicam diretamente entre si (exceto no padrao Agent Teams).
+</div>
+
+<!-- ============================================================ -->
+<h2>11. Pesquisa em Paralelo</h2>
+
+<p>
+Quando investigacoes sao <strong>independentes entre si</strong>, voce pode spawnar multiplos subagentes simultaneamente. O Claude Code executa os subagentes em paralelo e coleta os resultados.
+</p>
+
+<div class="code-block">
+<div class="code-header"><span>Prompt para pesquisa paralela</span></div>
+<pre>
+Pesquise em paralelo usando subagentes separados:
+1. Use researcher para analisar o modulo de autenticacao
+2. Use researcher para mapear o schema do banco de dados
+3. Use researcher para investigar a API de pagamentos
+
+Depois consolide os findings em um relatorio unificado.
+</pre>
+</div>
+
+<p>
+Cada instancia do <code>researcher</code> recebe uma tarefa diferente e opera em seu proprio contexto. O orchestrator aguarda todos completarem e entao consolida os resultados. Isso e particularmente util em codebases grandes onde a exploracao sequencial seria muito lenta.
+</p>
+
+<div class="diagram-container">
+<svg viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+  <defs>
+    <marker id="arr2" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
+      <path d="M0,0 L7,2.5 L0,5" fill="#60a5fa"/>
+    </marker>
+    <marker id="arr3" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
+      <path d="M0,0 L7,2.5 L0,5" fill="#6ee7b7"/>
+    </marker>
+  </defs>
+
+  <!-- Orchestrator -->
+  <rect x="260" y="10" width="180" height="50" rx="10" fill="#1a1d27" stroke="#c4956a" stroke-width="2"/>
+  <text x="350" y="32" text-anchor="middle" fill="#c4956a" font-size="10" font-weight="600">ORCHESTRATOR</text>
+  <text x="350" y="48" text-anchor="middle" fill="#e4e4e7" font-size="12">Spawn paralelo</text>
+
+  <!-- Researchers -->
+  <rect x="30" y="110" width="180" height="50" rx="8" fill="#1a1d27" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="120" y="132" text-anchor="middle" fill="#60a5fa" font-size="10">Researcher #1</text>
+  <text x="120" y="148" text-anchor="middle" fill="#9ca3af" font-size="9">Auth module</text>
+
+  <rect x="260" y="110" width="180" height="50" rx="8" fill="#1a1d27" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="350" y="132" text-anchor="middle" fill="#60a5fa" font-size="10">Researcher #2</text>
+  <text x="350" y="148" text-anchor="middle" fill="#9ca3af" font-size="9">Database schema</text>
+
+  <rect x="490" y="110" width="180" height="50" rx="8" fill="#1a1d27" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="580" y="132" text-anchor="middle" fill="#60a5fa" font-size="10">Researcher #3</text>
+  <text x="580" y="148" text-anchor="middle" fill="#9ca3af" font-size="9">Payment API</text>
+
+  <!-- Arrows down -->
+  <line x1="300" y1="60" x2="120" y2="106" stroke="#60a5fa" stroke-width="1.2" marker-end="url(#arr2)" stroke-dasharray="4,3"/>
+  <line x1="350" y1="60" x2="350" y2="106" stroke="#60a5fa" stroke-width="1.2" marker-end="url(#arr2)" stroke-dasharray="4,3"/>
+  <line x1="400" y1="60" x2="580" y2="106" stroke="#60a5fa" stroke-width="1.2" marker-end="url(#arr2)" stroke-dasharray="4,3"/>
+
+  <!-- Consolidation -->
+  <rect x="230" y="200" width="240" height="44" rx="8" fill="#1a1d27" stroke="#6ee7b7" stroke-width="1.5"/>
+  <text x="350" y="226" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="500">Consolidacao de resultados</text>
+
+  <line x1="120" y1="160" x2="290" y2="198" stroke="#6ee7b7" stroke-width="1.2" marker-end="url(#arr3)" stroke-dasharray="4,3"/>
+  <line x1="350" y1="160" x2="350" y2="198" stroke="#6ee7b7" stroke-width="1.2" marker-end="url(#arr3)" stroke-dasharray="4,3"/>
+  <line x1="580" y1="160" x2="410" y2="198" stroke="#6ee7b7" stroke-width="1.2" marker-end="url(#arr3)" stroke-dasharray="4,3"/>
+</svg>
+<div class="diagram-caption">Pesquisa paralela: tres instancias do researcher operam simultaneamente em areas independentes</div>
+</div>
+
+<!-- ============================================================ -->
+<h2>12. Agent Teams (Experimental)</h2>
+
+<p>
+Agent Teams e um recurso <strong>experimental</strong> que permite sessoes independentes com comunicacao bidirecional via <code>SendMessage</code>. Diferente de subagentes tradicionais, cada membro do team tem seu proprio contexto completo e persistente.
+</p>
+
+<div class="code-block">
+<div class="code-header"><span>Ativar Agent Teams</span></div>
+<pre>
+export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+</pre>
+</div>
+
+<table>
+<thead>
+<tr>
+<th>Caracteristica</th>
+<th>Subagentes</th>
+<th>Agent Teams</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Contexto</td>
+<td>Herdado/limitado</td>
+<td>Independente e completo</td>
+</tr>
+<tr>
+<td>Comunicacao</td>
+<td>Unidirecional (orchestrator &rarr; sub)</td>
+<td>Bidirecional (SendMessage)</td>
+</tr>
+<tr>
+<td>Persistencia</td>
+<td>Descartado ao terminar</td>
+<td>Sessao persistente</td>
+</tr>
+<tr>
+<td>Modelo</td>
+<td>Configuravel por agente</td>
+<td>Configuravel por agente</td>
+</tr>
+<tr>
+<td>Caso de uso</td>
+<td>Tarefas delegadas pontuais</td>
+<td>Workstreams independentes prolongados</td>
+</tr>
+</tbody>
+</table>
+
+<div class="callout callout-yellow">
+<strong>Quando usar Agent Teams:</strong> Quando a tarefa pode ser quebrada em workstreams verdadeiramente independentes que precisam rodar por tempo prolongado. Exemplo: um agente trabalhando no frontend enquanto outro cuida do backend, comunicando-se quando precisam alinhar interfaces.
+</div>
+
+<!-- ============================================================ -->
+<h2>13. Padrao Coordinator</h2>
+
+<p>
+O padrao coordinator define um agente que nao executa tarefas diretamente, mas <strong>coordena quais subagentes sao spawnados</strong>. Ele tem acesso a tool <code>Agent()</code> para invocar outros agentes.
+</p>
+
+<div class="code-block">
+<div class="code-header"><span>.claude/agents/coordinator.md</span></div>
+<pre>
+---
+name: coordinator
+description: "Coordena tarefas complexas delegando para
+  subagentes especializados."
+model: claude-sonnet-4-20250514
+tools:
+  - Agent(implementer, researcher, code-reviewer, debugger)
+  - Read
+  - Bash(git:*)
+---
+
+# Coordinator Agent
+
+Voce coordena tarefas complexas delegando para subagentes
+especializados. Seu papel e:
+
+1. Analisar a tarefa recebida
+2. Quebrar em subtarefas
+3. Delegar cada subtarefa ao subagente mais adequado
+4. Coletar e consolidar resultados
+5. Reportar progresso e resultado final
+
+## Regras de delegacao
+- Investigacao/pesquisa -> researcher
+- Implementacao de codigo -> implementer
+- Review de mudancas -> code-reviewer
+- Diagnostico de bugs -> debugger
+- NUNCA implemente codigo diretamente
+</pre>
+</div>
+
+<p>
+A declaracao <code>tools: Agent(implementer, researcher, code-reviewer, debugger)</code> limita quais subagentes o coordinator pode invocar. Isso cria uma hierarquia controlada de delegacao.
+</p>
+
+<!-- ============================================================ -->
+<h2>14. Memoria Persistente para Subagentes</h2>
+
+<p>
+O campo <code>memory</code> na configuracao do subagente permite que ele <strong>acumule conhecimento ao longo do tempo</strong>. Existem tres escopos de memoria:
+</p>
+
+<table>
+<thead>
+<tr>
+<th>Escopo</th>
+<th>Localizacao</th>
+<th>Compartilhamento</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user</code></td>
+<td><code>~/.claude/memory/</code></td>
+<td>Todos os projetos do usuario</td>
+</tr>
+<tr>
+<td><code>project</code></td>
+<td><code>.claude/memory/</code> (no repo)</td>
+<td>Todos os membros do projeto</td>
+</tr>
+<tr>
+<td><code>local</code></td>
+<td><code>.claude/local/memory/</code></td>
+<td>Apenas o usuario local</td>
+</tr>
+</tbody>
+</table>
+
+<div class="code-block">
+<div class="code-header"><span>Subagente com memoria</span></div>
+<pre>
+---
+name: architecture-researcher
+description: "Pesquisa e documenta decisoes arquiteturais"
+model: claude-haiku-4-20250414
+tools:
+  - Read
+  - Grep
+  - Glob
+memory: project
+---
+
+# Architecture Researcher
+
+Antes de comecar qualquer investigacao:
+1. Consulte sua memoria para ver o que ja foi documentado
+2. Evite re-explorar areas ja mapeadas
+3. Foque em lacunas no conhecimento existente
+
+Ao finalizar:
+1. Salve novos aprendizados na memoria
+2. Atualize informacoes que mudaram
+3. Remova informacoes obsoletas
+</pre>
+</div>
+
+<div class="callout callout-green">
+<strong>Dicas para uso efetivo de memoria:</strong> Nas instrucoes do subagente, peca explicitamente para ele consultar a memoria antes de comecar e salvar aprendizados apos completar. Isso cria um ciclo de acumulacao de conhecimento que torna o subagente mais eficiente ao longo do tempo.
+</div>
+
+<!-- ============================================================ -->
+<h2>15. Fluxo Completo: Planejar, Executar, Revisar</h2>
+
+<div class="diagram-container">
+<svg viewBox="0 0 820 340" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+  <defs>
+    <marker id="arr4" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6" fill="#c4956a"/>
+    </marker>
+  </defs>
+
+  <!-- Step boxes -->
+  <rect x="20" y="30" width="150" height="70" rx="10" fill="#1a1d27" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="95" y="55" text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="600">ETAPA 1</text>
+  <text x="95" y="75" text-anchor="middle" fill="#e4e4e7" font-size="11">Researcher</text>
+  <text x="95" y="90" text-anchor="middle" fill="#9ca3af" font-size="9">Mapeia codebase</text>
+
+  <rect x="220" y="30" width="150" height="70" rx="10" fill="#1a1d27" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="295" y="55" text-anchor="middle" fill="#a78bfa" font-size="10" font-weight="600">ETAPA 2</text>
+  <text x="295" y="75" text-anchor="middle" fill="#e4e4e7" font-size="11">Planner</text>
+  <text x="295" y="90" text-anchor="middle" fill="#9ca3af" font-size="9">Gera plano</text>
+
+  <rect x="420" y="30" width="150" height="70" rx="10" fill="#1a1d27" stroke="#6ee7b7" stroke-width="1.5"/>
+  <text x="495" y="55" text-anchor="middle" fill="#6ee7b7" font-size="10" font-weight="600">ETAPA 3</text>
+  <text x="495" y="75" text-anchor="middle" fill="#e4e4e7" font-size="11">Implementer</text>
+  <text x="495" y="90" text-anchor="middle" fill="#9ca3af" font-size="9">Executa plano</text>
+
+  <rect x="620" y="30" width="160" height="70" rx="10" fill="#1a1d27" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="700" y="55" text-anchor="middle" fill="#fbbf24" font-size="10" font-weight="600">ETAPA 4</text>
+  <text x="700" y="75" text-anchor="middle" fill="#e4e4e7" font-size="11">Reviewer</text>
+  <text x="700" y="90" text-anchor="middle" fill="#9ca3af" font-size="9">Valida mudancas</text>
+
+  <!-- Arrows between steps -->
+  <line x1="170" y1="65" x2="216" y2="65" stroke="#c4956a" stroke-width="1.5" marker-end="url(#arr4)"/>
+  <line x1="370" y1="65" x2="416" y2="65" stroke="#c4956a" stroke-width="1.5" marker-end="url(#arr4)"/>
+  <line x1="570" y1="65" x2="616" y2="65" stroke="#c4956a" stroke-width="1.5" marker-end="url(#arr4)"/>
+
+  <!-- Context passing annotations -->
+  <text x="193" y="55" text-anchor="middle" fill="#9ca3af" font-size="8">findings</text>
+  <text x="393" y="55" text-anchor="middle" fill="#9ca3af" font-size="8">plano</text>
+  <text x="593" y="55" text-anchor="middle" fill="#9ca3af" font-size="8">diff</text>
+
+  <!-- Retry loop -->
+  <path d="M700,100 L700,140 Q700,160 680,160 L495,160 Q475,160 475,140 L475,104" fill="none" stroke="#f87171" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#arr4)"/>
+  <text x="590" y="155" text-anchor="middle" fill="#f87171" font-size="9">se review falhar: re-implementar</text>
+
+  <!-- Decision diamond -->
+  <polygon points="700,200 750,230 700,260 650,230" fill="#1a1d27" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="700" y="234" text-anchor="middle" fill="#fbbf24" font-size="9">OK?</text>
+
+  <line x1="700" y1="160" x2="700" y2="200" stroke="#fbbf24" stroke-width="1.2" stroke-dasharray="4,3"/>
+
+  <!-- Approved path -->
+  <line x1="750" y1="230" x2="790" y2="230" stroke="#6ee7b7" stroke-width="1.2"/>
+  <text x="795" y="234" fill="#6ee7b7" font-size="9" text-anchor="start">Done</text>
+
+  <!-- Rejected path -->
+  <line x1="650" y1="230" x2="600" y2="230" stroke="#f87171" stroke-width="1.2"/>
+  <text x="595" y="234" fill="#f87171" font-size="9" text-anchor="end">Retry</text>
+</svg>
+<div class="diagram-caption">Fluxo completo: pesquisa, planejamento, execucao e revisao com loop de retentativa</div>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span>Exemplo de prompt para fluxo completo</span></div>
+<pre>
+Preciso migrar o sistema de autenticacao de JWT para
+sessions server-side. Execute o fluxo completo:
+
+1. Use researcher para mapear todos os pontos onde JWT
+   e usado no codebase
+2. Use planner para criar um plano de migracao detalhado
+3. Use implementer para executar cada etapa do plano
+4. Use code-reviewer para validar as mudancas
+5. Se o review encontrar problemas, use implementer
+   para corrigir e code-reviewer para re-validar
+</pre>
+</div>
+
+<!-- ============================================================ -->
+<h2>16. Boas Praticas</h2>
+
+<div class="grid-2">
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">F</span> Foco especializado</h4>
+<p>Cada subagente deve ter uma unica especialidade bem definida. Evite criar agentes "faz-tudo" com muitas ferramentas e responsabilidades.</p>
+</div>
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">D</span> Descricoes detalhadas</h4>
+<p>Escreva descricoes ricas no campo <code>description</code>. O orchestrator usa essa informacao para decidir quando e como delegar.</p>
+</div>
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">T</span> Ferramentas minimas</h4>
+<p>Limite o acesso a ferramentas ao minimo necessario. Pesquisadores nao precisam de Write. Revisores nao precisam de Edit. Principio do menor privilegio.</p>
+</div>
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">V</span> Versione no git</h4>
+<p>Arquivos em <code>.claude/agents/</code> devem ser versionados. Isso permite que toda a equipe compartilhe os mesmos subagentes e rastreie mudancas.</p>
+</div>
+</div>
+
+<div class="callout callout-red">
+<strong>Restricao importante:</strong> Subagentes <strong>nao podem spawnar outros subagentes</strong>. A hierarquia e sempre de um nivel: orchestrator &rarr; subagente. Se voce precisa de coordenacao em multiplos niveis, use o padrao coordinator explicitamente no agente principal.
+</div>
+
+<h3>Escolhendo o modelo certo por papel</h3>
+
+<table>
+<thead>
+<tr>
+<th>Papel</th>
+<th>Modelo recomendado</th>
+<th>Razao</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Researcher</td>
+<td>Haiku</td>
+<td>Leitura rapida e barata, sem necessidade de raciocinio complexo</td>
+</tr>
+<tr>
+<td>Planner</td>
+<td>Sonnet / Opus</td>
+<td>Planejamento requer raciocinio estruturado</td>
+</tr>
+<tr>
+<td>Implementer</td>
+<td>Sonnet</td>
+<td>Bom equilibrio entre qualidade de codigo e custo</td>
+</tr>
+<tr>
+<td>Reviewer</td>
+<td>Sonnet / Opus</td>
+<td>Review critico requer atencao a detalhes</td>
+</tr>
+<tr>
+<td>Debugger</td>
+<td>Sonnet</td>
+<td>Debugging requer raciocinio logico solido</td>
+</tr>
+<tr>
+<td>Data Scientist</td>
+<td>Sonnet</td>
+<td>SQL e analise de dados com custo controlado</td>
+</tr>
+</tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2>17. Quando NAO Usar Subagentes</h2>
+
+<p>
+Subagentes adicionam latencia e custo. Nem toda tarefa se beneficia de orquestracao multi-agente. Evite subagentes nos seguintes cenarios:
+</p>
+
+<div class="grid-2">
+<div class="mini-card" style="border-color: var(--red);">
+<h4><span class="icon-circle" style="background: var(--red-soft); color: var(--red);">X</span> Ida-e-volta frequente</h4>
+<p>Se a tarefa precisa de interacao constante entre contextos, subagentes criam overhead. Mantenha no agente principal.</p>
+</div>
+<div class="mini-card" style="border-color: var(--red);">
+<h4><span class="icon-circle" style="background: var(--red-soft); color: var(--red);">X</span> Contexto compartilhado</h4>
+<p>Se multiplas fases da tarefa dependem do mesmo contexto acumulado, subagentes perdem informacao entre delegacoes.</p>
+</div>
+<div class="mini-card" style="border-color: var(--red);">
+<h4><span class="icon-circle" style="background: var(--red-soft); color: var(--red);">X</span> Mudanca rapida e pontual</h4>
+<p>Para uma edicao simples em um arquivo, spawnar um subagente adiciona latencia desnecessaria. Faca direto.</p>
+</div>
+<div class="mini-card" style="border-color: var(--red);">
+<h4><span class="icon-circle" style="background: var(--red-soft); color: var(--red);">X</span> Latencia importa</h4>
+<p>Cada subagente adiciona tempo de inicializacao e processamento. Se velocidade e critica, evite orquestracao.</p>
+</div>
+</div>
+
+<div class="callout callout-blue">
+<strong>Alternativa leve:</strong> Para perguntas rapidas que ja estao no contexto do agente principal, use <code>/btw</code> em vez de spawnar um subagente. O comando <code>/btw</code> envia uma pergunta lateral sem interromper o fluxo principal.
+</div>
+
+<!-- ============================================================ -->
+<h2>18. Exemplo Completo: Setup Multi-Agente</h2>
+
+<p>
+Vamos montar um setup completo com todos os agentes para um projeto real. A estrutura de diretorio ficaria assim:
+</p>
+
+<div class="code-block">
+<div class="code-header"><span>Estrutura de diretorios</span></div>
+<pre>
+.claude/
+  agents/
+    researcher.md      # Read-only, Haiku
+    planner.md         # Read-only, Sonnet
+    implementer.md     # Read+Write, Sonnet, worktree
+    code-reviewer.md   # Read-only, Sonnet, proativo
+    debugger.md        # Read+Edit, Sonnet
+    db-reader.md       # Bash(sql), hooks de validacao
+  hooks/
+    validate-readonly-sql.sh
+  memory/              # Memoria compartilhada do projeto
+  settings.json        # Configuracoes de permissoes
+</pre>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span>CLAUDE.md - Instrucoes para o orchestrator</span></div>
+<pre>
+# Orquestracao Multi-Agente
+
+## Subagentes disponiveis
+- **researcher**: Investigacao de codebase (Haiku, read-only)
+- **planner**: Planejamento de tarefas (Sonnet, read-only)
+- **implementer**: Implementacao de codigo (Sonnet, worktree)
+- **code-reviewer**: Revisao de codigo (Sonnet, proativo)
+- **debugger**: Diagnostico de bugs (Sonnet, read+edit)
+- **db-reader**: Consultas ao banco (Sonnet, SQL read-only)
+
+## Regras de orquestracao
+1. Para tarefas complexas: researcher -> planner -> implementer -> code-reviewer
+2. Para bugs: debugger (ou researcher -> debugger se causa desconhecida)
+3. Para investigacao: researcher (paralelo se multiplas areas)
+4. Sempre use code-reviewer apos implementacoes significativas
+5. Use db-reader para qualquer consulta ao banco de producao
+</pre>
+</div>
+
+<!-- ============================================================ -->
+<h2>19. Comparativo de Padroes</h2>
+
+<table>
+<thead>
+<tr>
+<th>Padrao</th>
+<th>Ferramentas</th>
+<th>Modo</th>
+<th>Modelo tipico</th>
+<th>Caso de uso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Researcher</strong></td>
+<td>Read, Grep, Glob</td>
+<td>Read-only</td>
+<td>Haiku</td>
+<td>Exploracao, mapeamento</td>
+</tr>
+<tr>
+<td><strong>Planner</strong></td>
+<td>Read, Grep, Glob, Bash(git:*)</td>
+<td>Read-only</td>
+<td>Sonnet</td>
+<td>Planos de acao, migracao</td>
+</tr>
+<tr>
+<td><strong>Implementer</strong></td>
+<td>Read, Write, Edit, Bash</td>
+<td>Read+Write</td>
+<td>Sonnet</td>
+<td>Codificacao, refatoracao</td>
+</tr>
+<tr>
+<td><strong>Reviewer</strong></td>
+<td>Read, Grep, Bash(git:*)</td>
+<td>Read-only</td>
+<td>Sonnet</td>
+<td>Code review, validacao</td>
+</tr>
+<tr>
+<td><strong>Debugger</strong></td>
+<td>Read, Edit, Bash, Grep</td>
+<td>Read+Edit</td>
+<td>Sonnet</td>
+<td>Root cause analysis, fixes</td>
+</tr>
+<tr>
+<td><strong>Data Scientist</strong></td>
+<td>Bash(sql:*, python3:*), Read, Write</td>
+<td>Read+Write</td>
+<td>Sonnet</td>
+<td>Queries, analise de dados</td>
+</tr>
+<tr>
+<td><strong>DB Reader</strong></td>
+<td>Bash(sql:*), Read + hooks</td>
+<td>Read-only (enforced)</td>
+<td>Sonnet</td>
+<td>Consultas seguras a producao</td>
+</tr>
+</tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2>20. Resumo</h2>
+
+<div class="card">
+<p>
+Padroes multi-agente no Claude Code permitem <strong>dividir tarefas complexas em responsabilidades especializadas</strong>, cada uma com seu proprio escopo de ferramentas, modelo e contexto. Os padroes fundamentais sao:
+</p>
+<ul style="margin: 1rem 0; padding-left: 1.5rem;">
+<li><strong>Researcher:</strong> explora sem modificar (Haiku, read-only)</li>
+<li><strong>Planner:</strong> planeja antes de executar (read-only)</li>
+<li><strong>Implementer:</strong> executa com isolation opcional (worktree)</li>
+<li><strong>Reviewer:</strong> valida mudancas proativamente</li>
+<li><strong>Debugger:</strong> diagnostica e corrige bugs</li>
+<li><strong>Coordinator:</strong> orquestra delegacao entre subagentes</li>
+</ul>
+<p>
+Combine-os em chains sequenciais ou pesquisa paralela. Use memoria persistente para acumular conhecimento. E lembre-se: nem toda tarefa precisa de subagentes. Avalie o tradeoff entre isolamento de contexto e overhead de comunicacao.
+</p>
+</div>
+
+<!-- ============================================================ -->
+<div class="sources">
+<h3>Fontes</h3>
+<ul>
+<li><a href="https://docs.claude.com/en/docs/claude-code/sub-agents">Claude Code Sub-agents - Documentacao Oficial</a></li>
+<li><a href="https://www.anthropic.com/engineering/claude-code-best-practices">Claude Code Best Practices - Anthropic Engineering</a></li>
+<li><a href="https://www.anthropic.com/engineering/building-c-compiler">Building a C Compiler with Parallel Claudes - Anthropic Engineering</a></li>
+<li><a href="https://www.anthropic.com/engineering/multi-agent-research-system">Multi-Agent Research System - Anthropic Engineering</a></li>
+</ul>
+</div>
+
+<!-- ============================================================ -->
+<div class="nav-footer">
+<a href="modulo-08-topico-04-controle-ferramentas.html" class="nav-btn">&larr; Anterior: Controle de Ferramentas</a>
+<a href="../index.html" class="nav-btn">Indice</a>
+</div>
+
+</body>
+</html>

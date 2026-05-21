@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modulo 8 - Topico 2: Git Worktrees | Workshop Claude Code</title>
+<style>
+:root {
+  --bg: #0f1117; --bg-card: #1a1d27; --bg-code: #141620; --border: #2a2d3a;
+  --text: #e4e4e7; --text-dim: #9ca3af; --accent: #c4956a; --accent-soft: rgba(196, 149, 106, 0.12);
+  --blue: #60a5fa; --blue-soft: rgba(96, 165, 250, 0.12); --green: #6ee7b7; --green-soft: rgba(110, 231, 183, 0.12);
+  --purple: #a78bfa; --purple-soft: rgba(167, 139, 250, 0.12); --red: #f87171; --red-soft: rgba(248, 113, 113, 0.12);
+  --yellow: #fbbf24; --yellow-soft: rgba(251, 191, 36, 0.12);
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace; --radius: 12px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.7; padding: 2rem; max-width: 960px; margin: 0 auto; }
+.topic-badge { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); background: var(--accent-soft); padding: 6px 14px; border-radius: 20px; margin-bottom: 1rem; }
+h1 { font-size: 2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.75rem; color: #fff; }
+.subtitle { font-size: 1.05rem; color: var(--text-dim); margin-bottom: 2.5rem; max-width: 700px; }
+h2 { font-size: 1.35rem; font-weight: 600; color: #fff; margin: 3rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+h3 { font-size: 1.1rem; font-weight: 600; color: var(--text); margin: 2rem 0 0.75rem; }
+p { margin-bottom: 1rem; } a { color: var(--blue); text-decoration: none; } a:hover { text-decoration: underline; }
+code { font-family: var(--font-mono); font-size: 0.88em; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px; }
+strong { color: #fff; }
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0; }
+.diagram-container { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; margin: 2rem 0; overflow-x: auto; }
+.diagram-container svg { display: block; margin: 0 auto; }
+.diagram-caption { text-align: center; font-size: 0.85rem; color: var(--text-dim); margin-top: 1rem; font-style: italic; }
+.code-block { background: var(--bg-code); border: 1px solid var(--border); border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden; }
+.code-header { display: flex; align-items: center; justify-content: space-between; padding: 0.5rem 1rem; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim); }
+.code-block pre { padding: 1rem 1.25rem; overflow-x: auto; font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.6; color: #d4d4d8; }
+.callout { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.5rem 0; font-size: 0.95rem; }
+.callout-blue { border-left-color: var(--blue); background: var(--blue-soft); }
+.callout-red { border-left-color: var(--red); background: var(--red-soft); }
+.callout-green { border-left-color: var(--green); background: var(--green-soft); }
+.callout-yellow { border-left-color: var(--yellow); background: var(--yellow-soft); }
+.callout strong { color: #fff; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+@media (max-width: 640px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } body { padding: 1rem; } h1 { font-size: 1.5rem; } }
+.mini-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
+.mini-card h4 { font-size: 0.95rem; font-weight: 600; color: #fff; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px; }
+.mini-card p { font-size: 0.9rem; color: var(--text-dim); margin: 0; }
+.icon-circle { width: 28px; height: 28px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.9rem; }
+th, td { text-align: left; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); }
+th { font-weight: 600; color: var(--text-dim); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.04em; }
+td { color: var(--text); } tr:last-child td { border-bottom: none; }
+.sources { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.sources h3 { font-size: 0.9rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 1rem; }
+.sources ul { list-style: none; padding: 0; }
+.sources li { margin-bottom: 0.5rem; font-size: 0.85rem; }
+.sources li::before { content: "\2192 "; color: var(--accent); }
+.nav-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.nav-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; font-size: 0.9rem; font-weight: 500; color: var(--text); background: var(--bg-card); border: 1px solid var(--border); text-decoration: none; transition: border-color 0.2s; }
+.nav-btn:hover { border-color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="topic-badge">Modulo 8 &bull; Topico 2</div>
+<h1>Sessoes Paralelas com Isolamento via Git Worktrees</h1>
+<p class="subtitle">Como executar multiplas sessoes do Claude Code simultaneamente com total isolamento de arquivos, usando Git worktrees para separar branches e diretorios de trabalho sem conflitos.</p>
+
+<!-- ============================================================ -->
+<h2>O que sao Git Worktrees</h2>
+
+<p>Um <strong>git worktree</strong> e um diretorio de trabalho separado que possui seus proprios arquivos e branch, mas compartilha o mesmo historico e remote do checkout principal. Cada worktree e um checkout independente num branch proprio. Isso significa que voce pode ter dois ou mais branches em estado de "checked out" ao mesmo tempo, cada um em seu proprio diretorio no sistema de arquivos.</p>
+
+<p>Na pratica, em vez de fazer <code>git stash</code> ou <code>git checkout</code> constantemente para alternar entre tarefas, voce simplesmente abre outro terminal apontando para outro worktree. O <code>.git</code> interno e compartilhado -- commits, refs e objects sao os mesmos. Apenas o working directory e o HEAD sao separados.</p>
+
+<div class="callout callout-blue">
+<strong>Conceito fundamental:</strong> Worktrees nao sao clones. Eles compartilham o mesmo repositorio <code>.git</code>. Isso significa zero duplicacao de historico, fetch unico e branches sincronizados automaticamente entre todos os worktrees.
+</div>
+
+<!-- ============================================================ -->
+<h2>Por que usar Worktrees com Claude Code</h2>
+
+<p>Quando voce roda Claude Code em modo interativo, o agente le e edita arquivos no diretorio de trabalho atual. Se voce abrir dois terminais no mesmo diretorio, ambas as sessoes vao competir pelos mesmos arquivos -- uma pode sobrescrever mudancas da outra, causando conflitos silenciosos e estado corrompido.</p>
+
+<p>Com worktrees, cada sessao opera num diretorio fisicamente separado. As garantias sao claras:</p>
+
+<div class="grid-2">
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">1</span> Isolamento total de arquivos</h4>
+<p>Edicoes em uma sessao nunca tocam arquivos de outra. Cada worktree tem sua propria copia do working directory.</p>
+</div>
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--blue-soft); color: var(--blue);">2</span> Branches independentes</h4>
+<p>Feature num terminal, bugfix em outro, refactor num terceiro. Sem colisao de checkout, sem stash perdido.</p>
+</div>
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">3</span> Historico compartilhado</h4>
+<p>Todos os worktrees enxergam os mesmos commits e remotes. Um <code>git fetch</code> em qualquer um atualiza todos.</p>
+</div>
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--accent-soft); color: var(--accent);">4</span> Cleanup automatico</h4>
+<p>Claude Code gerencia o ciclo de vida dos worktrees -- cria, usa e remove automaticamente quando nao ha mudancas pendentes.</p>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<h2>Diagrama: Arquitetura de Worktrees Paralelos</h2>
+
+<div class="diagram-container">
+<svg viewBox="0 0 860 480" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+  <!-- Repositorio principal -->
+  <rect x="310" y="10" width="240" height="70" rx="10" fill="#1a1d27" stroke="#c4956a" stroke-width="2"/>
+  <text x="430" y="38" text-anchor="middle" fill="#fff" font-size="14" font-weight="600">Repositorio Principal</text>
+  <text x="430" y="58" text-anchor="middle" fill="#9ca3af" font-size="11">branch: main  |  .git/</text>
+
+  <!-- Seta central -->
+  <line x1="430" y1="80" x2="430" y2="130" stroke="#2a2d3a" stroke-width="2"/>
+  <text x="430" y="118" text-anchor="middle" fill="#9ca3af" font-size="10">.git compartilhado</text>
+
+  <!-- Linha horizontal -->
+  <line x1="100" y1="140" x2="760" y2="140" stroke="#2a2d3a" stroke-width="2"/>
+  <line x1="100" y1="140" x2="100" y2="170" stroke="#2a2d3a" stroke-width="2"/>
+  <line x1="430" y1="130" x2="430" y2="170" stroke="#2a2d3a" stroke-width="2"/>
+  <line x1="760" y1="140" x2="760" y2="170" stroke="#2a2d3a" stroke-width="2"/>
+
+  <!-- Worktree 1: feature-auth -->
+  <rect x="20" y="170" width="200" height="60" rx="8" fill="#1a1d27" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="120" y="195" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="600">Worktree 1</text>
+  <text x="120" y="215" text-anchor="middle" fill="#9ca3af" font-size="10">.claude/worktrees/feature-auth/</text>
+
+  <rect x="20" y="245" width="200" height="40" rx="6" fill="rgba(96,165,250,0.08)" stroke="#2a2d3a" stroke-width="1"/>
+  <text x="120" y="262" text-anchor="middle" fill="#9ca3af" font-size="10">branch: worktree-feature-auth</text>
+  <text x="120" y="278" text-anchor="middle" fill="#60a5fa" font-size="10">Claude Session A</text>
+
+  <rect x="30" y="300" width="180" height="85" rx="6" fill="rgba(96,165,250,0.05)" stroke="#2a2d3a" stroke-width="1"/>
+  <text x="120" y="320" text-anchor="middle" fill="#fff" font-size="11" font-weight="500">Terminal 1</text>
+  <text x="120" y="340" text-anchor="middle" fill="#9ca3af" font-size="10">$ claude --worktree</text>
+  <text x="120" y="355" text-anchor="middle" fill="#9ca3af" font-size="10">  feature-auth</text>
+  <text x="120" y="375" text-anchor="middle" fill="#60a5fa" font-size="10">"Implemente login OAuth"</text>
+
+  <!-- Worktree 2: bugfix-api -->
+  <rect x="310" y="170" width="240" height="60" rx="8" fill="#1a1d27" stroke="#6ee7b7" stroke-width="1.5"/>
+  <text x="430" y="195" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="600">Worktree 2</text>
+  <text x="430" y="215" text-anchor="middle" fill="#9ca3af" font-size="10">.claude/worktrees/bugfix-api/</text>
+
+  <rect x="310" y="245" width="240" height="40" rx="6" fill="rgba(110,231,183,0.08)" stroke="#2a2d3a" stroke-width="1"/>
+  <text x="430" y="262" text-anchor="middle" fill="#9ca3af" font-size="10">branch: worktree-bugfix-api</text>
+  <text x="430" y="278" text-anchor="middle" fill="#6ee7b7" font-size="10">Claude Session B</text>
+
+  <rect x="320" y="300" width="220" height="85" rx="6" fill="rgba(110,231,183,0.05)" stroke="#2a2d3a" stroke-width="1"/>
+  <text x="430" y="320" text-anchor="middle" fill="#fff" font-size="11" font-weight="500">Terminal 2</text>
+  <text x="430" y="340" text-anchor="middle" fill="#9ca3af" font-size="10">$ claude --worktree bugfix-api</text>
+  <text x="430" y="360" text-anchor="middle" fill="#9ca3af" font-size="10"></text>
+  <text x="430" y="375" text-anchor="middle" fill="#6ee7b7" font-size="10">"Corrija o 500 no endpoint /users"</text>
+
+  <!-- Worktree 3: refactor-db -->
+  <rect x="630" y="170" width="200" height="60" rx="8" fill="#1a1d27" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="730" y="195" text-anchor="middle" fill="#a78bfa" font-size="12" font-weight="600">Worktree 3</text>
+  <text x="730" y="215" text-anchor="middle" fill="#9ca3af" font-size="10">.claude/worktrees/refactor-db/</text>
+
+  <rect x="630" y="245" width="200" height="40" rx="6" fill="rgba(167,139,250,0.08)" stroke="#2a2d3a" stroke-width="1"/>
+  <text x="730" y="262" text-anchor="middle" fill="#9ca3af" font-size="10">branch: worktree-refactor-db</text>
+  <text x="730" y="278" text-anchor="middle" fill="#a78bfa" font-size="10">Claude Session C</text>
+
+  <rect x="640" y="300" width="180" height="85" rx="6" fill="rgba(167,139,250,0.05)" stroke="#2a2d3a" stroke-width="1"/>
+  <text x="730" y="320" text-anchor="middle" fill="#fff" font-size="11" font-weight="500">Terminal 3</text>
+  <text x="730" y="340" text-anchor="middle" fill="#9ca3af" font-size="10">$ claude --worktree</text>
+  <text x="730" y="355" text-anchor="middle" fill="#9ca3af" font-size="10">  refactor-db</text>
+  <text x="730" y="375" text-anchor="middle" fill="#a78bfa" font-size="10">"Migre para Prisma ORM"</text>
+
+  <!-- Legenda -->
+  <rect x="250" y="420" width="360" height="50" rx="8" fill="rgba(255,255,255,0.03)" stroke="#2a2d3a" stroke-width="1"/>
+  <circle cx="280" cy="445" r="6" fill="#c4956a"/>
+  <text x="295" y="449" fill="#9ca3af" font-size="10">Repo principal</text>
+  <rect x="395" y="439" width="12" height="12" rx="2" fill="none" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="415" y="449" fill="#9ca3af" font-size="10">Worktrees</text>
+  <text x="495" y="449" fill="#9ca3af" font-size="10">|</text>
+  <text x="510" y="449" fill="#9ca3af" font-size="10">Cada um com sessao Claude isolada</text>
+</svg>
+<div class="diagram-caption">Tres worktrees paralelos compartilham o mesmo .git mas operam em diretorios e branches separados</div>
+</div>
+
+<!-- ============================================================ -->
+<h2>Comparativo: Abordagens de Paralelismo no Claude Code</h2>
+
+<p>O Claude Code oferece tres mecanismos distintos para trabalho paralelo. Cada um resolve um problema diferente:</p>
+
+<table>
+<thead>
+<tr>
+<th>Aspecto</th>
+<th>Worktrees</th>
+<th>Subagentes</th>
+<th>Agent Teams</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>O que e</strong></td>
+<td>Checkouts separados que <strong>voce</strong> gerencia</td>
+<td>Tarefas delegadas <strong>dentro</strong> de uma sessao</td>
+<td>Multiplas sessoes coordenadas entre si</td>
+</tr>
+<tr>
+<td><strong>Quem inicia</strong></td>
+<td>Voce abre um terminal por tarefa</td>
+<td>O agente principal dispara subagentes</td>
+<td>Sessoes se comunicam e compartilham task list</td>
+</tr>
+<tr>
+<td><strong>Isolamento</strong></td>
+<td>Diretorio + branch separados</td>
+<td>Pode ter worktree proprio (<code>isolation: worktree</code>)</td>
+<td>Cada sessao em seu proprio contexto</td>
+</tr>
+<tr>
+<td><strong>Comunicacao</strong></td>
+<td>Nenhuma (manual via git)</td>
+<td>Resultado retorna para conversa principal</td>
+<td>Task list compartilhada</td>
+</tr>
+<tr>
+<td><strong>Caso ideal</strong></td>
+<td>Features independentes simultaneas</td>
+<td>Pesquisa paralela dentro de uma tarefa</td>
+<td>Projeto complexo com dependencias entre tarefas</td>
+</tr>
+<tr>
+<td><strong>Cleanup</strong></td>
+<td>Automatico (Claude) ou manual</td>
+<td>Automatico ao terminar subagente</td>
+<td>Por sessao</td>
+</tr>
+</tbody>
+</table>
+
+<div class="callout callout-yellow">
+<strong>Quando usar o que:</strong> Worktrees sao ideais quando voce quer controle total sobre sessoes independentes. Subagentes sao melhores para paralelizar sub-tarefas dentro de um mesmo objetivo. Agent Teams coordenam trabalho complexo entre multiplas sessoes.
+</div>
+
+<!-- ============================================================ -->
+<h2>Iniciando com --worktree</h2>
+
+<p>A flag <code>--worktree</code> e o ponto de entrada. Ela instrui o Claude Code a criar um worktree dedicado antes de iniciar a sessao interativa.</p>
+
+<h3>Com nome explicito</h3>
+
+<div class="code-block">
+<div class="code-header"><span>Terminal</span></div>
+<pre>$ claude --worktree feature-auth</pre>
+</div>
+
+<p>Esse comando cria o worktree em <code>.claude/worktrees/feature-auth/</code> e faz checkout num branch chamado <code>worktree-feature-auth</code>. O Claude Code entao inicia a sessao interativa ja dentro desse diretorio.</p>
+
+<h3>Com nome aleatorio</h3>
+
+<div class="code-block">
+<div class="code-header"><span>Terminal</span></div>
+<pre>$ claude --worktree</pre>
+</div>
+
+<p>Sem passar um valor, o Claude gera um nome aleatorio automaticamente. Util para sessoes rapidas de exploracao onde o nome do worktree nao importa.</p>
+
+<h3>Combinando com prompt direto</h3>
+
+<div class="code-block">
+<div class="code-header"><span>Terminal</span></div>
+<pre>$ claude --worktree feature-auth -p "Implemente autenticacao OAuth2 com Google"</pre>
+</div>
+
+<p>A flag <code>--worktree</code> funciona em conjunto com <code>-p</code> (modo non-interactive). O worktree e criado, o prompt e executado, e o resultado fica no branch do worktree.</p>
+
+<div class="callout callout-red">
+<strong>Importante:</strong> Adicione <code>.claude/worktrees/</code> ao seu <code>.gitignore</code>. Os worktrees gerenciados pelo Claude sao artefatos temporarios e nao devem ser commitados no repositorio.
+</div>
+
+<div class="code-block">
+<div class="code-header"><span>.gitignore</span></div>
+<pre># Worktrees gerenciados pelo Claude Code
+.claude/worktrees/</pre>
+</div>
+
+<!-- ============================================================ -->
+<h2>Escolhendo o Branch Base</h2>
+
+<p>Por padrao, novos worktrees sao criados a partir de <code>origin/HEAD</code>. Isso geralmente aponta para <code>main</code> ou <code>master</code>, dependendo da configuracao do repositorio remoto.</p>
+
+<h3>Re-sincronizando origin/HEAD</h3>
+
+<p>Se o branch padrao do remote mudou (por exemplo, de <code>master</code> para <code>main</code>), voce precisa atualizar a referencia local:</p>
+
+<div class="code-block">
+<div class="code-header"><span>Terminal</span></div>
+<pre># Atualiza origin/HEAD para apontar ao branch padrao do remote
+$ git remote set-head origin -a
+
+# Verifica o resultado
+$ git symbolic-ref refs/remotes/origin/HEAD
+refs/remotes/origin/main</pre>
+</div>
+
+<h3>Controle customizado via Hook</h3>
+
+<p>Para controle fino sobre qual branch base e usado, voce pode implementar um hook <code>WorktreeCreate</code>. Isso e util quando diferentes worktrees precisam partir de branches diferentes (por exemplo, um worktree de hotfix partindo de <code>production</code> em vez de <code>main</code>).</p>
+
+<div class="code-block">
+<div class="code-header"><span>.claude/settings.json</span></div>
+<pre>{
+  "hooks": {
+    "WorktreeCreate": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./scripts/setup-worktree.sh \"$WORKTREE_NAME\" \"$WORKTREE_PATH\""
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+</div>
+
+<!-- ============================================================ -->
+<h2>Copiando Arquivos Gitignored com .worktreeinclude</h2>
+
+<p>Worktrees sao checkouts limpos -- eles nao incluem arquivos que estao no <code>.gitignore</code>. Isso significa que arquivos como <code>.env</code>, chaves de configuracao local e outros artefatos ignorados pelo git nao estarao disponiveis no novo worktree.</p>
+
+<p>Para resolver isso, o Claude Code suporta o arquivo <code>.worktreeinclude</code>, que usa a mesma sintaxe do <code>.gitignore</code> para especificar quais arquivos ignorados devem ser copiados para novos worktrees.</p>
+
+<div class="code-block">
+<div class="code-header"><span>.worktreeinclude</span></div>
+<pre># Variaveis de ambiente
+.env
+.env.local
+.env.development
+
+# Configuracoes de segredos locais
+config/secrets.json
+config/local.yaml
+
+# Certificados de desenvolvimento
+certs/*.pem
+
+# Cache de dependencias (opcional, mas acelera setup)
+node_modules/
+.venv/</pre>
+</div>
+
+<div class="callout callout-green">
+<strong>Dica pratica:</strong> Incluir <code>node_modules/</code> ou <code>.venv/</code> no <code>.worktreeinclude</code> evita ter que rodar <code>npm install</code> ou <code>pip install</code> em cada worktree. Mas cuidado com o espaco em disco -- cada copia duplica esses diretorios.
+</div>
+
+<p>O arquivo <code>.worktreeinclude</code> deve ficar na raiz do repositorio. Ele e lido pelo Claude Code no momento da criacao do worktree.</p>
+
+<!-- ============================================================ -->
+<h2>Isolamento de Subagentes com Worktrees</h2>
+
+<p>Subagentes (cobertos no Topico 1 deste modulo) podem ser configurados para operar dentro de worktrees temporarios. Isso garante que um subagente pesquisando e editando arquivos nao interfira no trabalho do agente principal.</p>
+
+<h3>Configuracao via frontmatter</h3>
+
+<p>No CLAUDE.md, voce define o isolamento na secao de frontmatter do comando de subagente:</p>
+
+<div class="code-block">
+<div class="code-header"><span>CLAUDE.md - frontmatter de subagente</span></div>
+<pre>---
+isolation: worktree
+---
+
+Quando precisar investigar mudancas em multiplos arquivos,
+use subagentes com isolamento de worktree para evitar
+conflitos com o trabalho em andamento.</pre>
+</div>
+
+<h3>Ciclo de vida do worktree de subagente</h3>
+
+<div class="card">
+<p><strong>1. Criacao:</strong> Quando o subagente e disparado, Claude Code cria automaticamente um worktree temporario.</p>
+<p><strong>2. Execucao:</strong> O subagente opera exclusivamente dentro desse worktree, sem afetar o diretorio do agente principal.</p>
+<p><strong>3. Resultado:</strong> Ao terminar, o subagente retorna seus resultados (texto/dados) para a conversa principal.</p>
+<p><strong>4. Cleanup:</strong> Se o subagente nao fez nenhuma mudanca nos arquivos, o worktree temporario e <strong>removido automaticamente</strong>. Se houve mudancas, Claude pergunta se voce quer mante-las.</p>
+</div>
+
+<div class="callout callout-blue">
+<strong>Vantagem:</strong> O subagente pode editar arquivos livremente durante sua investigacao sem risco de corromper o estado do agente principal. Isso e particularmente util para tarefas de pesquisa exploratoria onde o subagente precisa testar hipoteses editando codigo.
+</div>
+
+<!-- ============================================================ -->
+<h2>Cleanup e Ciclo de Vida</h2>
+
+<p>O gerenciamento do ciclo de vida dos worktrees pelo Claude Code segue regras bem definidas:</p>
+
+<div class="grid-2">
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">&#10003;</span> Sem mudancas</h4>
+<p>Worktree e removido automaticamente ao final da sessao. Nenhuma acao necessaria do usuario.</p>
+</div>
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--yellow-soft); color: var(--yellow);">?</span> Com mudancas</h4>
+<p>Claude pergunta se voce deseja manter o worktree. Voce pode revisar as mudancas antes de decidir.</p>
+</div>
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--purple-soft); color: var(--purple);">-p</span> Non-interactive</h4>
+<p>No modo <code>-p</code> (headless), nao ha cleanup automatico. O worktree permanece para inspecao posterior.</p>
+</div>
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--red-soft); color: var(--red);">&#8635;</span> Orfaos</h4>
+<p>Worktrees de subagentes que ficaram orfaos sao removidos no startup do Claude Code apos o periodo definido em <code>cleanupPeriodDays</code>.</p>
+</div>
+</div>
+
+<h3>Fluxo de cleanup detalhado</h3>
+
+<div class="diagram-container">
+<svg viewBox="0 0 800 300" xmlns="http://www.w3.org/2000/svg" font-family="Inter, sans-serif">
+  <!-- Inicio -->
+  <rect x="20" y="20" width="140" height="40" rx="20" fill="rgba(196,149,106,0.15)" stroke="#c4956a" stroke-width="1.5"/>
+  <text x="90" y="45" text-anchor="middle" fill="#c4956a" font-size="12" font-weight="500">Sessao termina</text>
+
+  <!-- Seta -->
+  <line x1="160" y1="40" x2="210" y2="40" stroke="#2a2d3a" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Decisao -->
+  <polygon points="310,5 390,40 310,75 230,40" fill="rgba(251,191,36,0.1)" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="310" y="37" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="500">Mudancas</text>
+  <text x="310" y="52" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="500">pendentes?</text>
+
+  <!-- Nao -->
+  <line x1="310" y1="5" x2="310" y2="-30" stroke="#2a2d3a" stroke-width="0"/>
+  <line x1="390" y1="40" x2="470" y2="40" stroke="#2a2d3a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="430" y="33" fill="#6ee7b7" font-size="10">Nao</text>
+
+  <!-- Remover automatico -->
+  <rect x="480" y="20" width="150" height="40" rx="8" fill="rgba(110,231,183,0.1)" stroke="#6ee7b7" stroke-width="1.5"/>
+  <text x="555" y="45" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="500">Remove worktree</text>
+
+  <!-- Sim -->
+  <line x1="310" y1="75" x2="310" y2="120" stroke="#2a2d3a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="322" y="100" fill="#fbbf24" font-size="10">Sim</text>
+
+  <!-- Decisao interativo -->
+  <polygon points="310,120 400,155 310,190 220,155" fill="rgba(96,165,250,0.1)" stroke="#60a5fa" stroke-width="1.5"/>
+  <text x="310" y="152" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="500">Modo -p?</text>
+
+  <!-- Sim -p -->
+  <line x1="400" y1="155" x2="480" y2="155" stroke="#2a2d3a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="440" y="148" fill="#a78bfa" font-size="10">Sim</text>
+
+  <rect x="480" y="135" width="150" height="40" rx="8" fill="rgba(167,139,250,0.1)" stroke="#a78bfa" stroke-width="1.5"/>
+  <text x="555" y="160" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="500">Mantem worktree</text>
+
+  <!-- Nao -p -->
+  <line x1="310" y1="190" x2="310" y2="230" stroke="#2a2d3a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="322" y="215" fill="#60a5fa" font-size="10">Nao</text>
+
+  <rect x="230" y="230" width="160" height="40" rx="8" fill="rgba(251,191,36,0.1)" stroke="#fbbf24" stroke-width="1.5"/>
+  <text x="310" y="255" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="500">Pergunta ao usuario</text>
+
+  <!-- Arrow marker -->
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#2a2d3a"/>
+    </marker>
+  </defs>
+</svg>
+<div class="diagram-caption">Fluxo de decisao para cleanup de worktrees ao final de uma sessao</div>
+</div>
+
+<!-- ============================================================ -->
+<h2>Gerenciamento Manual de Worktrees</h2>
+
+<p>Embora o Claude Code gerencie worktrees automaticamente com <code>--worktree</code>, voce tambem pode criar e gerenciar worktrees manualmente usando comandos git nativos. Isso e util quando voce quer mais controle ou precisa de configuracoes especificas.</p>
+
+<h3>Comandos essenciais</h3>
+
+<div class="code-block">
+<div class="code-header"><span>Terminal - Criacao manual</span></div>
+<pre># Criar worktree em diretorio especifico com novo branch
+$ git worktree add ../meu-projeto-feature feature-branch
+
+# Criar worktree a partir de um branch remoto
+$ git worktree add ../meu-projeto-hotfix origin/production -b hotfix-123
+
+# Criar worktree no padrao do Claude Code
+$ git worktree add .claude/worktrees/minha-task -b worktree-minha-task</pre>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span>Terminal - Listagem e inspecao</span></div>
+<pre># Listar todos os worktrees ativos
+$ git worktree list
+/home/user/meu-projeto           abc1234 [main]
+/home/user/meu-projeto-feature   def5678 [feature-branch]
+/home/user/meu-projeto-hotfix    ghi9012 [hotfix-123]
+
+# Listar com mais detalhes (formato porcelain para scripts)
+$ git worktree list --porcelain</pre>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span>Terminal - Remocao e limpeza</span></div>
+<pre># Remover um worktree especifico
+$ git worktree remove ../meu-projeto-feature
+
+# Forcar remocao (se houver mudancas nao commitadas)
+$ git worktree remove --force ../meu-projeto-feature
+
+# Limpar referencia de worktrees que foram deletados manualmente
+$ git worktree prune</pre>
+</div>
+
+<div class="callout callout-yellow">
+<strong>Lembre-se:</strong> Ao criar um worktree manual, voce precisa inicializar o ambiente de desenvolvimento. Execute <code>npm install</code>, <code>pip install -r requirements.txt</code>, ou o equivalente do seu projeto. O <code>.worktreeinclude</code> do Claude Code so funciona com worktrees criados via <code>--worktree</code>.
+</div>
+
+<!-- ============================================================ -->
+<h2>Desktop App: Worktrees Automaticos</h2>
+
+<p>O aplicativo desktop do Claude Code adota uma abordagem diferente: ele cria automaticamente um worktree para cada nova sessao. Isso significa que toda sessao iniciada pelo app desktop ja opera em isolamento por padrao, sem necessidade de flags adicionais.</p>
+
+<div class="card">
+<h3 style="margin-top: 0;">Comportamento do Desktop App</h3>
+<p>Quando voce inicia uma nova sessao no app desktop:</p>
+<p><strong>1.</strong> Um worktree e criado automaticamente em <code>.claude/worktrees/</code></p>
+<p><strong>2.</strong> Um branch novo e criado para a sessao</p>
+<p><strong>3.</strong> Arquivos listados em <code>.worktreeinclude</code> sao copiados</p>
+<p><strong>4.</strong> A sessao opera inteiramente dentro do worktree</p>
+<p>Ao final, as mesmas regras de cleanup se aplicam: sem mudancas, o worktree e removido; com mudancas, voce decide o que fazer.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2>Suporte a VCS Nao-Git</h2>
+
+<p>O conceito de worktrees e nativo do Git, mas o Claude Code permite estender o mecanismo para outros sistemas de controle de versao atraves dos hooks <code>WorktreeCreate</code> e <code>WorktreeRemove</code>.</p>
+
+<h3>Hooks para VCS alternativos</h3>
+
+<p>Os hooks recebem variaveis de ambiente com informacoes sobre o worktree sendo criado ou removido. Voce pode usar essas variaveis para executar operacoes equivalentes no seu VCS.</p>
+
+<div class="code-block">
+<div class="code-header"><span>Exemplo: Hook para SVN</span></div>
+<pre>#!/bin/bash
+# scripts/svn-worktree-create.sh
+# Chamado pelo hook WorktreeCreate
+
+WORKTREE_NAME="$1"
+WORKTREE_PATH="$2"
+
+# Criar checkout SVN equivalente
+svn checkout "svn://repo/trunk" "$WORKTREE_PATH" \
+  --depth infinity \
+  --quiet
+
+# Copiar configuracoes locais
+cp .env "$WORKTREE_PATH/.env" 2>/dev/null || true
+
+echo "SVN worktree criado em: $WORKTREE_PATH"</pre>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span>Exemplo: Hook para remocao</span></div>
+<pre>#!/bin/bash
+# scripts/svn-worktree-remove.sh
+# Chamado pelo hook WorktreeRemove
+
+WORKTREE_PATH="$1"
+
+# Verificar mudancas pendentes
+if svn status "$WORKTREE_PATH" | grep -q '^[ACDMR]'; then
+  echo "AVISO: Mudancas pendentes em $WORKTREE_PATH"
+  exit 1  # Impede remocao
+fi
+
+# Remover checkout
+rm -rf "$WORKTREE_PATH"
+echo "SVN worktree removido: $WORKTREE_PATH"</pre>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span>.claude/settings.json - Configuracao dos hooks</span></div>
+<pre>{
+  "hooks": {
+    "WorktreeCreate": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./scripts/svn-worktree-create.sh \"$WORKTREE_NAME\" \"$WORKTREE_PATH\""
+          }
+        ]
+      }
+    ],
+    "WorktreeRemove": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./scripts/svn-worktree-remove.sh \"$WORKTREE_PATH\""
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+</div>
+
+<p>Esses hooks funcionam para qualquer VCS: Perforce, Mercurial, Plastic SCM, etc. A logica e a mesma -- criar um checkout separado no <code>WorktreeCreate</code> e limpar no <code>WorktreeRemove</code>.</p>
+
+<!-- ============================================================ -->
+<h2>Workflow Completo: Tres Tarefas em Paralelo</h2>
+
+<p>Veja um exemplo pratico de como usar worktrees para trabalhar em tres tarefas simultaneas:</p>
+
+<div class="code-block">
+<div class="code-header"><span>Terminal 1 - Feature de autenticacao</span></div>
+<pre># Inicia sessao com worktree dedicado
+$ claude --worktree feature-auth
+
+# Claude cria .claude/worktrees/feature-auth/
+# Branch: worktree-feature-auth (a partir de origin/HEAD)
+# Voce interage normalmente:
+> Implemente login com OAuth2 usando Google como provider.
+> Use passport.js e adicione testes de integracao.</pre>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span>Terminal 2 - Bugfix no endpoint</span></div>
+<pre># Em outro terminal, simultaneamente
+$ claude --worktree bugfix-users-500
+
+# Claude cria .claude/worktrees/bugfix-users-500/
+# Branch: worktree-bugfix-users-500
+> O endpoint GET /api/users retorna 500 quando o campo email e null.
+> Investigue e corrija, adicionando validacao adequada.</pre>
+</div>
+
+<div class="code-block">
+<div class="code-header"><span>Terminal 3 - Refatoracao de banco</span></div>
+<pre># Em mais outro terminal
+$ claude --worktree refactor-prisma
+
+# Claude cria .claude/worktrees/refactor-prisma/
+# Branch: worktree-refactor-prisma
+> Migre o acesso ao banco de dados de queries SQL raw para Prisma ORM.
+> Mantenha compatibilidade com os testes existentes.</pre>
+</div>
+
+<p>Cada sessao opera em isolamento total. Quando qualquer uma terminar, voce pode revisar as mudancas, fazer merge ou descartar:</p>
+
+<div class="code-block">
+<div class="code-header"><span>Terminal - Pos-sessao</span></div>
+<pre># Ver o que cada worktree produziu
+$ git worktree list
+/home/user/projeto                         abc1234 [main]
+/home/user/projeto/.claude/worktrees/feature-auth     def5678 [worktree-feature-auth]
+/home/user/projeto/.claude/worktrees/bugfix-users-500 ghi9012 [worktree-bugfix-users-500]
+/home/user/projeto/.claude/worktrees/refactor-prisma  jkl3456 [worktree-refactor-prisma]
+
+# Revisar mudancas de um worktree especifico
+$ cd .claude/worktrees/feature-auth
+$ git log --oneline main..HEAD
+$ git diff main
+
+# Fazer merge quando estiver satisfeito
+$ git checkout main
+$ git merge worktree-feature-auth
+
+# Limpar worktree apos merge
+$ git worktree remove .claude/worktrees/feature-auth
+$ git branch -d worktree-feature-auth</pre>
+</div>
+
+<!-- ============================================================ -->
+<h2>Boas Praticas e Armadilhas</h2>
+
+<div class="grid-2">
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">&#10003;</span> Faca</h4>
+<p>Use <code>.worktreeinclude</code> para copiar <code>.env</code> e configuracoes locais para cada worktree.</p>
+</div>
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--red-soft); color: var(--red);">&#10007;</span> Evite</h4>
+<p>Nao faca checkout manual do mesmo branch em dois worktrees. Git impede isso para evitar corrupcao.</p>
+</div>
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">&#10003;</span> Faca</h4>
+<p>Adicione <code>.claude/worktrees/</code> ao <code>.gitignore</code> para nao commitar worktrees temporarios.</p>
+</div>
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--red-soft); color: var(--red);">&#10007;</span> Evite</h4>
+<p>Nao inclua <code>node_modules/</code> no <code>.worktreeinclude</code> se espaco em disco for limitado -- pode duplicar gigabytes.</p>
+</div>
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--green-soft); color: var(--green);">&#10003;</span> Faca</h4>
+<p>Use <code>isolation: worktree</code> em subagentes que precisam editar arquivos durante pesquisa exploratoria.</p>
+</div>
+<div class="mini-card">
+<h4><span class="icon-circle" style="background: var(--red-soft); color: var(--red);">&#10007;</span> Evite</h4>
+<p>Nao misture worktrees manuais com worktrees gerenciados pelo Claude no mesmo diretorio sem entender o ciclo de cleanup.</p>
+</div>
+</div>
+
+<div class="callout">
+<strong>Resumo operacional:</strong> <code>claude --worktree &lt;nome&gt;</code> e tudo que voce precisa para iniciar uma sessao isolada. O Claude Code cuida da criacao do diretorio, checkout do branch, copia de arquivos gitignored (via <code>.worktreeinclude</code>) e cleanup automatico. Para cenarios avancados, hooks <code>WorktreeCreate</code> e <code>WorktreeRemove</code> dao controle total sobre o processo.
+</div>
+
+<!-- ============================================================ -->
+<div class="sources">
+<h3>Fontes e Referencias</h3>
+<ul>
+<li><a href="https://docs.anthropic.com/en/docs/claude-code/worktrees">Documentacao oficial: Claude Code Worktrees</a></li>
+<li><a href="https://docs.anthropic.com/en/docs/claude-code/common-workflows">Documentacao oficial: Common Workflows</a></li>
+<li><a href="https://git-scm.com/docs/git-worktree">Git SCM: git-worktree reference</a></li>
+</ul>
+</div>
+
+<!-- ============================================================ -->
+<div class="nav-footer">
+<a href="modulo-08-topico-01-subagentes-task-tool.html" class="nav-btn">&larr; Anterior: Subagentes e Task Tool</a>
+<a href="../index.html" class="nav-btn">Indice</a>
+<a href="modulo-08-topico-03-escolha-modelo.html" class="nav-btn">Proximo: Escolha de Modelo &rarr;</a>
+</div>
+
+</body>
+</html>
