@@ -26,7 +26,7 @@
     const nextCandidates = links.slice(indexPosition + 1).filter((link) => !isIndexLink(link));
 
     return {
-      previousLink: previousCandidates.at(-1) || null,
+      previousLink: previousCandidates.length > 0 ? previousCandidates[previousCandidates.length - 1] : null,
       nextLink: nextCandidates[0] || null,
     };
   }
